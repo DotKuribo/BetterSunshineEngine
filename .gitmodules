@@ -1,0 +1,4 @@
+[submodule “interface/”]
+path = interface/
+url = ../../core.git
+branch = main
