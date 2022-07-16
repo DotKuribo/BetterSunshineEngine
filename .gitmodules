@@ -1,4 +1,3 @@
-[submodule “interface/”]
-path = interface/
-url = ../../core.git
-branch = main
+[submodule "lib/sms_interface"]
+        path = lib/sms_interface
+        url = git@github.com:JoshuaMKW/SunshineHeaderInterface.git
