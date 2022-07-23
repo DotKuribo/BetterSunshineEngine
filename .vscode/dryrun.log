@@ -1,0 +1,6 @@
+make.exe --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/Kyler-Josh/source/repos/BetterSunshineEngine'
+make: Leaving directory '/home/Kyler-Josh/source/repos/BetterSunshineEngine'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
