@@ -1,5 +1,6 @@
-#include "JDrama/JDRActor.hxx"
-#include "JGeometry.hxx"
+#include <JSystem/JDrama/JDRActor.hxx>
+#include <JSystem/JGeometry.hxx>
+
 #include "sunscript.hxx"
 
 void Spc::setActorPosToOther(TSpcInterp *interp, u32 argc) {

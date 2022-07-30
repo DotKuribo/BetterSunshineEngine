@@ -4,10 +4,6 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <SMS/game/MarDirector.hxx>
 
-#include "libs/cheathandler.hxx"
-
-using namespace BetterSMS;
-
 namespace BetterSMS::Debug {
     typedef void (*DebugModeInitCallback)(TMarDirector *);
     typedef void (*DebugModeUpdateCallback)(TMarDirector *);

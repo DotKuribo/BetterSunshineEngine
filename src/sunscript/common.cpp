@@ -1,5 +1,6 @@
-#include "sunscript.hxx"
 #include <SMS/assert.h>
+
+#include "sunscript.hxx"
 
 namespace Spc::Stack {
 

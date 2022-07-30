@@ -1,0 +1,28 @@
+﻿{
+  "configurations": [
+    {
+      "name": "GCN-Clang-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [],
+      "cmakeToolchain": "./Targets/GCNClangDebug.cmake"
+    },
+    {
+      "name": "GCN-Clang-Release",
+      "generator": "Ninja",
+      "configurationType": "MinSizeRel",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [],
+      "cmakeToolchain": "./Targets/GCNClangRelease.cmake"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(BetterSunshineEngine)
+project(BetterSunshineEngine VERSION 1.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 option(SMS_FIX_CRASHES "Repair supported crashes in Super Mario Sunshine" ON)
 option(SMS_FIX_BUGS "Repair supported bugs in Super Mario Sunshine" ON)
@@ -23,27 +23,57 @@ option(SMS_INCLUDE_SHADOW_MARIO_HEALTH "Includes the visibility of Shadow Mario'
 option(SMS_INCLUDE_DYNAMIC_FALL_DAMAGE "Includes dynamic fall damage in SMS" ON)
 option(SMS_INCLUDE_EXCEPTION_HANDLER "Includes the exception handler information" ON)
 
-file(GLOB BETTERSUNSHINEENGINE_SRC
+file(GLOB BETTERSMS_SRC
     "src/*.c"
     "src/*.cpp"
+    "src/asm/*.s"
+    "src/collision/*.c"
+    "src/collision/*.cpp"
+    "src/cstd/*.c"
+    "src/cstd/*.cpp"
+    "src/libs/dolphin/*.c"
+    "src/patches/*.c"
+    "src/patches/*.cpp"
+    "src/physics/*.c"
+    "src/physics/*.cpp"
+    "src/shine/*.c"
+    "src/shine/*.cpp"
+    "src/sunscript/*.c"
+    "src/sunscript/*.cpp"
+    "src/yoshi/*.c"
+    "src/yoshi/*.cpp"
     "include/*.h"
     "include/*.hxx"
 )
 
-add_executable(BetterSunshineEngine ${BETTERSUNSHINEENGINE_SRC})
+add_executable(BetterSMS ${BETTERSMS_SRC})
 add_subdirectory(lib/sms_interface)
 
-# include_directories("include")
-target_link_libraries(BetterSunshineEngine JSystem)
-target_link_libraries(BetterSunshineEngine Dolphin)
-target_link_libraries(BetterSunshineEngine SMS)
+link_directories("C:/Windows/System32")
 
-target_include_directories(BetterSunshineEngine PUBLIC include)
+target_link_libraries(BetterSMS PUBLIC Dolphin JSystem SMS Kamek Kuribo)
+target_include_directories(BetterSMS PRIVATE include lib/sms_interface/include)
+
+target_compile_options(BetterSMS PUBLIC
+    ${SMS_COMPILE_FLAGS}
+)
+
+target_link_options(BetterSMS PUBLIC
+    ${SMS_LINK_FLAGS}
+)
+
+target_compile_definitions(BetterSMS PUBLIC KURIBO_NO_TYPES BETTER_SMS_VERSION="v1.0")
 
 if(SMS_FIX_CRASHES)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CRASHFIXES)
+    target_compile_definitions(BetterSMS PUBLIC BETTER_SMS_CRASHFIXES)
 endif()
 
 if(SMS_FIX_BUGS)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    target_compile_definitions(BetterSMS PUBLIC BETTER_SMS_BUGFIXES)
 endif()
+
+add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME})
+add_custom_command(
+    TARGET ${PROJECT_NAME}.bin
+    COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin
+)

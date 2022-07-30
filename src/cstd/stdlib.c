@@ -8,10 +8,10 @@ SMS_NO_INLINE void reverse(char *dst, const char *src, size_t len) {
         return;
 
     char tmp;
-    char *startSrc = src;
-    char *endSrc   = src + len - 1;
-    char *startDst = dst;
-    char *endDst   = dst + len - 1;
+    const char *startSrc = src;
+    const char *endSrc   = src + len - 1;
+    char *startDst       = dst;
+    char *endDst         = dst + len - 1;
 
     while (startSrc < dst) {
         tmp         = *startSrc;
@@ -21,7 +21,7 @@ SMS_NO_INLINE void reverse(char *dst, const char *src, size_t len) {
 }
 
 // Implementation of itoa()
-SMS_NO_INLINE char *itoa(char *dst, int num, int base) {
+SMS_NO_INLINE void itoa(char *dst, int num, int base) {
     int i           = 0;
     bool isNegative = false;
 

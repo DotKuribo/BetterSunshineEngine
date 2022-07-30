@@ -1,0 +1,6 @@
+C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/CMakeFiles/BetterSMS.dir
+C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/CMakeFiles/BetterSunshineEngine.bin.dir
+C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/CMakeFiles/edit_cache.dir
+C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/CMakeFiles/rebuild_cache.dir
+C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/lib/sms_interface/CMakeFiles/edit_cache.dir
+C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/lib/sms_interface/CMakeFiles/rebuild_cache.dir

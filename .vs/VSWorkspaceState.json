@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\lib",
+    "\\src\\physics",
+    "\\src\\sunscript",
+    "\\targets"
+  ],
+  "SelectedNode": "\\targets\\GCNClangRelease.cmake",
+  "PreviewInSolutionExplorer": false
+}

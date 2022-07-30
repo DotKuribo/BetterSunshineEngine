@@ -1,9 +1,10 @@
+#include <Dolphin/mem.h>
+#include <JSystem/JGeometry.hxx>
+#include <JSystem/JKernel/JKRHeap.hxx>
+
 #include "collision/warp.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"
-#include "mem.h"
-#include <JSystem/JGeometry.hxx>
-#include <JSystem/JKernel/JKRHeap.hxx>
 
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;

@@ -1,11 +1,12 @@
-#include "MTX.h"
-#include "math.h"
-#include "types.h"
+#include <Dolphin/MTX.h>
+#include <Dolphin/math.h>
+#include <Dolphin/types.h>
 
+#include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/SMS.hxx>
 #include <SMS/actor/Mario.hxx>
-#include <SMS/enemy/EnemyMario.hxx>
 #include <SMS/npc/BaseNPC.hxx>
+
 
 #include "libs/constmath.hxx"
 #include "module.hxx"

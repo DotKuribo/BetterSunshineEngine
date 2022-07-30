@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef KURIBO_NO_TYPES
-#define KURIBO_NO_TYPES
-#endif
-
 #ifndef HW_DOL
 #define HW_DOL
 #endif
@@ -31,7 +27,9 @@
 #endif
 
 /* Misc compiler info */
-#define BETTER_SMS_VERSION "v1.0"
+#ifndef BETTER_SMS_VERSION
+#define BETTER_SMS_VERSION "vUnknown"
+#endif
 
 #ifdef __VERSION__
 #define BETTER_SMS_CC_VERSION __VERSION__

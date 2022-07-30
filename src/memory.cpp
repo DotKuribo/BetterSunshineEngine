@@ -1,5 +1,3 @@
-#pragma once
-
 #include <Dolphin/OS.h>
 #include <Dolphin/mem.h>
 #include <Dolphin/types.h>

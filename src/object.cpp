@@ -152,7 +152,7 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
 
     for (auto item : sCustomEnemyObjList.items()) {
         auto dictItem = item->mItem;
-        if (strcmp(dictItem.mKey.mTypeName, name) == 0) {
+        if (strcmp(dictItem.mKey, name) == 0) {
             auto initFn = dictItem.mValue;
             return initFn();
         }
@@ -169,7 +169,7 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
 
     for (auto item : sCustomEnemyObjList.items()) {
         auto dictItem = item->mItem;
-        if (strcmp(dictItem.mKey.mTypeName, name) == 0) {
+        if (strcmp(dictItem.mKey, name) == 0) {
             auto initFn = dictItem.mValue;
             return initFn();
         }
@@ -188,7 +188,7 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
 
     for (auto item : sCustomEnemyObjList.items()) {
         auto dictItem = item->mItem;
-        if (strcmp(dictItem.mKey.mTypeName, name) == 0) {
+        if (strcmp(dictItem.mKey, name) == 0) {
             auto initFn = dictItem.mValue;
             return initFn();
         }

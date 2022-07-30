@@ -1,4 +1,5 @@
-#include "mem.h"
+#include <Dolphin/mem.h>
+
 #include "sunscript.hxx"
 
 void Spc::read8(TSpcInterp *interp, u32 argc) {

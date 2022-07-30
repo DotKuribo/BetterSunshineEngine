@@ -32,7 +32,7 @@ using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
 static TDictI<TDictS<void *>> sPlayerDict;
-static TDictS<Player::UpdateProcess> sPlayerInitializers;
+static TDictS<Player::InitProcess> sPlayerInitializers;
 static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 
 SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *player,
@@ -86,30 +86,6 @@ SMS_NO_INLINE bool BetterSMS::Player::deregisterUpdateProcess(const char *key) {
         return false;
     sPlayerUpdaters.pop(key);
     return true;
-}
-
-SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player, TBGCheckData *colTriangle,
-                                                          bool isFluid) {
-    constexpr s32 DisableMovementTime = 80;
-    constexpr s32 TeleportTime        = 140;
-    constexpr s32 EnableMovementTime  = 60;
-    constexpr f32 WipeKindInDelay     = 1.0f;
-
-    if (!player)
-        return;
-
-    Player::TPlayerData *playerData = Player::getData(player);
-
-    TVec3f triCenter;
-    TVectorTriangle vectorTri(colTriangle->mVertexA, colTriangle->mVertexB, colTriangle->mVertexC);
-    vectorTri.center(triCenter);
-
-    if (isFluid) {
-        warpPlayerToPoint(player, {triCenter.x, triCenter.y + 300.0f, triCenter.z});
-        changePlayerStatus__6TMarioFUlUlb(player, static_cast<u32>(TMario::STATE_FALL), 0, 0);
-    } else {
-        warpPlayerToPoint(player, triCenter);
-    }
 }
 
 static bool sIsWiping = false;
@@ -200,20 +176,18 @@ void processWarp(TMario *player, bool isMario) {
                 return;
             }
 
-            if (!playerData->mCollisionFlags.mIsFaceUsed) {
-                if (playerData->mWarpTimer >= TeleportTime - timeCut) {
-                    warpPlayerToPoint(player, colCenter);
+            if (playerData->mWarpTimer >= TeleportTime - timeCut) {
+                warpPlayerToPoint(player, colCenter);
 
-                    playerData->mIsWarpActive = true;
-                    playerData->mWarpTimer    = 0;
-                    startSoundActor__6TMarioFUl(player, static_cast<u32>(TMario::VOICE_JUMP));
-                } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
-                    if (!playerData->mCollisionFlags.mIsDisableInput) {
-                        emitGetEffect__6TMarioFv(player);
-                    }
-                    playerData->mCollisionFlags.mIsDisableInput = true;
-                    player->mController->State.mReadInput       = false;
+                playerData->mIsWarpActive = true;
+                playerData->mWarpTimer    = 0;
+                startSoundActor__6TMarioFUl(player, static_cast<u32>(TMario::VOICE_JUMP));
+            } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
+                if (!playerData->mCollisionFlags.mIsDisableInput) {
+                    emitGetEffect__6TMarioFv(player);
                 }
+                playerData->mCollisionFlags.mIsDisableInput = true;
+                player->mController->State.mReadInput       = false;
             }
             playerData->mWarpTimer += 1;
             return;
@@ -227,25 +201,23 @@ void processWarp(TMario *player, bool isMario) {
                 return;
             }
 
-            if (!playerData->mCollisionFlags.mIsFaceUsed) {
-                if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_ON) {
-                    warpPlayerToPoint(player, colCenter);
+            if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_ON) {
+                warpPlayerToPoint(player, colCenter);
 
-                    playerData->mIsWarpActive = true;
-                    playerData->mWarpTimer    = 0;
-                    sIsWiping                 = false;
+                playerData->mIsWarpActive = true;
+                playerData->mWarpTimer    = 0;
+                sIsWiping                 = false;
 
-                    gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_CIRCLE_IN, 1.0f,
-                                                    WipeKindInDelay);
-                } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
-                    playerData->mCollisionFlags.mIsDisableInput = true;
-                    player->mController->State.mReadInput       = false;
-                    if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
-                        gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT,
-                                                        1.0f, 0.0f);
-                        MSoundSE::startSoundSystemSE(0x4859, 0, nullptr, 0);
-                        sIsWiping = true;
-                    }
+                gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_CIRCLE_IN, 1.0f,
+                                                WipeKindInDelay);
+            } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
+                playerData->mCollisionFlags.mIsDisableInput = true;
+                player->mController->State.mReadInput       = false;
+                if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
+                    gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT, 1.0f,
+                                                    0.0f);
+                    MSoundSE::startSoundSystemSE(0x4859, 0, nullptr, 0);
+                    sIsWiping = true;
                 }
             }
             playerData->mWarpTimer += 1;
@@ -253,19 +225,79 @@ void processWarp(TMario *player, bool isMario) {
         }
         case WarpKind::INSTANT:
         default: {
-            if (!playerData->mCollisionFlags.mIsFaceUsed) {
-                warpPlayerToPoint(player, colCenter);
-
-                playerData->mCollisionTimer = 0;
-            }
+            warpPlayerToPoint(player, colCenter);
+            playerData->mCollisionTimer = 0;
             return;
         }
         }
     }
 }
 
+SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player, TBGCheckData *colTriangle,
+                                                          bool isFluid) {
+    constexpr s32 DisableMovementTime = 80;
+    constexpr s32 TeleportTime        = 140;
+    constexpr s32 EnableMovementTime  = 60;
+    constexpr f32 WipeKindInDelay     = 1.0f;
+
+    if (!player)
+        return;
+
+    Player::TPlayerData *playerData = Player::getData(player);
+
+    TVec3f triCenter;
+    TVectorTriangle vectorTri(colTriangle->mVertexA, colTriangle->mVertexB, colTriangle->mVertexC);
+    vectorTri.center(triCenter);
+
+    TVec3f triFluidCenter = triCenter;
+    triFluidCenter.y += 300.0f;
+
+#define EXPAND_WARP_SET(base) (base) : case ((base) + 10) : case ((base) + 20) : case ((base) + 30)
+#define EXPAND_WARP_CATEGORY(base)                                                                 \
+    (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
+
+    const u16 type = colTriangle->mCollisionType & 0x7FFF;
+    switch (type) {
+    case EXPAND_WARP_SET(16040):
+    case EXPAND_WARP_SET(17040):
+        warpToPoint(player, triCenter, WarpKind::SPARKLES, TeleportTime);  // Sparkles and then warp
+        break;
+    case EXPAND_WARP_SET(16041):
+    case EXPAND_WARP_SET(17041):
+        warpToPoint(player, triFluidCenter, WarpKind::INSTANT,
+                    0);  // Portal momentum warp (locking)
+        break;
+    case EXPAND_WARP_SET(16042):
+    case EXPAND_WARP_SET(17042):
+        warpToPoint(player, triFluidCenter, WarpKind::INSTANT, 0);  // Portal momentum warp (free)
+        break;
+    case EXPAND_WARP_SET(16043):
+    case EXPAND_WARP_SET(17043):
+        warpToPoint(player, triCenter, WarpKind::WIPE, TeleportTime);  // Pipe warp
+        break;
+    case EXPAND_WARP_SET(16044):
+    case EXPAND_WARP_SET(17044):
+        warpToPoint(player, triCenter, WarpKind::INSTANT, 0);  // Portal warp
+        break;
+    case EXPAND_WARP_SET(16045):
+    case EXPAND_WARP_SET(17045):
+        warpToPoint(player, triCenter, WarpKind::SPARKLES,
+                    0);  // Sparkled momentum warp
+        break;
+    case EXPAND_WARP_SET(16046):
+    case EXPAND_WARP_SET(17046):
+        warpToPoint(player, triCenter, WarpKind::WIPE, 0);  // Pipe momentum warp
+        break;
+    }
+#undef EXPAND_WARP_SET
+#undef EXPAND_WARP_CATEGORY
+}
+
 SMS_NO_INLINE void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &destPoint,
                                                   WarpKind kind, s32 framesToWarp) {
+    if (!player)
+        return;
+
     Player::TPlayerData *playerData = Player::getData(player);
     playerData->mIsWarpActive       = true;
     playerData->mWarpDestination    = destPoint;

@@ -16,11 +16,11 @@ namespace BetterSMS::Music {
     // Name of the song to play, e.g. "BeachTheme"
     bool queueSong(const char *name);
     // Play a paused/queued song
-    bool playSong();
+    void playSong();
     // Pause song, fading out by `fadeTime` seconds
-    bool pauseSong(f32 fadeTime);
-    bool stopSong(f32 fadeTime);
-    bool skipSong(f32 fadeTime);
+    void pauseSong(f32 fadeTime);
+    void stopSong(f32 fadeTime);
+    void skipSong(f32 fadeTime);
 
     void setVolume(u8 left, u8 right);
     void setVolumeFade(u8 dstVolume, f32 seconds);

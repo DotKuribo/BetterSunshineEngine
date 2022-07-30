@@ -1,11 +1,11 @@
-#pragma once
-
 #include <Dolphin/MTX.h>
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry.hxx>
+#include <SMS/MarioUtil/mathutil.hxx>
 #include <SMS/raw_fn.hxx>
 
 #include "geometry.hxx"
+#include "libs/constmath.hxx"
 #include "math.hxx"
 #include "module.hxx"
 
@@ -26,13 +26,9 @@ namespace BetterSMS::Geometry {
 #endif
     }
 
-    f32 Vector3::getNormalAngle(const TVec3f &vec) {
-        return Math::radiansToAngle(atan2f(vec.x, vec.z));
-    }
+    f32 Vector3::getNormalAngle(const TVec3f &vec) { return radiansToAngle(atan2f(vec.x, vec.z)); }
 
-    f32 Vector3::getNormalAngle(const Vec &vec) {
-        return Math::radiansToAngle(atan2f(vec.x, vec.z));
-    }
+    f32 Vector3::getNormalAngle(const Vec &vec) { return radiansToAngle(atan2f(vec.x, vec.z)); }
 
     void Vector3::normalized(const TVec3f &vec, TVec3f &out) {
 #if BETTER_SMS_USE_PS_MATH
@@ -94,7 +90,7 @@ namespace BetterSMS::Geometry {
     f32 Vector3::getYAngleTo(const TVec3f &a, const TVec3f &b) {
         TVec3f diff = a;
         diff.sub(b);
-        return MsGetRotFromZaxisY__FRCQ29JGeometry8TVec3_f(diff);
+        return MsGetRotFromZaxisY(diff);
     }
 
     f32 Vector3::lookAtRatio(const TVec3f &a, const TVec3f &b) {

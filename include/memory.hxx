@@ -19,7 +19,7 @@ namespace BetterSMS::Memory {
     void *hmalloc(JKRHeap *heap, const size_t size, const size_t alignment);
     void *calloc(const size_t size, const size_t alignment);
     void *hcalloc(JKRHeap *heap, const size_t size, const size_t alignment);
-    void free(const void *ptr) { delete (u8 *)ptr; }
+    void free(const void *ptr);
 
     namespace Protection {
         enum ACCESS { DENIED, READ, WRITE, READWRITE };

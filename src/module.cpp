@@ -20,27 +20,6 @@
 // Kuribo/Kamek
 #include "common_sdk.h"
 
-static bool sIsAudioStreaming     = false;
-static bool sIsAudioStreamAllowed = true;
-#if SMS_DEBUG
-static bool sIsDebugMode = true;
-#else
-static bool sIsDebugMode = false;
-#endif
-
-SMS_NO_INLINE bool BetterSMS::isGameEmulated() {
-    return BootInfo.mConsoleType == OS_CONSOLE_DEV_KIT3;
-}
-SMS_NO_INLINE bool BetterSMS::isMusicBeingStreamed() { return sIsAudioStreaming; }
-
-SMS_NO_INLINE bool BetterSMS::isDebugMode() { return sIsDebugMode; }
-SMS_NO_INLINE void BetterSMS::setDebugMode(bool active) { sIsDebugMode = active; }
-
-SMS_NO_INLINE bool BetterSMS::isMusicStreamingAllowed() { return sIsAudioStreamAllowed; }
-SMS_NO_INLINE void BetterSMS::setMusicStreamingAllowed(bool allowed) {
-    sIsAudioStreamAllowed = allowed;
-}
-
 // mario.cpp
 extern "C" s16 mario_shadowCrashPatch();
 
@@ -114,10 +93,14 @@ static void destroyLib() {
 
 #if defined(SMS_BUILD_KURIBO) && !defined(SMS_BUILD_KAMEK) && !defined(SMS_BUILD_KAMEK_INLINE)
 
-KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG);
-{
+KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-value"
+
     KURIBO_EXECUTE_ON_LOAD(initLib);
     KURIBO_EXECUTE_ON_UNLOAD(destroyLib);
+
+#pragma clang diagnostic pop
 
     // Generate exports
     /* BMG */
@@ -222,7 +205,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     KURIBO_EXPORT(reverse);
     KURIBO_EXPORT(itoa);
 }
-KURIBO_MODULE_END();
+KURIBO_MODULE_END()
 
 #else
 

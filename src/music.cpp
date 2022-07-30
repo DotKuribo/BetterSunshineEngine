@@ -9,8 +9,9 @@
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSBGM.hxx>
 
-#include "libs/math.hxx"
+#include "libs/constmath.hxx"
 #include "logging.hxx"
+#include "math.hxx"
 #include "module.hxx"
 #include "music.hxx"
 #include "stage.hxx"
@@ -22,29 +23,29 @@ SMS_NO_INLINE bool BetterSMS::Music::queueSong(const char *name) {
     AudioStreamer *streamer           = getAudioStreamer();
     AudioStreamer::AudioPacket packet = AudioStreamer::AudioPacket(name);
 
-    streamer->queueAudio(packet);
+    return streamer->queueAudio(packet);
 }
 
 // Play a paused/queued song
-SMS_NO_INLINE bool BetterSMS::Music::playSong() {
+SMS_NO_INLINE void BetterSMS::Music::playSong() {
     AudioStreamer *streamer = getAudioStreamer();
     streamer->play();
 }
 
 // Pause song, fading out by `fadeTime` seconds
-SMS_NO_INLINE bool BetterSMS::Music::pauseSong(f32 fadeTime) {
+SMS_NO_INLINE void BetterSMS::Music::pauseSong(f32 fadeTime) {
     AudioStreamer *streamer = getAudioStreamer();
-    streamer->pause(fadeTime);
+    return streamer->pause(fadeTime);
 }
 
-SMS_NO_INLINE bool BetterSMS::Music::stopSong(f32 fadeTime) {
+SMS_NO_INLINE void BetterSMS::Music::stopSong(f32 fadeTime) {
     AudioStreamer *streamer = getAudioStreamer();
-    streamer->stop(fadeTime);
+    return streamer->stop(fadeTime);
 }
 
-SMS_NO_INLINE bool BetterSMS::Music::skipSong(f32 fadeTime) {
+SMS_NO_INLINE void BetterSMS::Music::skipSong(f32 fadeTime) {
     AudioStreamer *streamer = getAudioStreamer();
-    streamer->skip(fadeTime);
+    return streamer->skip(fadeTime);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::setVolume(u8 left, u8 right) {
@@ -270,8 +271,8 @@ void Music::AudioStreamer::fadeAudio_() {
         return;
     }
 
-    u8 volL = Math::lerp<u8>(mSrcVolume, mTargetVolume, factor);
-    u8 volR = Math::lerp<u8>(mSrcVolume, mTargetVolume, factor);
+    u8 volL = lerp<u8>(mSrcVolume, mTargetVolume, factor);
+    u8 volR = lerp<u8>(mSrcVolume, mTargetVolume, factor);
 
     setVolumeLR(volL, volR);
 }

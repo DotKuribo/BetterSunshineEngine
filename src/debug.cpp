@@ -6,6 +6,8 @@
 #include "debug.hxx"
 #include "libs/container.hxx"
 
+using namespace BetterSMS;
+
 static TDictS<Debug::DebugModeInitCallback> sDebugInitCBs;
 static TDictS<Debug::DebugModeUpdateCallback> sDebugUpdateCBs;
 static TDictS<Debug::DebugModeDrawCallback> sDebugDrawCBs;

@@ -14,14 +14,14 @@ SMS_NO_INLINE bool BetterSMS::BMG::isBMGCommandRegistered(u8 identifier) {
 SMS_NO_INLINE bool BetterSMS::BMG::registerBMGCommandCallback(u8 identifier,
                                                               BMGCommandCallback cb) {
     if (sBMGCommandCBs.hasKey(identifier))
-        return;
+        return false;
     sBMGCommandCBs.set(identifier, cb);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::BMG::deregisterBMGCommandCallback(u8 identifier) {
     if (!sBMGCommandCBs.hasKey(identifier))
-        return;
+        return false;
     sBMGCommandCBs.pop(identifier);
     return true;
 }

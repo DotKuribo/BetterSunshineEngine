@@ -39,8 +39,7 @@ namespace BetterSMS::Player {
 
     // Warps the player to a collision face
     void warpToCollisionFace(TMario *, TBGCheckData *, bool);
-    void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &destPoint, WarpKind kind,
-                                        s32 framesToWarp);
+    void warpToPoint(TMario *player, const TVec3f &destPoint, WarpKind kind, s32 framesToWarp);
     void rotateRelativeToCamera(TMario *, CPolarSubCamera *, Vec2, f32);
     void setFire(TMario *);
     void extinguishFire(TMario *, bool);

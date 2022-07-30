@@ -1,9 +1,9 @@
 #pragma once
 
-#include "sms/spc/SpcInterp.hxx"
-#include "sms/spc/SpcSlice.hxx"
-#include "types.h"
+#include <Dolphin/types.h>
 #include <SMS/assert.h>
+#include <SMS/spc/SpcInterp.hxx>
+#include <SMS/spc/SpcSlice.hxx>
 
 namespace Spc {
 

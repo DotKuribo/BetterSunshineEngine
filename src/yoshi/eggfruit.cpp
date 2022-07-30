@@ -26,7 +26,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801BC868, 0x801B4720, 0, 0), isYoshiEggNeedFruit)
 static u8 isYoshiEggFree(TEggYoshi *gpEgg, THitActor *gpFruit) {
     auto data = Player::getRegisteredData(gpMarioAddress, "__better_sms");
     if (!data)
-        return;
+        return gpEgg->mWantedFruit == gpFruit->mObjectID ? EGG_SUCCESS : EGG_REJECT;
 
     auto *playerData = reinterpret_cast<Player::TPlayerData *>(data.value());
 
