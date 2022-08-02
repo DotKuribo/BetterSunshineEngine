@@ -46,34 +46,34 @@ file(GLOB BETTERSMS_SRC
     "include/*.hxx"
 )
 
-add_executable(BetterSMS ${BETTERSMS_SRC})
+add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
 add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")
 
-target_link_libraries(BetterSMS PUBLIC Dolphin JSystem SMS Kamek Kuribo)
-target_include_directories(BetterSMS PRIVATE include lib/sms_interface/include)
+target_link_libraries(BetterSunshineEngine PUBLIC Dolphin JSystem SMS Kamek Kuribo)
+target_include_directories(BetterSunshineEngine PRIVATE include lib/sms_interface/include)
 
-target_compile_options(BetterSMS PUBLIC
+target_compile_options(BetterSunshineEngine PUBLIC
     ${SMS_COMPILE_FLAGS}
 )
 
-target_link_options(BetterSMS PUBLIC
+target_link_options(BetterSunshineEngine PUBLIC
     ${SMS_LINK_FLAGS}
 )
 
-target_compile_definitions(BetterSMS PUBLIC KURIBO_NO_TYPES BETTER_SMS_VERSION="v1.0")
+target_compile_definitions(BetterSunshineEngine PUBLIC KURIBO_NO_TYPES BETTER_SMS_VERSION="v1.0")
 
 if(SMS_FIX_CRASHES)
-    target_compile_definitions(BetterSMS PUBLIC BETTER_SMS_CRASHFIXES)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CRASHFIXES)
 endif()
 
 if(SMS_FIX_BUGS)
-    target_compile_definitions(BetterSMS PUBLIC BETTER_SMS_BUGFIXES)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
 endif()
 
-add_custom_target(${PROJECT_NAME}.bin ALL DEPENDS ${PROJECT_NAME})
+add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
 add_custom_command(
-    TARGET ${PROJECT_NAME}.bin
-    COMMAND ${CMAKE_OBJCOPY} ARGS -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin
+	TARGET ${PROJECT_NAME}.kxe
+	COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} ${PROJECT_NAME}.kxe ${SMS_REGION}.map
 )

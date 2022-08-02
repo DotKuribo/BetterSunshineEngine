@@ -14,7 +14,7 @@
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__BetterSMS_MinSizeRel
+rule C_COMPILER__BetterSunshineEngine_MinSizeRel
   depfile = $DEP_FILE
   deps = gcc
   command = C:\PROGRA~1\LLVM\bin\clang.exe --target=powerpc-unknown-eabi --sysroot=C:/msys64/mingw64 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -24,7 +24,7 @@ rule C_COMPILER__BetterSMS_MinSizeRel
 #############################################
 # Rule for compiling CXX files.
 
-rule CXX_COMPILER__BetterSMS_MinSizeRel
+rule CXX_COMPILER__BetterSunshineEngine_MinSizeRel
   depfile = $DEP_FILE
   deps = gcc
   command = C:\PROGRA~1\LLVM\bin\CLANG_~1.EXE --target=powerpc-unknown-eabi --sysroot=C:/msys64/mingw64 $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -34,7 +34,7 @@ rule CXX_COMPILER__BetterSMS_MinSizeRel
 #############################################
 # Rule for linking CXX executable.
 
-rule CXX_EXECUTABLE_LINKER__BetterSMS_MinSizeRel
+rule CXX_EXECUTABLE_LINKER__BetterSunshineEngine_MinSizeRel
   command = cmd.exe /C "$PRE_LINK && C:\PROGRA~1\LLVM\bin\CLANG_~1.EXE --target=powerpc-unknown-eabi --sysroot=C:/msys64/mingw64 $FLAGS $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD"
   description = Linking CXX executable $TARGET_FILE
   restat = $RESTAT

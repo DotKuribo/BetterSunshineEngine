@@ -1,11 +1,14 @@
 {
   "ExpandedNodes": [
     "",
-    "\\lib",
+    "\\assets\\bin",
+    "\\maps",
+    "\\out",
     "\\src\\physics",
     "\\src\\sunscript",
-    "\\targets"
+    "\\targets",
+    "\\tools"
   ],
-  "SelectedNode": "\\targets\\GCNClangRelease.cmake",
+  "SelectedNode": "\\targets\\GCNKuriboClangDebug.cmake",
   "PreviewInSolutionExplorer": false
 }

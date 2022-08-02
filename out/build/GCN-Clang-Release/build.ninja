@@ -41,532 +41,532 @@ include CMakeFiles/rules.ninja
 
 cmake_ninja_workdir = C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release/
 # =============================================================================
-# Object build statements for EXECUTABLE target BetterSMS
+# Object build statements for EXECUTABLE target BetterSunshineEngine
 
 
 #############################################
-# Order-only phony target for BetterSMS
+# Order-only phony target for BetterSunshineEngine
 
-build cmake_object_order_depends_target_BetterSMS: phony || CMakeFiles/BetterSMS.dir
+build cmake_object_order_depends_target_BetterSunshineEngine: phony || CMakeFiles/BetterSunshineEngine.dir
 
-build CMakeFiles/BetterSMS.dir/src/bmg.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/bmg.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/bmg.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/bmg.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\bmg.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\bmg.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/collision/generic.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/generic.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/collision/generic.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/generic.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\collision\generic.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\collision\generic.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\collision
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\collision
 
-build CMakeFiles/BetterSMS.dir/src/collision/gravity.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/gravity.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/collision/gravity.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/gravity.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\collision\gravity.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\collision\gravity.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\collision
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\collision
 
-build CMakeFiles/BetterSMS.dir/src/collision/handlers.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/handlers.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/collision/handlers.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/handlers.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\collision\handlers.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\collision\handlers.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\collision
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\collision
 
-build CMakeFiles/BetterSMS.dir/src/collision/interact.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/interact.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/collision/interact.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/interact.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\collision\interact.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\collision\interact.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\collision
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\collision
 
-build CMakeFiles/BetterSMS.dir/src/collision/warp.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/warp.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/collision/warp.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/warp.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\collision\warp.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\collision\warp.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\collision
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\collision
 
-build CMakeFiles/BetterSMS.dir/src/cstd/ctype.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/ctype.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/cstd/ctype.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/ctype.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\cstd\ctype.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\cstd\ctype.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\cstd
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\cstd
 
-build CMakeFiles/BetterSMS.dir/src/cstd/stdlib.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/stdlib.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/cstd/stdlib.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/stdlib.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\cstd\stdlib.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\cstd\stdlib.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\cstd
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\cstd
 
-build CMakeFiles/BetterSMS.dir/src/debug.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/debug.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/debug.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/debug.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\debug.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\debug.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/geometry.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/geometry.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/geometry.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/geometry.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\geometry.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\geometry.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/globals.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/globals.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/globals.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/globals.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\globals.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\globals.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/libs/dolphin/AI.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/AI.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/AI.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/AI.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\libs\dolphin\AI.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin\AI.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\libs\dolphin
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin
 
-build CMakeFiles/BetterSMS.dir/src/libs/dolphin/DVD.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/DVD.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/DVD.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/DVD.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\libs\dolphin\DVD.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin\DVD.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\libs\dolphin
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin
 
-build CMakeFiles/BetterSMS.dir/src/libs/dolphin/GX.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/GX.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/GX.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/GX.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\libs\dolphin\GX.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin\GX.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\libs\dolphin
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin
 
-build CMakeFiles/BetterSMS.dir/src/libs/dolphin/OS.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/OS.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/OS.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/OS.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\libs\dolphin\OS.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin\OS.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\libs\dolphin
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin
 
-build CMakeFiles/BetterSMS.dir/src/libs/dolphin/VI.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/VI.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/VI.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/VI.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\libs\dolphin\VI.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin\VI.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\libs\dolphin
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin
 
-build CMakeFiles/BetterSMS.dir/src/libs/dolphin/math.c.obj: C_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/math.c || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/math.c.obj: C_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/math.c || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\libs\dolphin\math.c.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin\math.c.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\libs\dolphin
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\libs\dolphin
 
-build CMakeFiles/BetterSMS.dir/src/logging.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/logging.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/logging.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/logging.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\logging.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\logging.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/math.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/math.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/math.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/math.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\math.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\math.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/memory.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/memory.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/memory.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/memory.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\memory.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\memory.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/module.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/module.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/module.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/module.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\module.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\module.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/music.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/music.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/music.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/music.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\music.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\music.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/object.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/object.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/object.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/object.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\object.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\object.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/patches/actor.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/actor.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/actor.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/actor.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\actor.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\actor.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/camera.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/camera.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/camera.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/camera.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\camera.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\camera.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/card.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/card.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/card.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/card.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\card.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\card.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/collision.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/collision.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/collision.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/collision.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\collision.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\collision.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/emario.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/emario.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/emario.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/emario.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\emario.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\emario.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/fludd.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/fludd.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/fludd.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/fludd.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\fludd.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\fludd.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/generic.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/generic.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/generic.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/generic.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\generic.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\generic.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/j2dprint.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/j2dprint.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/j2dprint.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/j2dprint.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\j2dprint.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\j2dprint.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/npc.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/npc.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/npc.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/npc.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\npc.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\npc.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/railobj.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/railobj.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/railobj.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/railobj.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\railobj.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\railobj.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/shine.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/shine.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/shine.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/shine.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\shine.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\shine.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/sun.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sun.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/sun.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sun.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\sun.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\sun.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/sunscript.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sunscript.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/sunscript.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sunscript.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\sunscript.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\sunscript.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/tree.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/tree.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/tree.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/tree.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\tree.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\tree.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/water.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/water.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/water.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/water.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\water.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\water.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/patches/yoshi.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/yoshi.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/patches/yoshi.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/yoshi.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\patches\yoshi.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\patches\yoshi.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\patches
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\patches
 
-build CMakeFiles/BetterSMS.dir/src/physics/airborn.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/airborn.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/physics/airborn.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/airborn.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\physics\airborn.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\physics\airborn.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\physics
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\physics
 
-build CMakeFiles/BetterSMS.dir/src/physics/climb.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/climb.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/physics/climb.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/climb.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\physics\climb.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\physics\climb.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\physics
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\physics
 
-build CMakeFiles/BetterSMS.dir/src/physics/collision.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/collision.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/physics/collision.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/collision.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\physics\collision.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\physics\collision.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\physics
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\physics
 
-build CMakeFiles/BetterSMS.dir/src/physics/generic.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/generic.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/physics/generic.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/generic.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\physics\generic.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\physics\generic.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\physics
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\physics
 
-build CMakeFiles/BetterSMS.dir/src/physics/ground.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/ground.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/physics/ground.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/ground.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\physics\ground.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\physics\ground.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\physics
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\physics
 
-build CMakeFiles/BetterSMS.dir/src/player.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/player.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/player.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/player.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\player.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\player.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/shine/bootout.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/bootout.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/shine/bootout.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/bootout.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\shine\bootout.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\shine\bootout.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\shine
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\shine
 
-build CMakeFiles/BetterSMS.dir/src/shine/extendcount.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/extendcount.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/shine/extendcount.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/extendcount.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\shine\extendcount.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\shine\extendcount.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\shine
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\shine
 
-build CMakeFiles/BetterSMS.dir/src/stage.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/stage.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/stage.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/stage.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\stage.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\stage.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/actor.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/actor.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/actor.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/actor.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\actor.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\actor.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/bind.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/bind.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/bind.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/bind.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\bind.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\bind.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/common.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/common.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/common.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/common.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\common.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\common.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/flags.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/flags.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/flags.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/flags.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\flags.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\flags.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/getters.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/getters.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/getters.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/getters.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\getters.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\getters.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/item.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/item.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/item.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/item.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\item.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\item.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/memory.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/memory.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/memory.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/memory.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\memory.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\memory.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/music.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/music.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/music.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/music.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\music.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\music.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/sunscript/vector.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/vector.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/sunscript/vector.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/vector.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\sunscript\vector.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\sunscript\vector.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\sunscript
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\sunscript
 
-build CMakeFiles/BetterSMS.dir/src/time.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/time.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/time.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/time.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\time.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\time.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src
 
-build CMakeFiles/BetterSMS.dir/src/yoshi/common.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/common.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/yoshi/common.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/common.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\yoshi\common.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\yoshi\common.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\yoshi
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\yoshi
 
-build CMakeFiles/BetterSMS.dir/src/yoshi/eggfruit.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/eggfruit.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/yoshi/eggfruit.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/eggfruit.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\yoshi\eggfruit.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\yoshi\eggfruit.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\yoshi
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\yoshi
 
-build CMakeFiles/BetterSMS.dir/src/yoshi/greenmode.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/greenmode.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/yoshi/greenmode.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/greenmode.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\yoshi\greenmode.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\yoshi\greenmode.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\yoshi
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\yoshi
 
-build CMakeFiles/BetterSMS.dir/src/yoshi/juice.cpp.obj: CXX_COMPILER__BetterSMS_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/juice.cpp || cmake_object_order_depends_target_BetterSMS
+build CMakeFiles/BetterSunshineEngine.dir/src/yoshi/juice.cpp.obj: CXX_COMPILER__BetterSunshineEngine_MinSizeRel C$:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/juice.cpp || cmake_object_order_depends_target_BetterSunshineEngine
   DEFINES = -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\"v1.0\" -DKURIBO_NO_TYPES
-  DEP_FILE = CMakeFiles\BetterSMS.dir\src\yoshi\juice.cpp.obj.d
+  DEP_FILE = CMakeFiles\BetterSunshineEngine.dir\src\yoshi\juice.cpp.obj.d
   FLAGS = -Os -DNDEBUG -O3 -DKURIBO_NO_TYPES -fno-inline -DGEKKO -fno-exceptions -fno-rtti -ffast-math -fpermissive -D__powerpc_ --target=ppc-linux-eabi -mcpu=750 -std=gnu++20
   INCLUDES = -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Dolphin -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/JSystem -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/SMS -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kamek -IC:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/lib/sms_interface/include/Kuribo -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0 -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include -isystem C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/10.2.0/powerpc-eabi
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
-  OBJECT_FILE_DIR = CMakeFiles\BetterSMS.dir\src\yoshi
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
+  OBJECT_FILE_DIR = CMakeFiles\BetterSunshineEngine.dir\src\yoshi
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target BetterSMS
+# Link build statements for EXECUTABLE target BetterSunshineEngine
 
 
 #############################################
-# Link the executable BetterSMS
+# Link the executable BetterSunshineEngine
 
-build BetterSMS: CXX_EXECUTABLE_LINKER__BetterSMS_MinSizeRel CMakeFiles/BetterSMS.dir/src/bmg.cpp.obj CMakeFiles/BetterSMS.dir/src/collision/generic.cpp.obj CMakeFiles/BetterSMS.dir/src/collision/gravity.cpp.obj CMakeFiles/BetterSMS.dir/src/collision/handlers.cpp.obj CMakeFiles/BetterSMS.dir/src/collision/interact.cpp.obj CMakeFiles/BetterSMS.dir/src/collision/warp.cpp.obj CMakeFiles/BetterSMS.dir/src/cstd/ctype.c.obj CMakeFiles/BetterSMS.dir/src/cstd/stdlib.c.obj CMakeFiles/BetterSMS.dir/src/debug.cpp.obj CMakeFiles/BetterSMS.dir/src/geometry.cpp.obj CMakeFiles/BetterSMS.dir/src/globals.cpp.obj CMakeFiles/BetterSMS.dir/src/libs/dolphin/AI.c.obj CMakeFiles/BetterSMS.dir/src/libs/dolphin/DVD.c.obj CMakeFiles/BetterSMS.dir/src/libs/dolphin/GX.c.obj CMakeFiles/BetterSMS.dir/src/libs/dolphin/OS.c.obj CMakeFiles/BetterSMS.dir/src/libs/dolphin/VI.c.obj CMakeFiles/BetterSMS.dir/src/libs/dolphin/math.c.obj CMakeFiles/BetterSMS.dir/src/logging.cpp.obj CMakeFiles/BetterSMS.dir/src/math.cpp.obj CMakeFiles/BetterSMS.dir/src/memory.cpp.obj CMakeFiles/BetterSMS.dir/src/module.cpp.obj CMakeFiles/BetterSMS.dir/src/music.cpp.obj CMakeFiles/BetterSMS.dir/src/object.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/actor.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/camera.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/card.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/collision.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/emario.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/fludd.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/generic.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/j2dprint.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/npc.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/railobj.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/shine.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/sun.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/sunscript.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/tree.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/water.cpp.obj CMakeFiles/BetterSMS.dir/src/patches/yoshi.cpp.obj CMakeFiles/BetterSMS.dir/src/physics/airborn.cpp.obj CMakeFiles/BetterSMS.dir/src/physics/climb.cpp.obj CMakeFiles/BetterSMS.dir/src/physics/collision.cpp.obj CMakeFiles/BetterSMS.dir/src/physics/generic.cpp.obj CMakeFiles/BetterSMS.dir/src/physics/ground.cpp.obj CMakeFiles/BetterSMS.dir/src/player.cpp.obj CMakeFiles/BetterSMS.dir/src/shine/bootout.cpp.obj CMakeFiles/BetterSMS.dir/src/shine/extendcount.cpp.obj CMakeFiles/BetterSMS.dir/src/stage.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/actor.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/bind.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/common.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/flags.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/getters.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/item.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/memory.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/music.cpp.obj CMakeFiles/BetterSMS.dir/src/sunscript/vector.cpp.obj CMakeFiles/BetterSMS.dir/src/time.cpp.obj CMakeFiles/BetterSMS.dir/src/yoshi/common.cpp.obj CMakeFiles/BetterSMS.dir/src/yoshi/eggfruit.cpp.obj CMakeFiles/BetterSMS.dir/src/yoshi/greenmode.cpp.obj CMakeFiles/BetterSMS.dir/src/yoshi/juice.cpp.obj
+build BetterSunshineEngine: CXX_EXECUTABLE_LINKER__BetterSunshineEngine_MinSizeRel CMakeFiles/BetterSunshineEngine.dir/src/bmg.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/collision/generic.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/collision/gravity.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/collision/handlers.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/collision/interact.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/collision/warp.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/cstd/ctype.c.obj CMakeFiles/BetterSunshineEngine.dir/src/cstd/stdlib.c.obj CMakeFiles/BetterSunshineEngine.dir/src/debug.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/geometry.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/globals.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/AI.c.obj CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/DVD.c.obj CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/GX.c.obj CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/OS.c.obj CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/VI.c.obj CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/math.c.obj CMakeFiles/BetterSunshineEngine.dir/src/logging.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/math.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/memory.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/module.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/music.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/object.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/actor.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/camera.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/card.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/collision.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/emario.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/fludd.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/generic.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/j2dprint.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/npc.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/railobj.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/shine.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/sun.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/sunscript.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/tree.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/water.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/patches/yoshi.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/physics/airborn.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/physics/climb.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/physics/collision.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/physics/generic.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/physics/ground.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/player.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/shine/bootout.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/shine/extendcount.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/stage.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/actor.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/bind.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/common.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/flags.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/getters.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/item.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/memory.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/music.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/sunscript/vector.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/time.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/yoshi/common.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/yoshi/eggfruit.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/yoshi/greenmode.cpp.obj CMakeFiles/BetterSunshineEngine.dir/src/yoshi/juice.cpp.obj
   FLAGS = -Os -DNDEBUG
   LINK_FLAGS = -fuse-ld=lld    -nostdlib -fuse-ld=lld -mllvm --march=ppc-linux-eabi -mcpu=750
-  OBJECT_DIR = CMakeFiles\BetterSMS.dir
+  OBJECT_DIR = CMakeFiles\BetterSunshineEngine.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = BetterSMS
-  TARGET_PDB = BetterSMS.dbg
+  TARGET_FILE = BetterSunshineEngine
+  TARGET_PDB = BetterSunshineEngine.dbg
 
 
 #############################################
 # Utility command for BetterSunshineEngine.bin
 
-build CMakeFiles/BetterSunshineEngine.bin.util: CUSTOM_COMMAND CMakeFiles/BetterSunshineEngine.bin
+build CMakeFiles/BetterSunshineEngine.bin.util: CUSTOM_COMMAND CMakeFiles/BetterSunshineEngine.bin BetterSunshineEngine
   COMMAND = cmd.exe /C "cd /D C:\Users\Kyler-Josh\source\repos\BetterSunshineEngine\out\build\GCN-Clang-Release && C:\devkitPro\devkitPPC\bin\powerpc-eabi-objcopy.exe -O binary BetterSunshineEngine BetterSunshineEngine.bin"
   DESC = Running utility command for BetterSunshineEngine.bin
   restat = 1
@@ -600,7 +600,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Phony custom command for CMakeFiles\BetterSunshineEngine.bin
 
-build CMakeFiles/BetterSunshineEngine.bin | ${cmake_ninja_workdir}CMakeFiles/BetterSunshineEngine.bin: phony BetterSunshineEngine
+build CMakeFiles/BetterSunshineEngine.bin | ${cmake_ninja_workdir}CMakeFiles/BetterSunshineEngine.bin: phony BetterSunshineEngine || BetterSunshineEngine
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -641,7 +641,7 @@ build lib/sms_interface/rebuild_cache: phony lib/sms_interface/CMakeFiles/rebuil
 #############################################
 # Folder: C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-Clang-Release
 
-build all: phony BetterSMS BetterSunshineEngine.bin lib/sms_interface/all
+build all: phony BetterSunshineEngine BetterSunshineEngine.bin lib/sms_interface/all
 
 # =============================================================================
 

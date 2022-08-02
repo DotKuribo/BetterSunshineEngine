@@ -23,6 +23,19 @@
       "ctestCommandArgs": "",
       "inheritEnvironments": [],
       "cmakeToolchain": "./Targets/GCNClangRelease.cmake"
+    },
+    {
+      "name": "GCN-KuriboClang-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "./Targets/GCNKuriboClangDebug.cmake",
+      "inheritEnvironments": [],
+      "variables": []
     }
   ]
 }

@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD_LIBRARIES "")
 set(SMS_COMPILE_FLAGS
 	-O1 -DKURIBO_NO_TYPES -fno-inline
 	-DGEKKO -fno-exceptions -fno-rtti
-	-ffast-math -fpermissive -D__powerpc_
+	-ffast-math -fpermissive -D__powerpc__
 	--target=ppc-linux-eabi -mcpu=750
 )
 set(SMS_LINK_FLAGS

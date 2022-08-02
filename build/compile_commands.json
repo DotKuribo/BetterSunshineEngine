@@ -1,0 +1,312 @@
+[
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/bmg.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/bmg.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/bmg.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/collision/generic.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/generic.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/generic.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/collision/gravity.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/gravity.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/gravity.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/collision/handlers.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/handlers.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/handlers.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/collision/interact.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/interact.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/interact.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/collision/warp.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/warp.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/collision/warp.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/cstd/ctype.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/ctype.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/ctype.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/cstd/stdlib.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/stdlib.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/cstd/stdlib.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/debug.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/debug.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/debug.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/geometry.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/geometry.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/geometry.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/globals.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/globals.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/globals.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/AI.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/AI.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/AI.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/DVD.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/DVD.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/DVD.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/GX.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/GX.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/GX.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/OS.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/OS.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/OS.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/VI.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/VI.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/VI.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_C.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/math.c.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/math.c",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/libs/dolphin/math.c"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/logging.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/logging.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/logging.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/math.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/math.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/math.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/memory.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/memory.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/memory.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/module.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/module.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/module.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/music.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/music.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/music.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/object.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/object.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/object.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/actor.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/actor.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/actor.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/camera.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/camera.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/camera.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/card.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/card.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/card.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/collision.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/collision.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/collision.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/emario.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/emario.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/emario.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/fludd.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/fludd.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/fludd.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/generic.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/generic.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/generic.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/j2dprint.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/j2dprint.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/j2dprint.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/npc.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/npc.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/npc.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/railobj.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/railobj.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/railobj.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/shine.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/shine.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/shine.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/sun.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sun.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sun.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/sunscript.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sunscript.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/sunscript.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/tree.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/tree.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/tree.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/water.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/water.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/water.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/patches/yoshi.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/yoshi.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/patches/yoshi.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/physics/airborn.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/airborn.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/airborn.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/physics/climb.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/climb.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/climb.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/physics/collision.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/collision.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/collision.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/physics/generic.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/generic.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/generic.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/physics/ground.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/ground.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/physics/ground.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/player.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/player.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/player.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/shine/bootout.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/bootout.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/bootout.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/shine/extendcount.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/extendcount.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/shine/extendcount.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/stage.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/stage.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/stage.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/actor.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/actor.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/actor.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/bind.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/bind.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/bind.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/common.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/common.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/common.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/flags.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/flags.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/flags.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/getters.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/getters.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/getters.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/item.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/item.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/item.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/memory.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/memory.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/memory.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/music.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/music.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/music.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/sunscript/vector.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/vector.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/sunscript/vector.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/time.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/time.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/time.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/yoshi/common.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/common.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/common.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/yoshi/eggfruit.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/eggfruit.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/eggfruit.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/yoshi/greenmode.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/greenmode.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/greenmode.cpp"
+},
+{
+  "directory": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/build",
+  "command": "\"C:/Program Files/KuriboClang/bin/clang++.exe\" -DBETTER_SMS_BUGFIXES -DBETTER_SMS_CRASHFIXES -DBETTER_SMS_VERSION=\\\"v1.0\\\" -DKURIBO_NO_TYPES @CMakeFiles/BetterSunshineEngine.dir/includes_CXX.rsp -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o CMakeFiles/BetterSunshineEngine.dir/src/yoshi/juice.cpp.obj -c C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/juice.cpp",
+  "file": "C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/src/yoshi/juice.cpp"
+}
+]

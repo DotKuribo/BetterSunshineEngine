@@ -12,6 +12,7 @@
 #include <SMS/raw_fn.hxx>
 
 #include "collision/warp.hxx"
+
 #include "libs/container.hxx"
 
 using namespace BetterSMS;

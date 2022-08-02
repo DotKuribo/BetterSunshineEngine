@@ -21,27 +21,42 @@ set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=lld")
 
 set(CMAKE_CXX_STANDARD_LIBRARIES "")
 
+set(SMS_REGION us)
+
+set(SMS_COMPILE_DEFINES
+    -D__powerpc__ -DKURIBO_NO_TYPES
+    -DGEKKO -D_DEBUG
+)
+
 set(SMS_COMPILE_FLAGS
     $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>
-    --target=powerpc-gecko-ibm-kuribo-eabi
-    -fdeclspec -fno-exceptions -fno-rtti
-    -fno-unwind-tables -ffast-math -flto
-    -nodefaultlibs -nobuiltininc -nostdinc++ -nostdlib -fno-use-init-array
-    -fno-use-cxa-atexit -fno-c++-static-destructors
-    -fno-function-sections -fno-data-sections -Wno-main
-    -fpermissive -Werror
+    --target=${CMAKE_CXX_COMPILER_TARGET}
+
+    ${SMS_COMPILE_DEFINES}
+
+	-O1 -fno-inline -fno-exceptions 
+    -fno-rtti -ffast-math -fpermissive
+    -fdeclspec -fno-unwind-tables -flto
+    -nodefaultlibs -nobuiltininc -nostdinc++ -nostdlib
+    -fno-use-init-array -fno-use-cxa-atexit
+    -fno-c++-static-destructors -fno-function-sections
+    -fno-data-sections -fpermissive
+
+    -Werror -Wno-main 
     -Wno-incompatible-library-redeclaration
 )
 
 set(SMS_LINK_FLAGS
     $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>
-    --target=powerpc-gecko-ibm-kuribo-eabi
+    --target=${CMAKE_CXX_COMPILER_TARGET}
+
+    -r -fuse-ld=lld 
     -fdeclspec -fno-exceptions -fno-rtti
     -fno-unwind-tables -ffast-math -flto
     -nodefaultlibs -nostdlib -fno-use-init-array
     -fno-use-cxa-atexit -fno-c++-static-destructors
     -fno-function-sections -fno-data-sections
-    -fuse-ld=lld -fpermissive -Werror
+    -fpermissive -Werror
 )
 
 set(LIBSTDCPP_VERSION "10.2.0")
