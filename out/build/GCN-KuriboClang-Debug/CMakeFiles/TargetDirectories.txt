@@ -1,6 +1,0 @@
-C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-KuriboClang-Debug/CMakeFiles/BetterSunshineEngine.dir
-C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-KuriboClang-Debug/CMakeFiles/BetterSunshineEngine.kxe.dir
-C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-KuriboClang-Debug/CMakeFiles/edit_cache.dir
-C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-KuriboClang-Debug/CMakeFiles/rebuild_cache.dir
-C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-KuriboClang-Debug/lib/sms_interface/CMakeFiles/edit_cache.dir
-C:/Users/Kyler-Josh/source/repos/BetterSunshineEngine/out/build/GCN-KuriboClang-Debug/lib/sms_interface/CMakeFiles/rebuild_cache.dir
