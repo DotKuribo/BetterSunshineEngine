@@ -45,7 +45,7 @@
 */bin/*
 */bin-int/*
 */out/*
-out/
+out/*
 
 # Visual Studio files
 *.sln
