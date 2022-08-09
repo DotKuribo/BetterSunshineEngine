@@ -49,8 +49,6 @@ file(GLOB BETTERSMS_SRC
 add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
 add_subdirectory(lib/sms_interface)
 
-link_directories("C:/Windows/System32")
-
 target_link_libraries(BetterSunshineEngine PUBLIC Dolphin JSystem SMS Kamek Kuribo)
 target_include_directories(BetterSunshineEngine PRIVATE include lib/sms_interface/include)
 
