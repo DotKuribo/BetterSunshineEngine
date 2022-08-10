@@ -18,12 +18,13 @@ struct nullopt_t {
     explicit constexpr nullopt_t(_Construct) {}
 };
 /// Tag to disengage optional objects.
-inline constexpr nullopt_t nullopt{nullopt_t::_Construct::_Token};
+constexpr nullopt_t nullopt{nullopt_t::_Construct::_Token};
 
 template <typename _T> class Optional {
 public:
     Optional() : mValue(nullptr) {}
     Optional(_T value) { mValue = &value; }
+    Optional(nullopt_t) : mValue(nullptr) {}
 
     Optional &operator=(const Optional &other) {
         if (other.hasValue())
@@ -163,6 +164,8 @@ public:
     struct Item {
         const char *mKey;
         _V mValue;
+
+        bool operator!=(const Item &other) { return mKey != other.mKey; }
     };
 
     TDictS() { mItemBuffer = new JGadget::TList<Item, JGadget::TAllocator>[SurfaceSize]; }
@@ -170,7 +173,7 @@ public:
 
     Optional<_V> operator[](const char *key) { return get(key); }
 
-    Optional<_V> get(const char *key) {
+    Optional<_V> get(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
         JGadget::TList<Item, JGadget::TAllocator> itemList = mItemBuffer[index];
@@ -195,9 +198,6 @@ public:
                 return;
             }
         }
-
-        ;
-        ;
     }
 
     Optional<_V> pop(const char *key) {
@@ -249,9 +249,11 @@ public:
         if (!mItemBuffer)
             return JGadget::TList<Item, JGadget::TAllocator>();
 
+
         auto fullList = JGadget::TList<Item, JGadget::TAllocator>();
         for (u32 i = 0; i < SurfaceSize; ++i) {
-            for (auto item : mItemBuffer[i]) {
+            JGadget::TList<Item, JGadget::TAllocator> &itemList = mItemBuffer[i];
+            for (auto item : itemList) {
                 fullList.insert(fullList.end(), item->mItem);
             }
         }
@@ -259,7 +261,7 @@ public:
         return fullList;
     }
 
-    bool hasKey(const char *key) {
+    bool hasKey(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
         auto itemList = mItemBuffer[index];
@@ -274,7 +276,7 @@ public:
     }
 
 private:
-    constexpr u32 getIndex(u16 hash) { return hash % SurfaceSize; }
+    constexpr u32 getIndex(u16 hash) const { return hash % SurfaceSize; }
 
     u16 getHash(const char *key) const { return JDrama::TNameRef::calcKeyCode(key); }
     u16 getHash(const JDrama::TNameRef &key) const { return key.mKeyCode; }

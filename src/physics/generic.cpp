@@ -27,7 +27,7 @@ static u32 updateContexts(TMario *player) {
 }
 
 static void addVelocity(TMario *player, f32 velocity) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!onYoshi__6TMarioCFv(player)) {
         player->mForwardSpeed =

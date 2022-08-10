@@ -15,7 +15,7 @@
 using namespace BetterSMS;
 
 static void doProcessJumpState(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     TMarioGamePad *controller = player->mController;
 
@@ -49,7 +49,7 @@ static void checkYSpdForTerminalVelocity() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     float terminalVelocity;
     if (playerData->mCollisionFlags.mIsSpinBounce)
@@ -65,7 +65,7 @@ static void checkJumpSpeedLimit(f32 speed) {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     f32 speedCap     = 32.0f;
     f32 speedReducer = 0.2f;
@@ -89,7 +89,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024CC68, 0x802449F4, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024CC6C, 0x802449F8, 0, 0), checkJumpSpeedLimit);
 
 static TMario *checkJumpSpeedMulti(TMario *player, f32 factor, f32 max) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (playerData->isMario() && !onYoshi__6TMarioCFv(player)) {
         player->mForwardSpeed = ((factor * playerData->getParams()->mSpeedMultiplier.get()) * max) +
@@ -111,7 +111,7 @@ static void dynamicFallDamage(TMario *player, int dmg, int type, int emitcount, 
 #define floorDamageExec__6TMarioFiiii                                                              \
     ((void (*)(TMario *, int, int, int, int))SMS_PORT_REGION(0x8024303C, 0x8023ACEC, 0, 0))
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     dmg *= static_cast<int>((player->mLastGroundedPos.y - player->mPosition.y) /
                             (player->mDeParams.mDamageFallHeight.get() / 1.4f));
@@ -131,8 +131,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024C73C, 0x80246BB4, 0, 0), dynamicFallDamage);
 
 // 8024afe0 <- hover air Y spd
 
-static SMS_PURE_ASM void scaleFluddInitYSpd() {
-    asm volatile("lfs 0, " SMS_STRINGIZE(
+static SMS_ASM_FUNC void scaleFluddInitYSpd() {
+    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(
         SMS_PORT_REGION(-0xFE0, -0x1168, 0, 0)) "(2)  \n\t"
                                                 "lfs 4, 0x28(30)                          \n\t"
                                                 "fmuls 0, 0, 4                            \n\t"

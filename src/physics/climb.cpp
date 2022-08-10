@@ -15,7 +15,7 @@
 using namespace BetterSMS;
 
 static void climbSometimes(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     const bool isMarioClimb = isMarioClimb__16TCameraMarioDataCFUl(player->mState);
     if (playerData->mIsOnFire) {
@@ -28,7 +28,7 @@ static void climbSometimes(TMario *player) {
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
 
 static void updateClimbContext(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!playerData->isMario()) {
         playerData->mIsClimbTired = false;
@@ -97,8 +97,8 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80261C44, 0x802599D0, 0, 0), 0xFC020040);
 
 // extern -> SME.cpp
 // 0x802619CC
-static SMS_PURE_ASM void getTreeClimbMaxFall() {
-    asm volatile("mflr 0                   \n\t"
+static SMS_ASM_FUNC void getTreeClimbMaxFall() {
+    SMS_ASM_BLOCK("mflr 0                   \n\t"
                  "stw 0, 0x8 (1)           \n\t"
                  "stwu 1, -0x10 (1)        \n\t"
                  "lfs 3, 0x5C (3)          \n\t"
@@ -124,9 +124,9 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802619D0, 0x80259760, 0, 0), 0x60000000);
 
 // extern -> SME.cpp
 // 0x80261CF4
-static SMS_PURE_ASM void scaleTreeSlideSpeed() {
+static SMS_ASM_FUNC void scaleTreeSlideSpeed() {
     // F2 IS UNSAFE
-    asm volatile("mflr 0                      \n\t"
+    SMS_ASM_BLOCK("mflr 0                      \n\t"
                  "stw 0, 0x8 (1)              \n\t"
                  "stwu 1, -0x10 (1)           \n\t"
                  "lfs 3, 0x5C (3)             \n\t"
@@ -156,7 +156,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80261CFC, 0x80259A88, 0, 0), 0x41820070);
 /* GLOBAL CLIMB CODE */
 
 void getClimbingAnimSpd(TMario *player, TMario::Animation anim, f32 speed) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (playerData->mIsClimbTired)
         speed = 6.0f;
@@ -171,8 +171,8 @@ void getClimbingAnimSpd(TMario *player, TMario::Animation anim, f32 speed) {
 
 /* ROOF HANG CODE */
 
-static SMS_PURE_ASM void scaleRoofClimbHeight(f32 yCoord, f32 speed) {
-    asm volatile("lfs 0, " SMS_STRINGIZE(SMS_PORT_REGION(
+static SMS_ASM_FUNC void scaleRoofClimbHeight(f32 yCoord, f32 speed) {
+    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(SMS_PORT_REGION(
         -0xDE0, -0xf68, 0, 0)) "(2)        \n\t"
                                "lfs 3, 0x28(31)                                \n\t"
                                "fmuls 0, 0, 3                                  \n\t"
@@ -180,8 +180,8 @@ static SMS_PURE_ASM void scaleRoofClimbHeight(f32 yCoord, f32 speed) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8025D66C, 0x802553F8, 0, 0), scaleRoofClimbHeight);
 
-static SMS_PURE_ASM void scaleRoofSquashedHeight() {
-    asm volatile("lfs 3, " SMS_STRINGIZE(SMS_PORT_REGION(
+static SMS_ASM_FUNC void scaleRoofSquashedHeight() {
+    SMS_ASM_BLOCK("lfs 3, " SMS_STRINGIZE(SMS_PORT_REGION(
         -0xDE0, -0xf68, 0, 0)) "(2)        \n\t"
                                "lfs 5, 0x28(30)                                \n\t"
                                "fmuls 3, 5, 3                                  \n\t"
@@ -189,8 +189,8 @@ static SMS_PURE_ASM void scaleRoofSquashedHeight() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802617EC, 0x80259578, 0, 0), scaleRoofSquashedHeight);
 
-static SMS_PURE_ASM void scaleRoofMoveDiff() {
-    asm volatile("lfs 0, " SMS_STRINGIZE(SMS_PORT_REGION(
+static SMS_ASM_FUNC void scaleRoofMoveDiff() {
+    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(SMS_PORT_REGION(
         -0xD7C, -0xf04, 0, 0)) "(2)        \n\t"
                                "lfs 10, 0x28(30)                                \n\t"
                                "fmuls 0, 0, 10                                  \n\t"
@@ -199,7 +199,7 @@ static SMS_PURE_ASM void scaleRoofMoveDiff() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80261824, 0x802595B0, 0, 0), scaleRoofMoveDiff);
 
 static void scaleHangSpeed(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     player->mForwardSpeed += 1.0f;
 
@@ -219,7 +219,7 @@ static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
     u16 colType;
     SMS_FROM_GPR(4, colType);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (playerData->isMario() && playerData->getParams()->mCanClimbWalls.get())
         return true;
@@ -435,7 +435,7 @@ static TBGCheckData *canClimbUnderwater(TBGCheckData *wall) {
   else
     canCling = wall->mCollisionType == 266;
 
-  __asm volatile {mr r4, canCling};
+  SMS_ASM_BLOCK {mr r4, canCling};
 
   return wall;
 }

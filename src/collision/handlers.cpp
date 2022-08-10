@@ -22,7 +22,7 @@ using namespace BetterSMS;
     (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
 
 static void resetValuesOnStateChange(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     switch (player->mPrevState) {
     case static_cast<u32>(TMario::STATE_TRIPLE_J):
@@ -45,7 +45,7 @@ static void resetValuesOnStateChange(TMario *player) {
 }
 
 static void resetValuesOnGroundContact(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if ((player->mPrevState & static_cast<u32>(TMario::STATE_AIRBORN)) != 0 &&
         (player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) == 0 &&
@@ -56,7 +56,7 @@ static void resetValuesOnGroundContact(TMario *player) {
 }
 
 static void resetValuesOnAirborn(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if ((player->mPrevState & static_cast<u32>(TMario::STATE_AIRBORN)) == 0 &&
         (player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) != 0 &&
@@ -66,7 +66,7 @@ static void resetValuesOnAirborn(TMario *player) {
 }
 
 static void resetValuesOnCollisionChange(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!player->mFloorTriangle || (player->mFloorTriangle == playerData->mPrevCollisionFloor))
         return;
@@ -260,7 +260,7 @@ SME_WRITE_32(SME_PORT_REGION(0x802505A0, 0x8024832C, 0, 0), 0x546004E7);
 void updateCollisionContext(TMario *player) {
     constexpr s16 CrushTimeToDie = 0;
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     resetValuesOnStateChange(player);
     resetValuesOnGroundContact(player);

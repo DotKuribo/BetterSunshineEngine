@@ -14,7 +14,7 @@ static bool isYoshiMaintainFluddModel() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!playerData)
         return player->mAttributes.mHasFludd;
@@ -30,7 +30,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024D690, 0x8024541c, 0, 0), 0x2C030000);
 static void saveNozzles(TYoshi *yoshi) {
     TMario *player = yoshi->mMario;
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!playerData->isMario()) {
         ride__6TYoshiFv(yoshi);
@@ -46,7 +46,7 @@ static void saveNozzles(TYoshi *yoshi) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8028121C, 0x80278FA8, 0, 0), saveNozzles);
 
 static void restoreNozzles(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!playerData->isMario())
         return;

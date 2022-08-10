@@ -47,7 +47,7 @@ static bool canMountYoshi() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
     auto *params                    = playerData->getParams();
 
     if (params->mSizeMultiplier.get() *
@@ -86,7 +86,7 @@ static void canYoshiSpray(TWaterGun *gpWaterGun) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024E58C, 0x80246318, 0, 0), canYoshiSpray);
 
 static u32 calcYoshiSwimVelocity(TMario *player, u32 arg1) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!playerData) {
         return jumpProcess__6TMarioFi(player, arg1);

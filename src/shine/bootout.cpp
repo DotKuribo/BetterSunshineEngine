@@ -170,9 +170,9 @@ static void setKillState() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801BCEEC, 0x801B4DA4, 0, 0), setKillState);
 
-static SMS_PURE_ASM void thinkCloseCamera() {
+static SMS_ASM_FUNC void thinkCloseCamera() {
 #if defined(PAL)
-    asm volatile("lbz       0, 0x190 (31)        \n\t"
+    SMS_ASM_BLOCK("lbz       0, 0x190 (31)        \n\t"
                  "lwz       4, 0x154 (31)        \n\t"
                  "rlwinm.   4, 4, 0, 27, 27     \n\t"
                  "bne       .Ltmp0              \n\t"
@@ -181,7 +181,7 @@ static SMS_PURE_ASM void thinkCloseCamera() {
                  ".Ltmp0:                       \n\t"
                  "blr                           \n\t");
 #else
-    asm volatile("lbz       0, 0x190 (4)        \n\t"
+    SMS_ASM_BLOCK("lbz       0, 0x190 (4)        \n\t"
                  "lwz       4, 0x154 (4)        \n\t"
                  "rlwinm.   4, 4, 0, 27, 27     \n\t"
                  "bne       .Ltmp0              \n\t"
@@ -194,8 +194,8 @@ static SMS_PURE_ASM void thinkCloseCamera() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8029A590, 0x80292460, 0, 0), thinkCloseCamera);
 SMS_WRITE_32(SMS_PORT_REGION(0x8029A594, 0x80292464, 0, 0), 0x28000000);
 
-static SMS_PURE_ASM void animationFreezeCheck() {
-    asm volatile("lbz       0, 0x64(26)         \n\t"
+static SMS_ASM_FUNC void animationFreezeCheck() {
+    SMS_ASM_BLOCK("lbz       0, 0x64(26)         \n\t"
                  "cmpwi     0, 10               \n\t"
                  "beq-      .loc_0x38           \n\t"
                  "bge-      .loc_0x18           \n\t"

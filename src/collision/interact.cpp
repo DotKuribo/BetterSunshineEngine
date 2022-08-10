@@ -87,7 +87,7 @@ void (*gStateCBMap[])(TMario *player, u8 flags){elecPlayer, burnPlayer, slipFloo
 size_t gStateCBMapSize = sizeof(gStateCBMap) / sizeof(void *);
 
 void checkIsGlideBounce(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if ((player->mFloorTriangle->mCollisionType & 0x7FFF) == 16007 ||
         (player->mFloorTriangle->mCollisionType & 0x7FFF) == 17007) {
@@ -115,7 +115,7 @@ u16 checkIsRestoreTypeNoFallDamage(TBGCheckData *floor) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024C558, 0x802442E4, 0, 0), checkIsRestoreTypeNoFallDamage);
 
 void checkRestoreHealth(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (playerData->mCollisionTimer <= 0) {
         incHP__6TMarioFi(player, 1);
@@ -125,7 +125,7 @@ void checkRestoreHealth(TMario *player) {
 }
 
 void checkIsCannonType(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!(player->mController->mButtons.mInput & TMarioGamePad::EButtons::DPAD_UP) ||
         !playerData->mCollisionFlags.mIsFaceUsed)
@@ -153,7 +153,7 @@ void checkIsCannonType(TMario *player) {
 }
 
 void changeNozzleType(TMario *player, u16 type) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
     TWaterGun *fludd                = player->mFludd;
 
     if (playerData->mCollisionFlags.mIsFaceUsed || !fludd)
@@ -182,7 +182,7 @@ void changeNozzleType(TMario *player, u16 type) {
 }
 
 void boostPadCol(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     const f32 newSpeed    = player->mFloorTriangle->mValue4;
     const f32 scale       = newSpeed / player->mForwardSpeed;
@@ -204,156 +204,155 @@ void boostPadCol(TMario *player) {
 
 #pragma region WarpCollisions
 
-static bool sIsWiping = false;
 
-SMS_NO_INLINE void warpToLinkedCol(TMario *player, WarpKind kind, bool isInstantlyActivated) {
-    constexpr s32 DisableMovementTime = 80;
-    constexpr s32 TeleportTime        = 140;
-    constexpr s32 EnableMovementTime  = 60;
-    constexpr f32 WipeKindInDelay     = 1.0f;
-
-    Player::TPlayerData *playerData = Player::getData(player);
-
-    TBGCheckData *linkedCol =
-        BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
-
-    const f32 speed = PSVECMag(reinterpret_cast<Vec *>(&player->mSpeed));
-
-    if (playerData->mIsWarpActive) {
-        switch (playerData->mWarpKind) {
-        case WarpKind::SPARKLES: {
-            if (playerData->mCollisionTimer > EnableMovementTime) {
-                playerData->mCollisionFlags.mIsDisableInput = false;
-                playerData->mIsWarpActive                   = false;
-                player->mController->State.mReadInput       = true;
-                playerData->mCollisionTimer                 = 0;
-            } else {
-                playerData->mCollisionTimer += 1;
-            }
-            break;
-        }
-        case WarpKind::WIPE: {
-            if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF) {
-                playerData->mCollisionFlags.mIsDisableInput = false;
-                playerData->mIsWarpActive                   = false;
-                player->mController->State.mReadInput       = true;
-                playerData->mCollisionTimer                 = 0;
-            } else {
-                playerData->mCollisionTimer += 1;
-            }
-            break;
-        }
-        case WarpKind::INSTANT:
-        default:
-            playerData->mCollisionFlags.mIsDisableInput = false;
-            playerData->mIsWarpActive                   = false;
-        }
-    } else {
-        if (!linkedCol) {
-            playerData->mCollisionTimer = 0;
-            return;
-        }
-
-        switch (kind) {
-        case WarpKind::SPARKLES: {
-            size_t timeCut = 0;
-            if (isInstantlyActivated) {
-                timeCut = DisableMovementTime;
-            } else if (speed > 1.0f) {
-                playerData->mCollisionTimer = 0;
-                return;
-            }
-
-            if (!playerData->mCollisionFlags.mIsFaceUsed) {
-                if (playerData->mCollisionTimer >= TeleportTime - timeCut) {
-                    Player::warpToCollisionFace(player, linkedCol, false);
-
-                    playerData->mWarpKind                   = kind;
-                    playerData->mCollisionFlags.mIsFaceUsed = true;
-                    playerData->mIsWarpActive               = true;
-                    playerData->mCollisionFlags.mIsWarpUsed = true;
-                    playerData->mCollisionTimer             = 0;
-                    startSoundActor__6TMarioFUl(player, static_cast<u32>(TMario::VOICE_JUMP));
-                } else if (playerData->mCollisionTimer >= DisableMovementTime - timeCut) {
-                    if (!playerData->mCollisionFlags.mIsDisableInput) {
-                        emitGetEffect__6TMarioFv(player);
-                    }
-                    playerData->mCollisionFlags.mIsDisableInput = true;
-                    player->mController->State.mReadInput       = false;
-                }
-            }
-            playerData->mCollisionTimer += 1;
-            return;
-        }
-        case WarpKind::WIPE: {
-            size_t timeCut = 0;
-            if (isInstantlyActivated) {
-                timeCut = DisableMovementTime;
-            } else if (speed > 1.0f) {
-                playerData->mCollisionTimer = 0;
-                return;
-            }
-
-            if (!playerData->mCollisionFlags.mIsFaceUsed) {
-                if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_ON) {
-                    Player::warpToCollisionFace(player, linkedCol, false);
-
-                    playerData->mWarpKind                   = kind;
-                    playerData->mCollisionFlags.mIsFaceUsed = true;
-                    playerData->mIsWarpActive               = true;
-                    playerData->mCollisionFlags.mIsWarpUsed = true;
-                    playerData->mCollisionTimer             = 0;
-                    sIsWiping                               = false;
-
-                    gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_CIRCLE_IN, 1.0f,
-                                                    WipeKindInDelay);
-                } else if (playerData->mCollisionTimer >= DisableMovementTime - timeCut) {
-                    playerData->mCollisionFlags.mIsDisableInput = true;
-                    player->mController->State.mReadInput       = false;
-                    if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
-                        gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT,
-                                                        1.0f, 0.0f);
-                        MSoundSE::startSoundSystemSE(0x4859, 0, nullptr, 0);
-                        sIsWiping = true;
-                    }
-                }
-            }
-            playerData->mCollisionTimer += 1;
-            return;
-        }
-        case WarpKind::INSTANT:
-        default: {
-            if (!playerData->mCollisionFlags.mIsFaceUsed) {
-                Player::warpToCollisionFace(player, linkedCol, false);
-
-                playerData->mWarpKind                   = kind;
-                playerData->mCollisionFlags.mIsFaceUsed = true;
-                playerData->mCollisionFlags.mIsWarpUsed = true;
-                playerData->mCollisionTimer             = 0;
-            }
-            return;
-        }
-        }
-    }
-}
-
-void warpToLinkedColPreserve(TMario *player, bool fluid) {
-    Player::TPlayerData *playerData = Player::getData(player);
-
-    TBGCheckData *linkedCol =
-        BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
-
-    if (!linkedCol)
-        return;
-
-    if (!playerData->mCollisionFlags.mIsFaceUsed) {
-        Player::warpToCollisionFace(player, linkedCol, true);
-    } else {
-        playerData->mCollisionFlags.mIsFaceUsed =
-            (!(player->mController->mButtons.mFrameInput & TMarioGamePad::EButtons::DPAD_DOWN) &&
-             !fluid);
-    }
-}
+//SMS_NO_INLINE void warpToLinkedCol(TMario *player, WarpKind kind, bool isInstantlyActivated) {
+//    constexpr s32 DisableMovementTime = 80;
+//    constexpr s32 TeleportTime        = 140;
+//    constexpr s32 EnableMovementTime  = 60;
+//    constexpr f32 WipeKindInDelay     = 1.0f;
+//
+//    auto playerData = Player::getData(player);
+//
+//    TBGCheckData *linkedCol =
+//        BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
+//
+//    const f32 speed = PSVECMag(reinterpret_cast<Vec *>(&player->mSpeed));
+//
+//    if (playerData->mIsWarpActive) {
+//        switch (playerData->mWarpKind) {
+//        case WarpKind::SPARKLES: {
+//            if (playerData->mCollisionTimer > EnableMovementTime) {
+//                playerData->mCollisionFlags.mIsDisableInput = false;
+//                playerData->mIsWarpActive                   = false;
+//                player->mController->State.mReadInput       = true;
+//                playerData->mCollisionTimer                 = 0;
+//            } else {
+//                playerData->mCollisionTimer += 1;
+//            }
+//            break;
+//        }
+//        case WarpKind::WIPE: {
+//            if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF) {
+//                playerData->mCollisionFlags.mIsDisableInput = false;
+//                playerData->mIsWarpActive                   = false;
+//                player->mController->State.mReadInput       = true;
+//                playerData->mCollisionTimer                 = 0;
+//            } else {
+//                playerData->mCollisionTimer += 1;
+//            }
+//            break;
+//        }
+//        case WarpKind::INSTANT:
+//        default:
+//            playerData->mCollisionFlags.mIsDisableInput = false;
+//            playerData->mIsWarpActive                   = false;
+//        }
+//    } else {
+//        if (!linkedCol) {
+//            playerData->mCollisionTimer = 0;
+//            return;
+//        }
+//
+//        switch (kind) {
+//        case WarpKind::SPARKLES: {
+//            size_t timeCut = 0;
+//            if (isInstantlyActivated) {
+//                timeCut = DisableMovementTime;
+//            } else if (speed > 1.0f) {
+//                playerData->mCollisionTimer = 0;
+//                return;
+//            }
+//
+//            if (!playerData->mCollisionFlags.mIsFaceUsed) {
+//                if (playerData->mCollisionTimer >= TeleportTime - timeCut) {
+//                    Player::warpToCollisionFace(player, linkedCol, false);
+//
+//                    playerData->mWarpKind                   = kind;
+//                    playerData->mCollisionFlags.mIsFaceUsed = true;
+//                    playerData->mIsWarpActive               = true;
+//                    playerData->mCollisionFlags.mIsWarpUsed = true;
+//                    playerData->mCollisionTimer             = 0;
+//                    startSoundActor__6TMarioFUl(player, static_cast<u32>(TMario::VOICE_JUMP));
+//                } else if (playerData->mCollisionTimer >= DisableMovementTime - timeCut) {
+//                    if (!playerData->mCollisionFlags.mIsDisableInput) {
+//                        emitGetEffect__6TMarioFv(player);
+//                    }
+//                    playerData->mCollisionFlags.mIsDisableInput = true;
+//                    player->mController->State.mReadInput       = false;
+//                }
+//            }
+//            playerData->mCollisionTimer += 1;
+//            return;
+//        }
+//        case WarpKind::WIPE: {
+//            size_t timeCut = 0;
+//            if (isInstantlyActivated) {
+//                timeCut = DisableMovementTime;
+//            } else if (speed > 1.0f) {
+//                playerData->mCollisionTimer = 0;
+//                return;
+//            }
+//
+//            if (!playerData->mCollisionFlags.mIsFaceUsed) {
+//                if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_ON) {
+//                    Player::warpToCollisionFace(player, linkedCol, false);
+//
+//                    playerData->mWarpKind                   = kind;
+//                    playerData->mCollisionFlags.mIsFaceUsed = true;
+//                    playerData->mIsWarpActive               = true;
+//                    playerData->mCollisionFlags.mIsWarpUsed = true;
+//                    playerData->mCollisionTimer             = 0;
+//                    sIsWiping                               = false;
+//
+//                    gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_CIRCLE_IN, 1.0f,
+//                                                    WipeKindInDelay);
+//                } else if (playerData->mCollisionTimer >= DisableMovementTime - timeCut) {
+//                    playerData->mCollisionFlags.mIsDisableInput = true;
+//                    player->mController->State.mReadInput       = false;
+//                    if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
+//                        gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT,
+//                                                        1.0f, 0.0f);
+//                        MSoundSE::startSoundSystemSE(0x4859, 0, nullptr, 0);
+//                        sIsWiping = true;
+//                    }
+//                }
+//            }
+//            playerData->mCollisionTimer += 1;
+//            return;
+//        }
+//        case WarpKind::INSTANT:
+//        default: {
+//            if (!playerData->mCollisionFlags.mIsFaceUsed) {
+//                Player::warpToCollisionFace(player, linkedCol, false);
+//
+//                playerData->mWarpKind                   = kind;
+//                playerData->mCollisionFlags.mIsFaceUsed = true;
+//                playerData->mCollisionFlags.mIsWarpUsed = true;
+//                playerData->mCollisionTimer             = 0;
+//            }
+//            return;
+//        }
+//        }
+//    }
+//}
+//
+//void warpToLinkedColPreserve(TMario *player, bool fluid) {
+//    auto playerData = Player::getData(player);
+//
+//    TBGCheckData *linkedCol =
+//        BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
+//
+//    if (!linkedCol)
+//        return;
+//
+//    if (!playerData->mCollisionFlags.mIsFaceUsed) {
+//        Player::warpToCollisionFace(player, linkedCol, true);
+//    } else {
+//        playerData->mCollisionFlags.mIsFaceUsed =
+//            (!(player->mController->mButtons.mFrameInput & TMarioGamePad::EButtons::DPAD_DOWN) &&
+//             !fluid);
+//    }
+//}
 
 #pragma endregion
 

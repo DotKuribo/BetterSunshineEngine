@@ -37,14 +37,26 @@ static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 
 SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *player,
                                                                     const char *key) {
-    auto dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
+    const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (!dataDict.hasKey(key))
         return Optional<void *>();
     return dataDict.get(key);
 }
 
+SMS_NO_INLINE Optional<Player::TPlayerData *>BetterSMS::Player::getData(TMario *player) {
+    const char *key      = "__better_sms";
+    const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
+    if (!dataDict.hasKey(key))
+        return {};
+    const auto &opt = dataDict.get(key);
+    if (!opt.hasValue())
+        return {};
+    auto *data = reinterpret_cast<Player::TPlayerData *>(opt.value());
+    return Optional<Player::TPlayerData *>(data);
+}
+
 SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
-    auto dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
+    auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (dataDict.hasKey(key))
         return false;
     dataDict.set(key, data);
@@ -52,7 +64,7 @@ SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *k
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterData(TMario *player, const char *key) {
-    auto dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
+    auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (!dataDict.hasKey(key))
         return false;
     dataDict.pop(key);
@@ -94,7 +106,7 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
     if (!player)
         return;
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     TVec3f cameraPos;
     gpCamera->JSGGetViewPosition(reinterpret_cast<Vec *>(&cameraPos));
@@ -118,7 +130,7 @@ void processWarp(TMario *player, bool isMario) {
     constexpr s32 EnableMovementTime  = 60;
     constexpr f32 WipeKindInDelay     = 1.0f;
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     TBGCheckData *linkedCol =
         BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
@@ -243,7 +255,7 @@ SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player, TBGChe
     if (!player)
         return;
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     TVec3f triCenter;
     TVectorTriangle vectorTri(colTriangle->mVertexA, colTriangle->mVertexB, colTriangle->mVertexC);
@@ -298,7 +310,7 @@ SMS_NO_INLINE void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &
     if (!player)
         return;
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
     playerData->mIsWarpActive       = true;
     playerData->mWarpDestination    = destPoint;
     playerData->mWarpKind           = kind;
@@ -319,7 +331,7 @@ static constexpr s32 MaxFireDamageTime = 300;
 static constexpr s32 MaxFireTime       = MaxFireDamageTime * 3;
 
 SMS_NO_INLINE void BetterSMS::Player::setFire(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (playerData->mIsOnFire) {
         playerData->mFireTimer %= MaxFireDamageTime;
@@ -333,7 +345,7 @@ SMS_NO_INLINE void BetterSMS::Player::setFire(TMario *player) {
 }
 
 SMS_NO_INLINE void BetterSMS::Player::extinguishFire(TMario *player, bool expired) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (playerData->mIsOnFire && !expired)
         MSoundSE::startSoundActor(0x28C5, reinterpret_cast<Vec *>(&player->mPosition), 0, nullptr,
@@ -345,7 +357,7 @@ SMS_NO_INLINE void BetterSMS::Player::extinguishFire(TMario *player, bool expire
 
 // Externed to player update process
 void blazePlayer(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     const f32 fireScale = 3.0f - (static_cast<f32>(playerData->mFireTimer) / MaxFireTime) * 2.0f;
 
@@ -907,9 +919,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80276C94, 0x8026EA20, 0, 0), playerInitHandler);
 // 0x800397DC
 static bool shadowMarioInitHandler() {
     TMario *player;
-    asm volatile("lwz %0, 0x150 (31)" : "=r"(player));
+    SMS_ASM_BLOCK("lwz %0, 0x150 (31)" : "=r"(player));
 
-    for (auto item : sPlayerInitializers.items()) {
+    for (const auto &item : sPlayerInitializers.items()) {
         item->mItem.mValue(player, false);
     }
 

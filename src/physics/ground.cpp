@@ -22,7 +22,7 @@ static f32 checkGroundSpeedLimit() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     f32 multiplier = 1.0f;
     if (onYoshi__6TMarioCFv(player)) {
@@ -40,7 +40,7 @@ static f32 checkSlideSpeedMulti() {
     TMario *player;
     SMS_FROM_GPR(30, player);
 
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     constexpr f32 speedCap         = 100.0f;
     constexpr f32 rocketMultiplier = 1.8f;
@@ -83,7 +83,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8025C410, 0x8025419C, 0, 0), 0x60000000);
 // extern -> SME.cpp
 // 0x8024E288
 static void checkGraffitiAffected(TMario *player) {
-    Player::TPlayerData *playerData = Player::getData(player);
+    auto playerData = Player::getData(player);
 
     if (!playerData->isMario()) {
         checkGraffito__6TMarioFv(player);

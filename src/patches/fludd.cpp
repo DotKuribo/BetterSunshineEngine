@@ -23,9 +23,9 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
-static SMS_PURE_ASM bool makeWaterHitCheckForDeath(TBGCheckData *col) {
+static SMS_ASM_FUNC bool makeWaterHitCheckForDeath(TBGCheckData *col) {
     // clang-format off
-  asm volatile (
+  SMS_ASM_BLOCK (
     "lhz 0, 0 (3)             \n\t"
     "cmpwi 0, 2048            \n\t"
     "bne .makeWaterCheck_tmp0 \n\t"

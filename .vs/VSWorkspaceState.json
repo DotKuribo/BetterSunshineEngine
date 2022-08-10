@@ -1,10 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\maps",
-    "\\targets",
+    "\\lib",
+    "\\lib\\sms_interface",
+    "\\lib\\sms_interface\\include",
+    "\\lib\\sms_interface\\include\\Dolphin",
+    "\\lib\\sms_interface\\include\\SMS",
+    "\\out",
+    "\\src",
+    "\\src\\collision",
     "\\tools"
   ],
-  "SelectedNode": "\\targets\\GCNKuriboClangDebug.cmake",
+  "SelectedNode": "\\CMakeSettings.json",
   "PreviewInSolutionExplorer": false
 }
