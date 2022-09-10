@@ -167,17 +167,24 @@ void initStageCallbacks(TMarDirector *director) {
     for (auto item : sStageInitCBs.items()) {
         item->mItem.mValue(director);
     }
+    director->setupObjects();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
 
-void updateStageCallbacks(void *) {
+s32 updateStageCallbacks(void *movieDirector) {
+    u32 func;
+    SMS_FROM_GPR(12, func);
+
     for (auto item : sStageUpdateCBs.items()) {
         item->mItem.mValue(gpMarDirector);
     }
+
+    return ((s32(*)(void *))func)(movieDirector);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), updateStageCallbacks);
 
 void drawStageCallbacks(J2DOrthoGraph *ortho) {
+    ortho->setup2D();
     for (auto item : sStageDrawCBs.items()) {
         item->mItem.mValue(gpMarDirector, ortho);
     }
