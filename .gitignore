@@ -8,8 +8,8 @@
 *.obj
 
 #output directory
-out/**
-build/
+out
+build
 
 
 #.vs
