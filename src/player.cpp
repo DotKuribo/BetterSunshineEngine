@@ -50,18 +50,6 @@ SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *play
     return dataDict.get(key);
 }
 
-SMS_NO_INLINE Optional<Player::TPlayerData *> BetterSMS::Player::getData(TMario *player) {
-    const char *key      = "__better_sms";
-    const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
-    if (!dataDict.hasKey(key))
-        return {};
-    const auto &opt = dataDict.get(key);
-    if (!opt.hasValue())
-        return {};
-    auto *data = reinterpret_cast<Player::TPlayerData *>(opt.value());
-    return Optional<Player::TPlayerData *>(data);
-}
-
 SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
     auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (dataDict.hasKey(key))
