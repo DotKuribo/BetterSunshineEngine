@@ -23,7 +23,7 @@ namespace BetterSMS {
         Optional<void *> getRegisteredData(TMario *, const char *);
 
         struct TPlayerData;
-        Optional<TPlayerData *> getData(TMario *);
+        TPlayerData &getData(TMario *);
 
         // Use this to have extended params by inheriting TPlayerData
         bool registerData(TMario *, const char *, void *);

@@ -1,6 +1,6 @@
+#include <Dolphin/DVD.h>
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
-#include <Dolphin/DVD.h>
 #include <SMS/SMS.hxx>
 #include <SMS/game/GameSequence.hxx>
 #include <SMS/game/MarDirector.hxx>
@@ -100,30 +100,30 @@ SMS_NO_INLINE bool BetterSMS::Stage::deregisterDraw2DCallback(const char *name) 
 }
 
 void BetterSMS::Stage::TStageParams::reset() {
-  mIsExStage.set(false);
-  mIsDivingStage.set(false);
-  mIsOptionStage.set(false);
-  mIsMultiplayerStage.set(false);
-  mIsYoshiHungry.set(false);
-  mIsEggFree.set(true);
-  // mLightType.set(TLightContext::ActiveType::DISABLED);
-  // mLightPosX.set(0.0f);
-  // mLightPosY.set(3600.0f);
-  // mLightPosZ.set(-7458.0f);
-  // mLightSize.set(8000.0f);
-  // mLightStep.set(100.0f);
-  // mLightColor.set(JUtility::TColor(0, 20, 40, 0));
-  // mLightLayerCount.set(5);
-  // mLightDarkLevel.set(120);
-  // mPlayerSelectWhiteList.set(0xFFFFFFFF);
-  mPlayerHasFludd.set(true);
-  mPlayerHasHelmet.set(false);
-  mPlayerHasGlasses.set(false);
-  mPlayerHasShirt.set(false);
-  mPlayerCanRideYoshi.set(true);
+    mIsExStage.set(false);
+    mIsDivingStage.set(false);
+    mIsOptionStage.set(false);
+    mIsMultiplayerStage.set(false);
+    mIsYoshiHungry.set(false);
+    mIsEggFree.set(true);
+    // mLightType.set(TLightContext::ActiveType::DISABLED);
+    // mLightPosX.set(0.0f);
+    // mLightPosY.set(3600.0f);
+    // mLightPosZ.set(-7458.0f);
+    // mLightSize.set(8000.0f);
+    // mLightStep.set(100.0f);
+    // mLightColor.set(JUtility::TColor(0, 20, 40, 0));
+    // mLightLayerCount.set(5);
+    // mLightDarkLevel.set(120);
+    // mPlayerSelectWhiteList.set(0xFFFFFFFF);
+    mPlayerHasFludd.set(true);
+    mPlayerHasHelmet.set(false);
+    mPlayerHasGlasses.set(false);
+    mPlayerHasShirt.set(false);
+    mPlayerCanRideYoshi.set(true);
 }
 
-void BetterSMS::Stage::TStageParams::load(const char* stageName) {
+void BetterSMS::Stage::TStageParams::load(const char *stageName) {
     // DVDFileInfo fileInfo;
     // s32 entrynum;
     //
@@ -163,6 +163,26 @@ void BetterSMS::Stage::TStageParams::load(const char* stageName) {
     // mIsCustomConfigLoaded = false;
 }
 
+void initStageCallbacks(TMarDirector *director) {
+    for (auto item : sStageInitCBs.items()) {
+        item->mItem.mValue(director);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
+
+void updateStageCallbacks(void *) {
+    for (auto item : sStageUpdateCBs.items()) {
+        item->mItem.mValue(gpMarDirector);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), updateStageCallbacks);
+
+void drawStageCallbacks(J2DOrthoGraph *ortho) {
+    for (auto item : sStageDrawCBs.items()) {
+        item->mItem.mValue(gpMarDirector, ortho);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
 #pragma region MapIdentifiers
 
@@ -222,14 +242,13 @@ void resetGlobalValues(TMarDirector *) {
     gAudioSpeed  = 1.0f;
 }
 
-Stage::TStageParams* Stage::TStageParams::sStageConfig = nullptr;
+Stage::TStageParams *Stage::TStageParams::sStageConfig = nullptr;
 
 // Extern to stage init
 void loadStageConfig(TMarDirector *) {
     Console::debugLog("Reseting stage params...\n");
 
-    Stage::TStageParams::sStageConfig =
-        new (JKRHeap::sRootHeap, 4) Stage::TStageParams(nullptr);
+    Stage::TStageParams::sStageConfig = new (JKRHeap::sRootHeap, 4) Stage::TStageParams(nullptr);
 
     Stage::TStageParams *config = Stage::getStageConfiguration();
     config->reset();

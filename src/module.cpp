@@ -78,7 +78,7 @@ static TMarDirector *initLib() {
     return director;
 }
 
-SMS_PATCH_BL(SMS_PORT_REGION(0x802998B4, 0x8029174C, 0, 0), initLib);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x802998B4, 0x8029174C, 0, 0), initLib);
 
 static void destroyLib() {
     Console::log("-- Destroying Module --\n");

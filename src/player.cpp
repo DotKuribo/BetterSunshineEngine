@@ -35,14 +35,12 @@ static TDictI<TDictS<void *>> sPlayerDict;
 static TDictS<Player::InitProcess> sPlayerInitializers;
 static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 
-
-SMS_NO_INLINE BetterSMS::Player::TPlayerData* BetterSMS::Player::getData(TMario *player) {
+SMS_NO_INLINE BetterSMS::Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (!dataDict.hasKey("__better_sms"))
         return nullptr;
-    return reinterpret_cast<BetterSMS::Player::TPlayerData*>(dataDict.get("__better_sms").value());
+    return reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict.get("__better_sms").value());
 }
-
 
 SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *player,
                                                                     const char *key) {
@@ -52,7 +50,7 @@ SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *play
     return dataDict.get(key);
 }
 
-SMS_NO_INLINE Optional<Player::TPlayerData *>BetterSMS::Player::getData(TMario *player) {
+SMS_NO_INLINE Optional<Player::TPlayerData *> BetterSMS::Player::getData(TMario *player) {
     const char *key      = "__better_sms";
     const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (!dataDict.hasKey(key))
@@ -319,11 +317,11 @@ SMS_NO_INLINE void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &
     if (!player)
         return;
 
-    auto playerData = Player::getData(player);
-    playerData->mIsWarpActive       = true;
-    playerData->mWarpDestination    = destPoint;
-    playerData->mWarpKind           = kind;
-    playerData->mWarpTimerMax       = framesToWarp;
+    auto playerData              = Player::getData(player);
+    playerData->mIsWarpActive    = true;
+    playerData->mWarpDestination = destPoint;
+    playerData->mWarpKind        = kind;
+    playerData->mWarpTimerMax    = framesToWarp;
 }
 
 SMS_NO_INLINE void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
