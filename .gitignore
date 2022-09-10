@@ -9,7 +9,7 @@
 
 #output directory
 out/**
-build/*
+build/
 
 
 #.vs
