@@ -45,7 +45,7 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     const TBGCheckData **tri = const_cast<const TBGCheckData **>(&player->mFloorTriangleWater);
 
     const TMapCollisionData *mapCol = gpMapCollisionData;
-    {
+    if (!player->mState & TMario::STATE_SWIM) {
         f32 yPos = mapCol->checkGround(x, player->mCeilingAbove - 10.0f, z, 0, tri);
         if (*tri && (*tri)->mCollisionType > 255 && (*tri)->mCollisionType < 260)
             return yPos;
