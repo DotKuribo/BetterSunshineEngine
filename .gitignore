@@ -8,9 +8,9 @@
 *.obj
 
 #output directory
-/out
+out/
 
-/.vs
+.vs/
 
 # Precompiled Headers
 *.gch
