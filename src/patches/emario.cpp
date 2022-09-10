@@ -1,6 +1,6 @@
 #include <Dolphin/MTX.h>
 #include <JSystem/JUtility/JUTColor.hxx>
-#include <SMS/Enemy/EnemyMario.hxx>
+#include <SMS/enemy/EnemyMario.hxx>
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
 #include <SMS/macros.h>

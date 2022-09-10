@@ -7,9 +7,9 @@ static OSCalendarTime sCalendar;
 
 SMS_NO_INLINE const char *BetterSMS::Time::buildDate() { return __DATE__; }
 SMS_NO_INLINE const char *BetterSMS::Time::buildTime() { return __TIME__; }
-SMS_NO_INLINE OSTime ostime() { return OSGetTime(); }
+SMS_NO_INLINE OSTime BetterSMS::Time::ostime() { return OSGetTime(); }
 
-SMS_NO_INLINE void calendarTime(OSCalendarTime &result) {
+SMS_NO_INLINE void BetterSMS::Time::calendarTime(OSCalendarTime &result) {
     return OSTicksToCalendarTime(ostime(), &result);
 }
 
@@ -21,6 +21,10 @@ SMS_NO_INLINE void BetterSMS::Time::date(char *dst) {
 SMS_NO_INLINE void BetterSMS::Time::time(char *dst) {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     calendarToTime(dst, sCalendar);
+}
+
+SMS_NO_INLINE u16 BetterSMS::Time::nanosecond() {
+    return OSTicksToNanoseconds(OSGetTime());
 }
 
 SMS_NO_INLINE u16 BetterSMS::Time::microsecond() {

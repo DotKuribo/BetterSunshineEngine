@@ -35,6 +35,15 @@ static TDictI<TDictS<void *>> sPlayerDict;
 static TDictS<Player::InitProcess> sPlayerInitializers;
 static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 
+
+SMS_NO_INLINE BetterSMS::Player::TPlayerData* BetterSMS::Player::getData(TMario *player) {
+    auto dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
+    if (!dataDict.hasKey("__better_sms"))
+        return nullptr;
+    return reinterpret_cast<BetterSMS::Player::TPlayerData*>(dataDict.get("__better_sms").value());
+}
+
+
 SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *player,
                                                                     const char *key) {
     const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
