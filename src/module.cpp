@@ -50,7 +50,7 @@ extern void processWarp(TMario *, bool);
 
 static TMarDirector *initLib() {
 
-    TMarDirector* director;
+    TMarDirector *director;
     SMS_FROM_GPR(26, director);
 
     Console::debugLog("Initializing the sound bank... F\n");
@@ -74,7 +74,6 @@ static TMarDirector *initLib() {
     // Set up loading screen
     Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
     Stage::registerUpdateCallback("__update_load_screen", (Stage::StageUpdateCallback)0);
-
 
     return director;
 }
@@ -104,13 +103,8 @@ static void destroyLib() {
 #if defined(SMS_BUILD_KURIBO) && !defined(SMS_BUILD_KAMEK) && !defined(SMS_BUILD_KAMEK_INLINE)
 
 KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-
-    KURIBO_EXECUTE_ON_LOAD(initLib);
-    KURIBO_EXECUTE_ON_UNLOAD(destroyLib);
-
-#pragma clang diagnostic pop
+    KURIBO_EXECUTE_ON_LOAD { initLib(); }
+    KURIBO_EXECUTE_ON_UNLOAD { destroyLib(); }
 
     // Generate exports
     /* BMG */
