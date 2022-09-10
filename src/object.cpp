@@ -240,5 +240,4 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80262400, 0x8025A18C, 0, 0), objGrabHandler);
 SMS_WRITE_32(SMS_PORT_REGION(0x80262404, 0x8025A190, 0, 0), 0x2C030000);
 
 void objects_staticResetter() {}
-
 #endif

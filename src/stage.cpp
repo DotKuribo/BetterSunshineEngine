@@ -1,5 +1,6 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
+#include <Dolphin/DVD.h>
 #include <SMS/SMS.hxx>
 #include <SMS/game/GameSequence.hxx>
 #include <SMS/game/MarDirector.hxx>
@@ -98,6 +99,71 @@ SMS_NO_INLINE bool BetterSMS::Stage::deregisterDraw2DCallback(const char *name) 
     return true;
 }
 
+void BetterSMS::Stage::TStageParams::reset() {
+  mIsExStage.set(false);
+  mIsDivingStage.set(false);
+  mIsOptionStage.set(false);
+  mIsMultiplayerStage.set(false);
+  mIsYoshiHungry.set(false);
+  mIsEggFree.set(true);
+  // mLightType.set(TLightContext::ActiveType::DISABLED);
+  // mLightPosX.set(0.0f);
+  // mLightPosY.set(3600.0f);
+  // mLightPosZ.set(-7458.0f);
+  // mLightSize.set(8000.0f);
+  // mLightStep.set(100.0f);
+  // mLightColor.set(JUtility::TColor(0, 20, 40, 0));
+  // mLightLayerCount.set(5);
+  // mLightDarkLevel.set(120);
+  // mPlayerSelectWhiteList.set(0xFFFFFFFF);
+  mPlayerHasFludd.set(true);
+  mPlayerHasHelmet.set(false);
+  mPlayerHasGlasses.set(false);
+  mPlayerHasShirt.set(false);
+  mPlayerCanRideYoshi.set(true);
+}
+
+void BetterSMS::Stage::TStageParams::load(const char* stageName) {
+    // DVDFileInfo fileInfo;
+    // s32 entrynum;
+    //
+    // char path[64];
+    // stageNameToParamPath(path, stageName, false);
+    //
+    // entrynum = DVDConvertPathToEntrynum(path);
+    // if (entrynum >= 0) {
+    //     DVDFastOpen(entrynum, &fileInfo);
+    //     void* buffer = JKRHeap::alloc(fileInfo.mLen, 32, nullptr);
+    //
+    //     DVDReadPrio(&fileInfo, buffer, fileInfo.mLen, 0, 2);
+    //     DVDClose(&fileInfo);
+    //     JSUMemoryInputStream stream(buffer, fileInfo.mLen);
+    //     TParams::load(stream);
+    //     JKRHeap::free(buffer, nullptr);
+    //     mIsCustomConfigLoaded = true;
+    //     return;
+    // }
+    //
+    // stageNameToParamPath(path, stageName, true);
+    //
+    // entrynum = DVDConvertPathToEntrynum(path);
+    // if (entrynum >= 0) {
+    //     DVDFastOpen(entrynum, &fileInfo);
+    //     void* buffer = JKRHeap::alloc(fileInfo.mLen, 32, nullptr);
+    //
+    //     DVDReadPrio(&fileInfo, buffer, fileInfo.mLen, 0, 2);
+    //     DVDClose(&fileInfo);
+    //     JSUMemoryInputStream stream(buffer, fileInfo.mLen);
+    //     TParams::load(stream);
+    //     JKRHeap::free(buffer, nullptr);
+    //     mIsCustomConfigLoaded = true;
+    //     return;
+    // }
+    //
+    // mIsCustomConfigLoaded = false;
+}
+
+
 #pragma region MapIdentifiers
 
 static bool isExMap() {
@@ -156,9 +222,14 @@ void resetGlobalValues(TMarDirector *) {
     gAudioSpeed  = 1.0f;
 }
 
+Stage::TStageParams* Stage::TStageParams::sStageConfig = nullptr;
+
 // Extern to stage init
 void loadStageConfig(TMarDirector *) {
     Console::debugLog("Reseting stage params...\n");
+
+    Stage::TStageParams::sStageConfig =
+        new (JKRHeap::sRootHeap, 4) Stage::TStageParams(nullptr);
 
     Stage::TStageParams *config = Stage::getStageConfiguration();
     config->reset();

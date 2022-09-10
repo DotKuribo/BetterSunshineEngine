@@ -1,8 +1,0 @@
-# ninja log v5
-0	9	0	clean	8c45b54705a541e8
-130	560	6811048883229832	CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/GX.c.obj	ca27cb38697bf96
-103	595	6811048883664910	CMakeFiles/BetterSunshineEngine.dir/src/cstd/stdlib.c.obj	7727fc63a7f1c504
-56	588	6811048883684912	CMakeFiles/BetterSunshineEngine.dir/src/cstd/ctype.c.obj	c7cc4c0317e22244
-125	605	6811048883829938	CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/DVD.c.obj	e32d36d4d482753e
-120	599	6811048883754922	CMakeFiles/BetterSunshineEngine.dir/src/libs/dolphin/AI.c.obj	216311134686dfec
-107	658	6811048884485056	CMakeFiles/BetterSunshineEngine.dir/src/geometry.cpp.obj	bd6beda75c729960

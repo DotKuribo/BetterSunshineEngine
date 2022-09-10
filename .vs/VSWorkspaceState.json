@@ -1,14 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\assets\\bin",
-    "\\maps",
-    "\\out",
-    "\\src\\physics",
+    "\\lib",
+    "\\lib\\sms_interface",
+    "\\lib\\sms_interface\\include",
+    "\\lib\\sms_interface\\include\\JSystem",
+    "\\lib\\sms_interface\\include\\JSystem\\JGadget",
+    "\\src",
     "\\src\\sunscript",
     "\\targets",
     "\\tools"
   ],
-  "SelectedNode": "\\targets\\GCNKuriboClangDebug.cmake",
+  "SelectedNode": "\\CMakeLists.txt",
   "PreviewInSolutionExplorer": false
 }

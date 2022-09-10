@@ -31,6 +31,7 @@ file(GLOB BETTERSMS_SRC
     "src/collision/*.cpp"
     "src/cstd/*.c"
     "src/cstd/*.cpp"
+    "src/libs/*.cpp"
     "src/libs/dolphin/*.c"
     "src/patches/*.c"
     "src/patches/*.cpp"
@@ -46,12 +47,13 @@ file(GLOB BETTERSMS_SRC
     "include/*.hxx"
 )
 
+
 add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
 add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")
 
-target_link_libraries(BetterSunshineEngine PUBLIC Dolphin JSystem SMS Kamek Kuribo)
+target_link_libraries(BetterSunshineEngine PUBLIC Dolphin JSystem SMS Kamek Kuribo ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a)
 target_include_directories(BetterSunshineEngine PRIVATE include lib/sms_interface/include)
 
 target_compile_options(BetterSunshineEngine PUBLIC
@@ -75,5 +77,5 @@ endif()
 add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
 add_custom_command(
 	TARGET ${PROJECT_NAME}.kxe
-	COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} ${PROJECT_NAME}.kxe ${SMS_REGION}.map
+	COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} ${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
 )

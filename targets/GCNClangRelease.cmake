@@ -20,12 +20,14 @@ set(CMAKE_CXX_STANDARD_LIBRARIES "")
 set(SMS_COMPILE_FLAGS
 	-O3 -DKURIBO_NO_TYPES -fno-inline
 	-DGEKKO -fno-exceptions -fno-rtti
-	-ffast-math -fpermissive -D__powerpc_
+	-ffast-math -fpermissive -D__powerpc__
 	--target=ppc-linux-eabi -mcpu=750
+	-fno-function-sections -fno-data-sections
 )
 set(SMS_LINK_FLAGS
 	-nostdlib -fuse-ld=lld -mllvm
-	--march=ppc-linux-eabi -mllvm -mcpu=750
+	--march=ppc-linux-eabi -mllvm -mcpu=750 -r
+	-fno-function-sections -fno-data-sections
 )
 
 set(LIBSTDCPP_VERSION "10.2.0")

@@ -48,7 +48,12 @@ extern void initMario(TMario *, bool);
 // PLAYER WARP
 extern void processWarp(TMario *, bool);
 
-static void initLib() {
+static TMarDirector *initLib() {
+
+    TMarDirector* director;
+    SMS_FROM_GPR(26, director);
+
+    Console::debugLog("Initializing the sound bank... F\n");
     makeExtendedObjDataTable();
 
     // Set up debug handlers
@@ -69,7 +74,12 @@ static void initLib() {
     // Set up loading screen
     Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
     Stage::registerUpdateCallback("__update_load_screen", (Stage::StageUpdateCallback)0);
+
+
+    return director;
 }
+
+SMS_PATCH_BL(SMS_PORT_REGION(0x802998B4, 0x8029174C, 0, 0), initLib);
 
 static void destroyLib() {
     Console::log("-- Destroying Module --\n");

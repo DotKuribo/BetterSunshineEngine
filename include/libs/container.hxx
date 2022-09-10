@@ -2,6 +2,7 @@
 
 #include <Dolphin/string.h>
 #include <Dolphin/types.h>
+#include <Dolphin/OS.h>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <JSystem/JGadget/List.hxx>
 #include <SMS/assert.h>
@@ -185,6 +186,7 @@ public:
     }
 
     void set(const char *key, _V value) {
+        OSReport("Initializing the sound bank...\n");
         const u32 index = getIndex(getHash(key));
 
         auto itemList = mItemBuffer[index];
