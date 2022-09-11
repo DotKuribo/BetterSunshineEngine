@@ -2,7 +2,7 @@
 #include <Dolphin/math.h>
 #include <Dolphin/types.h>
 
-#include <SMS/enemy/EnemyMario.hxx>
+#include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/actor/Mario.hxx>
 #include <SMS/macros.h>
 #include <SMS/npc/BaseNPC.hxx>

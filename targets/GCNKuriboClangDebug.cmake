@@ -2,10 +2,10 @@ set(CMAKE_CROSSCOMPILING TRUE)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR powerpc)
 
-set(CMAKE_C_COMPILER "F:/Github/build/Release/bin/clang.exe")
-set(CMAKE_CXX_COMPILER "F:/Github/build/Release/bin/clang.exe")
+set(CMAKE_C_COMPILER "C:/Program Files/KuriboClang/bin/clang.exe")
+set(CMAKE_CXX_COMPILER "C:/Program Files/KuriboClang/bin/clang.exe")
 
-SET(CMAKE_C_LINK_EXECUTABLE "F:/Github/build/Release/bin/clang.exe")
+SET(CMAKE_C_LINK_EXECUTABLE "C:/Program Files/KuriboClang/bin/clang.exe")
 
 set(triple powerpc-gecko-ibm-kuribo-eabi)
 set(CMAKE_C_COMPILER_TARGET ${triple})
@@ -36,7 +36,7 @@ set(SMS_COMPILE_FLAGS
 
     ${SMS_COMPILE_DEFINES}
 
-	-O3 -fno-inline -fno-exceptions 
+	-O2 -fno-inline -fno-exceptions 
     -fno-rtti -ffast-math -fpermissive
     -fdeclspec -fno-unwind-tables
     -nodefaultlibs -nobuiltininc -nostdinc++ -nostdlib

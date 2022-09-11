@@ -195,7 +195,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
 static bool isExMap() {
     auto config = Stage::getStageConfiguration();
-    if (config->isCustomConfig())
+    if (config && config->isCustomConfig())
         return config->mIsExStage.get();
     else
         return (gpApplication.mCurrentScene.mAreaID >= TGameSequence::DOLPICEX0 &&
@@ -205,7 +205,7 @@ SMS_PATCH_B(SMS_PORT_REGION(0x802A8B58, 0x802A0C00, 0, 0), isExMap);
 
 static bool isMultiplayerMap() {
     auto config = Stage::getStageConfiguration();
-    if (config->isCustomConfig())
+    if (config && config->isCustomConfig())
         return config->mIsMultiplayerStage.get();
     else
         return (gpMarDirector->mAreaID == TGameSequence::TEST10 && gpMarDirector->mEpisodeID == 0);
@@ -214,7 +214,7 @@ SMS_PATCH_B(SMS_PORT_REGION(0x802A8B30, 0x802A0BD8, 0, 0), isMultiplayerMap);
 
 static bool isDivingMap() {
     auto config = Stage::getStageConfiguration();
-    if (config->isCustomConfig())
+    if (config && config->isCustomConfig())
         return config->mIsDivingStage.get();
     else
         return (gpMarDirector->mAreaID == TGameSequence::MAREBOSS ||
@@ -225,7 +225,7 @@ SMS_PATCH_B(SMS_PORT_REGION(0x802A8AFC, 0x802A0BA4, 0, 0), isDivingMap);
 
 static bool isOptionMap() {
     auto config = Stage::getStageConfiguration();
-    if (config->isCustomConfig())
+    if (config && config->isCustomConfig())
         return config->mIsOptionStage.get();
     else
         return (gpMarDirector->mAreaID == 15);

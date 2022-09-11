@@ -48,7 +48,7 @@ file(GLOB BETTERSMS_SRC
 )
 
 
-add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
+add_executable(BetterSunshineEngine ${BETTERSMS_SRC} src/cstd/ppceabi.c)
 add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")

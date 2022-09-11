@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Dolphin/OS.h>
 #include <Dolphin/string.h>
 #include <Dolphin/types.h>
-#include <Dolphin/OS.h>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <JSystem/JGadget/List.hxx>
 #include <SMS/assert.h>
@@ -169,7 +169,7 @@ public:
         bool operator!=(const Item &other) { return mKey != other.mKey; }
     };
 
-    TDictS() { mItemBuffer = new JGadget::TList<Item, JGadget::TAllocator>[SurfaceSize]; }
+    TDictS() { mItemBuffer = new JGadget::TList<Item>[SurfaceSize]; }
     ~TDictS();
 
     Optional<_V> operator[](const char *key) { return get(key); }
@@ -177,15 +177,15 @@ public:
     Optional<_V> get(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
-        JGadget::TList<Item, JGadget::TAllocator> itemList = mItemBuffer[index];
+        JGadget::TList<Item> itemList = mItemBuffer[index];
         for (auto item : itemList) {
             Item &keyValue = item->mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
-                return Optional<_V>(keyValue.mValue);
+                return {keyValue.mValue};
             }
         }
 
-        return Optional<_V>();
+        return {};
     }
 
     void set(const char *key, _V value) {
@@ -200,6 +200,7 @@ public:
                 return;
             }
         }
+        itemList.insert(itemList.end(), {key, value});
     }
 
     Optional<_V> pop(const char *key) {
@@ -247,14 +248,13 @@ public:
         return default_;
     }
 
-    JGadget::TList<Item, JGadget::TAllocator> items() const {
+    JGadget::TList<Item> items() const {
         if (!mItemBuffer)
-            return JGadget::TList<Item, JGadget::TAllocator>();
+            return {};
 
-
-        auto fullList = JGadget::TList<Item, JGadget::TAllocator>();
+        auto fullList = JGadget::TList<Item>();
         for (u32 i = 0; i < SurfaceSize; ++i) {
-            JGadget::TList<Item, JGadget::TAllocator> &itemList = mItemBuffer[i];
+            JGadget::TList<Item> &itemList = mItemBuffer[i];
             for (auto item : itemList) {
                 fullList.insert(fullList.end(), item->mItem);
             }
@@ -283,7 +283,7 @@ private:
     u16 getHash(const char *key) const { return JDrama::TNameRef::calcKeyCode(key); }
     u16 getHash(const JDrama::TNameRef &key) const { return key.mKeyCode; }
 
-    JGadget::TList<Item, JGadget::TAllocator> *mItemBuffer;
+    JGadget::TList<Item> *mItemBuffer;
 };
 
 template <typename _V> class TDictI {
@@ -295,7 +295,7 @@ public:
         _V mValue;
     };
 
-    TDictI() { mItemBuffer = new JGadget::TList<Item, JGadget::TAllocator>[SurfaceSize]; }
+    TDictI() { mItemBuffer = new JGadget::TList<Item>[SurfaceSize]; }
     ~TDictI();
 
     Optional<_V> operator[](u32 key) { return get(key); }
@@ -374,11 +374,11 @@ public:
         return default_;
     }
 
-    JGadget::TList<Item, JGadget::TAllocator> items() const {
+    JGadget::TList<Item> items() const {
         if (!mItemBuffer)
-            return JGadget::TList<Item, JGadget::TAllocator>();
+            return {};
 
-        auto fullList = JGadget::TList<Item, JGadget::TAllocator>();
+        auto fullList = JGadget::TList<Item>();
         for (u32 i = 0; i < SurfaceSize; ++i) {
             for (auto item : mItemBuffer[i]) {
                 fullList.insert(fullList.end(), item->mItem);
@@ -391,7 +391,7 @@ public:
     bool hasKey(u32 key) {
         const u32 index = getIndex(key);
 
-        JGadget::TList<Item, JGadget::TAllocator> itemList = mItemBuffer[index];
+        JGadget::TList<Item> itemList = mItemBuffer[index];
         for (auto item : itemList) {
             Item &keyValue = item->mItem;
             if (keyValue.mKey == key) {
@@ -405,5 +405,5 @@ public:
 private:
     constexpr u32 getIndex(u32 hash) { return hash % SurfaceSize; }
 
-    JGadget::TList<Item, JGadget::TAllocator> *mItemBuffer;
+    JGadget::TList<Item> *mItemBuffer;
 };
