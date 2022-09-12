@@ -20,4 +20,4 @@ namespace BetterSMS {
         bool deregisterDebugUpdateCallback(const char *name);
         bool deregisterDebugDrawCallback(const char *name);
     }  // namespace Debug
-};  // namespace BetterSMS
+};     // namespace BetterSMS

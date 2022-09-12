@@ -46,7 +46,7 @@ SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *play
                                                                     const char *key) {
     const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
     if (!dataDict.hasKey(key))
-        return Optional<void *>();
+        return {};
     return dataDict.get(key);
 }
 
@@ -466,6 +466,7 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
       mFireTimerMax(0) {
 
     mParams = new TPlayerParams();
+    OSReport("CREATED NEW PLAYER PARAMS AT 0x%X\n", mParams);
 
     mFluddHistory.mHadFludd     = false;
     mFluddHistory.mMainNozzle   = TWaterGun::Spray;
@@ -902,8 +903,8 @@ void initMario(TMario *player, bool isMario) {
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
 
-    for (auto item : sPlayerInitializers.items()) {
-        item->mItem.mValue(player, true);
+    for (auto &item : sPlayerInitializers.items()) {
+        item.mItem.mValue(player, true);
     }
 
     return player;
@@ -917,7 +918,7 @@ static bool shadowMarioInitHandler() {
     SMS_ASM_BLOCK("lwz %0, 0x150 (31)" : "=r"(player));
 
     for (const auto &item : sPlayerInitializers.items()) {
-        item->mItem.mValue(player, false);
+        item.mItem.mValue(player, false);
     }
 
     return SMS_isMultiPlayerMap__Fv();
@@ -925,8 +926,8 @@ static bool shadowMarioInitHandler() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x800397DC, 0x80039894, 0, 0), shadowMarioInitHandler);
 
 static void playerUpdateHandler(TMario *player) {
-    for (auto item : sPlayerUpdaters.items()) {
-        item->mItem.mValue(player, true);
+    for (auto &item : sPlayerUpdaters.items()) {
+        item.mItem.mValue(player, true);
     }
 
     setPositions__6TMarioFv(player);
@@ -934,8 +935,8 @@ static void playerUpdateHandler(TMario *player) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A8, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
 static void shadowMarioUpdateHandler(TMario *player) {
-    for (auto item : sPlayerUpdaters.items()) {
-        item->mItem.mValue(player, false);
+    for (auto &item : sPlayerUpdaters.items()) {
+        item.mItem.mValue(player, false);
     }
 
     setPositions__6TMarioFv(player);

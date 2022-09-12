@@ -72,20 +72,29 @@ SMS_NO_INLINE bool BetterSMS::Debug::deregisterDebugDrawCallback(const char *nam
 #pragma region CallbackHandlers
 
 void initDebugCallbacks(TMarDirector *director) {
-    for (auto item : sDebugInitCBs.items()) {
-        item->mItem.mValue(director);
+    if (!director)
+        return;
+
+    for (auto &item : sDebugInitCBs.items()) {
+        item.mItem.mValue(director);
     }
 }
 
 void updateDebugCallbacks(TMarDirector *director) {
-    for (auto item : sDebugUpdateCBs.items()) {
-        item->mItem.mValue(director);
+    if (!director)
+        return;
+
+    for (auto &item : sDebugUpdateCBs.items()) {
+        item.mItem.mValue(director);
     }
 }
 
 void drawDebugCallbacks(TMarDirector *director, J2DOrthoGraph *ortho) {
-    for (auto item : sDebugDrawCBs.items()) {
-        item->mItem.mValue(director, ortho);
+    if (!director || !ortho)
+        return;
+
+    for (auto &item : sDebugDrawCBs.items()) {
+        item.mItem.mValue(director, ortho);
     }
 }
 

@@ -24,19 +24,19 @@ constexpr nullopt_t nullopt{nullopt_t::_Construct::_Token};
 template <typename _T> class Optional {
 public:
     Optional() : mValue(nullptr) {}
-    Optional(_T value) { mValue = &value; }
+    Optional(_T value) { mValue = value; }
     Optional(nullopt_t) : mValue(nullptr) {}
 
     Optional &operator=(const Optional &other) {
         if (other.hasValue())
-            mValue = &other.value();
+            mValue = *other;
         else
             mValue = nullptr;
 
         return *this;
     }
     Optional &operator=(const _T &other) {
-        mValue = &other;
+        mValue = other;
         return *this;
     }
     Optional &operator=(nullopt_t) noexcept {
@@ -53,13 +53,13 @@ public:
         if (!other.hasValue())
             return false;
 
-        return value() == other.value();
+        return mValue == other.value();
     }
     bool operator==(const _T &other) {
         if (!hasValue())
             return false;
 
-        return value() == other;
+        return mValue == other;
     }
 
     bool operator==(nullopt_t) noexcept { return hasValue(); }
@@ -71,13 +71,13 @@ public:
         if (!other.hasValue())
             return true;
 
-        return value() != other.value();
+        return mValue != other.value();
     }
     bool operator!=(const _T &other) {
         if (!hasValue())
             return true;
 
-        return value() != other;
+        return mValue != other;
     }
     bool operator!=(nullopt_t) noexcept { return !hasValue(); }
 
@@ -86,14 +86,14 @@ public:
 
     bool hasValue() const { return mValue != nullptr; }
 
-    _T &value() const {
+    _T &value() {
         SMS_ASSERT(hasValue(), "Bad access to optional value!\n");
-        return *mValue;
+        return mValue;
     }
-    _T &valueOr(const _T &default_) const { return hasValue() ? *mValue : default_; }
+    _T &valueOr(_T &default_) { return hasValue() ? mValue : default_; }
 
 private:
-    _T *mValue;
+    _T mValue;
 };
 
 template <typename _T> class TRingBuffer {
@@ -160,7 +160,7 @@ private:
 
 template <typename _V> class TDictS {
 public:
-    static constexpr size_t SurfaceSize = 128;
+    static constexpr size_t SurfaceSize = 64;
 
     struct Item {
         const char *mKey;
@@ -177,9 +177,9 @@ public:
     Optional<_V> get(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
-        JGadget::TList<Item> itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (const auto &item : itemList) {
+            const Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 return {keyValue.mValue};
             }
@@ -189,12 +189,11 @@ public:
     }
 
     void set(const char *key, _V value) {
-        OSReport("Initializing the sound bank...\n");
         const u32 index = getIndex(getHash(key));
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 keyValue.mValue = value;
                 return;
@@ -206,24 +205,24 @@ public:
     Optional<_V> pop(const char *key) {
         const u32 index = getIndex(getHash(key));
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto i = itemList.begin(); i != itemList.end(); ++i) {
+            const Item &keyValue = i->mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
-                itemList.erase(item);
-                return Optional<_V>(keyValue.mValue);
+                itemList.erase(i);
+                return {keyValue.mValue};
             }
         }
 
-        return Optional<_V>();
+        return {};
     }
 
     _V &setDefault(const char *key, _V &default_) {
         const u32 index = getIndex(getHash(key));
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : mItemBuffer[index]) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 return keyValue.mValue;
             }
@@ -236,9 +235,9 @@ public:
     _V &setDefault(const char *key, _V &&default_) {
         const u32 index = getIndex(getHash(key));
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : mItemBuffer[index]) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 return keyValue.mValue;
             }
@@ -249,14 +248,11 @@ public:
     }
 
     JGadget::TList<Item> items() const {
-        if (!mItemBuffer)
-            return {};
-
         auto fullList = JGadget::TList<Item>();
         for (u32 i = 0; i < SurfaceSize; ++i) {
             JGadget::TList<Item> &itemList = mItemBuffer[i];
-            for (auto item : itemList) {
-                fullList.insert(fullList.end(), item->mItem);
+            for (const auto &item : itemList) {
+                fullList.insert(fullList.end(), item.mItem);
             }
         }
 
@@ -266,9 +262,9 @@ public:
     bool hasKey(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (const auto &item : itemList) {
+            const Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 return true;
             }
@@ -288,7 +284,7 @@ private:
 
 template <typename _V> class TDictI {
 public:
-    static constexpr size_t SurfaceSize = 128;
+    static constexpr size_t SurfaceSize = 64;
 
     struct Item {
         u32 mKey;
@@ -303,23 +299,23 @@ public:
     Optional<_V> get(u32 key) {
         const u32 index = getIndex(key);
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (const auto &item : itemList) {
+            const Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
-                return Optional<_V>(keyValue.mValue);
+                return {keyValue.mValue};
             }
         }
 
-        return Optional<_V>();
+        return {};
     }
 
     void set(u32 key, _V value) {
         const u32 index = getIndex(key);
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
                 keyValue.mValue = value;
                 return;
@@ -332,11 +328,11 @@ public:
     Optional<_V> pop(u32 key) {
         const u32 index = getIndex(key);
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto i = itemList.begin(); i != itemList.end(); ++i) {
+            const Item &keyValue = i->mItem;
             if (keyValue.mKey == key) {
-                itemList.erase(item);
+                itemList.erase(i);
                 return keyValue.mValue;
             }
         }
@@ -347,9 +343,9 @@ public:
     _V &setDefault(u32 key, _V &default_) {
         const u32 index = getIndex(key);
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
                 return keyValue.mValue;
             }
@@ -362,9 +358,9 @@ public:
     _V &setDefault(u32 key, _V &&default_) {
         const u32 index = getIndex(key);
 
-        auto itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
                 return keyValue.mValue;
             }
@@ -380,8 +376,8 @@ public:
 
         auto fullList = JGadget::TList<Item>();
         for (u32 i = 0; i < SurfaceSize; ++i) {
-            for (auto item : mItemBuffer[i]) {
-                fullList.insert(fullList.end(), item->mItem);
+            for (const auto &item : mItemBuffer[i]) {
+                fullList.insert(fullList.end(), item.mItem);
             }
         }
 
@@ -391,9 +387,9 @@ public:
     bool hasKey(u32 key) {
         const u32 index = getIndex(key);
 
-        JGadget::TList<Item> itemList = mItemBuffer[index];
-        for (auto item : itemList) {
-            Item &keyValue = item->mItem;
+        auto &itemList = mItemBuffer[index];
+        for (const auto &item : itemList) {
+            const Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
                 return true;
             }

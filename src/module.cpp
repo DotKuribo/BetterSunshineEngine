@@ -72,8 +72,8 @@ static TMarDirector *initLib() {
     Player::registerUpdateProcess("__update_mario_warp", processWarp);
 
     // Set up loading screen
-    Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
-    Stage::registerUpdateCallback("__update_load_screen", (Stage::StageUpdateCallback)0);
+    // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
+    // Stage::registerUpdateCallback("__update_load_screen", (Stage::StageUpdateCallback)0);
 
     return director;
 }

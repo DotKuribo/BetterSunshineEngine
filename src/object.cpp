@@ -150,8 +150,8 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
     if (obj)
         return obj;
 
-    for (auto item : sCustomEnemyObjList.items()) {
-        auto dictItem = item->mItem;
+    for (auto &item : sCustomEnemyObjList.items()) {
+        auto dictItem = item.mItem;
         if (strcmp(dictItem.mKey, name) == 0) {
             auto initFn = dictItem.mValue;
             return initFn();
@@ -167,8 +167,8 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
     if (obj)
         return obj;
 
-    for (auto item : sCustomEnemyObjList.items()) {
-        auto dictItem = item->mItem;
+    for (auto &item : sCustomEnemyObjList.items()) {
+        auto dictItem = item.mItem;
         if (strcmp(dictItem.mKey, name) == 0) {
             auto initFn = dictItem.mValue;
             return initFn();
@@ -186,8 +186,8 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
     if (obj)
         return obj;
 
-    for (auto item : sCustomEnemyObjList.items()) {
-        auto dictItem = item->mItem;
+    for (auto &item : sCustomEnemyObjList.items()) {
+        auto dictItem = item.mItem;
         if (strcmp(dictItem.mKey, name) == 0) {
             auto initFn = dictItem.mValue;
             return initFn();
@@ -206,8 +206,8 @@ static THitActor **objectInteractionHandler() {
 
     THitActor *obj = player->mCollidingObjs[objIndex >> 2];
 
-    for (auto item : sCustomObjInteractionList.items()) {
-        auto dictItem = item->mItem;
+    for (auto &item : sCustomObjInteractionList.items()) {
+        auto dictItem = item.mItem;
         if (dictItem.mKey == obj->mObjectID) {
             auto interactFn = dictItem.mValue;
             interactFn(obj, player);
@@ -226,8 +226,8 @@ static THitActor *objGrabHandler() {
     if (!obj)
         return obj;
 
-    for (auto item : sCustomObjGrabList.items()) {
-        auto dictItem = item->mItem;
+    for (auto &item : sCustomObjGrabList.items()) {
+        auto dictItem = item.mItem;
         if (dictItem.mKey == obj->mObjectID) {
             auto interactFn = dictItem.mValue;
             interactFn(obj, player);
