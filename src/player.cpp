@@ -129,6 +129,8 @@ void processWarp(TMario *player, bool isMario) {
 
     TBGCheckData *linkedCol =
         BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
+    if (!linkedCol)
+        return;
 
     TVectorTriangle colTriangle =
         TVectorTriangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
