@@ -77,7 +77,7 @@ static u32 _sLastOfs     = 0;
 static u8 _sLastVol      = 0xFF;
 static bool _startPaused = false;
 
-#if SMS_CUSTOM_MUSIC
+#if BETTER_SMS_CUSTOM_MUSIC
 static void updaterLoop() {
     main__Q28JASystem10HardStreamFv();
 

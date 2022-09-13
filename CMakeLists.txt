@@ -8,13 +8,13 @@ option(SMS_FIX_CRASHES "Repair supported crashes in Super Mario Sunshine" ON)
 option(SMS_FIX_BUGS "Repair supported bugs in Super Mario Sunshine" ON)
 option(SMS_FIX_DOWNWARP "Changes OOB behavior so downwarping ceases" ON)
 option(SMS_FIX_YOSHI_NOZZLES "Enhances nozzle behavior while riding Yoshi" ON)
+option(SMS_INCLUDE_WIDESCREEN "Includes extended render distance" ON)
 option(SMS_INCLUDE_MUSIC "Includes streamed music features" ON)
 option(SMS_INCLUDE_EXTENDED_SHINES "Includes support for 999 shines" ON)
 option(SMS_INCLUDE_EXTENDED_OBJECTS "Includes support for custom objects" ON)
 option(SMS_INCLUDE_EXTENDED_COLLISION "Includes extended collision types" ON)
 option(SMS_INCLUDE_EXTENDED_VISIBILITY "Includes extended render distance" ON)
 option(SMS_INCLUDE_EXTENDED_MOVESET "Includes extended moves such as Hover Burst, Hover Slide, and Long Jumping" ON)
-option(SMS_INCLUDE_MULTI_CHARACTERS "Includes multiple character support" ON)
 option(SMS_INCLUDE_GREEN_YOSHI "Includes Green Yoshi and the free egg system" ON)
 option(SMS_INCLUDE_UNDERWATER_FRUIT "Includes non-perishing underwater fruit" ON)
 option(SMS_INCLUDE_SLOT_B_SUPPORT "Includes Slot B memcard support" ON)
@@ -33,6 +33,8 @@ file(GLOB BETTERSMS_SRC
     "src/cstd/*.cpp"
     "src/libs/*.cpp"
     "src/libs/dolphin/*.c"
+    "src/moveset/*.c"
+    "src/moveset/*.cpp"
     "src/patches/*.c"
     "src/patches/*.cpp"
     "src/physics/*.c"
@@ -43,12 +45,12 @@ file(GLOB BETTERSMS_SRC
     "src/sunscript/*.cpp"
     "src/yoshi/*.c"
     "src/yoshi/*.cpp"
-    #"include/*.h"
-    #"include/*.hxx"
+    "include/*.h"
+    "include/*.hxx"
 )
 
 
-add_executable(BetterSunshineEngine ${BETTERSMS_SRC} src/cstd/ppceabi.c)
+add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
 add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")
@@ -64,84 +66,82 @@ target_link_options(BetterSunshineEngine PUBLIC
     ${SMS_LINK_FLAGS}
 )
 
-target_compile_definitions(BetterSunshineEngine PUBLIC KURIBO_NO_TYPES BETTER_SMS_VERSION="v1.0")
+list(APPEND BETTER_SMS_CONFIG_DEFINES "KURIBO_NO_TYPES" "BETTER_SMS_VERSION=\"v1.0\"")
 
 if(SMS_FIX_CRASHES)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CRASHFIXES)
+    
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_CRASHFIXES=1")
 endif()
 
 if(SMS_FIX_BUGS)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_BUGFIXES=1")
 endif()
 
 if(SMS_FIX_DOWNWARP)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_NO_DOWNWARP)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_NO_DOWNWARP=1")
 endif()
 
 if(SMS_FIX_YOSHI_NOZZLES)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_YOSHI_SAVE_NOZZLES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_YOSHI_SAVE_NOZZLES=1")
+endif()
+
+if(SMS_INCLUDE_WIDESCREEN)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_WIDESCREEN=1")
 endif()
 
 if(SMS_INCLUDE_MUSIC)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CUSTOM_MUSIC)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_CUSTOM_MUSIC=1")
 endif()
 
 if(SMS_INCLUDE_EXTENDED_SHINES)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTRA_SHINES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXTRA_SHINES=1")
 endif()
 
 if(SMS_INCLUDE_EXTENDED_OBJECTS)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTRA_OBJECTS)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXTRA_OBJECTS=1")
 endif()
 
 if(SMS_INCLUDE_EXTENDED_COLLISION)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTRA_COLLISION)
-endif()
-
-if(SMS_INCLUDE_EXTENDED_VISIBILITY)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTENDED_RENDER_DISTANCE)
-endif()
-
-if(SMS_INCLUDE_EXTENDED_MOVESET)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_LONG_JUMP
-                                                           BETTER_SMS_MULTI_JUMP
-                                                           BETTER_SMS_HOVER_BURST
-                                                           BETTER_SMS_HOVER_SLIDE
-                                                           BETTER_SMS_ROCKET_DIVE)
-endif()
-
-if(SMS_INCLUDE_MULTI_CHARACTERS)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CUSTOM_CHARACTERS)
-endif()
-
-if(SMS_INCLUDE_GREEN_YOSHI)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
-endif()
-
-if(SMS_INCLUDE_UNDERWATER_FRUIT)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
-endif()
-
-if(SMS_INCLUDE_SLOT_B_SUPPORT)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXTRA_COLLISION=1")
 endif()
 
 if(SMS_INCLUDE_BMG_EXTENSION)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXTRA_BMG_COMMANDS=1")
+endif()
+
+if(SMS_INCLUDE_EXTENDED_VISIBILITY)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXTENDED_RENDER_DISTANCE=1")
+endif()
+
+if(SMS_INCLUDE_EXTENDED_MOVESET)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_LONG_JUMP=1" "BETTER_SMS_MULTI_JUMP=1" "BETTER_SMS_HOVER_BURST=1" "BETTER_SMS_HOVER_SLIDE=1" "BETTER_SMS_ROCKET_DIVE=1")
+endif()
+
+if(SMS_INCLUDE_GREEN_YOSHI)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_GREEN_YOSHI=1")
+endif()
+
+if(SMS_INCLUDE_UNDERWATER_FRUIT)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_UNDERWATER_FRUIT=1")
+endif()
+
+if(SMS_INCLUDE_SLOT_B_SUPPORT)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_SLOT_B_SUPPORT=1")
 endif()
 
 if(SMS_INCLUDE_SHADOW_MARIO_HEALTH)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_SHADOW_MARIO_HEALTHBAR=1")
 endif()
 
 if(SMS_INCLUDE_DYNAMIC_FALL_DAMAGE)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_DYNAMIC_FALL_DAMAGE=1")
 endif()
 
 if(SMS_INCLUDE_EXCEPTION_HANDLER)
-    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXCEPTION_HANDLER=1")
 endif()
 
+target_compile_definitions(BetterSunshineEngine PUBLIC ${BETTER_SMS_CONFIG_DEFINES})
 
 add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
 add_custom_command(

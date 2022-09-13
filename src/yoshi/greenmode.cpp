@@ -48,7 +48,7 @@ static bool canMountYoshi() {
     SMS_FROM_GPR(31, player);
 
     auto playerData = Player::getData(player);
-    auto *params                    = playerData->getParams();
+    auto *params    = playerData->getParams();
 
     if (params->mSizeMultiplier.get() *
             Stage::getStageConfiguration()->mPlayerSizeMultiplier.get() >

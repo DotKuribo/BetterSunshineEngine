@@ -162,7 +162,7 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
 
     return nullptr;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029E120, 0x80295FFC, 0, 0), makeExtendedMapObjFromRef);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8029E120, 0x80295FFC, 0, 0), makeExtendedMapObjFromRef);
 
 static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, const char *name) {
     JDrama::TNameRef *obj = nameGen->getNameRef_BossEnemy(name);
@@ -181,7 +181,7 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
 
     return nullptr;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029D2F4, 0x802951D0, 0, 0), makeExtendedBossEnemyFromRef);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8029D2F4, 0x802951D0, 0, 0), makeExtendedBossEnemyFromRef);
 
 static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, const char *name) {
     JDrama::TNameRef *obj = reinterpret_cast<JDrama::TNameRef *>(
@@ -202,7 +202,7 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
 
     return nullptr;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029EDD8, 0, 0, 0), makeExtendedGenericFromRef);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8029EDD8, 0, 0, 0), makeExtendedGenericFromRef);
 
 static THitActor **objectInteractionHandler() {
     TMario *player;

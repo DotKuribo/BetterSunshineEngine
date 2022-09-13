@@ -8,7 +8,7 @@
 
 #include "music.hxx"
 
-#include "common_sdk.h"
+#include "module.hxx"
 
 using namespace BetterSMS;
 
@@ -173,22 +173,22 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801BCEEC, 0x801B4DA4, 0, 0), setKillState);
 static SMS_ASM_FUNC void thinkCloseCamera() {
 #if defined(PAL)
     SMS_ASM_BLOCK("lbz       0, 0x190 (31)        \n\t"
-                 "lwz       4, 0x154 (31)        \n\t"
-                 "rlwinm.   4, 4, 0, 27, 27     \n\t"
-                 "bne       .Ltmp0              \n\t"
-                 "li        0, 0                \n\t"
+                  "lwz       4, 0x154 (31)        \n\t"
+                  "rlwinm.   4, 4, 0, 27, 27     \n\t"
+                  "bne       .Ltmp0              \n\t"
+                  "li        0, 0                \n\t"
 
-                 ".Ltmp0:                       \n\t"
-                 "blr                           \n\t");
+                  ".Ltmp0:                       \n\t"
+                  "blr                           \n\t");
 #else
     SMS_ASM_BLOCK("lbz       0, 0x190 (4)        \n\t"
-                 "lwz       4, 0x154 (4)        \n\t"
-                 "rlwinm.   4, 4, 0, 27, 27     \n\t"
-                 "bne       .Ltmp0              \n\t"
-                 "li        0, 0                \n\t"
+                  "lwz       4, 0x154 (4)        \n\t"
+                  "rlwinm.   4, 4, 0, 27, 27     \n\t"
+                  "bne       .Ltmp0              \n\t"
+                  "li        0, 0                \n\t"
 
-                 ".Ltmp0:                       \n\t"
-                 "blr                           \n\t");
+                  ".Ltmp0:                       \n\t"
+                  "blr                           \n\t");
 #endif
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8029A590, 0x80292460, 0, 0), thinkCloseCamera);
@@ -196,28 +196,28 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8029A594, 0x80292464, 0, 0), 0x28000000);
 
 static SMS_ASM_FUNC void animationFreezeCheck() {
     SMS_ASM_BLOCK("lbz       0, 0x64(26)         \n\t"
-                 "cmpwi     0, 10               \n\t"
-                 "beq-      .loc_0x38           \n\t"
-                 "bge-      .loc_0x18           \n\t"
-                 "cmpwi     0, 5                \n\t"
-                 "bne-      .loc_0x3C           \n\t"
+                  "cmpwi     0, 10               \n\t"
+                  "beq-      .loc_0x38           \n\t"
+                  "bge-      .loc_0x18           \n\t"
+                  "cmpwi     0, 5                \n\t"
+                  "bne-      .loc_0x3C           \n\t"
 
-                 ".loc_0x18:                    \n\t"
-                 "cmpwi     0, 13               \n\t"
-                 "bge-      .loc_0x3C           \n\t"
-                 "lis 3,    gpMarioAddress@ha   \n\t"
-                 "lwz 3,    gpMarioAddress@l (3)\n\t"
-                 "lwz       3, 0x7C(3)          \n\t"
-                 "cmpwi     3, 0x1302           \n\t"
-                 "bne-      .loc_0x38           \n\t"
-                 "cmpwi     0, 11               \n\t"
-                 "beq-      .loc_0x3C           \n\t"
+                  ".loc_0x18:                    \n\t"
+                  "cmpwi     0, 13               \n\t"
+                  "bge-      .loc_0x3C           \n\t"
+                  "lis 3,    gpMarioAddress@ha   \n\t"
+                  "lwz 3,    gpMarioAddress@l (3)\n\t"
+                  "lwz       3, 0x7C(3)          \n\t"
+                  "cmpwi     3, 0x1302           \n\t"
+                  "bne-      .loc_0x38           \n\t"
+                  "cmpwi     0, 11               \n\t"
+                  "beq-      .loc_0x3C           \n\t"
 
-                 ".loc_0x38:                    \n\t"
-                 "ori       27, 27, 0x3         \n\t"
+                  ".loc_0x38:                    \n\t"
+                  "ori       27, 27, 0x3         \n\t"
 
-                 ".loc_0x3C:                    \n\t"
-                 "blr                           \n\t");
+                  ".loc_0x3C:                    \n\t"
+                  "blr                           \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802999D8, 0x80291870, 0, 0), animationFreezeCheck);
 SMS_WRITE_32(SMS_PORT_REGION(0x802999DC, 0x80291874, 0, 0), 0x48000034);

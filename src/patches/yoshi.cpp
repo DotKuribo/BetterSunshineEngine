@@ -8,7 +8,7 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_BUGFIXES
+#if BETTER_SMS_YOSHI_SAVE_NOZZLES
 
 static bool isYoshiMaintainFluddModel() {
     TMario *player;

@@ -7,7 +7,6 @@
 #include <SMS/actor/Mario.hxx>
 #include <SMS/npc/BaseNPC.hxx>
 
-
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "player.hxx"

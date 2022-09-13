@@ -53,7 +53,36 @@ static TMarDirector *initLib() {
     TMarDirector *director;
     SMS_FROM_GPR(26, director);
 
-    Console::debugLog("Initializing the sound bank... F\n");
+#define STRINGIFY_CONFIG(c) ":: " #c " = " SMS_STRINGIZE(c) "\n"
+
+    // clang-format off
+    Console::log("==== BetterSunshineEngine Config ====\n"
+                 STRINGIFY_CONFIG(BETTER_SMS_CRASHFIXES)
+                 STRINGIFY_CONFIG(BETTER_SMS_BUGFIXES)
+                 STRINGIFY_CONFIG(BETTER_SMS_NO_DOWNWARP)
+                 STRINGIFY_CONFIG(BETTER_SMS_YOSHI_SAVE_NOZZLES)
+                 STRINGIFY_CONFIG(BETTER_SMS_CUSTOM_MUSIC)
+                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_SHINES)
+                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_OBJECTS)
+                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_COLLISION)
+                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_BMG_COMMANDS)
+                 STRINGIFY_CONFIG(BETTER_SMS_EXTENDED_RENDER_DISTANCE)
+                 STRINGIFY_CONFIG(BETTER_SMS_LONG_JUMP)
+                 STRINGIFY_CONFIG(BETTER_SMS_MULTI_JUMP)
+                 STRINGIFY_CONFIG(BETTER_SMS_HOVER_BURST)
+                 STRINGIFY_CONFIG(BETTER_SMS_HOVER_SLIDE)
+                 STRINGIFY_CONFIG(BETTER_SMS_ROCKET_DIVE)
+                 STRINGIFY_CONFIG(BETTER_SMS_GREEN_YOSHI)
+                 STRINGIFY_CONFIG(BETTER_SMS_UNDERWATER_FRUIT)
+                 STRINGIFY_CONFIG(BETTER_SMS_SLOT_B_SUPPORT)
+                 STRINGIFY_CONFIG(BETTER_SMS_SHADOW_MARIO_HEALTHBAR)
+                 STRINGIFY_CONFIG(BETTER_SMS_DYNAMIC_FALL_DAMAGE)
+                 STRINGIFY_CONFIG(BETTER_SMS_EXCEPTION_HANDLER)
+                 "=====================================\n");
+    // clang-format on
+
+#undef STRINGIFY_CONFIG
+
     makeExtendedObjDataTable();
 
     // Set up debug handlers
