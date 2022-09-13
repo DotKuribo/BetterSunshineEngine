@@ -12,8 +12,8 @@
 #include <SMS/raw_fn.hxx>
 
 #include "collision/warp.hxx"
-
 #include "libs/container.hxx"
+#include "logging.hxx"
 
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
@@ -196,7 +196,11 @@ namespace BetterSMS {
             bool getCanUseFludd() const { return mCanUseFludd; }
             u8 getMaxJumps() const { return mParams->mMaxJumps.get(); }
             u8 getNozzleBoneID(TWaterGun::NozzleType nozzle) const;
-            const TPlayerParams *getParams() const { return mParams; }
+            const TPlayerParams *getParams() const {
+                if (!mParams)
+                    Console::debugLog("Trying to access player params that don't exist!\n");
+                return mParams;
+            }
             const TMario *getPlayer() const { return mPlayer; }
             u32 getPlayerID() const { return mPlayerID; }
             const u16 getPlayerKey() const {

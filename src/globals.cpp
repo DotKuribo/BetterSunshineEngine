@@ -13,12 +13,17 @@ BetterSMS::Collision::TWarpCollisionList *BetterSMS::sWarpColArray         = nul
 BetterSMS::Collision::TWarpCollisionList *BetterSMS::sWarpColPreserveArray = nullptr;
 bool BetterSMS::sIsAudioStreaming                                          = false;
 bool BetterSMS::sIsAudioStreamAllowed                                      = false;
-bool BetterSMS::sIsDebugMode                                               = true;
+
+#ifdef NDEBUG
+bool BetterSMS::sIsDebugMode = false;
+#else
+bool BetterSMS::sIsDebugMode = true;
+#endif
 
 #if BETTER_SMS_WIDESCREEN
 f32 BetterSMS::sScreenWidth = 700.0f;
 #else
-f32 BetterSMS::sScreenWidth = 600.0f;
+f32 BetterSMS::sScreenWidth  = 600.0f;
 #endif
 
 f32 BetterSMS::sFrameRate = 30.0f;

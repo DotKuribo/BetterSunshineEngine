@@ -5,6 +5,7 @@
 
 #include "debug.hxx"
 #include "libs/container.hxx"
+#include "module.hxx"
 
 using namespace BetterSMS;
 
@@ -72,7 +73,7 @@ SMS_NO_INLINE bool BetterSMS::Debug::deregisterDebugDrawCallback(const char *nam
 #pragma region CallbackHandlers
 
 void initDebugCallbacks(TMarDirector *director) {
-    if (!director)
+    if (!director || !BetterSMS::isDebugMode())
         return;
 
     TDictS<Debug::DebugModeInitCallback>::ItemList initCBs;
@@ -84,7 +85,7 @@ void initDebugCallbacks(TMarDirector *director) {
 }
 
 void updateDebugCallbacks(TMarDirector *director) {
-    if (!director)
+    if (!director || !BetterSMS::isDebugMode())
         return;
 
     TDictS<Debug::DebugModeUpdateCallback>::ItemList updateCBs;
@@ -96,7 +97,7 @@ void updateDebugCallbacks(TMarDirector *director) {
 }
 
 void drawDebugCallbacks(TMarDirector *director, J2DOrthoGraph *ortho) {
-    if (!director || !ortho)
+    if (!director || !ortho || !BetterSMS::isDebugMode())
         return;
 
     TDictS<Debug::DebugModeDrawCallback>::ItemList drawCBs;

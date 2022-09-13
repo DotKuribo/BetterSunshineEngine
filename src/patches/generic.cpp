@@ -40,8 +40,13 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80171C38, 0x80167A48, 0, 0), 0x38000005);
 SMS_WRITE_32(SMS_PORT_REGION(0x8016D53C, 0x801628AC, 0, 0), 0x48000344);
 #endif
 
-// Load msound.aaf from AudioRes folder (NTSC-U) [Xayrga/JoshuaMK]
-SMS_WRITE_32(SMS_PORT_REGION(0x80014F9C, 0x80014ff8, 0, 0), 0x60000000);
+// // Load msound.aaf from AudioRes folder or archive (NTSC-U) [Xayrga/JoshuaMK]
+static void smartMSoundLoad(u32 *data) {
+    if (*data != 0) {
+        setParamInitDataPointer__18JAIGlobalParameterFPv(data);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80014F9C, 0x80014ff8, 0, 0), smartMSoundLoad);
 
 /* -- PATCHES -- */
 

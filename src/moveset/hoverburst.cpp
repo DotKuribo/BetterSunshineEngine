@@ -12,6 +12,20 @@ using namespace BetterSMS;
 
 static bool sIsTriggerNozzleDead = false;
 
+static void snapToReadyForBurst() {
+    TWaterGun *fludd;
+    SMS_FROM_GPR(30, fludd);
+
+    if (fludd->mCurrentNozzle == TWaterGun::NozzleType::Hover) {
+        ((float *)(fludd))[0x1CEC / 4] = 0.0f;
+    } else {
+        ((float *)(fludd))[0x1CEC / 4] -= 0.1f;
+        if (((float *)(fludd))[0x1CEC / 4] < 0.0f)
+            ((float *)(fludd))[0x1CEC / 4] = 0.0f;
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802699CC, 0x802462D4, 0, 0), snapToReadyForBurst);
+
 static void checkExecWaterGun(TWaterGun *fludd) {
     if (fludd->mCurrentNozzle == TWaterGun::NozzleType::Spray ||
         fludd->mCurrentNozzle == TWaterGun::NozzleType::Yoshi ||
@@ -67,11 +81,11 @@ void checkSpamHover(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {
     nozzle->mEmitPerFrame = 1.0f;
     nozzle->mEmitRandom   = 0.0f;
 
-    if ((nozzle->mMaxSprayQuarterFrames - nozzle->mSprayQuarterFramesLeft) >= 20)
-        return;
-
     if (!(player->mControllerWork->mAnalogR < 0.9f) ||
         !(player->mControllerWork->mFrameInput & TMarioControllerWork::A))
+        return;
+
+    if ((nozzle->mMaxSprayQuarterFrames - nozzle->mSprayQuarterFramesLeft) >= 20)
         return;
 
     if (nozzle->mFludd->mCurrentWater < 510)

@@ -38,6 +38,9 @@ extern void initDebugCallbacks(TMarDirector *);
 extern void updateDebugCallbacks(TMarDirector *);
 extern void drawDebugCallbacks(TMarDirector *, J2DOrthoGraph *);
 
+extern void initMarioXYZMode(TMarDirector *);
+extern void updateMarioXYZMode(TMarDirector *);
+
 // STAGE CONFIG
 extern void resetGlobalValues(TMarDirector *);
 extern void loadStageConfig(TMarDirector *);
@@ -53,7 +56,7 @@ static TMarDirector *initLib() {
     TMarDirector *director;
     SMS_FROM_GPR(26, director);
 
-#define STRINGIFY_CONFIG(c) ":: " #c " = " SMS_STRINGIZE(c) "\n"
+#define STRINGIFY_CONFIG(c) " " #c " = " SMS_STRINGIZE(c) "\n"
 
     // clang-format off
     Console::log("==== BetterSunshineEngine Config ====\n"
@@ -99,6 +102,9 @@ static TMarDirector *initLib() {
 
     // Set up player warp handler
     Player::registerUpdateProcess("__update_mario_warp", processWarp);
+
+    Debug::registerDebugInitCallback("__init_debug_xyz", initMarioXYZMode);
+    Debug::registerDebugUpdateCallback("__update_debug_xyz", updateMarioXYZMode);
 
     // Set up loading screen
     // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);

@@ -56,8 +56,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80023598, 0x80023650, 0, 0), updateContexts);
 
 /* HOOKS */
 
-static void modifyCameraRangeToSize(f32 *params, f32 *saveParams) {
-    params[0xA8 / 4] = saveParams[0x3B0 / 4];
+static void modifyCameraRangeToSize(f32 *cameraParams, f32 *saveParams) {
+    cameraParams[0xA8 / 4] = saveParams[0x3B0 / 4];
 
     // Custom code here
     auto data = Player::getRegisteredData(gpMarioAddress, "__better_sms");
@@ -65,14 +65,20 @@ static void modifyCameraRangeToSize(f32 *params, f32 *saveParams) {
         return;
 
     auto *playerData = reinterpret_cast<Player::TPlayerData *>(data);
+    if (!playerData)
+        return;
+
+    auto *params = playerData->getParams();
+    if (!params)
+        return;
 
     const f32 scale = playerData->getParams()->mSizeMultiplier.get();
 
     if (!gpMarioAddress->mYoshi || gpMarioAddress->mYoshi->mState != TYoshi::MOUNTED ||
         scale > 1.0f) {
-        params[0x8 / 4] *= scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
-        params[0xC / 4] *= scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
-        params[0x24 / 4] *= scaleLinearAtAnchor<f32>(scale, 0.9375f, 1.0f);
+        cameraParams[0x8 / 4] *= scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
+        cameraParams[0xC / 4] *= scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
+        cameraParams[0x24 / 4] *= scaleLinearAtAnchor<f32>(scale, 0.9375f, 1.0f);
     }
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x80027548, 0x80027600, 0, 0), modifyCameraRangeToSize);

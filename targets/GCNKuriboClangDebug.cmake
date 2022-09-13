@@ -36,7 +36,7 @@ set(SMS_COMPILE_FLAGS
 
     ${SMS_COMPILE_DEFINES}
 
-	-O2 -fno-inline -fno-exceptions 
+	-O1 -fno-inline -fno-exceptions 
     -fno-rtti -ffast-math -fpermissive
     -fdeclspec -fno-unwind-tables
     -nodefaultlibs -nobuiltininc -nostdinc++ -nostdlib
@@ -61,15 +61,15 @@ set(SMS_LINK_FLAGS
     -fpermissive -Werror
 )
 
-set(LIBSTDCPP_VERSION "10.2.0")
-set(DKP_PATH "C:/devkitPro/devkitPPC/powerpc-eabi/include")
-
-include_directories(SYSTEM
-    "C:/devkitPro/devkitPPC/lib/gcc/powerpc-eabi/${LIBSTDCPP_VERSION}/include"
-	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}"
-	"C:/devkitPro/devkitPPC/powerpc-eabi/include"
-	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}/powerpc-eabi"
-)
+# set(LIBSTDCPP_VERSION "12.1.0")
+# set(DKP_PATH "C:/devkitPro/devkitPPC/powerpc-eabi/include")
+# 
+# include_directories(SYSTEM
+#     "C:/Program Files/KuriboClang/lib/clang/14.0.6/include"
+# 	  "C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}"
+# 	  "C:/devkitPro/devkitPPC/powerpc-eabi/include"
+# 	  "C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}/powerpc-eabi"
+# )
 
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)

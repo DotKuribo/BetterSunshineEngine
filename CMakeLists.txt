@@ -31,6 +31,8 @@ file(GLOB BETTERSMS_SRC
     "src/collision/*.cpp"
     "src/cstd/*.c"
     "src/cstd/*.cpp"
+    "src/debug/*.c"
+    "src/debug/*.cpp"
     "src/libs/*.cpp"
     "src/libs/dolphin/*.c"
     "src/moveset/*.c"

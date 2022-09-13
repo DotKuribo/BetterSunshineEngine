@@ -58,9 +58,8 @@ static void setJumpOrLongJump(TMario *player, u32 state, u32 unk_0) {
     if ((buttons.mInput & LongJumpSpecifier) == LongJumpSpecifier &&
         (buttons.mFrameInput & TMarioGamePad::EButtons::A) &&
         player->mForwardSpeed > LongJumpMinSpeed && isValidState) {
-        playerData->mIsLongJumping = !player->mAttributes.mHasFludd && playerData->isMario() &&
-                                     (player->mActionState & 0x8) == 0;
-        state = TMario::STATE_JUMP;
+        playerData->mIsLongJumping = playerData->isMario() && (player->mActionState & 0x8) == 0;
+        state                      = TMario::STATE_JUMP;
     }
 
     setStatusToJumping__6TMarioFUlUl(player, state, unk_0);

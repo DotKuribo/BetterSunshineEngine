@@ -37,20 +37,32 @@ static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 
 SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    if (!dataDict)
+    if (!dataDict) {
+        Console::debugLog(
+            "Trying to access BetterSMS player data that is not registered! (No Dictionary)\n");
         return nullptr;
-    if (!dataDict->hasKey("__better_sms"))
+    }
+    if (!dataDict->hasKey("__better_sms")) {
+        Console::debugLog(
+            "Trying to access BetterSMS player data that is not registered! (No Data)\n");
         return nullptr;
+    }
     return reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict->get("__better_sms"));
 }
 
 SMS_NO_INLINE void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
     auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    if (!dataDict)
+    if (!dataDict) {
+        Console::debugLog(
+            "Trying to access player data (%s) that is not registered! (No Dictionary)\n", key);
         return nullptr;
+    }
     auto v = dataDict->get(key);
-    if (!v)
+    if (!v) {
+        Console::debugLog("Trying to access player data (%s) that is not registered! (No Data)\n",
+                          key);
         return nullptr;
+    }
     return v;
 }
 
