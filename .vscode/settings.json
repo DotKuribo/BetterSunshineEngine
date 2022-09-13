@@ -44,7 +44,9 @@
         "*.rh": "cpp",
         "vi.h": "c",
         "vi_types.h": "c",
-        "dvd.h": "c"
+        "dvd.h": "c",
+        "functional": "cpp",
+        "optional": "cpp"
     },
     "cmake.configureOnOpen": false
 }

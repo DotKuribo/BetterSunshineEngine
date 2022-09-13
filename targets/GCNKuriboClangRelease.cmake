@@ -27,7 +27,7 @@ set(SMS_REGION us)
 
 set(SMS_COMPILE_DEFINES
     -D__powerpc__ -DKURIBO_NO_TYPES
-    -DGEKKO -DNDEBUG
+    -DGEKKO -DNDEBUG -D_GLIBCXX_HAVE_WCHAR_H -D__ISO_C_VISIBLE=2000
 )
 
 set(SMS_COMPILE_FLAGS
@@ -61,10 +61,11 @@ set(SMS_LINK_FLAGS
     -fpermissive -Werror
 )
 
-set(LIBSTDCPP_VERSION "10.2.0")
+set(LIBSTDCPP_VERSION "12.1.0")
 set(DKP_PATH "C:/devkitPro/devkitPPC/powerpc-eabi/include")
 
 include_directories(SYSTEM
+    "C:/Program Files/KuriboClang/lib/clang/14.0.6/include"
 	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}"
 	"C:/devkitPro/devkitPPC/powerpc-eabi/include"
 	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}/powerpc-eabi"

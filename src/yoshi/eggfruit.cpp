@@ -28,7 +28,7 @@ static u8 isYoshiEggFree(TEggYoshi *gpEgg, THitActor *gpFruit) {
     if (!data)
         return gpEgg->mWantedFruit == gpFruit->mObjectID ? EGG_SUCCESS : EGG_REJECT;
 
-    auto *playerData = reinterpret_cast<Player::TPlayerData *>(data.value());
+    auto *playerData = reinterpret_cast<Player::TPlayerData *>(data);
 
     if (gpEgg->mState == 14 || gpEgg->mState == 6)
         return EGG_IGNORE;

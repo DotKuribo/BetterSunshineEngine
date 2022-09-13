@@ -64,7 +64,7 @@ static void modifyCameraRangeToSize(f32 *params, f32 *saveParams) {
     if (!data)
         return;
 
-    auto *playerData = reinterpret_cast<Player::TPlayerData *>(data.value());
+    auto *playerData = reinterpret_cast<Player::TPlayerData *>(data);
 
     const f32 scale = playerData->getParams()->mSizeMultiplier.get();
 

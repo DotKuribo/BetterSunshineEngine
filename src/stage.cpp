@@ -15,8 +15,8 @@
 
 using namespace BetterSMS;
 
-static TDictS<Stage::StageInitCallback> sStageInitCBs;
-static TDictS<Stage::StageUpdateCallback> sStageUpdateCBs;
+static TDictS<Stage::InitCallback> sStageInitCBs;
+static TDictS<Stage::UpdateCallback> sStageUpdateCBs;
 static TDictS<Stage::Draw2DCallback> sStageDrawCBs;
 
 SMS_NO_INLINE Stage::TStageParams *BetterSMS::Stage::getStageConfiguration() {
@@ -56,15 +56,14 @@ SMS_NO_INLINE bool BetterSMS::Stage::isDraw2DRegistered(const char *name) {
     return sStageDrawCBs.hasKey(name);
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::registerInitCallback(const char *name, StageInitCallback cb) {
+SMS_NO_INLINE bool BetterSMS::Stage::registerInitCallback(const char *name, InitCallback cb) {
     if (sStageInitCBs.hasKey(name))
         return false;
     sStageInitCBs.set(name, cb);
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::registerUpdateCallback(const char *name,
-                                                            StageUpdateCallback cb) {
+SMS_NO_INLINE bool BetterSMS::Stage::registerUpdateCallback(const char *name, UpdateCallback cb) {
     if (sStageUpdateCBs.hasKey(name))
         return false;
     sStageUpdateCBs.set(name, cb);
@@ -164,7 +163,10 @@ void BetterSMS::Stage::TStageParams::load(const char *stageName) {
 }
 
 void initStageCallbacks(TMarDirector *director) {
-    for (auto &item : sStageInitCBs.items()) {
+    TDictS<Stage::InitCallback>::ItemList stageInitCBs;
+    sStageInitCBs.items(stageInitCBs);
+
+    for (auto &item : stageInitCBs) {
         item.mItem.mValue(director);
     }
     director->setupObjects();
@@ -176,7 +178,10 @@ s32 updateStageCallbacks(void *movieDirector) {
     SMS_FROM_GPR(12, func);
 
     if (gpMarDirector) {
-        for (auto &item : sStageUpdateCBs.items()) {
+        TDictS<Stage::UpdateCallback>::ItemList stageUpdateCBs;
+        sStageUpdateCBs.items(stageUpdateCBs);
+
+        for (auto &item : stageUpdateCBs) {
             item.mItem.mValue(gpMarDirector);
         }
     }
@@ -187,7 +192,11 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), updateStageCallbacks
 
 void drawStageCallbacks(J2DOrthoGraph *ortho) {
     ortho->setup2D();
-    for (auto &item : sStageDrawCBs.items()) {
+
+    TDictS<Stage::Draw2DCallback>::ItemList stageDrawCBs;
+    sStageDrawCBs.items(stageDrawCBs);
+
+    for (auto &item : stageDrawCBs) {
         item.mItem.mValue(gpMarDirector, ortho);
     }
 }

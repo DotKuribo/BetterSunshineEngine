@@ -20,7 +20,7 @@ using namespace BetterSMS::Collision;
 
 namespace BetterSMS {
     namespace Player {
-        Optional<void *> getRegisteredData(TMario *, const char *);
+        void *getRegisteredData(TMario *, const char *);
 
         struct TPlayerData;
         TPlayerData *getData(TMario *);

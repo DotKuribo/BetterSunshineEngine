@@ -9,8 +9,8 @@
 
 namespace BetterSMS {
     namespace Stage {
-        typedef void (*StageInitCallback)(TMarDirector *);
-        typedef void (*StageUpdateCallback)(TMarDirector *);
+        typedef void (*InitCallback)(TMarDirector *);
+        typedef void (*UpdateCallback)(TMarDirector *);
         typedef void (*Draw2DCallback)(TMarDirector *, J2DOrthoGraph *);
 
         struct TStageParams;
@@ -20,8 +20,8 @@ namespace BetterSMS {
         bool isStageInitRegistered(const char *name);
         bool isStageUpdateRegistered(const char *name);
         bool isDraw2DRegistered(const char *name);
-        bool registerInitCallback(const char *name, StageInitCallback cb);
-        bool registerUpdateCallback(const char *name, StageUpdateCallback cb);
+        bool registerInitCallback(const char *name, InitCallback cb);
+        bool registerUpdateCallback(const char *name, UpdateCallback cb);
         bool registerDraw2DCallback(const char *name, Draw2DCallback cb);
         bool deregisterInitCallback(const char *name);
         bool deregisterUpdateCallback(const char *name);
@@ -115,4 +115,4 @@ namespace BetterSMS {
         };
 #pragma endregion
     }  // namespace Stage
-}  // namespace BetterSMS::Stage
+}  // namespace BetterSMS

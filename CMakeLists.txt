@@ -43,8 +43,8 @@ file(GLOB BETTERSMS_SRC
     "src/sunscript/*.cpp"
     "src/yoshi/*.c"
     "src/yoshi/*.cpp"
-    "include/*.h"
-    "include/*.hxx"
+    #"include/*.h"
+    #"include/*.hxx"
 )
 
 
@@ -73,6 +73,75 @@ endif()
 if(SMS_FIX_BUGS)
     target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
 endif()
+
+if(SMS_FIX_DOWNWARP)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_NO_DOWNWARP)
+endif()
+
+if(SMS_FIX_YOSHI_NOZZLES)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_YOSHI_SAVE_NOZZLES)
+endif()
+
+if(SMS_INCLUDE_MUSIC)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CUSTOM_MUSIC)
+endif()
+
+if(SMS_INCLUDE_EXTENDED_SHINES)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTRA_SHINES)
+endif()
+
+if(SMS_INCLUDE_EXTENDED_OBJECTS)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTRA_OBJECTS)
+endif()
+
+if(SMS_INCLUDE_EXTENDED_COLLISION)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTRA_COLLISION)
+endif()
+
+if(SMS_INCLUDE_EXTENDED_VISIBILITY)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_EXTENDED_RENDER_DISTANCE)
+endif()
+
+if(SMS_INCLUDE_EXTENDED_MOVESET)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_LONG_JUMP
+                                                           BETTER_SMS_MULTI_JUMP
+                                                           BETTER_SMS_HOVER_BURST
+                                                           BETTER_SMS_HOVER_SLIDE
+                                                           BETTER_SMS_ROCKET_DIVE)
+endif()
+
+if(SMS_INCLUDE_MULTI_CHARACTERS)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_CUSTOM_CHARACTERS)
+endif()
+
+if(SMS_INCLUDE_GREEN_YOSHI)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
+if(SMS_INCLUDE_UNDERWATER_FRUIT)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
+if(SMS_INCLUDE_SLOT_B_SUPPORT)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
+if(SMS_INCLUDE_BMG_EXTENSION)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
+if(SMS_INCLUDE_SHADOW_MARIO_HEALTH)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
+if(SMS_INCLUDE_DYNAMIC_FALL_DAMAGE)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
+if(SMS_INCLUDE_EXCEPTION_HANDLER)
+    target_compile_definitions(BetterSunshineEngine PUBLIC BETTER_SMS_BUGFIXES)
+endif()
+
 
 add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
 add_custom_command(

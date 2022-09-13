@@ -35,34 +35,42 @@ static TDictI<TDictS<void *>> sPlayerDict;
 static TDictS<Player::InitProcess> sPlayerInitializers;
 static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 
-SMS_NO_INLINE BetterSMS::Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
-    auto dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
-    if (!dataDict.hasKey("__better_sms"))
+SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
+    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
+    if (!dataDict)
         return nullptr;
-    return reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict.get("__better_sms").value());
+    if (!dataDict->hasKey("__better_sms"))
+        return nullptr;
+    return reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict->get("__better_sms"));
 }
 
-SMS_NO_INLINE Optional<void *> BetterSMS::Player::getRegisteredData(TMario *player,
-                                                                    const char *key) {
-    const auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
-    if (!dataDict.hasKey(key))
-        return {};
-    return dataDict.get(key);
+SMS_NO_INLINE void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
+    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
+    if (!dataDict)
+        return nullptr;
+    auto v = dataDict->get(key);
+    if (!v)
+        return nullptr;
+    return v;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
-    auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
-    if (dataDict.hasKey(key))
+    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
+    if (!dataDict) {
+        sPlayerDict.set(reinterpret_cast<u32>(player), {});
+        dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
+    }
+    if (dataDict->hasKey(key))
         return false;
-    dataDict.set(key, data);
+    dataDict->set(key, data);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterData(TMario *player, const char *key) {
-    auto &dataDict = sPlayerDict.setDefault(reinterpret_cast<u32>(player), TDictS<void *>());
-    if (!dataDict.hasKey(key))
+    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
+    if (!dataDict || !dataDict->hasKey(key))
         return false;
-    dataDict.pop(key);
+    dataDict->pop(key);
     return true;
 }
 
@@ -905,7 +913,10 @@ void initMario(TMario *player, bool isMario) {
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
 
-    for (auto &item : sPlayerInitializers.items()) {
+    TDictS<Player::InitProcess>::ItemList playerInitCBs;
+    sPlayerInitializers.items(playerInitCBs);
+
+    for (auto &item : playerInitCBs) {
         item.mItem.mValue(player, true);
     }
 
@@ -919,7 +930,10 @@ static bool shadowMarioInitHandler() {
     TMario *player;
     SMS_ASM_BLOCK("lwz %0, 0x150 (31)" : "=r"(player));
 
-    for (const auto &item : sPlayerInitializers.items()) {
+    TDictS<Player::InitProcess>::ItemList playerInitCBs;
+    sPlayerInitializers.items(playerInitCBs);
+
+    for (auto &item : playerInitCBs) {
         item.mItem.mValue(player, false);
     }
 
@@ -928,7 +942,10 @@ static bool shadowMarioInitHandler() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x800397DC, 0x80039894, 0, 0), shadowMarioInitHandler);
 
 static void playerUpdateHandler(TMario *player) {
-    for (auto &item : sPlayerUpdaters.items()) {
+    TDictS<Player::UpdateProcess>::ItemList playerUpdateCBs;
+    sPlayerUpdaters.items(playerUpdateCBs);
+
+    for (auto &item : playerUpdateCBs) {
         item.mItem.mValue(player, true);
     }
 
@@ -937,7 +954,10 @@ static void playerUpdateHandler(TMario *player) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A8, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
 static void shadowMarioUpdateHandler(TMario *player) {
-    for (auto &item : sPlayerUpdaters.items()) {
+    TDictS<Player::UpdateProcess>::ItemList playerUpdateCBs;
+    sPlayerUpdaters.items(playerUpdateCBs);
+
+    for (auto &item : playerUpdateCBs) {
         item.mItem.mValue(player, false);
     }
 

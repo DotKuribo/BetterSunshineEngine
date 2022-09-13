@@ -7,95 +7,6 @@
 #include <JSystem/JGadget/List.hxx>
 #include <SMS/assert.h>
 
-template <typename _Tp> class Optional;
-/// Tag type to disengage optional objects.
-struct nullopt_t {
-    // Do not user-declare default constructor at all for
-    // optional_value = {} syntax to work.
-    // nullopt_t() = delete;
-    // Used for constructing nullopt.
-    enum class _Construct { _Token };
-    // Must be constexpr for nullopt_t to be literal.
-    explicit constexpr nullopt_t(_Construct) {}
-};
-/// Tag to disengage optional objects.
-constexpr nullopt_t nullopt{nullopt_t::_Construct::_Token};
-
-template <typename _T> class Optional {
-public:
-    Optional() : mValue(nullptr) {}
-    Optional(_T value) { mValue = value; }
-    Optional(nullopt_t) : mValue(nullptr) {}
-
-    Optional &operator=(const Optional &other) {
-        if (other.hasValue())
-            mValue = *other;
-        else
-            mValue = nullptr;
-
-        return *this;
-    }
-    Optional &operator=(const _T &other) {
-        mValue = other;
-        return *this;
-    }
-    Optional &operator=(nullopt_t) noexcept {
-        mValue = nullptr;
-        return *this;
-    }
-
-    operator bool() { return hasValue(); }
-
-    bool operator==(const Optional &other) {
-        if (!hasValue())
-            return !other.hasValue();
-
-        if (!other.hasValue())
-            return false;
-
-        return mValue == other.value();
-    }
-    bool operator==(const _T &other) {
-        if (!hasValue())
-            return false;
-
-        return mValue == other;
-    }
-
-    bool operator==(nullopt_t) noexcept { return hasValue(); }
-
-    bool operator!=(const Optional &other) {
-        if (!hasValue())
-            return other.hasValue();
-
-        if (!other.hasValue())
-            return true;
-
-        return mValue != other.value();
-    }
-    bool operator!=(const _T &other) {
-        if (!hasValue())
-            return true;
-
-        return mValue != other;
-    }
-    bool operator!=(nullopt_t) noexcept { return !hasValue(); }
-
-    _T &operator*() { return value(); }
-    _T &operator->() { return value(); }
-
-    bool hasValue() const { return mValue != nullptr; }
-
-    _T &value() {
-        SMS_ASSERT(hasValue(), "Bad access to optional value!\n");
-        return mValue;
-    }
-    _T &valueOr(_T &default_) { return hasValue() ? mValue : default_; }
-
-private:
-    _T mValue;
-};
-
 template <typename _T> class TRingBuffer {
 public:
     TRingBuffer(size_t _capacity, bool _garbageCollect)
@@ -169,23 +80,25 @@ public:
         bool operator!=(const Item &other) { return mKey != other.mKey; }
     };
 
-    TDictS() { mItemBuffer = new JGadget::TList<Item>[SurfaceSize]; }
-    ~TDictS();
+    using ItemList = JGadget::TList<Item>;
 
-    Optional<_V> operator[](const char *key) { return get(key); }
+    TDictS() { mItemBuffer = new ItemList[SurfaceSize]; }
+    ~TDictS() { delete[] mItemBuffer; }
 
-    Optional<_V> get(const char *key) const {
+    _V *operator[](const char *key) { return get(key); }
+
+    _V get(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
         auto &itemList = mItemBuffer[index];
-        for (const auto &item : itemList) {
-            const Item &keyValue = item.mItem;
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
-                return {keyValue.mValue};
+                return keyValue.mValue;
             }
         }
 
-        return {};
+        return nullptr;
     }
 
     void set(const char *key, _V value) {
@@ -202,29 +115,29 @@ public:
         itemList.insert(itemList.end(), {key, value});
     }
 
-    Optional<_V> pop(const char *key) {
+    _V *pop(const char *key) {
         const u32 index = getIndex(getHash(key));
 
         auto &itemList = mItemBuffer[index];
         for (auto i = itemList.begin(); i != itemList.end(); ++i) {
-            const Item &keyValue = i->mItem;
+            Item &keyValue = i->mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 itemList.erase(i);
-                return {keyValue.mValue};
+                return &keyValue.mValue;
             }
         }
 
-        return {};
+        return nullptr;
     }
 
-    _V &setDefault(const char *key, _V &default_) {
+    _V &setDefault(const char *key, const _V &default_) {
         const u32 index = getIndex(getHash(key));
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
             Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
-                return keyValue.mValue;
+                return &keyValue.mValue;
             }
         }
 
@@ -232,39 +145,39 @@ public:
         return default_;
     }
 
-    _V &setDefault(const char *key, _V &&default_) {
+    _V &setDefault(const char *key, _V *&&default_) {
         const u32 index = getIndex(getHash(key));
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
             Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
-                return keyValue.mValue;
+                delete default_;
+                return &keyValue.mValue;
             }
         }
 
-        itemList.insert(itemList.end(), {key, default_});
-        return default_;
+        itemList.insert(itemList.end(), {key, *default_});
+        return *default_;
     }
 
-    JGadget::TList<Item> items() const {
-        auto fullList = JGadget::TList<Item>();
+    void items(ItemList &out) const {
+        if (!mItemBuffer)
+            return;
+
         for (u32 i = 0; i < SurfaceSize; ++i) {
-            JGadget::TList<Item> &itemList = mItemBuffer[i];
-            for (const auto &item : itemList) {
-                fullList.insert(fullList.end(), item.mItem);
+            for (auto &item : mItemBuffer[i]) {
+                out.insert(out.end(), item.mItem);
             }
         }
-
-        return fullList;
     }
 
     bool hasKey(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
         auto &itemList = mItemBuffer[index];
-        for (const auto &item : itemList) {
-            const Item &keyValue = item.mItem;
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (strcmp(keyValue.mKey, key) == 0) {
                 return true;
             }
@@ -279,7 +192,7 @@ private:
     u16 getHash(const char *key) const { return JDrama::TNameRef::calcKeyCode(key); }
     u16 getHash(const JDrama::TNameRef &key) const { return key.mKeyCode; }
 
-    JGadget::TList<Item> *mItemBuffer;
+    ItemList *mItemBuffer;
 };
 
 template <typename _V> class TDictI {
@@ -291,23 +204,25 @@ public:
         _V mValue;
     };
 
-    TDictI() { mItemBuffer = new JGadget::TList<Item>[SurfaceSize]; }
-    ~TDictI();
+    using ItemList = JGadget::TList<Item>;
 
-    Optional<_V> operator[](u32 key) { return get(key); }
+    TDictI() { mItemBuffer = new ItemList[SurfaceSize]; }
+    ~TDictI() { delete[] mItemBuffer; }
 
-    Optional<_V> get(u32 key) {
+    _V *operator[](u32 key) { return get(key); }
+
+    _V *get(u32 key) {
         const u32 index = getIndex(key);
 
         auto &itemList = mItemBuffer[index];
-        for (const auto &item : itemList) {
-            const Item &keyValue = item.mItem;
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
-                return {keyValue.mValue};
+                return &keyValue.mValue;
             }
         }
 
-        return {};
+        return nullptr;
     }
 
     void set(u32 key, _V value) {
@@ -325,29 +240,29 @@ public:
         itemList.insert(itemList.end(), {key, value});
     }
 
-    Optional<_V> pop(u32 key) {
+    _V *pop(u32 key) {
         const u32 index = getIndex(key);
 
         auto &itemList = mItemBuffer[index];
         for (auto i = itemList.begin(); i != itemList.end(); ++i) {
-            const Item &keyValue = i->mItem;
+            Item &keyValue = i->mItem;
             if (keyValue.mKey == key) {
                 itemList.erase(i);
-                return keyValue.mValue;
+                return &keyValue.mValue;
             }
         }
 
-        return {};
+        return nullptr;
     }
 
-    _V &setDefault(u32 key, _V &default_) {
+    _V &setDefault(u32 key, const _V &default_) {
         const u32 index = getIndex(key);
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
             Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
-                return keyValue.mValue;
+                return &keyValue.mValue;
             }
         }
 
@@ -355,41 +270,40 @@ public:
         return default_;
     }
 
-    _V &setDefault(u32 key, _V &&default_) {
+    _V &setDefault(u32 key, _V *&&default_) {
+        OSReport("Default value at 0x%X\n", &default_);
         const u32 index = getIndex(key);
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
             Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
-                return keyValue.mValue;
+                delete default_;
+                return &keyValue.mValue;
             }
         }
 
-        itemList.insert(itemList.end(), {key, default_});
-        return default_;
+        itemList.insert(itemList.end(), {key, *default_});
+        return *default_;
     }
 
-    JGadget::TList<Item> items() const {
+    void items(ItemList &out) const {
         if (!mItemBuffer)
-            return {};
+            return;
 
-        auto fullList = JGadget::TList<Item>();
         for (u32 i = 0; i < SurfaceSize; ++i) {
-            for (const auto &item : mItemBuffer[i]) {
-                fullList.insert(fullList.end(), item.mItem);
+            for (auto &item : mItemBuffer[i]) {
+                out.insert(out.end(), item.mItem);
             }
         }
-
-        return fullList;
     }
 
     bool hasKey(u32 key) {
         const u32 index = getIndex(key);
 
         auto &itemList = mItemBuffer[index];
-        for (const auto &item : itemList) {
-            const Item &keyValue = item.mItem;
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
             if (keyValue.mKey == key) {
                 return true;
             }
@@ -401,5 +315,5 @@ public:
 private:
     constexpr u32 getIndex(u32 hash) { return hash % SurfaceSize; }
 
-    JGadget::TList<Item> *mItemBuffer;
+    ItemList *mItemBuffer;
 };

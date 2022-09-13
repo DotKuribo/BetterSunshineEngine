@@ -65,6 +65,7 @@ set(LIBSTDCPP_VERSION "10.2.0")
 set(DKP_PATH "C:/devkitPro/devkitPPC/powerpc-eabi/include")
 
 include_directories(SYSTEM
+    "C:/devkitPro/devkitPPC/lib/gcc/powerpc-eabi/${LIBSTDCPP_VERSION}/include"
 	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}"
 	"C:/devkitPro/devkitPPC/powerpc-eabi/include"
 	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}/powerpc-eabi"

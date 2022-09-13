@@ -1,5 +1,5 @@
-#include <types.h>
 #include <math.h>
+#include <types.h>
 
 float __cvt_ull_flt(u64 i) {
     /* Special case : 0 is not a normalized value */
@@ -43,4 +43,10 @@ double __cvt_ull_dbl(u64 i) {
         frac <<= 52 - E;
 
     return exp << 52 | frac;
+}
+
+void abort() {
+    while (1) {
+        __asm volatile("b 0x0\r\n");
+    }
 }

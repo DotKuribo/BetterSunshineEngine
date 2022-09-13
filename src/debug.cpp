@@ -75,7 +75,10 @@ void initDebugCallbacks(TMarDirector *director) {
     if (!director)
         return;
 
-    for (auto &item : sDebugInitCBs.items()) {
+    TDictS<Debug::DebugModeInitCallback>::ItemList initCBs;
+    sDebugInitCBs.items(initCBs);
+
+    for (auto &item : initCBs) {
         item.mItem.mValue(director);
     }
 }
@@ -84,7 +87,10 @@ void updateDebugCallbacks(TMarDirector *director) {
     if (!director)
         return;
 
-    for (auto &item : sDebugUpdateCBs.items()) {
+    TDictS<Debug::DebugModeUpdateCallback>::ItemList updateCBs;
+    sDebugUpdateCBs.items(updateCBs);
+
+    for (auto &item : updateCBs) {
         item.mItem.mValue(director);
     }
 }
@@ -93,7 +99,10 @@ void drawDebugCallbacks(TMarDirector *director, J2DOrthoGraph *ortho) {
     if (!director || !ortho)
         return;
 
-    for (auto &item : sDebugDrawCBs.items()) {
+    TDictS<Debug::DebugModeDrawCallback>::ItemList drawCBs;
+    sDebugDrawCBs.items(drawCBs);
+
+    for (auto &item : drawCBs) {
         item.mItem.mValue(director, ortho);
     }
 }
