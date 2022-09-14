@@ -42,14 +42,20 @@ extern void initMarioXYZMode(TMarDirector *);
 extern void updateMarioXYZMode(TMarDirector *);
 
 // STAGE CONFIG
-extern void resetGlobalValues(TMarDirector *);
 extern void loadStageConfig(TMarDirector *);
+extern void resetGlobalValues(TApplication *);
 
 // PLAYER CONFIG
 extern void initMario(TMario *, bool);
+extern void resetPlayerDatas(TApplication *);
 
 // PLAYER WARP
 extern void processWarp(TMario *, bool);
+
+// PLAYER MOVES
+extern u32 CrouchState;
+extern void checkForCrouch(TMario *, bool);
+extern bool processCrouch(TMario *);
 
 static TMarDirector *initLib() {
 
@@ -94,14 +100,18 @@ static TMarDirector *initLib() {
     Stage::registerDraw2DCallback("__draw_debug", drawDebugCallbacks);
 
     // Set up stage config handlers
-    Stage::registerInitCallback("__init_globals", resetGlobalValues);
     Stage::registerInitCallback("__init_config", loadStageConfig);
+    Stage::registerExitCallback("__reset_globals", resetGlobalValues);
 
     // Set up player params
     Player::registerInitProcess("__init_mario", initMario);
+    Stage::registerExitCallback("__destroy_mario", resetPlayerDatas);
 
     // Set up player warp handler
     Player::registerUpdateProcess("__update_mario_warp", processWarp);
+
+    Player::registerUpdateProcess("__update_mario_crouch", checkForCrouch);
+    Player::registerStateMachine(CrouchState, processCrouch);
 
     Debug::registerDebugInitCallback("__init_debug_xyz", initMarioXYZMode);
     Debug::registerDebugUpdateCallback("__update_debug_xyz", updateMarioXYZMode);

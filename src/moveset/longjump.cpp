@@ -41,7 +41,7 @@ f32 calcJumpPower(TMario *player, f32 factor, f32 base, f32 jumpPower) {
 #if BETTER_SMS_LONG_JUMP
 
 static void setJumpOrLongJump(TMario *player, u32 state, u32 unk_0) {
-    constexpr u32 LongJumpSpecifier = TMarioGamePad::EButtons::Z;
+    constexpr u32 LongJumpSpecifier = TMarioGamePad::EButtons::L;
     constexpr f32 LongJumpMinSpeed  = 10.0f;
 
     auto *playerData = Player::getData(player);

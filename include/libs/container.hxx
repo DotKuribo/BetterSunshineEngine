@@ -87,6 +87,20 @@ public:
 
     _V *operator[](const char *key) { return get(key); }
 
+    bool hasKey(const char *key) const {
+        const u32 index = getIndex(getHash(key));
+
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
+            if (strcmp(keyValue.mKey, key) == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     _V get(const char *key) const {
         const u32 index = getIndex(getHash(key));
 
@@ -172,18 +186,14 @@ public:
         }
     }
 
-    bool hasKey(const char *key) const {
-        const u32 index = getIndex(getHash(key));
+    void empty() {
+        if (!mItemBuffer)
+            return;
 
-        auto &itemList = mItemBuffer[index];
-        for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
-                return true;
-            }
+        for (u32 i = 0; i < SurfaceSize; ++i) {
+            auto &itemList = mItemBuffer[i];
+            itemList.erase(itemList.begin(), itemList.end());
         }
-
-        return false;
     }
 
 private:
@@ -210,6 +220,20 @@ public:
     ~TDictI() { delete[] mItemBuffer; }
 
     _V *operator[](u32 key) { return get(key); }
+
+    bool hasKey(u32 key) {
+        const u32 index = getIndex(key);
+
+        auto &itemList = mItemBuffer[index];
+        for (auto &item : itemList) {
+            Item &keyValue = item.mItem;
+            if (keyValue.mKey == key) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     _V *get(u32 key) {
         const u32 index = getIndex(key);
@@ -298,18 +322,14 @@ public:
         }
     }
 
-    bool hasKey(u32 key) {
-        const u32 index = getIndex(key);
+    void empty() {
+        if (!mItemBuffer)
+            return;
 
-        auto &itemList = mItemBuffer[index];
-        for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (keyValue.mKey == key) {
-                return true;
-            }
+        for (u32 i = 0; i < SurfaceSize; ++i) {
+            auto &itemList = mItemBuffer[i];
+            itemList.erase(itemList.begin(), itemList.end());
         }
-
-        return false;
     }
 
 private:

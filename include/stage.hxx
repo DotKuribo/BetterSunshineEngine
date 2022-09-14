@@ -12,6 +12,7 @@ namespace BetterSMS {
         typedef void (*InitCallback)(TMarDirector *);
         typedef void (*UpdateCallback)(TMarDirector *);
         typedef void (*Draw2DCallback)(TMarDirector *, J2DOrthoGraph *);
+        typedef void (*ExitCallback)(TApplication *);
 
         struct TStageParams;
         TStageParams *getStageConfiguration();
@@ -23,9 +24,11 @@ namespace BetterSMS {
         bool registerInitCallback(const char *name, InitCallback cb);
         bool registerUpdateCallback(const char *name, UpdateCallback cb);
         bool registerDraw2DCallback(const char *name, Draw2DCallback cb);
+        bool registerExitCallback(const char *name, ExitCallback cb);
         bool deregisterInitCallback(const char *name);
         bool deregisterUpdateCallback(const char *name);
         bool deregisterDraw2DCallback(const char *name);
+        bool deregisterExitCallback(const char *name);
 
 #pragma region ConfigImplementation
         struct TStageParams : public TParams {

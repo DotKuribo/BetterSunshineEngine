@@ -24,7 +24,7 @@ static void snapToReadyForBurst() {
             ((float *)(fludd))[0x1CEC / 4] = 0.0f;
     }
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802699CC, 0x802462D4, 0, 0), snapToReadyForBurst);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802699CC, 0, 0, 0), snapToReadyForBurst);
 
 static void checkExecWaterGun(TWaterGun *fludd) {
     if (fludd->mCurrentNozzle == TWaterGun::NozzleType::Spray ||

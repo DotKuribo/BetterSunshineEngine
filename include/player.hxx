@@ -31,13 +31,17 @@ namespace BetterSMS {
 
         typedef void (*InitProcess)(TMario *, bool);
         typedef void (*UpdateProcess)(TMario *, bool);
+        typedef bool (*MachineProcess)(TMario *);
 
         // Player init hook
         bool registerInitProcess(const char *, InitProcess);
         // Player update hook
         bool registerUpdateProcess(const char *, UpdateProcess);
+        // Player state handlers (Custom movesets)
+        bool registerStateMachine(u32, MachineProcess);
         bool deregisterInitProcess(const char *);
         bool deregisterUpdateProcess(const char *);
+        bool deregisterStateMachine(u32);
 
         // Warps the player to a collision face
         void warpToCollisionFace(TMario *, TBGCheckData *, bool);

@@ -2,6 +2,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <SMS/SMS.hxx>
+#include <SMS/game/Application.hxx>
 #include <SMS/game/GameSequence.hxx>
 #include <SMS/game/MarDirector.hxx>
 #include <SMS/macros.h>
@@ -18,6 +19,9 @@ using namespace BetterSMS;
 static TDictS<Stage::InitCallback> sStageInitCBs;
 static TDictS<Stage::UpdateCallback> sStageUpdateCBs;
 static TDictS<Stage::Draw2DCallback> sStageDrawCBs;
+static TDictS<Stage::ExitCallback> sStageExitCBs;
+
+Stage::TStageParams *Stage::TStageParams::sStageConfig = nullptr;
 
 SMS_NO_INLINE Stage::TStageParams *BetterSMS::Stage::getStageConfiguration() {
     return TStageParams::sStageConfig;
@@ -77,6 +81,13 @@ SMS_NO_INLINE bool BetterSMS::Stage::registerDraw2DCallback(const char *name, Dr
     return true;
 }
 
+SMS_NO_INLINE bool BetterSMS::Stage::registerExitCallback(const char *name, ExitCallback cb) {
+    if (sStageExitCBs.hasKey(name))
+        return false;
+    sStageExitCBs.set(name, cb);
+    return true;
+}
+
 SMS_NO_INLINE bool BetterSMS::Stage::deregisterInitCallback(const char *name) {
     if (!sStageDrawCBs.hasKey(name))
         return false;
@@ -95,6 +106,13 @@ SMS_NO_INLINE bool BetterSMS::Stage::deregisterDraw2DCallback(const char *name) 
     if (!sStageDrawCBs.hasKey(name))
         return false;
     sStageDrawCBs.pop(name);
+    return true;
+}
+
+SMS_NO_INLINE bool BetterSMS::Stage::deregisterExitCallback(const char *name) {
+    if (!sStageExitCBs.hasKey(name))
+        return false;
+    sStageExitCBs.pop(name);
     return true;
 }
 
@@ -202,6 +220,23 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
+JKRHeap *exitStageCallbacks() {
+    TApplication *application;
+    SMS_FROM_GPR(31, application);
+
+    TDictS<Stage::ExitCallback>::ItemList stageExitCBs;
+    sStageExitCBs.items(stageExitCBs);
+
+    for (auto &item : stageExitCBs) {
+        item.mItem.mValue(application);
+    }
+
+    delete Stage::getStageConfiguration();
+
+    return application->mCurrentHeap;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802A66F4, 0, 0, 0), exitStageCallbacks);
+
 #pragma region MapIdentifiers
 
 static bool isExMap() {
@@ -246,7 +281,20 @@ SMS_PATCH_B(SMS_PORT_REGION(0x802A8AE0, 0x802A0B88, 0, 0), isOptionMap);
 #pragma endregion
 
 // Extern to stage init
-void resetGlobalValues(TMarDirector *) {
+void loadStageConfig(TMarDirector *) {
+    Console::debugLog("Reseting stage params...\n");
+
+    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams(nullptr);
+
+    Stage::TStageParams *config = Stage::getStageConfiguration();
+    config->reset();
+
+    Console::debugLog("Loading stage specific params...\n");
+    config->load(Stage::getStageName(&gpApplication));
+}
+
+// Extern to stage init
+void resetGlobalValues(TApplication *) {
     gModelWaterManagerWaterColor.set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
     gYoshiJuiceColor[0].set(0xFE, 0xA8, 0x02, 0x6E);           // Yoshi Juice rgba
     gYoshiJuiceColor[1].set(0x9B, 0x01, 0xFD, 0x6E);
@@ -258,19 +306,4 @@ void resetGlobalValues(TMarDirector *) {
     gAudioVolume = 0.75f;
     gAudioPitch  = 1.0f;
     gAudioSpeed  = 1.0f;
-}
-
-Stage::TStageParams *Stage::TStageParams::sStageConfig = nullptr;
-
-// Extern to stage init
-void loadStageConfig(TMarDirector *) {
-    Console::debugLog("Reseting stage params...\n");
-
-    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams(nullptr);
-
-    Stage::TStageParams *config = Stage::getStageConfiguration();
-    config->reset();
-
-    Console::debugLog("Loading stage specific params...\n");
-    config->load(Stage::getStageName(&gpApplication));
 }

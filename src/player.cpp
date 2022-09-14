@@ -4,18 +4,19 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/actor/Mario.hxx>
-#include <SMS/mapobj/MapObjNormalLift.hxx>
-#include <SMS/mapobj/MapObjTree.hxx>
-
 #include <SMS/SMS.hxx>
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
+#include <SMS/actor/Mario.hxx>
 #include <SMS/assert.h>
+#include <SMS/game/Application.hxx>
 #include <SMS/macros.h>
+#include <SMS/mapobj/MapObjNormalLift.hxx>
+#include <SMS/mapobj/MapObjTree.hxx>
 #include <SMS/option/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
+
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"
@@ -34,6 +35,7 @@ using namespace BetterSMS::Geometry;
 static TDictI<TDictS<void *>> sPlayerDict;
 static TDictS<Player::InitProcess> sPlayerInitializers;
 static TDictS<Player::UpdateProcess> sPlayerUpdaters;
+static TDictI<Player::MachineProcess> sPlayerStateMachines;
 
 SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
@@ -101,6 +103,17 @@ SMS_NO_INLINE bool BetterSMS::Player::registerUpdateProcess(const char *key,
     return true;
 }
 
+SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachineProcess process) {
+    if ((state & 0x1C0) != 0x1C0) {
+        Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
+                     "engine collisions)\n");
+    }
+    if (sPlayerStateMachines.hasKey(state))
+        return false;
+    sPlayerStateMachines.set(state, process);
+    return true;
+}
+
 SMS_NO_INLINE bool BetterSMS::Player::deregisterInitProcess(const char *key) {
     if (!sPlayerInitializers.hasKey(key))
         return false;
@@ -112,6 +125,13 @@ SMS_NO_INLINE bool BetterSMS::Player::deregisterUpdateProcess(const char *key) {
     if (!sPlayerUpdaters.hasKey(key))
         return false;
     sPlayerUpdaters.pop(key);
+    return true;
+}
+
+SMS_NO_INLINE bool BetterSMS::Player::deregisterStateMachine(u32 state) {
+    if (!sPlayerStateMachines.hasKey(state))
+        return false;
+    sPlayerStateMachines.pop(state);
     return true;
 }
 
@@ -922,6 +942,8 @@ void initMario(TMario *player, bool isMario) {
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 }
 
+void resetPlayerDatas(TApplication *application) { sPlayerDict.empty(); }
+
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
 
@@ -976,3 +998,21 @@ static void shadowMarioUpdateHandler(TMario *player) {
     setPositions__6TMarioFv(player);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8003F8F0, 0x8003F740, 0, 0), shadowMarioUpdateHandler);  // EMario
+
+static bool stateMachineHandler(TMario *player) {
+    auto currentState = player->mState;
+
+    TDictI<Player::MachineProcess>::ItemList playerStateMachineCBs;
+    sPlayerStateMachines.items(playerStateMachineCBs);
+
+    bool shouldProgressState = true;
+    for (auto &item : playerStateMachineCBs) {
+        if (item.mItem.mKey == currentState) {
+            shouldProgressState = item.mItem.mValue(player);
+            break;
+        }
+    }
+
+    return shouldProgressState;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802500B8, 0, 0, 0), stateMachineHandler);
