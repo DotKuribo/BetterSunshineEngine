@@ -41,6 +41,13 @@ extern void drawDebugCallbacks(TMarDirector *, J2DOrthoGraph *);
 extern void initMarioXYZMode(TMarDirector *);
 extern void updateMarioXYZMode(TMarDirector *);
 
+extern void drawMonitor(TMarDirector *, J2DOrthoGraph *);
+extern void resetMonitor(TApplication *);
+
+extern void initFPSMonitor(TMarDirector *);
+extern void updateFPSMonitor(TMarDirector *);
+extern void drawFPSMonitor(TMarDirector *, J2DOrthoGraph *);
+
 // STAGE CONFIG
 extern void loadStageConfig(TMarDirector *);
 extern void resetGlobalValues(TApplication *);
@@ -56,6 +63,10 @@ extern void processWarp(TMario *, bool);
 extern u32 CrouchState;
 extern void checkForCrouch(TMario *, bool);
 extern bool processCrouch(TMario *);
+
+extern u32 MultiJumpState;
+extern void checkForMultiJump(TMario *, bool);
+extern bool processMultiJump(TMario *);
 
 static TMarDirector *initLib() {
 
@@ -76,6 +87,7 @@ static TMarDirector *initLib() {
                  STRINGIFY_CONFIG(BETTER_SMS_EXTRA_COLLISION)
                  STRINGIFY_CONFIG(BETTER_SMS_EXTRA_BMG_COMMANDS)
                  STRINGIFY_CONFIG(BETTER_SMS_EXTENDED_RENDER_DISTANCE)
+                 STRINGIFY_CONFIG(BETTER_SMS_SWAP_LZ_BUTTONS)
                  STRINGIFY_CONFIG(BETTER_SMS_LONG_JUMP)
                  STRINGIFY_CONFIG(BETTER_SMS_MULTI_JUMP)
                  STRINGIFY_CONFIG(BETTER_SMS_HOVER_BURST)
@@ -95,9 +107,9 @@ static TMarDirector *initLib() {
     makeExtendedObjDataTable();
 
     // Set up debug handlers
-    Stage::registerInitCallback("__init_debug", initDebugCallbacks);
-    Stage::registerUpdateCallback("__update_debug", updateDebugCallbacks);
-    Stage::registerDraw2DCallback("__draw_debug", drawDebugCallbacks);
+    // Stage::registerInitCallback("__init_debug", initDebugCallbacks);
+    // Stage::registerUpdateCallback("__update_debug", updateDebugCallbacks);
+    // Stage::registerDraw2DCallback("__draw_debug", drawDebugCallbacks);
 
     // Set up stage config handlers
     Stage::registerInitCallback("__init_config", loadStageConfig);
@@ -113,8 +125,18 @@ static TMarDirector *initLib() {
     Player::registerUpdateProcess("__update_mario_crouch", checkForCrouch);
     Player::registerStateMachine(CrouchState, processCrouch);
 
-    Debug::registerDebugInitCallback("__init_debug_xyz", initMarioXYZMode);
-    Debug::registerDebugUpdateCallback("__update_debug_xyz", updateMarioXYZMode);
+    Player::registerUpdateProcess("__update_mario_multijump", checkForMultiJump);
+    Player::registerStateMachine(MultiJumpState, processMultiJump);
+
+    Debug::registerInitCallback("__init_debug_xyz", initMarioXYZMode);
+    Debug::registerUpdateCallback("__update_debug_xyz", updateMarioXYZMode);
+
+    Debug::registerDrawCallback("__draw_memory_usage", drawMonitor);
+    Stage::registerExitCallback("__reset_memory_usage", resetMonitor);
+
+    Debug::registerInitCallback("__init_fps_counter", initFPSMonitor);
+    Debug::registerUpdateCallback("__update_fps_counter", updateFPSMonitor);
+    Debug::registerDrawCallback("__draw_fps_counter", drawFPSMonitor);
 
     // Set up loading screen
     // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
@@ -158,12 +180,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     KURIBO_EXPORT(BetterSMS::BMG::deregisterBMGCommandCallback);
 
     /* DEBUG */
-    KURIBO_EXPORT(BetterSMS::Debug::isDebugInitRegistered);
-    KURIBO_EXPORT(BetterSMS::Debug::isDebugUpdateRegistered);
-    KURIBO_EXPORT(BetterSMS::Debug::registerDebugInitCallback);
-    KURIBO_EXPORT(BetterSMS::Debug::registerDebugUpdateCallback);
-    KURIBO_EXPORT(BetterSMS::Debug::deregisterDebugInitCallback);
-    KURIBO_EXPORT(BetterSMS::Debug::deregisterDebugUpdateCallback);
+    KURIBO_EXPORT(BetterSMS::Debug::isInitRegistered);
+    KURIBO_EXPORT(BetterSMS::Debug::isUpdateRegistered);
+    KURIBO_EXPORT(BetterSMS::Debug::registerInitCallback);
+    KURIBO_EXPORT(BetterSMS::Debug::registerUpdateCallback);
+    KURIBO_EXPORT(BetterSMS::Debug::deregisterInitCallback);
+    KURIBO_EXPORT(BetterSMS::Debug::deregisterUpdateCallback);
 
     /* LOGGING */
     KURIBO_EXPORT(BetterSMS::Console::log);

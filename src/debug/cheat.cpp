@@ -1,6 +1,7 @@
 #include <Dolphin/MTX.h>
 #include <Dolphin/types.h>
 
+#include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/SMS.hxx>
@@ -9,6 +10,7 @@
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
 
+#include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
 #include "logging.hxx"
@@ -24,33 +26,31 @@ static u16 gDebugModeCheatCode[] = {
     TMarioGamePad::DPAD_LEFT, TMarioGamePad::DPAD_RIGHT, TMarioGamePad::B,
     TMarioGamePad::A,         TMarioGamePad::START};
 
-J2DTextBox gDebugTextBox;
+J2DTextBox *gDebugTextBoxW;
+J2DTextBox *gDebugTextBoxB;
 TCheatHandler gDebugHandler;
 
 static void debugModeNotify(TCheatHandler *) {
-    if (gpMSound->gateCheck(MSound::SE_SHINE_TOUCH))
-        MSoundSESystem::MSoundSE::startSoundSystemSE(MSound::SE_SHINE_TOUCH, 0, 0, 0);
+    if (gpMSound->gateCheck(MSound::SE_SHINE_TOUCH)) {
+        auto *sound =
+            MSoundSESystem::MSoundSE::startSoundSystemSE(MSound::SE_NINTENDO_SOUND, 0, 0, 0);
+        if (sound)
+            sound->setPitch(1.25f, 0, 0);
+    }
 
     BetterSMS::setDebugMode(true);
     Console::debugLog("Debug mode activated!\n");
-
-    // if (!TGlobals::isDebugMode())
-    //   gDebugTextBox.mIsVisible = true;
 }
 
-// extern runtime_mods.cpp
-static void drawCheatText() {
-    //   if (!gDebugTextBox.getStringPtr())
-    //     return;
+// extern -> debug callback
+void drawCheatText(TMarDirector *director, J2DOrthoGraph *graph) {
+    if (!gDebugTextBoxW->getStringPtr())
+        return;
 
-    // #if !SMS_DEBUG
-    //     if (*gDebugTextBox.getStringPtr() != '\0' && gDebugHandler.isActive())
-    // #else
-    //     if (*gDebugTextBox.getStringPtr() != '\0')
-    // #endif
-    //     {
-    //       gDebugTextBox.draw(250, 24);
-    //     }
+    if (BetterSMS::isDebugMode()) {
+        gDebugTextBoxB->draw(235, 462);
+        gDebugTextBoxW->draw(234, 460);
+    }
 }
 
 static void *handleDebugCheat(void *GCLogoDir) {
@@ -58,6 +58,17 @@ static void *handleDebugCheat(void *GCLogoDir) {
         gDebugHandler.setGamePad(gpApplication.mGamePad1);
         gDebugHandler.setInputList(gDebugModeCheatCode);
         gDebugHandler.setSuccessCallBack(&debugModeNotify);
+
+        auto *currentHeap               = JKRHeap::sSystemHeap->becomeCurrentHeap();
+        gDebugTextBoxW                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
+        gDebugTextBoxB                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
+        gDebugTextBoxW->mGradientTop    = {255, 50, 50, 255};
+        gDebugTextBoxW->mGradientBottom = {255, 50, 255, 255};
+        gDebugTextBoxB->mGradientTop    = {0, 0, 0, 255};
+        gDebugTextBoxB->mGradientBottom = {0, 0, 0, 255};
+        currentHeap->becomeCurrentHeap();
+
+        BetterSMS::Debug::registerDrawCallback("__better_sms_draw_debug", drawCheatText);
     }
     gDebugHandler.advanceInput();
     return GCLogoDir;
@@ -86,7 +97,8 @@ void updateMarioXYZMode(TMarDirector *director) {
     constexpr f32 baseSpeed = 83.0f;
     constexpr u32 buttons   = TMarioGamePad::EButtons::DPAD_UP;
 
-    if (!BetterSMS::isDebugMode() || director->mCurState != TMarDirector::Status::NORMAL)
+    if (!director || !BetterSMS::isDebugMode() ||
+        director->mCurState != TMarDirector::Status::NORMAL)
         return;
 
     const JUTGamePad::CStick &mainStick = gpMarioAddress->mController->mControlStick;

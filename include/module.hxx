@@ -101,6 +101,10 @@
 #define BETTER_SMS_NO_TITLE_THP 0
 #endif
 
+#ifndef BETTER_SMS_SWAP_LZ_BUTTONS
+#define BETTER_SMS_SWAP_LZ_BUTTONS 0
+#endif
+
 #ifndef BETTER_SMS_LONG_JUMP
 #define BETTER_SMS_LONG_JUMP 0
 #endif

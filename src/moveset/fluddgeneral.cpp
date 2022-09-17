@@ -11,16 +11,19 @@
 using namespace BetterSMS;
 
 #if BETTER_SMS_HOVER_SLIDE
-static bool isPumpOK(TMarioAnimeData *animeData) {
-    const bool defaultEnabled = animeData->mFluddEnabled != TMarioAnimeData::FLUDD::FLUDD_DISABLED;
 
-    auto *playerData = Player::getData(gpMarioAddress);
-    if (!playerData)
-        return defaultEnabled;
+// static bool isPumpOK(TMarioAnimeData *animeData) {
+//     const bool defaultEnabled = animeData->mFluddEnabled !=
+//     TMarioAnimeData::FLUDD::FLUDD_DISABLED;
 
-    return defaultEnabled && playerData->mCurJump <= 1;
-}
-SMS_PATCH_B(SMS_PORT_REGION(0x80248F14, 0x80240CA0, 0, 0), isPumpOK);
+//     auto *playerData = Player::getData(gpMarioAddress);
+//     if (!playerData)
+//         return defaultEnabled;
+
+//     return defaultEnabled && playerData->mCurJump <= 1;
+// }
+// SMS_PATCH_B(SMS_PORT_REGION(0x80248F14, 0x80240CA0, 0, 0), isPumpOK);
+
 SMS_WRITE_32(SMS_PORT_REGION(0x803DCA00, 0x803D41E0, 0, 0),  // Allow dive spray
              0x00300000 | TMarioAnimeData::FLUDD::FLUDD_ENABLED);
 #endif

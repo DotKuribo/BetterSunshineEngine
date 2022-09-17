@@ -81,8 +81,8 @@ void checkSpamHover(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {
     nozzle->mEmitPerFrame = 1.0f;
     nozzle->mEmitRandom   = 0.0f;
 
-    if (!(player->mControllerWork->mAnalogR < 0.9f) ||
-        !(player->mControllerWork->mFrameInput & TMarioControllerWork::A))
+    if (player->mController->mButtons.mAnalogR < 0.9f ||
+        !(player->mController->mFrameMeaning & 0x80))
         return;
 
     if ((nozzle->mMaxSprayQuarterFrames - nozzle->mSprayQuarterFramesLeft) >= 20)
@@ -108,5 +108,7 @@ void checkSpamHover(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {
 
 // extern -> fluddgeneral.cpp
 void checkSpamHover(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {}
+
+TMarioGamePad
 
 #endif

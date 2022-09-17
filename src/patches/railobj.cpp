@@ -30,7 +30,7 @@ void checkInstantReset_NormalLift(u32 *railflags) {
         mRailObj[0x14A / 2] = 180;
     }
 }
-SMS_PATCH_B(SMS_PORT_REGION(0x801F0B90, 0x801E8A68, 0, 0), checkInstantReset_NormalLift);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F0B90, 0x801E8A68, 0, 0), checkInstantReset_NormalLift);
 
 s16 *checkInstantReset_RailObj(s16 *railObj, u32 *railflags) {
     u32 flag = railflags[2];
@@ -39,10 +39,9 @@ s16 *checkInstantReset_RailObj(s16 *railObj, u32 *railflags) {
     } else {
         railObj[0x14A / 2] = 180;
     }
-    *reinterpret_cast<u8 *>(railObj[0x148 / 2]) = 2;
     return railObj;
 }
-SMS_PATCH_B(SMS_PORT_REGION(0x801F1054, 0x801E8F2C, 0, 0), checkInstantReset_RailObj);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F1054, 0x801E8F2C, 0, 0), checkInstantReset_RailObj);
 
 void checkResetToNode(TNormalLift *lift) {
     TGraphWeb *graph = lift->mGraphTracer->mGraph;

@@ -180,6 +180,10 @@ void BetterSMS::Stage::TStageParams::load(const char *stageName) {
     // mIsCustomConfigLoaded = false;
 }
 
+extern void initDebugCallbacks(TMarDirector *);
+extern void updateDebugCallbacks(TMarDirector *);
+extern void drawDebugCallbacks(TMarDirector *director, J2DOrthoGraph *graph);
+
 void initStageCallbacks(TMarDirector *director) {
     TDictS<Stage::InitCallback>::ItemList stageInitCBs;
     sStageInitCBs.items(stageInitCBs);
@@ -187,6 +191,9 @@ void initStageCallbacks(TMarDirector *director) {
     for (auto &item : stageInitCBs) {
         item.mItem.mValue(director);
     }
+
+    initDebugCallbacks(director);
+
     director->setupObjects();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
@@ -204,6 +211,8 @@ s32 updateStageCallbacks(void *movieDirector) {
         }
     }
 
+    updateDebugCallbacks(gpMarDirector);
+
     return ((s32(*)(void *))func)(movieDirector);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), updateStageCallbacks);
@@ -217,6 +226,8 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
     for (auto &item : stageDrawCBs) {
         item.mItem.mValue(gpMarDirector, ortho);
     }
+
+    drawDebugCallbacks(gpMarDirector, ortho);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 

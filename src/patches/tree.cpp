@@ -17,8 +17,9 @@ static TMapObjTree *getLeafCount(TMapObjTree *tree) {
     snprintf(cacheBuffer, 96, "/scene/mapObj/%sLeaf", tree->mRegisterName);
     strcat(cacheBuffer, "%02d.col");
 
-    s32 num = 0;
-    while (true && num < 255) {
+    s32 num             = 0;
+    const s32 maxLeaves = tree->mLeafCount;
+    while (num < maxLeaves) {
         snprintf(buffer, 100, cacheBuffer, num + 1);
         if (!JKRFileLoader::getGlbResource(buffer)) {
             tree->mLeafCount = num;
@@ -26,7 +27,6 @@ static TMapObjTree *getLeafCount(TMapObjTree *tree) {
         }
         num += 1;
     }
-    tree->mLeafCount = 0;
     return tree;
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x801F6AE4, 0x801EE9BC, 0, 0), getLeafCount);

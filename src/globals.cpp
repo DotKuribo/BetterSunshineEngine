@@ -29,7 +29,7 @@ f32 BetterSMS::sScreenWidth  = 600.0f;
 f32 BetterSMS::sFrameRate = 30.0f;
 
 bool BetterSMS::isGameEmulated() { return BootInfo.mConsoleType == OS_CONSOLE_DEV_KIT3; }
-bool BetterSMS::isDebugMode() { return sIsDebugMode; }
+bool BetterSMS::isDebugMode() { return true/*sIsDebugMode*/; }
 bool BetterSMS::isMusicBeingStreamed() { return sIsAudioStreaming; }
 bool BetterSMS::isMusicStreamingAllowed() { return sIsAudioStreamAllowed; }
 void BetterSMS::setDebugMode(bool active) { sIsDebugMode = active; }
