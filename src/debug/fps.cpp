@@ -4,7 +4,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/J2D/J2DPane.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
-#include <SMS/Enemy/EnemyMario.hxx>
+#include <SMS/enemy/EnemyMario.hxx>
 #include <SMS/SMS.hxx>
 #include <SMS/actor/Mario.hxx>
 #include <SMS/npc/BaseNPC.hxx>
@@ -28,7 +28,7 @@ static s16 gMonitorX = 390, gMonitorY = 460;
 
 static f32 sFPSTimer       = 0.0f;
 static f32 sFPSCounter     = 0.0f;
-static OSTick sFPSBaseTime = 0;
+static OSTime sFPSBaseTime = 0;
 
 static J2DTextBox *gpFPSStringW = nullptr;
 static J2DTextBox *gpFPSStringB = nullptr;
@@ -46,10 +46,9 @@ void updateFPSMonitor(TMarDirector *director) {
 
     sFPSCounter += 1.0f;
 
-    OSReport("Your mom\n");
-
-    OSTick diff = OSGetTick() - sFPSBaseTime;
+    OSTime diff = OSGetTime() - sFPSBaseTime;
     f64 seconds = OSTicksToSeconds(f64(diff));
+
 
     if (seconds > 0.5f) {
         const f32 fps = sFPSCounter / seconds;
@@ -72,7 +71,7 @@ void updateFPSMonitor(TMarDirector *director) {
         }
 
         sFPSCounter  = 0.0f;
-        sFPSBaseTime = OSGetTick();
+        sFPSBaseTime = OSGetTime();
     }
 }
 

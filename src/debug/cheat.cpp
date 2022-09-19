@@ -3,7 +3,7 @@
 
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
-#include <SMS/Enemy/EnemyMario.hxx>
+#include <SMS/enemy/EnemyMario.hxx>
 #include <SMS/SMS.hxx>
 #include <SMS/actor/Mario.hxx>
 #include <SMS/npc/BaseNPC.hxx>

@@ -23,26 +23,16 @@ float __cvt_ull_flt(u64 i) {
     return exp << 23 | frac;
 }
 
-double __cvt_ull_dbl(u64 i) {
-    /* Special case : 0 is not a normalized value */
-    if (i == 0)
-        return 0;
-    /* Exponent */
-    u64 E   = log(i < 0 ? -i : i) / log(2);
-    u64 exp = E + 1023;
-    /* Magnificand*/
-    u64 M    = i > 0 ? i : -i;
-    u64 frac = M ^ (1 << E);
-
-    /* Move frac to start at bit postion 52 */
-    if (E > 52)
-        /* Too long: Truncate to first 52 bits */
-        frac >>= E - 52;
-    else
-        /* Too short: Pad to the right with zeros */
-        frac <<= 52 - E;
-
-    return exp << 52 | frac;
+// Implementation taken from https://github.com/gcc-mirror/gcc/blob/16e2427f50c208dfe07d07f18009969502c25dc8/libgcc/config/rs6000/ppc64-fp.c
+double __cvt_ull_dbl(u64 u) {
+    
+    f64 d;
+    
+    d = (u32)(u >> (sizeof(s32) * 8));
+    d *= 2.0 * (((u64)1) << ((sizeof(s32) * 8) - 1));
+    d += (u32)(u & ((((u64)1) << (sizeof(u32) * 8)) - 1));
+    
+    return d;
 }
 
 void abort() {
