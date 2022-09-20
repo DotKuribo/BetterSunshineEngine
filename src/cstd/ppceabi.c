@@ -26,7 +26,6 @@ float __cvt_ull_flt(u64 i) {
 // Implementation taken from
 // https://github.com/gcc-mirror/gcc/blob/16e2427f50c208dfe07d07f18009969502c25dc8/libgcc/config/rs6000/ppc64-fp.c
 double __cvt_ull_dbl(u64 u) {
-
     f64 d;
 
     d = (u32)(u >> (sizeof(s32) * 8));

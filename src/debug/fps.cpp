@@ -28,7 +28,7 @@ static s16 gMonitorX = 390, gMonitorY = 460;
 
 static f32 sFPSTimer       = 0.0f;
 static f32 sFPSCounter     = 0.0f;
-static OSTick sFPSBaseTime = 0;
+static OSTime sFPSBaseTime = 0;
 
 static J2DTextBox *gpFPSStringW = nullptr;
 static J2DTextBox *gpFPSStringB = nullptr;
@@ -56,7 +56,7 @@ void updateFPSMonitor(TMarDirector *director) {
 
     sFPSCounter += 1.0f;
 
-    OSTick diff = OSGetTick() - sFPSBaseTime;
+    OSTime diff = OSGetTime() - sFPSBaseTime;
     f64 seconds = OSTicksToSeconds(f64(diff));
 
     if (seconds > 0.5f) {
@@ -76,7 +76,7 @@ void updateFPSMonitor(TMarDirector *director) {
         }
 
         sFPSCounter  = 0.0f;
-        sFPSBaseTime = OSGetTick();
+        sFPSBaseTime = OSGetTime();
     }
 }
 
