@@ -42,13 +42,21 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802A884C, 0, 0, 0), 0x60000000);  // Allow L butt
 SMS_WRITE_32(SMS_PORT_REGION(0x8024E5CC, 0, 0, 0), 0x60000000);  // Allow nozzle change on backflip
 
 void checkForCrouch(TMario *player, bool isMario) {
+    if (gpMarDirector->mCurState != TMarDirector::Status::NORMAL)
+        return;
+
     if (onYoshi__6TMarioCFv(player))
         return;
+
+    checkEnforceJump__6TMarioFv(player);
 
     if (player->mState != TMario::STATE_IDLE && player->mState != TMario::STATE_STOP &&
         player->mState != TMario::STATE_JMP_LAND && player->mState != TMario::STATE_HVY_LAND &&
         player->mState != TMario::STATE_LAND_RECOVER && player->mState != TMario::STATE_D_LAND &&
         player->mState != TMario::STATE_D_LAND_RECOVER)
+        return;
+
+    if ((player->mActionState & 0x8) || isForceSlip__6TMarioFv(player))
         return;
 
     if (player->mForwardSpeed > __FLT_EPSILON__)
@@ -68,6 +76,11 @@ void checkForCrouch(TMario *player, bool isMario) {
 bool processCrouch(TMario *player) {
     if (player->mPosition.y - player->mFloorBelow > 10.0f) {
         changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_FALL, 0, false);
+        return true;
+    }
+
+    if (player->mActionState & 0x8 || isForceSlip__6TMarioFv(player)) {
+        changePlayerStatus__6TMarioFUlUlb(player, 0x50, 0, false);
         return true;
     }
 
@@ -98,12 +111,17 @@ bool processCrouch(TMario *player) {
         return true;
     }
 
-    if (controller->mButtons.mInput & TMarioGamePad::A) {
+    if (controller->mButtons.mFrameInput & TMarioGamePad::A) {
         changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_BACK_FLIP, 0, false);
         return true;
     }
 
     // TODO: Check wall/floor
+    float normalThing = player->mFloorTriangle ? player->mFloorTriangle->mNormal.y : 0.0f;
+    TVec3f succ{player->mPosition.x + (player->mSpeed.x * normalThing * 0.25f), player->mPosition.y,
+                player->mPosition.z + (player->mSpeed.z * normalThing * 0.25f)};
+    checkGroundAtWalking__6TMarioFP3Vec(player, &succ);
+    checkCollision__6TMarioFv(player);
 
     player->mSpeed.y = 0;
     player->mSpeed.scale(0.95);

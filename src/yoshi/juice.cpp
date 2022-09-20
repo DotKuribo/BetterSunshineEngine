@@ -6,6 +6,8 @@
 
 #if BETTER_SMS_GREEN_YOSHI
 
+SMS_WRITE_32(SMS_PORT_REGION(0x80270B3C, 0, 0, 0), 0x38800BB8);
+
 static void fixYoshiJuiceDecrement() {
     TYoshi *yoshi;
     SMS_FROM_GPR(30, yoshi);

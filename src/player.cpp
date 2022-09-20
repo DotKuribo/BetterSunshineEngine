@@ -17,7 +17,6 @@
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
 
-
 #include "collision/warp.hxx"
 #include "common_sdk.h"
 #include "globals.hxx"
@@ -503,7 +502,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802569bc, 0x8024E748, 0, 0), patchRoofCollisionSp
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
     : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCurJump(0),
       mIsLongJumping(false), mIsClimbTired(false), mPrevCollisionType(0), mCollisionTimer(0),
-      mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f), mMaxAddVelocity(150.0f),
+      mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f), mMaxAddVelocity(1000.0f),
       mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player), mIsOnFire(false), mFireTimer(0),
       mFireTimerMax(0) {
 
@@ -552,7 +551,7 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
 
     const TPlayerParams *params = getParams();
 
-    const f32 yoshiAgility = Math::sigmoidCurve(size.y, 0.0f, 1.2f, 1.321887582486f, -5.0f);
+    const f32 yoshiAgility = Math::sigmoidCurve(size.y, 0.0f, 1.2f, 1.321887582486f, -2.25f);
 
     f32 factor            = scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
     f32 speedMultiplier   = params->mSpeedMultiplier.get();
@@ -565,8 +564,8 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
         jumpMultiplier  = 1.0f;
     }
 
-    SCALE_PARAM(mPlayer->mDeParams.mRunningMax, factor * speedMultiplier * 1.5f);
-    SCALE_PARAM(mPlayer->mDeParams.mDashMax, factor * speedMultiplier * 1.5f);
+    SCALE_PARAM(mPlayer->mDeParams.mRunningMax, factor * speedMultiplier * 2.25f);
+    SCALE_PARAM(mPlayer->mDeParams.mDashMax, factor * speedMultiplier * 2.25f);
     SCALE_PARAM(mPlayer->mDeParams.mShadowSize, scale);
     SCALE_PARAM(mPlayer->mDeParams.mHoldRadius, scale);
     SCALE_PARAM(mPlayer->mDeParams.mDamageRadius, scale);
@@ -593,10 +592,10 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     SCALE_PARAM(mPlayer->mJumpParams.mSpinJumpGravity, factor * gravityMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mJumpSpeedAccelControl, factor * speedMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mPopUpSpeedY, factor * jumpMultiplier);
-    SCALE_PARAM(mPlayer->mJumpParams.mJumpingMax, factor * jumpMultiplier);
+    SCALE_PARAM(mPlayer->mJumpParams.mJumpingMax, factor * jumpMultiplier * 2.25f);
     SCALE_PARAM(mPlayer->mJumpParams.mFenceSpeed, factor * speedMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mFireBackVelocity, factor * jumpMultiplier);
-    SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForce, factor * 1.5f);
+    SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForce, factor * 2.25f);
     SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForceY, factor * jumpMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mRotateJumpForceY, factor * jumpMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mBackJumpForce, factor);

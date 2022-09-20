@@ -33,9 +33,19 @@ static OSTick sFPSBaseTime = 0;
 static J2DTextBox *gpFPSStringW = nullptr;
 static J2DTextBox *gpFPSStringB = nullptr;
 
+static char sStringBuffer[10];
+
 void initFPSMonitor(TMarDirector *director) {
-    gpFPSStringW                  = new J2DTextBox(gpSystemFont->mFont, "0.00 FPS");
-    gpFPSStringB                  = new J2DTextBox(gpSystemFont->mFont, "0.00 FPS");
+    gpFPSStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
+    gpFPSStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
+    gpFPSStringW->mStrPtr         = sStringBuffer;
+    gpFPSStringB->mStrPtr         = sStringBuffer;
+    gpFPSStringW->mNewlineSize    = 18;
+    gpFPSStringW->mCharSizeX      = 15;
+    gpFPSStringW->mCharSizeY      = 18;
+    gpFPSStringB->mNewlineSize    = 18;
+    gpFPSStringB->mCharSizeX      = 15;
+    gpFPSStringB->mCharSizeY      = 18;
     gpFPSStringB->mGradientTop    = {0, 0, 0, 255};
     gpFPSStringB->mGradientBottom = {0, 0, 0, 255};
 }
@@ -46,19 +56,13 @@ void updateFPSMonitor(TMarDirector *director) {
 
     sFPSCounter += 1.0f;
 
-    OSReport("Your mom\n");
-
     OSTick diff = OSGetTick() - sFPSBaseTime;
     f64 seconds = OSTicksToSeconds(f64(diff));
 
     if (seconds > 0.5f) {
         const f32 fps = sFPSCounter / seconds;
 
-        char fpsString[16];
-        snprintf(fpsString, 16, "%.02f FPS", fps);
-
-        gpFPSStringW->setString(fpsString);
-        gpFPSStringB->setString(fpsString);
+        snprintf(sStringBuffer, 10, "%.02f FPS", fps);
 
         if (fps < 24.0f) {
             gpFPSStringW->mGradientTop    = {210, 60, 20, 255};

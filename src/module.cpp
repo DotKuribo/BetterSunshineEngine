@@ -48,6 +48,10 @@ extern void initFPSMonitor(TMarDirector *);
 extern void updateFPSMonitor(TMarDirector *);
 extern void drawFPSMonitor(TMarDirector *, J2DOrthoGraph *);
 
+extern void initStateMonitor(TMarDirector *);
+extern void updateStateMonitor(TMarDirector *);
+extern void drawStateMonitor(TMarDirector *, J2DOrthoGraph *);
+
 // STAGE CONFIG
 extern void loadStageConfig(TMarDirector *);
 extern void resetGlobalValues(TApplication *);
@@ -137,6 +141,10 @@ static TMarDirector *initLib() {
     Debug::registerInitCallback("__init_fps_counter", initFPSMonitor);
     Debug::registerUpdateCallback("__update_fps_counter", updateFPSMonitor);
     Debug::registerDrawCallback("__draw_fps_counter", drawFPSMonitor);
+
+    Debug::registerInitCallback("__init_state_counter", initStateMonitor);
+    Debug::registerUpdateCallback("__update_state_counter", updateStateMonitor);
+    Debug::registerDrawCallback("__draw_state_counter", drawStateMonitor);
 
     // Set up loading screen
     // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
