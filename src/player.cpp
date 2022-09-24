@@ -4,15 +4,17 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/SMS.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
-#include <SMS/actor/Mario.hxx>
 #include <SMS/assert.h>
 #include <SMS/game/Application.hxx>
 #include <SMS/macros.h>
+#include <SMS/manager/MarioParticleManager.hxx>
+#include <SMS/manager/ModelWaterManager.hxx>
 #include <SMS/mapobj/MapObjNormalLift.hxx>
 #include <SMS/mapobj/MapObjTree.hxx>
+#include <SMS/object/EffectObjBase.hxx>
 #include <SMS/option/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
@@ -185,7 +187,7 @@ void processWarp(TMario *player, bool isMario) {
             if (playerData->mWarpTimer > EnableMovementTime) {
                 playerData->mCollisionFlags.mIsDisableInput = false;
                 playerData->mIsWarpActive                   = false;
-                player->mController->State.mReadInput       = true;
+                player->mController->mState.mReadInput      = true;
                 playerData->mWarpTimer                      = 0;
             } else {
                 playerData->mWarpTimer += 1;
@@ -196,7 +198,7 @@ void processWarp(TMario *player, bool isMario) {
             if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF) {
                 playerData->mCollisionFlags.mIsDisableInput = false;
                 playerData->mIsWarpActive                   = false;
-                player->mController->State.mReadInput       = true;
+                player->mController->mState.mReadInput      = true;
                 playerData->mWarpTimer                      = 0;
             } else {
                 playerData->mWarpTimer += 1;
@@ -229,13 +231,13 @@ void processWarp(TMario *player, bool isMario) {
 
                 playerData->mIsWarpActive = true;
                 playerData->mWarpTimer    = 0;
-                startSoundActor__6TMarioFUl(player, static_cast<u32>(TMario::VOICE_JUMP));
+                player->startSoundActor(TMario::VOICE_JUMP);
             } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
                 if (!playerData->mCollisionFlags.mIsDisableInput) {
-                    emitGetEffect__6TMarioFv(player);
+                    player->emitGetEffect();
                 }
                 playerData->mCollisionFlags.mIsDisableInput = true;
-                player->mController->State.mReadInput       = false;
+                player->mController->mState.mReadInput      = false;
             }
             playerData->mWarpTimer += 1;
             return;
@@ -260,7 +262,7 @@ void processWarp(TMario *player, bool isMario) {
                                                 WipeKindInDelay);
             } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
                 playerData->mCollisionFlags.mIsDisableInput = true;
-                player->mController->State.mReadInput       = false;
+                player->mController->mState.mReadInput      = false;
                 if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
                     gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT, 1.0f,
                                                     0.0f);
@@ -377,7 +379,7 @@ SMS_NO_INLINE void BetterSMS::Player::setFire(TMario *player) {
     playerData->mIsOnFire     = true;
     playerData->mFireTimer    = 0;
     playerData->mFireTimerMax = MaxFireTime;
-    changePlayerStatus__6TMarioFUlUlb(player, 0x80000588, 0, 1);
+    player->changePlayerStatus(0x80000588, 0, false);
 }
 
 SMS_NO_INLINE void BetterSMS::Player::extinguishFire(TMario *player, bool expired) {
@@ -419,9 +421,9 @@ void blazePlayer(TMario *player) {
         playerData->mFireTimerMax -= 1;
 
     if (fireFrame == 0) {
-        decHP__6TMarioFi(player, 1);
-        changePlayerStatus__6TMarioFUlUlb(player, 0x208B6, 0, 0);
-        startVoice__6TMarioFUl(player, 0x7849);
+        player->decHP(1);
+        player->changePlayerStatus(0x208B6, 0, false);
+        player->startVoice(0x7849);
     }
 
     if (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN))) {
@@ -429,9 +431,9 @@ void blazePlayer(TMario *player) {
         case TMario::STATE_TURNING_MID:
             break;
         case TMario::STATE_IDLE:
-            changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_RUNNING, 0, false);
+            player->changePlayerStatus(TMario::STATE_RUNNING, 0, false);
         default:
-            setPlayerVelocity__6TMarioFf(player, 50.0f * player->mSize.z);
+            player->setPlayerVelocity(50.0f * player->mSize.z);
             player->mActionState = 1;
         }
     }
@@ -479,7 +481,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpW
 static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
     TBGCheckData *roof = player->mRoofTriangle;
     if (!roof) {
-        setPlayerVelocity__6TMarioFf(player, _speed);
+        player->setPlayerVelocity(_speed);
         return;
     }
 
@@ -489,7 +491,7 @@ static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
     Vector3::normalized(*roof->getNormal(), nroofvec);
 
     const f32 ratio = Vector3::angleBetween(nroofvec, down);
-    setPlayerVelocity__6TMarioFf(player, lerp(_speed, player->mForwardSpeed, ratio));
+    player->setPlayerVelocity(lerp(_speed, player->mForwardSpeed, ratio));
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802569bc, 0x8024E748, 0, 0), patchRoofCollisionSpeed);
 
@@ -543,7 +545,8 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     size.scale(scale);
 
     mPlayer->JSGSetScaling(reinterpret_cast<Vec &>(size));
-    mPlayer->mModelData->mModel->mBaseScale = size;
+    if (mPlayer->mModelData)
+        mPlayer->mModelData->mModel->mBaseScale = size;
 
     mDefaultAttrs.applyHistoryTo(const_cast<TMario *>(getPlayer()));
 
@@ -557,7 +560,7 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     f32 speedMultiplier   = params->mSpeedMultiplier.get();
     f32 jumpMultiplier    = params->mBaseJumpMultiplier.get();
     f32 gravityMultiplier = params->mGravityMultiplier.get();
-    if (onYoshi__6TMarioCFv(mPlayer)) {
+    if (mPlayer->onYoshi()) {
         factor          = 1.0f;
         scale           = 1.0f;
         speedMultiplier = 1.0f;
@@ -854,7 +857,9 @@ void Player::TPlayerData::ParamHistory::reset() { *this = ParamHistory(); }
 
 #pragma endregion
 
-static void initFluddInLoadAfter(TWaterGun *fludd) { fludd->mNozzleList[4]->mDamageLoss = 250; }
+static void initFluddInLoadAfter(TWaterGun *fludd) {
+    fludd->mNozzleList[4]->mEmitParams.mDamageLoss.set(250);
+}
 SMS_PATCH_B(SMS_PORT_REGION(0x8026A3B8, 0x80262144, 0, 0), initFluddInLoadAfter);
 
 static void initFludd(TMario *player, Player::TPlayerData *playerData) {
@@ -871,7 +876,8 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
                 player->mAttributes.mHasFludd  = playerData->getCanUseFludd();
                 player->mFludd->mCurrentNozzle = i;
                 player->mFludd->mCurrentWater =
-                    player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]->mMaxWater;
+                    player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
+                        ->mEmitParams.mAmountMax.get();
                 break;
             } else if (i == 6) {
                 player->mAttributes.mHasFludd = false;
@@ -893,13 +899,13 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
     }
 
     if (config->mFluddShouldColorWater.get())
-        gModelWaterManagerWaterColor = config->mFluddWaterColor.get();
+        waterColor[0] = config->mFluddWaterColor.get();
 
     player->mFludd->mCurrentNozzle = config->mFluddPrimary.get();
     player->mFludd->mSecondNozzle  = config->mFluddSecondary.get();
 
-    player->mFludd->mCurrentWater =
-        player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]->mMaxWater;
+    player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
+                                        ->mEmitParams.mAmountMax.get();
 }
 
 // Extern to Player Init CB
@@ -982,7 +988,7 @@ static void playerUpdateHandler(TMario *player) {
         item.mItem.mValue(player, true);
     }
 
-    setPositions__6TMarioFv(player);
+    player->setPositions();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A8, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
@@ -994,7 +1000,7 @@ static void shadowMarioUpdateHandler(TMario *player) {
         item.mItem.mValue(player, false);
     }
 
-    setPositions__6TMarioFv(player);
+    player->setPositions();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8003F8F0, 0x8003F740, 0, 0), shadowMarioUpdateHandler);  // EMario
 

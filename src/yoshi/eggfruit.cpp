@@ -1,5 +1,5 @@
 #include <JSystem/J3D/J3DAnimation.hxx>
-#include <SMS/SMS.hxx>
+
 #include <SMS/macros.h>
 
 #include "common_sdk.h"

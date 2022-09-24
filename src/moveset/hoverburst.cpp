@@ -1,4 +1,4 @@
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/nozzle/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSound.hxx>
@@ -78,21 +78,23 @@ void checkSpamHover(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {
     if (nozzle->mFludd->mCurrentNozzle != TWaterGun::Hover)
         return;
 
-    nozzle->mEmitPerFrame = 1.0f;
-    nozzle->mEmitRandom   = 0.0f;
+    auto &emitParams = nozzle->mEmitParams;
+
+    emitParams.mNum.set(1.0f);
+    emitParams.mDirTremble.set(0.0f);
 
     if (player->mController->mButtons.mAnalogR < 0.9f ||
         !(player->mController->mFrameMeaning & 0x80))
         return;
 
-    if ((nozzle->mMaxSprayQuarterFrames - nozzle->mSprayQuarterFramesLeft) >= 20)
+    if ((emitParams.mTriggerTime.get() - nozzle->mSprayQuarterFramesLeft) >= 20)
         return;
 
     if (nozzle->mFludd->mCurrentWater < 510)
         return;
 
-    nozzle->mEmitPerFrame           = 255.0f;
-    nozzle->mEmitRandom             = 0.5f;
+    emitParams.mNum.set(255.0f);
+    emitParams.mDirTremble.set(0.5f);
     nozzle->mSprayQuarterFramesLeft = 0;
     nozzle->mSprayState             = TNozzleTrigger::DEAD;
 

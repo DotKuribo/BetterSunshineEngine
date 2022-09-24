@@ -14992,7 +14992,7 @@ sMareWB_BabyBedColorBuf0=0x804150D8
 sMareWB_BabyBedColorBuf1=0x804150E0
 
 
-gYoshiBodyColor=0x8039F934
+bodyColor=0x8039F934
 gShineShadowPos=0x803A1C94
 gModelWaterManagerWaterColor=0x803DD898
 gYoshiJuiceColor=0x803DD89C

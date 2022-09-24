@@ -1,4 +1,7 @@
-#include <SMS/SMS.hxx>
+
+#include <SMS/Player/Mario.hxx>
+#include <SMS/Player/MarioBlend.hxx>
+#include <SMS/macros.h>
 #include <SMS/object/ResetFruit.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
@@ -47,7 +50,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8023F964, 0x802376F0, 0, 0), chooseGrabDistancing
 
 // 0x8023F9DC
 static bool isGrabWaitOver(TMario *player) {
-    return isLast1AnimeFrame__6TMarioFv(player) |
+    return player->isLast1AnimeFrame() ||
            (player->mPrevState & static_cast<u32>(TMario::STATE_WATERBORN));
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8023F9DC, 0x80237768, 0, 0), isGrabWaitOver);

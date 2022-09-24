@@ -1,5 +1,6 @@
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
+#include <SMS/game/MarDirector.hxx>
 #include <SMS/nozzle/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSound.hxx>
@@ -45,10 +46,10 @@ void checkForCrouch(TMario *player, bool isMario) {
     if (gpMarDirector->mCurState != TMarDirector::Status::NORMAL)
         return;
 
-    if (onYoshi__6TMarioCFv(player))
+    if (player->onYoshi())
         return;
 
-    checkEnforceJump__6TMarioFv(player);
+    player->checkEnforceJump();
 
     if (player->mState != TMario::STATE_IDLE && player->mState != TMario::STATE_STOP &&
         player->mState != TMario::STATE_JMP_LAND && player->mState != TMario::STATE_HVY_LAND &&
@@ -56,7 +57,7 @@ void checkForCrouch(TMario *player, bool isMario) {
         player->mState != TMario::STATE_D_LAND_RECOVER)
         return;
 
-    if ((player->mActionState & 0x8) || isForceSlip__6TMarioFv(player))
+    if ((player->mActionState & 0x8) || player->isForceSlip())
         return;
 
     if (player->mForwardSpeed > __FLT_EPSILON__)
@@ -69,37 +70,37 @@ void checkForCrouch(TMario *player, bool isMario) {
     if (!(controller->mMeaning & TargetMeaning))
         return;
 
-    changePlayerStatus__6TMarioFUlUlb(player, CrouchState, 0, false);
+    player->changePlayerStatus(CrouchState, 0, false);
     player->mSpeed.scale(0.2f);
 }
 
 bool processCrouch(TMario *player) {
     if (player->mPosition.y - player->mFloorBelow > 10.0f) {
-        changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_FALL, 0, false);
+        player->changePlayerStatus(TMario::STATE_FALL, 0, false);
         return true;
     }
 
-    if (player->mActionState & 0x8 || isForceSlip__6TMarioFv(player)) {
-        changePlayerStatus__6TMarioFUlUlb(player, 0x50, 0, false);
+    if (player->mActionState & 0x8 || player->isForceSlip()) {
+        player->changePlayerStatus(0x50, 0, false);
         return true;
     }
 
     auto *fludd = player->mFludd;
     if (fludd) {
         if (fludd->mIsEmitWater && fludd->mCurrentNozzle != TWaterGun::Spray) {
-            changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_IDLE, 0, false);
+            player->changePlayerStatus(TMario::STATE_IDLE, 0, false);
             return true;
         }
     }
 
     auto *controller = player->mController;
     if (!controller) {
-        changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_SIDE_STEP_LEAVE, 0, false);
+        player->changePlayerStatus(TMario::STATE_SIDE_STEP_LEAVE, 0, false);
         return true;
     }
 
     if (!(controller->mMeaning & TargetMeaning)) {
-        changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_SIDE_STEP_LEAVE, 0, false);
+        player->changePlayerStatus(TMario::STATE_SIDE_STEP_LEAVE, 0, false);
         return true;
     }
 
@@ -107,28 +108,28 @@ bool processCrouch(TMario *player) {
 
     const bool backHeld = controlStick.mAngle < 0x4000 && controlStick.mAngle > -0x4000;
     if (controller->mControlStick.mLengthFromNeutral > 0.8f && !backHeld) {
-        changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_RUNNING, 0, false);
+        player->changePlayerStatus(TMario::STATE_RUNNING, 0, false);
         return true;
     }
 
     if (controller->mButtons.mFrameInput & TMarioGamePad::A) {
-        changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_BACK_FLIP, 0, false);
+        player->changePlayerStatus(TMario::STATE_BACK_FLIP, 0, false);
         return true;
     }
 
-    // TODO: Check wall/floor
+    // Check walls
     float normalThing = player->mFloorTriangle ? player->mFloorTriangle->mNormal.y : 0.0f;
     TVec3f succ{player->mPosition.x + (player->mSpeed.x * normalThing * 0.25f), player->mPosition.y,
                 player->mPosition.z + (player->mSpeed.z * normalThing * 0.25f)};
-    checkGroundAtWalking__6TMarioFP3Vec(player, &succ);
-    checkCollision__6TMarioFv(player);
+    player->checkGroundAtWalking(succ);
+    player->checkCollision();
 
     player->mSpeed.y = 0;
     player->mSpeed.scale(0.95);
     player->mPosition.add(player->mSpeed);
     player->mForwardSpeed *= 0.95;
 
-    setAnimation__6TMarioFif(player, TMario::ANIMATION_STEADY_STANCE, 1.0f);
+    player->setAnimation(TMario::ANIMATION_STEADY_STANCE, 1.0f);
     return false;
 }
 

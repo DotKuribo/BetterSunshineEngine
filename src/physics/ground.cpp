@@ -3,10 +3,9 @@
 #include <Dolphin/types.h>
 
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/macros.h>
 #include <SMS/npc/BaseNPC.hxx>
-
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"
@@ -25,7 +24,7 @@ static f32 checkGroundSpeedLimit() {
     auto playerData = Player::getData(player);
 
     f32 multiplier = 1.0f;
-    if (onYoshi__6TMarioCFv(player)) {
+    if (player->onYoshi()) {
         multiplier *= player->mYoshiParams.mRunYoshiMult.get();
     } else {
         multiplier *= playerData->getParams()->mSpeedMultiplier.get();
@@ -65,7 +64,7 @@ static f32 checkSlideSpeedMulti() {
             Max(playerData->mSlideSpeedMultiplier - brakeRate, 1.0f);
     }
 
-    if (!onYoshi__6TMarioCFv(player)) {
+    if (!player->onYoshi()) {
         return speedCap * playerData->mSlideSpeedMultiplier;
     } else {
         return speedCap;
@@ -86,9 +85,9 @@ static void checkGraffitiAffected(TMario *player) {
     auto playerData = Player::getData(player);
 
     if (!playerData->isMario()) {
-        checkGraffito__6TMarioFv(player);
+        player->checkGraffito();
     } else if (playerData->getParams()->mGoopAffected.get()) {
-        checkGraffito__6TMarioFv(player);
+        player->checkGraffito();
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024E288, 0x80246014, 0, 0), checkGraffitiAffected);

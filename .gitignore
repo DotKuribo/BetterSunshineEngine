@@ -412,3 +412,6 @@ MigrationBackup/
 .ionide/
 *.sqlite
 .vs/VSWorkspaceState.json
+
+# Clion
+cmake-build-debug/

@@ -1,5 +1,5 @@
 #include <Dolphin/types.h>
-#include <SMS/SMS.hxx>
+
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
 #include <SMS/camera/PolarSubCamera.hxx>

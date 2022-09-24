@@ -1,6 +1,6 @@
 #include <Dolphin/MTX.h>
 #include <JSystem/JGeometry.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
@@ -28,7 +28,7 @@ void antiGravityCol(TMario *player) {
     if ((player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) == false) {
         position.y += 1.0f;
         player->JSGSetTranslation(position);
-        changePlayerStatus__6TMarioFUlUlb(player, static_cast<u32>(TMario::STATE_FALL), 0, 0);
+        player->changePlayerStatus(TMario::STATE_FALL, 0, 0);
     }
     if (player->mState == static_cast<u32>(TMario::STATE_FALL))
         player->mSubStateTimer = 0;

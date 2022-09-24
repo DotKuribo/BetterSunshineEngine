@@ -3,11 +3,12 @@
 #include <Dolphin/OS.h>
 #include <Dolphin/printf.h>
 #include <JSystem/JSupport/JSUStream.hxx>
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSBGM.hxx>
+#include <SMS/camera/PolarSubCamera.hxx>
 
 #include "libs/constmath.hxx"
 #include "logging.hxx"

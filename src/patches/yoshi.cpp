@@ -52,13 +52,14 @@ static void restoreNozzles(TMario *player) {
         return;
 
     f32 factor = static_cast<f32>(playerData->mFluddHistory.mWaterLevel) /
-                 static_cast<f32>(
-                     player->mFludd->mNozzleList[playerData->mFluddHistory.mMainNozzle]->mMaxWater);
+                 static_cast<f32>(player->mFludd->mNozzleList[playerData->mFluddHistory.mMainNozzle]
+                                      ->mEmitParams.mAmountMax.get());
     changeNozzle__9TWaterGunFQ29TWaterGun11TNozzleTypeb(player->mFludd,
                                                         playerData->mFluddHistory.mSecondNozzle, 1);
-    normalizeNozzle__6TMarioFv(player);
-    player->mFludd->mCurrentWater =
-        player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]->mMaxWater * factor;
+    player->normalizeNozzle();
+    player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
+                                        ->mEmitParams.mAmountMax.get() *
+                                    factor;
     player->mAttributes.mHasFludd = playerData->mFluddHistory.mHadFludd;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024EC18, 0x802469A4, 0, 0), restoreNozzles);

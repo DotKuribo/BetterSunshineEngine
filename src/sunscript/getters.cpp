@@ -1,13 +1,11 @@
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+#include <SMS/game/Application.hxx>
 
 #include "globals.hxx"
 #include "sunscript.hxx"
 #include "time.hxx"
 
-void Spc::getTimeAsStr(TSpcInterp* interp, u32 argc)
-{
-}
+void Spc::getTimeAsStr(TSpcInterp *interp, u32 argc) {}
 
 void Spc::getPlayerInputByIndex(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(2, &argc);

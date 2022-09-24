@@ -1,6 +1,6 @@
 #include <Dolphin/types.h>
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
 #include <SMS/raw_fn.hxx>
 
 #include "module.hxx"
@@ -17,11 +17,11 @@ void checkForMultiJump(TMario *player, bool isMario) {
     if (!playerData)
         return;
 
+    const bool isYoshi   = player->mYoshi ? player->mYoshi->mState == TYoshi::MOUNTED : false;
     const bool isAirBorn = (player->mState & TMario::STATE_AIRBORN) && (player->mActionState & 0x4);
     const bool isInvalidState =
-        (player->mState & 0x800000) || player->mYoshi->mState == TYoshi::MOUNTED ||
-        player->mState == TMario::STATE_SLIP_JUMP || player->mState == TMario::STATE_THROWN ||
-        player->mAttributes.mIsGameOver;
+        (player->mState & 0x800000) || isYoshi || player->mState == TMario::STATE_SLIP_JUMP ||
+        player->mState == TMario::STATE_THROWN || player->mAttributes.mIsGameOver;
 
     if (!isAirBorn || isInvalidState) {
         playerData->mCurJump = 1;
@@ -36,14 +36,14 @@ void checkForMultiJump(TMario *player, bool isMario) {
 
     if ((player->mController->mButtons.mFrameInput & TMarioGamePad::EButtons::A) && jumpsLeft > 0 &&
         player->mState != TMario::STATE_WALLSLIDE && player->mState != TMario::STATE_F_KNCK_H) {
-        changePlayerStatus__6TMarioFUlUlb(player, MultiJumpState, 0, false);
+        player->changePlayerStatus(MultiJumpState, 0, false);
     }
 }
 
 bool processMultiJump(TMario *player) {
     auto *playerData = Player::getData(player);
     if (!playerData) {
-        changePlayerStatus__6TMarioFUlUlb(player, player->mPrevState, 0, false);
+        player->changePlayerStatus(player->mPrevState, 0, false);
         return true;
     }
 
@@ -67,8 +67,8 @@ bool processMultiJump(TMario *player) {
         animID  = 0x50;
     }
 
-    startVoice__6TMarioFUl(player, voiceID);
-    setAnimation__6TMarioFif(player, animID, 1.0f);
+    player->startVoice(voiceID);
+    player->setAnimation(animID, 1.0f);
 
     const TMarioGamePad *controller = player->mController;
     const f32 stickMagnitude        = controller->mControlStick.mLengthFromNeutral;
@@ -80,7 +80,7 @@ bool processMultiJump(TMario *player) {
     }
 
     player->mForwardSpeed *= stickMagnitude;
-    changePlayerJumping__6TMarioFUlUl(player, state, 0);
+    player->changePlayerJumping(state, 0);
 
     playerData->mIsLongJumping = false;
     playerData->mCurJump += 1;

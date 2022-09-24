@@ -5,12 +5,14 @@
 #include <JSystem/J2D/J2DPane.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
 #include <SMS/npc/BaseNPC.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/game/Application.hxx>
+#include <SMS/collision/MapCollisionData.hxx>
 
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"

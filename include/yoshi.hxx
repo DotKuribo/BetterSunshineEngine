@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/actor/Yoshi.hxx>
 
 namespace BetterSMS {

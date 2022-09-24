@@ -15007,13 +15007,13 @@ sMareWB_BabyHatColorBuf1=0x804150D0
 sMareWB_BabyBedColorBuf0=0x804150D8
 sMareWB_BabyBedColorBuf1=0x804150E0
 
-BootInfo=0x80000000;
+BootInfo=0x80000000
 
+bodyColor=0x8039F934
+juiceColor=0x803DD89C
+waterColor=0x803DD898
 
-gYoshiBodyColor=0x8039F934
 gShineShadowPos=0x803A1C94
-gModelWaterManagerWaterColor=0x803DD898
-gYoshiJuiceColor=0x803DD89C
 gAudioVolume=0x8040C1C0
 gpCamera=0x8040D0A8
 gpCameraMario=0x8040D0B0
@@ -15024,10 +15024,7 @@ gpMapCollisionData=0x8040DEA0
 gEffectCoronaScale=0x8040DEB0
 gpPollution=0x8040DED0
 gpNPCPtrSaveNormal=0x8040DFA0
-gpPad1RumbleMgr=0x8040E0D0
-gpPad2RumbleMgr=0x8040E0D4
-gpPad3RumbleMgr=0x8040E0D8
-gpPad4RumbleMgr=0x8040E0DC
+SMSRumbleMgr=0x8040E0D0
 gpMarioAddress=0x8040E108
 gpMarioPos=0x8040E10C
 gpModelWaterManager=0x8040E138

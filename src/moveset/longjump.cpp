@@ -1,7 +1,7 @@
 #include <Dolphin/types.h>
 
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
 #include <SMS/raw_fn.hxx>
 
 #include "libs/constmath.hxx"
@@ -46,7 +46,7 @@ static void setJumpOrLongJump(TMario *player, u32 state, u32 unk_0) {
 
     auto *playerData = Player::getData(player);
     if (!playerData) {
-        setStatusToJumping__6TMarioFUlUl(player, state, unk_0);
+        player->setStatusToJumping(state, unk_0);
         return;
     }
     auto &buttons = player->mController->mButtons;
@@ -62,7 +62,7 @@ static void setJumpOrLongJump(TMario *player, u32 state, u32 unk_0) {
         state                      = TMario::STATE_JUMP;
     }
 
-    setStatusToJumping__6TMarioFUlUl(player, state, unk_0);
+    player->setStatusToJumping(state, unk_0);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802541BC, 0x8024BF48, 0, 0), setJumpOrLongJump);
 
@@ -71,7 +71,7 @@ static void processJumpOrLongJumpAnim(TMario *player, int state, int anim, int u
     if (playerData && playerData->mIsLongJumping)
         anim = 0xF6;
 
-    jumpingBasic__6TMarioFiii(player, state, anim, unk_0);
+    player->jumpingBasic(state, anim, unk_0);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80249554, 0x802412E0, 0, 0), processJumpOrLongJumpAnim);
 
@@ -93,7 +93,7 @@ static void processJumpOrLongJump() {
         return;
     }
 
-    startVoice__6TMarioFUl(player, TMario::VOICE_TRIPLE_JUMP);
+    player->startVoice(TMario::VOICE_TRIPLE_JUMP);
 
     player->mSpeed.y += LongJumpSpeedUp * playerData->getParams()->mBaseJumpMultiplier.get();
     player->mForwardSpeed += LongJumpSpeedForward * playerData->getParams()->mSpeedMultiplier.get();
@@ -107,7 +107,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80254540, 0x8024c2cc, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x80254544, 0x8024c2d0, 0, 0), 0x60000000);
 
 static bool checkDivingWhenLongJumping(TMario *player) {
-    const bool onYoshi = onYoshi__6TMarioCFv(player);
+    const bool onYoshi = player->onYoshi();
 
     auto *playerData = Player::getData(player);
     if (!playerData)
@@ -118,7 +118,7 @@ static bool checkDivingWhenLongJumping(TMario *player) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024C394, 0x80244120, 0, 0), checkDivingWhenLongJumping);
 
 static bool checkRotatingWhenLongJumping(TMario *player, int *unk_0) {
-    const bool rotated = checkStickRotate__6TMarioFPi(player, unk_0);
+    const bool rotated = player->checkStickRotate(unk_0);
 
     auto *playerData = Player::getData(player);
     if (!playerData)

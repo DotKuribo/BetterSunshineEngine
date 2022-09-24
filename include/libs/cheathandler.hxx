@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 
 class TCheatHandler {
 public:

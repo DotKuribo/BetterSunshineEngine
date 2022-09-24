@@ -89,17 +89,17 @@ static u32 calcYoshiSwimVelocity(TMario *player, u32 arg1) {
     auto playerData = Player::getData(player);
 
     if (!playerData) {
-        return jumpProcess__6TMarioFi(player, arg1);
+        return player->jumpProcess(arg1);
     }
 
     if (Stage::getStageConfiguration()->mIsYoshiHungry.get())
-        return jumpProcess__6TMarioFi(player, arg1);
+        return player->jumpProcess(arg1);
 
     if (!player->mYoshi)
-        return jumpProcess__6TMarioFi(player, arg1);
+        return player->jumpProcess(arg1);
 
     if (!Yoshi::isGreenYoshiMounted(player->mYoshi))
-        return jumpProcess__6TMarioFi(player, arg1);
+        return player->jumpProcess(arg1);
 
     if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::A) {
         if (playerData->mYoshiWaterSpeed.y > 12.0f)
@@ -113,7 +113,7 @@ static u32 calcYoshiSwimVelocity(TMario *player, u32 arg1) {
             playerData->mYoshiWaterSpeed.y -= 0.34375f;
     }
     player->mSpeed.y = playerData->mYoshiWaterSpeed.y;
-    return jumpProcess__6TMarioFi(player, arg1);
+    return player->jumpProcess(arg1);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80273198, 0x8026AF24, 0, 0), calcYoshiSwimVelocity);
 

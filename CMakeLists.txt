@@ -50,10 +50,18 @@ file(GLOB BETTERSMS_SRC
     "src/yoshi/*.cpp"
     "include/*.h"
     "include/*.hxx"
+    "include/collision/*.h"
+    "include/collision/*.hxx"
+    "include/cstd/*.h"
+    "include/cstd/*.hxx"
+    "include/libs/*.h"
+    "include/libs/*.hxx"
+    "include/objects/*.h"
+    "include/objects/*.hxx"
 )
 
 
-add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
+add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
 add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")

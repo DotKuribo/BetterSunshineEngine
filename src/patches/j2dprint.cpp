@@ -5,7 +5,7 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/mapobj/MapObjNormalLift.hxx>
 #include <SMS/mapobj/MapObjTree.hxx>
 

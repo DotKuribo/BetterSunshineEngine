@@ -7,12 +7,15 @@
 #include <SMS/GC2D/Guide.hxx>
 #include <SMS/GC2D/SelectDir.hxx>
 #include <SMS/GC2D/SelectMenu.hxx>
-#include <SMS/SMS.hxx>
+#include <SMS/GC2D/ConsoleStr.hxx>
+#include <SMS/camera/PolarSubCamera.hxx>
 #include <SMS/game/GCConsole2.hxx>
+#include <SMS/game/MarDirector.hxx>
 #include <SMS/macros.h>
 #include <SMS/manager/SelectShineManager.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/screen/SMSFader.hxx>
+#include <SMS/Player/MarioGamePad.hxx>
 
 #include "libs/constmath.hxx"
 #include "module.hxx"
@@ -295,8 +298,8 @@ static void fixDemoMasksWideScreen_InitStaticGoPanes(TConsoleStr *consoleStr) {
 
     consoleStr->mDemoMaskExPanes[1]->mRect.copy(*rect);
 }
- SMS_PATCH_BL(SMS_PORT_REGION(0x801723F0, 0x801681E0, 0, 0),
-              fixDemoMasksWideScreen_InitStaticGoPanes);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801723F0, 0x801681E0, 0, 0),
+             fixDemoMasksWideScreen_InitStaticGoPanes);
 
 static JUTRect sGuideBorderRects[2];
 static J2DPane sGuideBorderPanes[2];

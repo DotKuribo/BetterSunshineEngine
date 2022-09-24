@@ -3,10 +3,9 @@
 #include <Dolphin/types.h>
 
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/macros.h>
 #include <SMS/npc/BaseNPC.hxx>
-
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"
@@ -29,7 +28,7 @@ static u32 updateContexts(TMario *player) {
 static void addVelocity(TMario *player, f32 velocity) {
     auto playerData = Player::getData(player);
 
-    if (!onYoshi__6TMarioCFv(player)) {
+    if (!player->onYoshi()) {
         player->mForwardSpeed =
             Min(player->mForwardSpeed + velocity,
                 (playerData->mMaxAddVelocity * playerData->getParams()->mSpeedMultiplier.get()) *

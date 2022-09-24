@@ -1,9 +1,11 @@
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
+#include <SMS/game/GCConsole2.hxx>
 #include <SMS/nozzle/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
+
 
 #include "module.hxx"
 #include "player.hxx"
@@ -60,7 +62,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8014206C, 0x80136C80, 0, 0), hasWaterCardOpen);
 SMS_WRITE_32(SMS_PORT_REGION(0x80142070, 0x80136C84, 0, 0), 0x28030000);
 
 static bool canCollectFluddItem(TMario *player) {
-    const bool defaultEnabled = onYoshi__6TMarioCFv(player);
+    const bool defaultEnabled = player->onYoshi();
 
     auto *playerData = Player::getData(gpMarioAddress);
     if (!playerData)
@@ -75,7 +77,7 @@ static bool canCollectFluddItem_() {
     TMario *player;
     SMS_FROM_GPR(30, player);
 
-    const bool isOnYoshi = onYoshi__6TMarioCFv(player);
+    const bool isOnYoshi = player->onYoshi();
 
     auto *playerData = Player::getData(gpMarioAddress);
     if (!playerData)
@@ -108,7 +110,7 @@ static void checkRocketNozzleDiveBlast(TNozzleTrigger *nozzle, u32 r4, TWaterEmi
     if (nozzle->mFludd->mCurrentNozzle != TWaterGun::Rocket)
         return;
 
-    nozzle->mForwardSpeedFactor = player->mState != TMario::STATE_DIVE ? 0.0f : 1.0f;
+    nozzle->mEmitParams.mReactionPow.set(player->mState != TMario::STATE_DIVE ? 0.0f : 1.0f);
 }
 #else
 static void checkRocketNozzleDiveBlast(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {}

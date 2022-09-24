@@ -7,7 +7,7 @@
 #include <JSystem/JGeometry.hxx>
 #include <JSystem/JSupport/JSUMemoryStream.hxx>
 #include <JSystem/JUtility/JUTColor.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/camera/PolarSubCamera.hxx>
 #include <SMS/raw_fn.hxx>
 

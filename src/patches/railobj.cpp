@@ -4,7 +4,7 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/mapobj/MapObjNormalLift.hxx>
 #include <SMS/mapobj/MapObjTree.hxx>
 
@@ -48,7 +48,7 @@ void checkResetToNode(TNormalLift *lift) {
     TRailNode *node;
     {
         s32 nodeIdx = lift->mGraphTracer->mPreviousNode;
-        node        = reinterpret_cast<TRailNode *>(graph->mNodes[nodeIdx << 2]);
+        node        = graph->mNodes[nodeIdx << 2].mRailNode;
     }
     if (node->mFlags & 0x2000) {
         lift->mPosition.set(graph->getNearestPosOnGraphLink(lift->mInitialPosition));

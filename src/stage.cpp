@@ -1,11 +1,12 @@
 #include <Dolphin/DVD.h>
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
-#include <SMS/SMS.hxx>
+
 #include <SMS/game/Application.hxx>
 #include <SMS/game/GameSequence.hxx>
 #include <SMS/game/MarDirector.hxx>
 #include <SMS/macros.h>
+#include <SMS/manager/ModelWaterManager.hxx>
 #include <SMS/mapobj/MapObjInit.hxx>
 
 #include "libs/container.hxx"
@@ -306,14 +307,14 @@ void loadStageConfig(TMarDirector *) {
 
 // Extern to stage init
 void resetGlobalValues(TApplication *) {
-    gModelWaterManagerWaterColor.set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
-    gYoshiJuiceColor[0].set(0xFE, 0xA8, 0x02, 0x6E);           // Yoshi Juice rgba
-    gYoshiJuiceColor[1].set(0x9B, 0x01, 0xFD, 0x6E);
-    gYoshiJuiceColor[2].set(0xFD, 0x62, 0xA7, 0x6E);
-    gYoshiBodyColor[0].set(0x40, 0xA1, 0x24, 0xFF);  // Yoshi rgba
-    gYoshiBodyColor[1].set(0xFF, 0x8C, 0x1C, 0xFF);
-    gYoshiBodyColor[2].set(0xAA, 0x4C, 0xFF, 0xFF);
-    gYoshiBodyColor[3].set(0xFF, 0xA0, 0xBE, 0xFF);
+    waterColor[0].set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
+    waterColor[1].set(0xFE, 0xA8, 0x02, 0x6E);  // Yoshi Juice rgba
+    waterColor[2].set(0x9B, 0x01, 0xFD, 0x6E);
+    waterColor[3].set(0xFD, 0x62, 0xA7, 0x6E);
+    bodyColor[0].set(0x40, 0xA1, 0x24, 0xFF);  // Yoshi rgba
+    bodyColor[1].set(0xFF, 0x8C, 0x1C, 0xFF);
+    bodyColor[2].set(0xAA, 0x4C, 0xFF, 0xFF);
+    bodyColor[3].set(0xFF, 0xA0, 0xBE, 0xFF);
     gAudioVolume = 0.75f;
     gAudioPitch  = 1.0f;
     gAudioSpeed  = 1.0f;

@@ -13,6 +13,7 @@
 #include "module.hxx"
 #include "music.hxx"
 #include "object.hxx"
+#include "objects/generic.hxx"
 #include "player.hxx"
 #include "stage.hxx"
 #include "time.hxx"
@@ -72,6 +73,10 @@ extern u32 MultiJumpState;
 extern void checkForMultiJump(TMario *, bool);
 extern bool processMultiJump(TMario *);
 
+// FLUDD
+extern void initTurboMaxCapacity(TMario *player, bool isMario);
+extern void updateTurboFrameEmit(TMario *player, bool isMario);
+
 static TMarDirector *initLib() {
 
     TMarDirector *director;
@@ -110,11 +115,6 @@ static TMarDirector *initLib() {
 
     makeExtendedObjDataTable();
 
-    // Set up debug handlers
-    // Stage::registerInitCallback("__init_debug", initDebugCallbacks);
-    // Stage::registerUpdateCallback("__update_debug", updateDebugCallbacks);
-    // Stage::registerDraw2DCallback("__draw_debug", drawDebugCallbacks);
-
     // Set up stage config handlers
     Stage::registerInitCallback("__init_config", loadStageConfig);
     Stage::registerExitCallback("__reset_globals", resetGlobalValues);
@@ -132,6 +132,11 @@ static TMarDirector *initLib() {
     Player::registerUpdateProcess("__update_mario_multijump", checkForMultiJump);
     Player::registerStateMachine(MultiJumpState, processMultiJump);
 
+    // FLUDD
+    Player::registerInitProcess("__init_turbo_max", initTurboMaxCapacity);
+    Player::registerUpdateProcess("__update_turbo_usage", updateTurboFrameEmit);
+
+    // DEBUG
     Debug::registerInitCallback("__init_debug_xyz", initMarioXYZMode);
     Debug::registerUpdateCallback("__update_debug_xyz", updateMarioXYZMode);
 
@@ -149,6 +154,9 @@ static TMarDirector *initLib() {
     // Set up loading screen
     // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
     // Stage::registerUpdateCallback("__update_load_screen", (Stage::StageUpdateCallback)0);
+
+    Objects::registerObjectAsMapObj("GenericRailObj", &generic_railobj_data,
+                                    TGenericRailObj::instantiate);
 
     return director;
 }

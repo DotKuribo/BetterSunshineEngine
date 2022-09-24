@@ -3,11 +3,12 @@
 #include <Dolphin/types.h>
 
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/SMS.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
+
 #include <SMS/npc/BaseNPC.hxx>
 
 #include "libs/constmath.hxx"
+#include "libs/triangle.hxx"
 #include "module.hxx"
 #include "player.hxx"
 
@@ -40,7 +41,7 @@ static void doProcessJumpState(TMario *player) {
         1.0f);
 #endif
 
-    jumpMain__6TMarioFv(player);
+    player->jumpMain();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80250138, 0x80247EC4, 0, 0), doProcessJumpState);
 
@@ -69,7 +70,7 @@ static void checkJumpSpeedLimit(f32 speed) {
     f32 speedCap     = 32.0f;
     f32 speedReducer = 0.2f;
 
-    if (!onYoshi__6TMarioCFv(player)) {
+    if (!player->onYoshi()) {
         speedCap *= playerData->getParams()->mSpeedMultiplier.get();
         speedReducer *=
             scaleLinearAtAnchor<f32>(playerData->getParams()->mSpeedMultiplier.get(), 3.0f, 1.0f);
@@ -90,7 +91,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024CC6C, 0x802449F8, 0, 0), checkJumpSpeedLimit)
 static TMario *checkJumpSpeedMulti(TMario *player, f32 factor, f32 max) {
     auto playerData = Player::getData(player);
 
-    if (playerData->isMario() && !onYoshi__6TMarioCFv(player)) {
+    if (playerData->isMario() && !player->onYoshi()) {
         player->mForwardSpeed = ((factor * playerData->getParams()->mSpeedMultiplier.get()) * max) +
                                 player->mForwardSpeed;
         return player;
@@ -106,23 +107,41 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024CC30, 0x802449BC, 0, 0), 0x57C5043E);
 
 #if BETTER_SMS_DYNAMIC_FALL_DAMAGE
 
-static void dynamicFallDamage(TMario *player, int dmg, int type, int emitcount, int tremble) {
-#define floorDamageExec__6TMarioFiiii                                                              \
-    ((void (*)(TMario *, int, int, int, int))SMS_PORT_REGION(0x8024303C, 0x8023ACEC, 0, 0))
+static f32 getTrueFloorContactSpeed(TMario *player) {
+    const f32 playerRotY    = f32(player->mAngle.y) / 182.0f;
+    const Vec playerForward = {sinf(angleToRadians(-playerRotY)), 0.0f,
+                               cosf(angleToRadians(playerRotY))};
+    const Vec up            = {0.0f, 1.0f, 0.0f};
 
+    Vec floorNormal;
+    PSVECNormalize(reinterpret_cast<Vec *>(player->mFloorTriangle->getNormal()), &floorNormal);
+
+    const f32 slopeStrength = PSVECDotProduct(&up, &floorNormal);
+    const f32 lookAtRatio   = Vector3::lookAtRatio(playerForward, floorNormal);
+    if (isnan(lookAtRatio))
+        return player->mSpeed.y;
+
+    return (player->mSpeed.y - (((lookAtRatio - 0.5f) * 2.0f) * player->mForwardSpeed)) *
+           slopeStrength;
+}
+
+static void dynamicFallDamage(TMario *player, int dmg, int type, int emitcount, int tremble) {
     auto playerData = Player::getData(player);
 
     dmg *= static_cast<int>((player->mLastGroundedPos.y - player->mPosition.y) /
-                            (player->mDeParams.mDamageFallHeight.get() / 1.4f));
+                            (player->mDeParams.mDamageFallHeight.get() / 1.5f));
+
+    const f32 terminalVelocity = -75.0f * player->mJumpParams.mGravity.get();
+    const f32 trueContact      = getTrueFloorContactSpeed(player);
+    dmg *= trueContact / terminalVelocity;
+
     if (dmg > 2) {
         type      = 0;  // shaky
         emitcount = (dmg - 2) * 3;
     }
 
     if (player->mSpeed.y <= (-75.0f * player->mJumpParams.mGravity.get()) + 5.0f)
-        floorDamageExec__6TMarioFiiii(player, dmg, type, emitcount, tremble);
-
-#undef floorDamageExec__6TMarioFiiii
+        player->floorDamageExec(dmg, type, emitcount, tremble);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024C73C, 0x80246BB4, 0, 0), dynamicFallDamage);
 

@@ -1,7 +1,6 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
-#include <SMS/SMS.hxx>
 #include <SMS/collision/MapCollisionData.hxx>
 #include <SMS/macros.h>
 

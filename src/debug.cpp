@@ -1,7 +1,7 @@
 #include <Dolphin/types.h>
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRDisplay.hxx>
-#include <SMS/SMS.hxx>
+
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 

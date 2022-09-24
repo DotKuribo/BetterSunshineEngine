@@ -1,17 +1,18 @@
 #include <Dolphin/string.h>
 #include <JSystem/JGadget/List.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/actor/HitActor.hxx>
-#include <SMS/actor/Mario.hxx>
 #include <SMS/game/MarNameRefGen.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
+
 
 #include "libs/container.hxx"
 #include "memory.hxx"
 #include "module.hxx"
 #include "object.hxx"
 
-#if BETTER_SMS_EXTRA_OBJECTS
+#if BETTER_SMS_EXTRA_OBJECTS || 1
 
 using namespace BetterSMS;
 
@@ -57,7 +58,10 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, 
     if (sCustomMapObjList.hasKey(name))
         return false;
     sCustomMapObjList.set(name, initFn);
-    sObjDataTableNew[sOBJNewCount] = data;
+    sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
+        sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
+                         1];  // Copy the default end to the next position
+    sObjDataTableNew[ObjDataTableSize + sOBJNewCount - 1] = data;
     sOBJNewCount += 1;
     return true;
 }
@@ -68,7 +72,10 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, O
     if (sCustomEnemyObjList.hasKey(name))
         return false;
     sCustomEnemyObjList.set(name, initFn);
-    sObjDataTableNew[sOBJNewCount] = data;
+    sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
+        sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
+                         1];  // Copy the default end to the next position
+    sObjDataTableNew[ObjDataTableSize + sOBJNewCount - 1] = data;
     sOBJNewCount += 1;
     return true;
 }
@@ -79,7 +86,10 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name, Ob
     if (sCustomMiscObjList.hasKey(name))
         return false;
     sCustomMiscObjList.set(name, initFn);
-    sObjDataTableNew[sOBJNewCount] = data;
+    sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
+        sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
+                         1];  // Copy the default end to the next position
+    sObjDataTableNew[ObjDataTableSize + sOBJNewCount - 1] = data;
     sOBJNewCount += 1;
     return true;
 }
@@ -155,14 +165,16 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
 
     for (auto &item : objMapObjCBs) {
         auto &dictItem = item.mItem;
+        OSReport("Name: %s\n", name);
         if (strcmp(dictItem.mKey, name) == 0) {
+            OSReport("Detected custom extended map obj!\n");
             return dictItem.mValue();
         }
     }
 
     return nullptr;
 }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8029E120, 0x80295FFC, 0, 0), makeExtendedMapObjFromRef);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029E120, 0x80295FFC, 0, 0), makeExtendedMapObjFromRef);
 
 static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, const char *name) {
     JDrama::TNameRef *obj = nameGen->getNameRef_BossEnemy(name);
@@ -175,13 +187,14 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
     for (auto &item : objBossCBs) {
         auto &dictItem = item.mItem;
         if (strcmp(dictItem.mKey, name) == 0) {
+            OSReport("Detected custom extended boss obj!\n");
             return dictItem.mValue();
         }
     }
 
     return nullptr;
 }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8029D2F4, 0x802951D0, 0, 0), makeExtendedBossEnemyFromRef);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029D2F4, 0x802951D0, 0, 0), makeExtendedBossEnemyFromRef);
 
 static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, const char *name) {
     JDrama::TNameRef *obj = reinterpret_cast<JDrama::TNameRef *>(
@@ -196,13 +209,14 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
     for (auto &item : objEnemyCBs) {
         auto &dictItem = item.mItem;
         if (strcmp(dictItem.mKey, name) == 0) {
+            OSReport("Detected custom extended generic obj!\n");
             return dictItem.mValue();
         }
     }
 
     return nullptr;
 }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8029EDD8, 0, 0, 0), makeExtendedGenericFromRef);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029EDD8, 0, 0, 0), makeExtendedGenericFromRef);
 
 static THitActor **objectInteractionHandler() {
     TMario *player;

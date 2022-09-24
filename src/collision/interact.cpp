@@ -1,9 +1,9 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
-#include <SMS/SMS.hxx>
 #include <SMS/collision/MapCollisionData.hxx>
 #include <SMS/macros.h>
+#include <SMS/manager/MarioParticleManager.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
 
 #include "collision/warp.hxx"
@@ -26,37 +26,30 @@ using namespace BetterSMS::Collision;
 static void elecPlayer(TMario *player, u8 flags) {
     if (player->mSubState == 0 && player->mState != 0x20338) {
         player->mHealth -= flags - 1;
-        changePlayerStatus__6TMarioFUlUlb(player, 0x20338, 0, false);
+        player->changePlayerStatus(0x20338, 0, false);
     }
     if (gpMSound->gateCheck(0x1814)) {
-        MSoundSE::startSoundActor(0x1814, reinterpret_cast<Vec *>(&player->mPosition), 0, nullptr,
-                                  0, 4);
+        MSoundSE::startSoundActor(0x1814, player->mPosition, 0, nullptr, 0, 4);
     }
     if (gpMSound->gateCheck(0x3806)) {
-        MSoundSE::startSoundActor(0x3806, reinterpret_cast<Vec *>(&player->mPosition), 0, nullptr,
-                                  0, 4);
+        MSoundSE::startSoundActor(0x3806, player->mPosition, 0, nullptr, 0, 4);
     }
 }
 
 static void burnPlayer(TMario *player, u8 flags) {
-    /*
-     */
-
-    changePlayerDropping__6TMarioFUlUl(player, 0x20464, 0);
-    decHP__6TMarioFi(player, flags);
-
-    dropObject__6TMarioFv(player);
-    changePlayerStatus__6TMarioFUlUlb(player, 0x208B7, 1, false);
+    player->changePlayerDropping(0x20464, 0);
+    player->decHP(flags);
+    player->dropObject();
+    player->changePlayerStatus(0x208B7, 1, false);
     player->mSpeed.y += 20.0f;
-    emitAndBindToPosPtr__21TMarioParticleManagerFlPCQ29JGeometry8TVec3_f(
-        *(u32 *)SMS_PORT_REGION(0x8040E150, 0x80405818, 0, 0), 6,
-        reinterpret_cast<Vec *>(&player->mPosition), 0, nullptr);
+
+    gpMarioParticleManager->emitAndBindToPosPtr(6, &player->mPosition, 0, nullptr);
     if (gpMSound->gateCheck(0x1813)) {
-        MSoundSE::startSoundActor(0x1813, reinterpret_cast<Vec *>(&player->mPosition), 0, nullptr,
-                                  0, 4);
+        MSoundSE::startSoundActor(0x1813, player->mPosition, 0, nullptr, 0, 4);
     }
 }
 
+// TODO: REPLACE WITH UNIQUE MARIO STATE
 static void slipFloor(TMario *player, u8 flags) {
     const f32 strengthRun = scaleLinearAtAnchor<f32>(static_cast<f32>(flags), 0.001f, 1.0f);
     const f32 strengthSlide =
@@ -72,12 +65,11 @@ static void slipFloor(TMario *player, u8 flags) {
     player->mDirtyParams.mDirtyMax.set(0.0f);
 #undef SCALE_PARAM
 
-    checkGraffitoSlip__6TMarioFv(player);
+    player->checkGraffitoSlip();
 }
 
-static void decHealth(TMario *player, u8 flags) { decHP__6TMarioFi(player, flags); }
-
-static void incHealth(TMario *player, u8 flags) { incHP__6TMarioFi(player, flags); }
+static void decHealth(TMario *player, u8 flags) { player->decHP(flags); }
+static void incHealth(TMario *player, u8 flags) { player->incHP(flags); }
 
 /* extern to handlers.cpp */
 
@@ -95,13 +87,13 @@ void checkIsGlideBounce(TMario *player) {
         u16 _oldType            = _oldCol->mCollisionType;
         _oldCol->mCollisionType = 7;
 
-        checkEnforceJump__6TMarioFv(player);
+        player->checkEnforceJump();
         _oldCol->mCollisionType = _oldType;
 
         playerData->mCollisionFlags.mIsSpinBounce = true;
-        changePlayerStatus__6TMarioFUlUlb(player, static_cast<u32>(TMario::STATE_JUMPSPINR), 0, 0);
+        player->changePlayerStatus(TMario::STATE_JUMPSPINR, 0, 0);
     } else
-        checkEnforceJump__6TMarioFv(player);
+        player->checkEnforceJump();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80258334, 0x802500C0, 0, 0), checkIsGlideBounce);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80264CFC, 0x8025CA88, 0, 0), checkIsGlideBounce);
@@ -118,7 +110,7 @@ void checkRestoreHealth(TMario *player) {
     auto playerData = Player::getData(player);
 
     if (playerData->mCollisionTimer <= 0) {
-        incHP__6TMarioFi(player, 1);
+        player->incHP(1);
         playerData->mCollisionTimer = player->mFloorTriangle->mValue4;
     } else
         playerData->mCollisionTimer -= 1;
@@ -133,9 +125,9 @@ void checkIsCannonType(TMario *player) {
 
     if ((player->mFloorTriangle->mCollisionType & 0x7FFF) == 16080 ||
         (player->mFloorTriangle->mCollisionType & 0x7FFF) == 17080) {
-        changePlayerStatus__6TMarioFUlUlb(player, static_cast<u32>(TMario::STATE_TRIPLE_J), 0, 0);
-        emitParticle__6TMarioFis(player, static_cast<u32>(TMario::EFFECT_GROUND_SHARP_SHOCK));
-        emitParticle__6TMarioFis(player, static_cast<u32>(TMario::EFFECT_GROUND_SMOKE_PLUME));
+        player->changePlayerStatus(TMario::STATE_TRIPLE_J, 0, 0);
+        player->emitParticle(TMario::EFFECT_GROUND_SHARP_SHOCK);
+        player->emitParticle(TMario::EFFECT_GROUND_SMOKE_PLUME);
         player->mForwardSpeed = (u8)(player->mFloorTriangle->mValue4 >> 8);
 
         {
@@ -147,7 +139,7 @@ void checkIsCannonType(TMario *player) {
 
         player->mSpeed.y                            = (u8)player->mFloorTriangle->mValue4;
         playerData->mCollisionFlags.mIsDisableInput = true;
-        player->mController->State.mReadInput       = false;
+        player->mController->mState.mReadInput      = false;
         playerData->mCollisionFlags.mIsFaceUsed     = true;
     }
 }
@@ -164,20 +156,21 @@ void changeNozzleType(TMario *player, u16 type) {
 
     player->mAttributes.mHasFludd = player->mFloorTriangle->mValue4 == 1;
 
-    TWaterGun::NozzleType nozzle = TWaterGun::Hover;
+    TWaterGun::NozzleType nozzleKind = TWaterGun::Hover;
     if (type >= 17090)
-        nozzle = static_cast<TWaterGun::NozzleType>(type - 17090);
+        nozzleKind = static_cast<TWaterGun::NozzleType>(type - 17090);
     else
-        nozzle = static_cast<TWaterGun::NozzleType>(type - 16090);
+        nozzleKind = static_cast<TWaterGun::NozzleType>(type - 16090);
 
-    if (fludd->mCurrentNozzle != nozzle) {
-        changeNozzle__9TWaterGunFQ29TWaterGun11TNozzleTypeb(player->mFludd, nozzle, true);
-        emitGetEffect__6TMarioFv(player);
-    } else if (fludd->mCurrentWater < fludd->mNozzleList[nozzle]->mMaxWater) {
-        emitGetWaterEffect__6TMarioFv(player);
+    TNozzleBase *nozzle = fludd->mNozzleList[nozzleKind];
+    if (fludd->mCurrentNozzle != nozzleKind) {
+        changeNozzle__9TWaterGunFQ29TWaterGun11TNozzleTypeb(player->mFludd, nozzleKind, true);
+        player->emitGetEffect();
+    } else if (fludd->mCurrentWater < nozzle->mEmitParams.mAmountMax.get()) {
+        player->emitGetWaterEffect();
     }
 
-    fludd->mCurrentWater                    = fludd->mNozzleList[nozzle]->mMaxWater;
+    fludd->mCurrentWater                    = nozzle->mEmitParams.mAmountMax.get();
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
@@ -195,8 +188,8 @@ void boostPadCol(TMario *player) {
                           : static_cast<u32>(TMario::STATE_RUNNING);
     if (player->mState == static_cast<u32>(TMario::STATE_IDLE) ||
         !playerData->mCollisionFlags.mIsFaceUsed) {
-        changePlayerStatus__6TMarioFUlUlb(player, targetState, 0, 0);
-        startVoice__6TMarioFUl(player, static_cast<u32>(TMario::VOICE_JUMP));
+        player->changePlayerStatus(targetState, 0, false);
+        player->startVoice(TMario::VOICE_JUMP);
     }
 }
 
@@ -223,7 +216,7 @@ void boostPadCol(TMario *player) {
 //             if (playerData->mCollisionTimer > EnableMovementTime) {
 //                 playerData->mCollisionFlags.mIsDisableInput = false;
 //                 playerData->mIsWarpActive                   = false;
-//                 player->mController->State.mReadInput       = true;
+//                 player->mController->mState.mReadInput       = true;
 //                 playerData->mCollisionTimer                 = 0;
 //             } else {
 //                 playerData->mCollisionTimer += 1;
@@ -234,7 +227,7 @@ void boostPadCol(TMario *player) {
 //             if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF) {
 //                 playerData->mCollisionFlags.mIsDisableInput = false;
 //                 playerData->mIsWarpActive                   = false;
-//                 player->mController->State.mReadInput       = true;
+//                 player->mController->mState.mReadInput       = true;
 //                 playerData->mCollisionTimer                 = 0;
 //             } else {
 //                 playerData->mCollisionTimer += 1;
@@ -277,7 +270,7 @@ void boostPadCol(TMario *player) {
 //                         emitGetEffect__6TMarioFv(player);
 //                     }
 //                     playerData->mCollisionFlags.mIsDisableInput = true;
-//                     player->mController->State.mReadInput       = false;
+//                     player->mController->mState.mReadInput       = false;
 //                 }
 //             }
 //             playerData->mCollisionTimer += 1;
@@ -307,7 +300,7 @@ void boostPadCol(TMario *player) {
 //                                                     WipeKindInDelay);
 //                 } else if (playerData->mCollisionTimer >= DisableMovementTime - timeCut) {
 //                     playerData->mCollisionFlags.mIsDisableInput = true;
-//                     player->mController->State.mReadInput       = false;
+//                     player->mController->mState.mReadInput       = false;
 //                     if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
 //                         gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT,
 //                                                         1.0f, 0.0f);

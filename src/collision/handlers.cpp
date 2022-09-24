@@ -1,7 +1,6 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
-#include <SMS/SMS.hxx>
 #include <SMS/collision/MapCollisionData.hxx>
 #include <SMS/macros.h>
 
@@ -27,7 +26,7 @@ static void resetValuesOnStateChange(TMario *player) {
     switch (player->mPrevState) {
     case static_cast<u32>(TMario::STATE_TRIPLE_J):
         playerData->mCollisionFlags.mIsDisableInput = false;
-        player->mController->State.mReadInput       = true;
+        player->mController->mState.mReadInput      = true;
         break;
     default:
         break;
@@ -41,7 +40,7 @@ static void resetValuesOnStateChange(TMario *player) {
 
     if (playerData->mCollisionFlags.mIsDisableInput)
         // Patches pausing/map escaping the controller lock
-        player->mController->State.mReadInput = false;
+        player->mController->mState.mReadInput = false;
 }
 
 static void resetValuesOnGroundContact(TMario *player) {
@@ -269,7 +268,7 @@ void updateCollisionContext(TMario *player) {
 
     if (!Collision::TCollisionLink::isValidWarpCol(player->mFloorTriangle)) {
         if (playerData->mIsWarpActive) {
-            player->mController->State.mReadInput       = true;
+            player->mController->mState.mReadInput      = true;
             playerData->mCollisionFlags.mIsDisableInput = false;
             playerData->mIsWarpActive                   = false;
         }
@@ -283,21 +282,20 @@ void updateCollisionContext(TMario *player) {
 
     TBGCheckData *roofTri;
 
-    f32 roofHeight = checkRoofPlane__6TMarioFRC3VecfPPC12TBGCheckData(
-        player, playerPos, playerPos.y + (marioCollisionHeight / 4), &roofTri);
+    f32 roofHeight =
+        player->checkRoofPlane(playerPos, playerPos.y + (marioCollisionHeight / 4), (const TBGCheckData **) & roofTri);
 
     if (!player->mAttributes.mIsGameOver) {
         if (roofHeight - player->mFloorBelow < (marioCollisionHeight - 40.0f) &&
             !(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) &&
-            player->mState != static_cast<u32>(TMario::STATE_HANG) &&
-            !isUnderWater__6TMarioCFv(player)) {
+            player->mState != static_cast<u32>(TMario::STATE_HANG) && !player->isUnderWater()) {
             playerData->mCollisionFlags.mCrushedTimer += 1;
         } else {
             playerData->mCollisionFlags.mCrushedTimer = 0;
         }
 
         if (playerData->mCollisionFlags.mCrushedTimer > CrushTimeToDie) {
-            loserExec__6TMarioFv(player);
+            player->loserExec();
             playerData->mCollisionFlags.mCrushedTimer = 0;
         }
     }

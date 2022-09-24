@@ -4,7 +4,7 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/mapobj/MapObjNormalLift.hxx>
 #include <SMS/mapobj/MapObjTree.hxx>
 
@@ -83,6 +83,29 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802568F0, 0x8024E67C, 0, 0), normalizeHoverSlopeS
 
 #endif
 
+static f32 checkTurboSpecial() {
+    TNozzleTrigger *nozzle;
+    SMS_FROM_GPR(29, nozzle);
+
+    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Turbo) {
+        return 0.01f;
+    }
+
+    return nozzle->mEmitParams.mInsidePressureMax.get();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8026C5BC, 0, 0, 0), checkTurboSpecial);
+
+static void checkFillMax() {
+    TNozzleTrigger *nozzle;
+    SMS_FROM_GPR(29, nozzle);
+
+    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Turbo)
+        return;
+
+    nozzle->mTriggerFill = nozzle->mEmitParams.mInsidePressureMax.get();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8026C5C8, 0, 0, 0), checkFillMax);
+
 static void turboNozzleConeCondition() { /* TMarioEffect * */
     u32 *marioEffect;
     SMS_FROM_GPR(29, marioEffect);
@@ -122,13 +145,13 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80271ADC, 0, 0, 0), 0x2C030000);
 static void lerpTurboNozzleSpeed(TMario *player, f32 velocity) {
     auto *controller = player->mController;
     if (!controller) {
-        setPlayerVelocity__6TMarioFf(player, velocity);
+        player->setPlayerVelocity(velocity);
         return;
     }
 
     auto analogR = controller->mButtons.mAnalogR;
     velocity     = lerp<f32>(40.0f, velocity, analogR);
-    setPlayerVelocity__6TMarioFf(player, velocity);
+    player->setPlayerVelocity(velocity);
 
     player->mRunParams.mDashRotSp.set(lerp<s16>(180, 60, analogR));
 }
@@ -152,3 +175,46 @@ static void lerpTurboNozzleJumpSpeed() {
                                  player->mJumpParams.mBroadJumpForceY.get(), analogR);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80254990, 0, 0, 0), lerpTurboNozzleJumpSpeed);
+
+#define SCALE_PARAM(param, scale) param.set(param.get() * scale)
+
+void initTurboMaxCapacity(TMario *player, bool isMario) {
+    if (!isMario)
+        return;
+
+    if (!player->mFludd)
+        return;
+
+    SCALE_PARAM(player->mFludd->mNozzleTurbo.mEmitParams.mAmountMax, 8);
+    SCALE_PARAM(player->mFludd->mNozzleTurbo.mEmitParams.mDamageLoss, 8);
+    SCALE_PARAM(player->mFludd->mNozzleTurbo.mEmitParams.mSuckRate, 8);
+    player->mDeParams.mDashStartTime.set(0.0f);
+}
+
+void updateTurboFrameEmit(TMario *player, bool isMario) {
+    if (!isMario)
+        return;
+
+    auto *fludd = player->mFludd;
+    if (!fludd || !player->mController)
+        return;
+
+    if (fludd->mCurrentNozzle != TWaterGun::Turbo)
+        return;
+
+    const auto analogR = player->mController->mButtons.mAnalogR;
+
+    fludd->mNozzleTurbo.mEmitParams.mNum.set(lerp<f32>(1.0f, 10.0f, analogR));
+    fludd->mNozzleTurbo.mEmitParams.mDirTremble.set(lerp<f32>(0.01f, 0.08f, analogR));
+
+    if (analogR < 0.1f || fludd->mNozzleTurbo.mSprayState == 2) {
+        fludd->mNozzleTurbo.mTriggerFill = 0.0f;
+        return;
+    }
+
+    fludd->mNozzleTurbo.mTriggerFill =
+        getPressureMax__9TWaterGunFv(fludd) * ((analogR - 0.15f) * 1.17647f);
+    player->mDeParams.mDashAcc.set(32.1f);  // 32.0f is max
+}
+
+#undef SCALE_PARAM

@@ -3,10 +3,9 @@
 #include <Dolphin/types.h>
 
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/actor/Mario.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/macros.h>
 #include <SMS/npc/BaseNPC.hxx>
-
 
 #include "common_sdk.h"
 #include "module.hxx"
@@ -20,10 +19,10 @@ static void climbSometimes(TMario *player) {
     const bool isMarioClimb = isMarioClimb__16TCameraMarioDataCFUl(player->mState);
     if (playerData->mIsOnFire) {
         if (isMarioClimb)
-            changePlayerStatus__6TMarioFUlUlb(player, TMario::STATE_FALL, 0, false);
+            player->changePlayerStatus(TMario::STATE_FALL, 0, false);
         return;
     }
-    barProcess__6TMarioFv(player);
+    player->barProcess();
 }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
 
@@ -59,8 +58,7 @@ static void updateClimbContext(TMario *player) {
                                           static_cast<f32>(playerData->mClimbTiredTimer) /
                                               player->mDeParams.mNoFreezeTime.get()) > 0.9f) {
                     if (!playerData->mIsClimbTired)
-                        startVoice__6TMarioFUl(player,
-                                               static_cast<u32>(TMario::VOICE_FALL_LEDGE_GRAB));
+                        player->startVoice(TMario::VOICE_FALL_LEDGE_GRAB);
 
                     playerData->mIsClimbTired = true;
                 } else
@@ -99,25 +97,25 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80261C44, 0x802599D0, 0, 0), 0xFC020040);
 // 0x802619CC
 static SMS_ASM_FUNC void getTreeClimbMaxFall() {
     SMS_ASM_BLOCK("mflr 0                   \n\t"
-                 "stw 0, 0x8 (1)           \n\t"
-                 "stwu 1, -0x10 (1)        \n\t"
-                 "lfs 3, 0x5C (3)          \n\t"
-                 "bl _localdata            \n\t"
-                 ".float 0.2, 1.0          \n\t"
-                 "_localdata:              \n\t"
-                 "mflr 11                  \n\t"
-                 "lfs 0, 0 (11)            \n\t"
-                 "lfs 2, 4 (11)            \n\t"
-                 "lfs 4, 0x28 (31)         \n\t"
-                 "fmuls 4, 4, 0            \n\t"
-                 "fsubs 2, 2, 0            \n\t"
-                 "fadds 4, 4, 2            \n\t"
-                 "fdivs 3, 3, 4            \n\t"
-                 "lfs 2, 0x14 (31)         \n\t"
-                 "addi 1, 1, 0x10          \n\t"
-                 "lwz 0, 0x8 (1)           \n\t"
-                 "mtlr 0                   \n\t"
-                 "blr                      \n\t");
+                  "stw 0, 0x8 (1)           \n\t"
+                  "stwu 1, -0x10 (1)        \n\t"
+                  "lfs 3, 0x5C (3)          \n\t"
+                  "bl _localdata            \n\t"
+                  ".float 0.2, 1.0          \n\t"
+                  "_localdata:              \n\t"
+                  "mflr 11                  \n\t"
+                  "lfs 0, 0 (11)            \n\t"
+                  "lfs 2, 4 (11)            \n\t"
+                  "lfs 4, 0x28 (31)         \n\t"
+                  "fmuls 4, 4, 0            \n\t"
+                  "fsubs 2, 2, 0            \n\t"
+                  "fadds 4, 4, 2            \n\t"
+                  "fdivs 3, 3, 4            \n\t"
+                  "lfs 2, 0x14 (31)         \n\t"
+                  "addi 1, 1, 0x10          \n\t"
+                  "lwz 0, 0x8 (1)           \n\t"
+                  "mtlr 0                   \n\t"
+                  "blr                      \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802619CC, 0x8025975C, 0, 0), getTreeClimbMaxFall);
 SMS_WRITE_32(SMS_PORT_REGION(0x802619D0, 0x80259760, 0, 0), 0x60000000);
@@ -127,27 +125,27 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802619D0, 0x80259760, 0, 0), 0x60000000);
 static SMS_ASM_FUNC void scaleTreeSlideSpeed() {
     // F2 IS UNSAFE
     SMS_ASM_BLOCK("mflr 0                      \n\t"
-                 "stw 0, 0x8 (1)              \n\t"
-                 "stwu 1, -0x10 (1)           \n\t"
-                 "lfs 3, 0x5C (3)             \n\t"
-                 "bl _localdata_              \n\t"
-                 ".float 0.00195313, -16      \n\t"
-                 "_localdata_:                \n\t"
-                 "mflr 11                     \n\t"
-                 "lfs 0, 0 (11)               \n\t"
-                 "lfs 1, 4 (11)               \n\t"
-                 "lfs 4, 0xB18 (31)           \n\t"
-                 "fmuls 4, 4, 0               \n\t"
-                 "fcmpo 0, 2, 1               \n\t"
-                 "li 3, 1                     \n\t"
-                 "blt _exit666                \n\t"
-                 "li 3, 0                     \n\t"
-                 "stw 3, 0xA8 (31)            \n\t"
-                 "_exit666:                   \n\t"
-                 "addi 1, 1, 0x10             \n\t"
-                 "lwz 0, 0x8 (1)              \n\t"
-                 "mtlr 0                      \n\t"
-                 "blr                         \n\t");
+                  "stw 0, 0x8 (1)              \n\t"
+                  "stwu 1, -0x10 (1)           \n\t"
+                  "lfs 3, 0x5C (3)             \n\t"
+                  "bl _localdata_              \n\t"
+                  ".float 0.00195313, -16      \n\t"
+                  "_localdata_:                \n\t"
+                  "mflr 11                     \n\t"
+                  "lfs 0, 0 (11)               \n\t"
+                  "lfs 1, 4 (11)               \n\t"
+                  "lfs 4, 0xB18 (31)           \n\t"
+                  "fmuls 4, 4, 0               \n\t"
+                  "fcmpo 0, 2, 1               \n\t"
+                  "li 3, 1                     \n\t"
+                  "blt _exit666                \n\t"
+                  "li 3, 0                     \n\t"
+                  "stw 3, 0xA8 (31)            \n\t"
+                  "_exit666:                   \n\t"
+                  "addi 1, 1, 0x10             \n\t"
+                  "lwz 0, 0x8 (1)              \n\t"
+                  "mtlr 0                      \n\t"
+                  "blr                         \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80261CF4, 0x80259A80, 0, 0), scaleTreeSlideSpeed);
 SMS_WRITE_32(SMS_PORT_REGION(0x80261CF8, 0x80259A84, 0, 0), 0x2C030000);
@@ -161,7 +159,7 @@ void getClimbingAnimSpd(TMario *player, TMario::Animation anim, f32 speed) {
     if (playerData->mIsClimbTired)
         speed = 6.0f;
 
-    setAnimation__6TMarioFif(player, anim, speed);
+    player->setAnimation(anim, speed);
 }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D588, 0, 0, 0), getClimbingAnimSpd);
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D63C, 0, 0, 0), getClimbingAnimSpd);
@@ -281,10 +279,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8025E218, 0, 0, 0), scaleClimbSpeed);
 SMS_WRITE_32(SMS_PORT_REGION(0x8025E21C, 0, 0, 0), 0x7FC3F378);
 
 static TBGCheckData *checkClimbingWallPlane(TMario *player,
-                                            JGeometry::TVec3<float> pos, f32 w,
+                                            TVec3f pos, f32 w,
                                             f32 h) {
-  return (TBGCheckData *)checkWallPlane__6TMarioFP3Vecff(
-      player, pos, w * player->mSize.z, h * player->mSize.y);
+  return player->checkWallPlane(pos, w * player->mSize.z, h * player->mSize.y);
 }
 kmCall(0x8025DD84, &checkClimbingWallPlane);
 kmCall(0x8025DEB8, &checkClimbingWallPlane);
