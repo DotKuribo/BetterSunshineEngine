@@ -77,6 +77,10 @@ extern bool processMultiJump(TMario *);
 extern void initTurboMaxCapacity(TMario *player, bool isMario);
 extern void updateTurboFrameEmit(TMario *player, bool isMario);
 
+// YOSHI
+extern void checkForYoshiWaterDeath(TMario *player, bool isMario);
+extern void forceValidRidingAnimation(TMario *player, bool isMario);
+
 static TMarDirector *initLib() {
 
     TMarDirector *director;
@@ -135,6 +139,10 @@ static TMarDirector *initLib() {
     // FLUDD
     Player::registerInitProcess("__init_turbo_max", initTurboMaxCapacity);
     Player::registerUpdateProcess("__update_turbo_usage", updateTurboFrameEmit);
+
+    // YOSHI
+    Player::registerUpdateProcess("__update_yoshi_swim", checkForYoshiWaterDeath);
+    Player::registerUpdateProcess("__update_yoshi_riding", forceValidRidingAnimation);
 
     // DEBUG
     Debug::registerInitCallback("__init_debug_xyz", initMarioXYZMode);

@@ -16,7 +16,7 @@ static void snapToReadyForBurst() {
     TWaterGun *fludd;
     SMS_FROM_GPR(30, fludd);
 
-    if (fludd->mCurrentNozzle == TWaterGun::NozzleType::Hover) {
+    if (fludd->mCurrentNozzle == TWaterGun::TNozzleType::Hover) {
         ((float *)(fludd))[0x1CEC / 4] = 0.0f;
     } else {
         ((float *)(fludd))[0x1CEC / 4] -= 0.1f;
@@ -27,15 +27,15 @@ static void snapToReadyForBurst() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802699CC, 0, 0, 0), snapToReadyForBurst);
 
 static void checkExecWaterGun(TWaterGun *fludd) {
-    if (fludd->mCurrentNozzle == TWaterGun::NozzleType::Spray ||
-        fludd->mCurrentNozzle == TWaterGun::NozzleType::Yoshi ||
-        fludd->mCurrentNozzle == TWaterGun::NozzleType::Underwater) {
-        emit__9TWaterGunFv(fludd);
+    if (fludd->mCurrentNozzle == TWaterGun::TNozzleType::Spray ||
+        fludd->mCurrentNozzle == TWaterGun::TNozzleType::Yoshi ||
+        fludd->mCurrentNozzle == TWaterGun::TNozzleType::Underwater) {
+        fludd->emit();
         return;
     }
 
     if (!sIsTriggerNozzleDead)
-        emit__9TWaterGunFv(fludd);
+        fludd->emit();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024E548, 0x802462D4, 0, 0), checkExecWaterGun);
 
@@ -44,9 +44,9 @@ static void killTriggerNozzle() {
     SMS_FROM_GPR(29, nozzle);
 
     nozzle->mSprayState = TNozzleTrigger::DEAD;
-    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::NozzleType::Hover ||
-        nozzle->mFludd->mCurrentNozzle == TWaterGun::NozzleType::Rocket ||
-        nozzle->mFludd->mCurrentNozzle == TWaterGun::NozzleType::Turbo)
+    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::TNozzleType::Hover ||
+        nozzle->mFludd->mCurrentNozzle == TWaterGun::TNozzleType::Rocket ||
+        nozzle->mFludd->mCurrentNozzle == TWaterGun::TNozzleType::Turbo)
         sIsTriggerNozzleDead = true;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8026C370, 0x802640FC, 0, 0), killTriggerNozzle);

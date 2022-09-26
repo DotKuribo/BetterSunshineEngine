@@ -199,7 +199,7 @@ namespace BetterSMS {
             CPolarSubCamera *getCamera() const { return mCamera; }
             bool getCanUseFludd() const { return mCanUseFludd; }
             u8 getMaxJumps() const { return mParams->mMaxJumps.get(); }
-            u8 getNozzleBoneID(TWaterGun::NozzleType nozzle) const;
+            u8 getNozzleBoneID(TWaterGun::TNozzleType nozzle) const;
             const TPlayerParams *getParams() const {
                 if (!mParams)
                     Console::debugLog("Trying to access player params that don't exist!\n");
@@ -219,7 +219,7 @@ namespace BetterSMS {
             void setPlayerID(u32 id) { mPlayerID = id; }
             void setColliding(bool colliding) { mCollisionFlags.mIsColliding = colliding; }
 
-            bool canUseNozzle(TWaterGun::NozzleType nozzle) const;
+            bool canUseNozzle(TWaterGun::TNozzleType nozzle) const;
             const char *getPlayerName() const;
             bool loadPrm(const char *prm);
             bool loadPrm(JSUMemoryInputStream &stream);
@@ -239,7 +239,7 @@ namespace BetterSMS {
             bool mIsLongJumping;
             bool mIsClimbTired;
             u16 mPrevCollisionType;
-            TBGCheckData *mPrevCollisionFloor;
+            const TBGCheckData *mPrevCollisionFloor;
             s32 mCollisionTimer;
             s32 mClimbTiredTimer;
             f32 mSlideSpeedMultiplier;

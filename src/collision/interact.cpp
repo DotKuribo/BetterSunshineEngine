@@ -78,25 +78,25 @@ void (*gStateCBMap[])(TMario *player, u8 flags){elecPlayer, burnPlayer, slipFloo
                                                 incHealth};
 size_t gStateCBMapSize = sizeof(gStateCBMap) / sizeof(void *);
 
-void checkIsGlideBounce(TMario *player) {
-    auto playerData = Player::getData(player);
-
-    if ((player->mFloorTriangle->mCollisionType & 0x7FFF) == 16007 ||
-        (player->mFloorTriangle->mCollisionType & 0x7FFF) == 17007) {
-        TBGCheckData *_oldCol   = player->mFloorTriangle;
-        u16 _oldType            = _oldCol->mCollisionType;
-        _oldCol->mCollisionType = 7;
-
-        player->checkEnforceJump();
-        _oldCol->mCollisionType = _oldType;
-
-        playerData->mCollisionFlags.mIsSpinBounce = true;
-        player->changePlayerStatus(TMario::STATE_JUMPSPINR, 0, 0);
-    } else
-        player->checkEnforceJump();
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80258334, 0x802500C0, 0, 0), checkIsGlideBounce);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80264CFC, 0x8025CA88, 0, 0), checkIsGlideBounce);
+// void checkIsGlideBounce(TMario *player) {
+//     auto playerData = Player::getData(player);
+//
+//     if ((player->mFloorTriangle->mCollisionType & 0x7FFF) == 16007 ||
+//         (player->mFloorTriangle->mCollisionType & 0x7FFF) == 17007) {
+//         TBGCheckData *_oldCol   = player->mFloorTriangle;
+//         u16 _oldType            = _oldCol->mCollisionType;
+//         _oldCol->mCollisionType = 7;
+//
+//         player->checkEnforceJump();
+//         _oldCol->mCollisionType = _oldType;
+//
+//         playerData->mCollisionFlags.mIsSpinBounce = true;
+//         player->changePlayerStatus(TMario::STATE_JUMPSPINR, 0, 0);
+//     } else
+//         player->checkEnforceJump();
+// }
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80258334, 0x802500C0, 0, 0), checkIsGlideBounce);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80264CFC, 0x8025CA88, 0, 0), checkIsGlideBounce);
 
 u16 checkIsRestoreTypeNoFallDamage(TBGCheckData *floor) {
     if ((floor->mCollisionType & 0x7FFF) == 16010 || (floor->mCollisionType & 0x7FFF) == 17010)
@@ -156,11 +156,11 @@ void changeNozzleType(TMario *player, u16 type) {
 
     player->mAttributes.mHasFludd = player->mFloorTriangle->mValue4 == 1;
 
-    TWaterGun::NozzleType nozzleKind = TWaterGun::Hover;
+    TWaterGun::TNozzleType nozzleKind = TWaterGun::Hover;
     if (type >= 17090)
-        nozzleKind = static_cast<TWaterGun::NozzleType>(type - 17090);
+        nozzleKind = static_cast<TWaterGun::TNozzleType>(type - 17090);
     else
-        nozzleKind = static_cast<TWaterGun::NozzleType>(type - 16090);
+        nozzleKind = static_cast<TWaterGun::TNozzleType>(type - 16090);
 
     TNozzleBase *nozzle = fludd->mNozzleList[nozzleKind];
     if (fludd->mCurrentNozzle != nozzleKind) {

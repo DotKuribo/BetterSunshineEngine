@@ -7,7 +7,8 @@ public:
     static JDrama::TNameRef *instantiate() { return new TGenericRailObj("GenericRailObj"); }
 
     TGenericRailObj(const char *name)
-        : TRailMapObj(name), mSoundID(-1), mSoundStrength(1.0f), mContactAnim(false) {}
+        : TRailMapObj(name), mSoundID(-1), mSoundStrength(1.0f), mContactAnim(false),
+          mModelName(nullptr), mCurrentSound(nullptr) {}
     virtual ~TGenericRailObj() override {}
 
     virtual void load(JSUMemoryInputStream &in) override;

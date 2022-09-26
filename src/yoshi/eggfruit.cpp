@@ -71,15 +71,14 @@ static u32 checkFreeEggCard(J3DFrameCtrl *frameCtrl) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801BC380, 0x801B4238, 0, 0), checkFreeEggCard);
 
-static u32 updateFreeEggCard(J3DFrameCtrl *frameCtrl) {
+static bool updateFreeEggCard(J3DFrameCtrl *frameCtrl) {
     if (!Stage::getStageConfiguration()->mIsEggFree.get())
-        return 1;
+        return true;
 
     frameCtrl->mCurFrame = EGG_CARD_EXCLAIM;
-    return 1;
+    return true;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x801BC6B8, 0x801B4570, 0, 0), updateFreeEggCard);
-SMS_WRITE_32(SMS_PORT_REGION(0x801BC6BC, 0x801B4574, 0, 0), 0xB07F00FC);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BC2A0, 0x801B4570, 0, 0), updateFreeEggCard);
 
 #undef EGG_CARD_EXCLAIM
 

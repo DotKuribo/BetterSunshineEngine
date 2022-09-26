@@ -10,6 +10,7 @@
 
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
+#include <SMS/assert.h>
 #include <SMS/macros.h>
 #include <SMS/option/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
@@ -50,6 +51,9 @@ void checkResetToNode(TNormalLift *lift) {
         s32 nodeIdx = lift->mGraphTracer->mPreviousNode;
         node        = graph->mNodes[nodeIdx << 2].mRailNode;
     }
+    SMS_ASSERT(reinterpret_cast<u32>(node) >= 0x80000000 &&
+                   reinterpret_cast<u32>(node) < 0x81800000,
+               "Rail node is nullptr! Consider checking the rail reference or the nodes!");
     if (node->mFlags & 0x2000) {
         lift->mPosition.set(graph->getNearestPosOnGraphLink(lift->mInitialPosition));
         lift->mRotation.set(lift->mInitialRotation);

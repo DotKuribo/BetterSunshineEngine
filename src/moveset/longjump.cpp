@@ -12,6 +12,8 @@
 using namespace BetterSMS;
 
 f32 calcJumpPower(TMario *player, f32 factor, f32 base, f32 jumpPower) {
+    base = Min(base, 100.0f);
+
     auto *playerData = Player::getData(player);
     if (!playerData)
         return Max(base, (base * factor) + jumpPower);
@@ -35,6 +37,7 @@ f32 calcJumpPower(TMario *player, f32 factor, f32 base, f32 jumpPower) {
         jumpPower *= multiplier;
         player->mForwardSpeed *= params->mMultiJumpFSpeedMulti.get();
     }
+
     return Max(base, (base * factor) + jumpPower);
 }
 

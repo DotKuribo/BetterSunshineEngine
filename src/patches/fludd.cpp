@@ -212,8 +212,7 @@ void updateTurboFrameEmit(TMario *player, bool isMario) {
         return;
     }
 
-    fludd->mNozzleTurbo.mTriggerFill =
-        getPressureMax__9TWaterGunFv(fludd) * ((analogR - 0.15f) * 1.17647f);
+    fludd->mNozzleTurbo.mTriggerFill = fludd->getPressureMax() * ((analogR - 0.15f) * 1.17647f);
     player->mDeParams.mDashAcc.set(32.1f);  // 32.0f is max
 }
 

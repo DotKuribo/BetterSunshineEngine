@@ -14,7 +14,7 @@ using namespace BetterSMS::Collision;
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
     (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
 
-static f32 GetSqrDistBetweenColTriangles(TBGCheckData *a, TBGCheckData *b) {
+static f32 GetSqrDistBetweenColTriangles(const TBGCheckData *a, const TBGCheckData *b) {
     TVectorTriangle triA(a->mVertexA, a->mVertexB, a->mVertexC);
     TVectorTriangle triB(b->mVertexA, b->mVertexB, b->mVertexC);
 
@@ -28,7 +28,7 @@ static f32 GetSqrDistBetweenColTriangles(TBGCheckData *a, TBGCheckData *b) {
                                reinterpret_cast<Vec *>(&targetCenter));
 }
 
-TCollisionLink::SearchMode TCollisionLink::getSearchModeFrom(TBGCheckData *colTriangle) {
+TCollisionLink::SearchMode TCollisionLink::getSearchModeFrom(const TBGCheckData *colTriangle) {
     switch (colTriangle->mCollisionType) {
     case EXPAND_WARP_CATEGORY(16040):
         return SearchMode::BOTH;
@@ -47,7 +47,7 @@ TCollisionLink::SearchMode TCollisionLink::getSearchModeFrom(TBGCheckData *colTr
     }
 }
 
-TCollisionLink::WarpType TCollisionLink::getWarpTypeFrom(TBGCheckData *colTriangle) {
+TCollisionLink::WarpType TCollisionLink::getWarpTypeFrom(const TBGCheckData *colTriangle) {
     switch (colTriangle->mCollisionType) {
     case EXPAND_WARP_SET(16040):
         return WarpType::SLOW_SPARKLE;
@@ -74,19 +74,19 @@ TCollisionLink::WarpType TCollisionLink::getWarpTypeFrom(TBGCheckData *colTriang
     }
 }
 
-u8 TCollisionLink::getTargetIDFrom(TBGCheckData *colTriangle) {
+u8 TCollisionLink::getTargetIDFrom(const TBGCheckData *colTriangle) {
     return static_cast<u8>(colTriangle->mValue4 >> 8);
 }
 
-u8 TCollisionLink::getHomeIDFrom(TBGCheckData *colTriangle) {
+u8 TCollisionLink::getHomeIDFrom(const TBGCheckData *colTriangle) {
     return static_cast<u8>(colTriangle->mValue4);
 }
 
-f32 TCollisionLink::getMinTargetDistanceFrom(TBGCheckData *colTriangle) {
+f32 TCollisionLink::getMinTargetDistanceFrom(const TBGCheckData *colTriangle) {
     return static_cast<f32>(colTriangle->mValue4);
 }
 
-bool TCollisionLink::isValidWarpCol(TBGCheckData *colTriangle) {
+bool TCollisionLink::isValidWarpCol(const TBGCheckData *colTriangle) {
     switch (colTriangle->mCollisionType) {
     case EXPAND_WARP_SET(16040):
     case EXPAND_WARP_SET(16041):
@@ -111,7 +111,7 @@ bool TCollisionLink::isValidWarpCol(TBGCheckData *colTriangle) {
 #undef EXPAND_WARP_SET
 #undef EXPAND_WARP_CATEGORY
 
-bool TCollisionLink::isTargetOf(TBGCheckData *other) const {
+bool TCollisionLink::isTargetOf(const TBGCheckData *other) const {
     if (!isValidWarpCol(other)) {
         return false;
     }
@@ -131,7 +131,7 @@ bool TCollisionLink::isTargetOf(TBGCheckData *other) const {
     return false;
 }
 
-bool TCollisionLink::isTargeting(TBGCheckData *other) const {
+bool TCollisionLink::isTargeting(const TBGCheckData *other) const {
     if (!isValidWarpCol(other)) {
         return false;
     }
@@ -164,7 +164,7 @@ f32 TCollisionLink::getMinTargetDistance() const {
     return static_cast<f32>(getThisColTriangle()->mValue4);
 }
 
-void TWarpCollisionList::addLink(TBGCheckData *a, TBGCheckData *b) {
+void TWarpCollisionList::addLink(const TBGCheckData *a, const TBGCheckData *b) {
     TCollisionLink link(a, static_cast<u8>(b->mValue4), static_cast<u8>(a->mValue4),
                         TCollisionLink::getSearchModeFrom(a));
     addLink(link);
@@ -181,7 +181,7 @@ void TWarpCollisionList::addLink(TCollisionLink &link) {
     mColList[mUsedSize++] = link;
 }
 
-void TWarpCollisionList::removeLink(TBGCheckData *home, TBGCheckData *target) {
+void TWarpCollisionList::removeLink(const TBGCheckData *home, const TBGCheckData *target) {
     TCollisionLink *link;
     for (u32 i = 0; i < mUsedSize; ++i) {
         link = &mColList[i];
@@ -208,14 +208,14 @@ void TWarpCollisionList::removeLinkByIndex(u32 index) {
     mUsedSize -= 1;
 }
 
-TBGCheckData *TWarpCollisionList::resolveCollisionWarp(TBGCheckData *colTriangle) {
+const TBGCheckData *TWarpCollisionList::resolveCollisionWarp(const TBGCheckData *colTriangle) {
     if (TCollisionLink::getTargetIDFrom(colTriangle) == TCollisionLink::NullID)
         return nullptr;
 
     return getNearestTarget(colTriangle);
 }
 
-TBGCheckData *TWarpCollisionList::getNearestTarget(TBGCheckData *colTriangle) {
+const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *colTriangle) {
     if (!TCollisionLink::isValidWarpCol(colTriangle))
         return nullptr;
 

@@ -4,10 +4,13 @@
 
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Player/Mario.hxx>
+#include <SMS/collision/MapCollisionData.hxx>
 #include <SMS/macros.h>
+#include <SMS/mapobj/MapObjTree.hxx>
 #include <SMS/npc/BaseNPC.hxx>
 
 #include "common_sdk.h"
+#include "libs/constmath.hxx"
 #include "module.hxx"
 #include "player.hxx"
 
@@ -78,47 +81,62 @@ static void updateClimbContext(TMario *player) {
 
 /* TREE CLIMB CODE */
 
+// static void overrideTreeClimbFromFloor(TMario *player) {
+//     const TBGCheckData *data;
+//     f32 groundHeight = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
+//                                                        player->mPosition.z, 1, &data);
+
+//     player->mHolderHeightDiff = Min(player->mHolderHeightDiff, player->mPosition.y -
+//     groundHeight);
+
+//     player->treeSlipEffect();
+// }
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80261D38, 0, 0, 0), overrideTreeClimbFromFloor);
+
 // extern -> SME.cpp
 // 0x80261C3C
-static f32 getTreeClimbMinFall() {
+static f32 getTreeWaitParameters() {
     TMario *player;
     SMS_FROM_GPR(31, player);
+
+    const TBGCheckData *data;
+    f32 groundHeight = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
+                                                       player->mPosition.z, 1, &data);
+
+    const f32 padding = Max(player->mHolderHeightDiff - (player->mPosition.y - groundHeight), 0);
 
     Vec size;
     player->JSGGetScaling(&size);
 
-    return 100.0f * size.y;
+    return (100.0f * size.y) + padding;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80261C3C, 0x802599C8, 0, 0), getTreeClimbMinFall);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80261C3C, 0x802599C8, 0, 0), getTreeWaitParameters);
 SMS_WRITE_32(SMS_PORT_REGION(0x80261C40, 0x802599CC, 0, 0), 0xC05F038C);
-SMS_WRITE_32(SMS_PORT_REGION(0x80261C44, 0x802599D0, 0, 0), 0xFC020040);
+SMS_WRITE_32(SMS_PORT_REGION(0x80261C44, 0x802599D0, 0, 0), 0xFC020840);
 
-// extern -> SME.cpp
-// 0x802619CC
-static SMS_ASM_FUNC void getTreeClimbMaxFall() {
-    SMS_ASM_BLOCK("mflr 0                   \n\t"
-                  "stw 0, 0x8 (1)           \n\t"
-                  "stwu 1, -0x10 (1)        \n\t"
-                  "lfs 3, 0x5C (3)          \n\t"
-                  "bl _localdata            \n\t"
-                  ".float 0.2, 1.0          \n\t"
-                  "_localdata:              \n\t"
-                  "mflr 11                  \n\t"
-                  "lfs 0, 0 (11)            \n\t"
-                  "lfs 2, 4 (11)            \n\t"
-                  "lfs 4, 0x28 (31)         \n\t"
-                  "fmuls 4, 4, 0            \n\t"
-                  "fsubs 2, 2, 0            \n\t"
-                  "fadds 4, 4, 2            \n\t"
-                  "fdivs 3, 3, 4            \n\t"
-                  "lfs 2, 0x14 (31)         \n\t"
-                  "addi 1, 1, 0x10          \n\t"
-                  "lwz 0, 0x8 (1)           \n\t"
-                  "mtlr 0                   \n\t"
-                  "blr                      \n\t");
+static bool getTreeClimbParameters(TMapObjTree *tree) {
+    TMario *player;
+    SMS_FROM_GPR(31, player);
+
+    const TBGCheckData *data;
+    f32 groundHeight = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
+                                                       player->mPosition.z, 1, &data);
+
+    const f32 receiveHeight = tree->mReceiveHeight;
+    const f32 treeScaleY    = scaleLinearAtAnchor(tree->mSize.y, 0.2f, 0.0f);
+
+    return player->mPosition.y > tree->mPosition.y + (receiveHeight + treeScaleY);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802619CC, 0x8025975C, 0, 0), getTreeClimbMaxFall);
-SMS_WRITE_32(SMS_PORT_REGION(0x802619D0, 0x80259760, 0, 0), 0x60000000);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802619CC, 0, 0, 0), getTreeClimbParameters);
+SMS_WRITE_32(SMS_PORT_REGION(0x802619D0, 0, 0, 0), 0x2C030000);
+SMS_WRITE_32(SMS_PORT_REGION(0x802619D4, 0, 0, 0), 0x4182003C);
+SMS_WRITE_32(SMS_PORT_REGION(0x802619D8, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x802619DC, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x802619E0, 0, 0, 0), 0x60000000);
+
+// This function serves to make f1 safe for earlier processing!
+static void wrapVelocityReset(TMario *player) { player->setPlayerVelocity(0.0f); }
+SMS_PATCH_BL(SMS_PORT_REGION(0x802619E8, 0, 0, 0), wrapVelocityReset);
 
 // extern -> SME.cpp
 // 0x80261CF4

@@ -1,5 +1,7 @@
+#include <SMS/collision/MapCollisionData.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
+#include <SMS/sound/MSoundSESystem.hxx>
 
 #include "common_sdk.h"
 #include "module.hxx"
@@ -69,7 +71,64 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024EC2C, 0x802469A8, 0, 0), 0x60000000);
 
 #if BETTER_SMS_GREEN_YOSHI
 
-SMS_WRITE_32(SMS_PORT_REGION(0x8026E9DC, 0, 0, 0), 0x60000000);
+void checkForYoshiWaterDeath(TMario *player, bool isMario) {
+    TYoshi *yoshi = player->mYoshi;
+    if (!yoshi || yoshi->mType == TYoshi::GREEN)
+        return;
+
+    // Check for water death
+    const TBGCheckData *ground;
+    gpMapCollisionData->checkGround(yoshi->mPosition.x, yoshi->mPosition.y, yoshi->mPosition.z, 0,
+                                    &ground);
+
+    if (ground->isWaterSurface())
+        return;
+
+    const TBGCheckData *roof;
+    f32 roofHeight = gpMapCollisionData->checkRoof(yoshi->mPosition.x, yoshi->mPosition.y,
+                                                   yoshi->mPosition.z, 0, &roof);
+    const TBGCheckData *water;
+    gpMapCollisionData->checkGround(yoshi->mPosition.x, roofHeight - 10.0f, yoshi->mPosition.z, 0,
+                                    &water);
+
+    if (!water->isWaterSurface() ||
+        !(yoshi->mState == TYoshi::UNMOUNTED || yoshi->mState == TYoshi::MOUNTED))
+        return;
+
+    if (gpMSound->gateCheck(31000))
+        MSoundSE::startSoundActor(31000, yoshi->mPosition, 0, nullptr, 0, 4);
+
+    if (yoshi->mState == TYoshi::MOUNTED)
+        player->getOffYoshi(true);
+
+    yoshi->mState = TYoshi::DROWNING;
+
+    MActor *actor = yoshi->mActor;
+    if (actor->getCurAnmIdx(MActor::BCK) != 25) {
+        if (!actor->checkCurBckFromIndex(25))
+            actor->setBckFromIndex(25);
+        thinkBtp__6TYoshiFi(yoshi, 25);
+        initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
+                                       ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
+    }
+
+    yoshi->mType     = 0;
+    yoshi->mSubState = 30;
+}
+
+void forceValidRidingAnimation(TMario *player, bool isMario) {
+    TYoshi *yoshi = player->mYoshi;
+    if (!yoshi)
+        return;
+
+    // Force valid animation
+    if (yoshi->mState == TYoshi::MOUNTED)
+        player->setAnimation(TMario::ANIMATION_IDLE, 1.0f);
+}
+
+SMS_WRITE_32(SMS_PORT_REGION(0x8026E9DC, 0, 0, 0), 0x60000000);  // Fix shallow water flashing
 SMS_WRITE_32(SMS_PORT_REGION(0x8026F14C, 0, 0, 0), 0x60000000);
+
+SMS_WRITE_32(SMS_PORT_REGION(0x802703C8, 0, 0, 0), 0x38000003);  // Fix fruit storage
 
 #endif

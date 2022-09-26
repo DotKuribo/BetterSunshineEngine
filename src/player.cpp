@@ -168,7 +168,7 @@ void processWarp(TMario *player, bool isMario) {
 
     auto playerData = Player::getData(player);
 
-    TBGCheckData *linkedCol =
+    const TBGCheckData *linkedCol =
         BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
     if (!linkedCol)
         return;
@@ -479,7 +479,7 @@ static void patchRideMovementUpWarp(Mtx out, Vec *ride, Vec *pos) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpWarp);
 
 static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
-    TBGCheckData *roof = player->mRoofTriangle;
+    const TBGCheckData *roof = player->mRoofTriangle;
     if (!roof) {
         player->setPlayerVelocity(_speed);
         return;
@@ -554,7 +554,7 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
 
     const TPlayerParams *params = getParams();
 
-    const f32 yoshiAgility = Math::sigmoidCurve(size.y, 0.0f, 1.2f, 1.321887582486f, -2.25f);
+    const f32 yoshiAgility = Math::sigmoidCurve(size.y, 0.0f, 1.2f, 1.321887582486f, -5.0f);
 
     f32 factor            = scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
     f32 speedMultiplier   = params->mSpeedMultiplier.get();
@@ -711,42 +711,42 @@ bool Player::TPlayerData::loadPrm(JSUMemoryInputStream &stream) {
     return true;
 }
 
-bool Player::TPlayerData::canUseNozzle(TWaterGun::NozzleType nozzle) const {
+bool Player::TPlayerData::canUseNozzle(TWaterGun::TNozzleType nozzle) const {
     switch (nozzle) {
-    case TWaterGun::NozzleType::Spray:
+    case TWaterGun::TNozzleType::Spray:
         return mParams->mSprayNozzleUsable.get();
-    case TWaterGun::NozzleType::Rocket:
+    case TWaterGun::TNozzleType::Rocket:
         return mParams->mRocketNozzleUsable.get();
-    case TWaterGun::NozzleType::Underwater:
+    case TWaterGun::TNozzleType::Underwater:
         return mParams->mUnderwaterNozzleUsable.get();
-    case TWaterGun::NozzleType::Yoshi:
+    case TWaterGun::TNozzleType::Yoshi:
         return mParams->mYoshiNozzleUsable.get();
-    case TWaterGun::NozzleType::Hover:
+    case TWaterGun::TNozzleType::Hover:
         return mParams->mHoverNozzleUsable.get();
-    case TWaterGun::NozzleType::Turbo:
+    case TWaterGun::TNozzleType::Turbo:
         return mParams->mTurboNozzleUsable.get();
-    case TWaterGun::NozzleType::Sniper:
+    case TWaterGun::TNozzleType::Sniper:
         return mParams->mSniperNozzleUsable.get();
     default:
         return false;
     }
 }
 
-u8 Player::TPlayerData::getNozzleBoneID(TWaterGun::NozzleType nozzle) const {
+u8 Player::TPlayerData::getNozzleBoneID(TWaterGun::TNozzleType nozzle) const {
     switch (nozzle) {
-    case TWaterGun::NozzleType::Spray:
+    case TWaterGun::TNozzleType::Spray:
         return mParams->mSprayNozzleBoneID.get();
-    case TWaterGun::NozzleType::Rocket:
+    case TWaterGun::TNozzleType::Rocket:
         return mParams->mRocketNozzleBoneID.get();
-    case TWaterGun::NozzleType::Underwater:
+    case TWaterGun::TNozzleType::Underwater:
         return mParams->mUnderwaterNozzleBoneID.get();
-    case TWaterGun::NozzleType::Yoshi:
+    case TWaterGun::TNozzleType::Yoshi:
         return mParams->mYoshiNozzleBoneID.get();
-    case TWaterGun::NozzleType::Hover:
+    case TWaterGun::TNozzleType::Hover:
         return mParams->mHoverNozzleBoneID.get();
-    case TWaterGun::NozzleType::Turbo:
+    case TWaterGun::TNozzleType::Turbo:
         return mParams->mTurboNozzleBoneID.get();
-    case TWaterGun::NozzleType::Sniper:
+    case TWaterGun::TNozzleType::Sniper:
         return mParams->mSniperNozzleBoneID.get();
     default:
         return false;
@@ -870,9 +870,9 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
         return;
 
     if (!playerData->canUseNozzle(
-            static_cast<TWaterGun::NozzleType>(player->mFludd->mCurrentNozzle))) {
+            static_cast<TWaterGun::TNozzleType>(player->mFludd->mCurrentNozzle))) {
         for (u8 i = 0; i < 7; ++i) {
-            if (playerData->canUseNozzle(static_cast<TWaterGun::NozzleType>(i))) {
+            if (playerData->canUseNozzle(static_cast<TWaterGun::TNozzleType>(i))) {
                 player->mAttributes.mHasFludd  = playerData->getCanUseFludd();
                 player->mFludd->mCurrentNozzle = i;
                 player->mFludd->mCurrentWater =
@@ -887,9 +887,9 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
     }
 
     if (!playerData->canUseNozzle(
-            static_cast<TWaterGun::NozzleType>(player->mFludd->mSecondNozzle))) {
+            static_cast<TWaterGun::TNozzleType>(player->mFludd->mSecondNozzle))) {
         for (u8 i = 0; i < 7; ++i) {
-            if (playerData->canUseNozzle(static_cast<TWaterGun::NozzleType>(i))) {
+            if (playerData->canUseNozzle(static_cast<TWaterGun::TNozzleType>(i))) {
                 player->mAttributes.mHasFludd = playerData->getCanUseFludd();
                 player->mFludd->mSecondNozzle = i;
                 break;

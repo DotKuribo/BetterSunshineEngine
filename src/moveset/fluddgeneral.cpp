@@ -6,7 +6,6 @@
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
 
-
 #include "module.hxx"
 #include "player.hxx"
 
@@ -39,7 +38,7 @@ static TWaterGun *bindFluddtojoint() {
         return player->mFludd;
 
     player->mBindBoneIDArray[0] = playerData->getNozzleBoneID(
-        static_cast<TWaterGun::NozzleType>(player->mFludd->mCurrentNozzle));
+        static_cast<TWaterGun::TNozzleType>(player->mFludd->mCurrentNozzle));
 
     return player->mFludd;
 }
@@ -110,7 +109,7 @@ static void checkRocketNozzleDiveBlast(TNozzleTrigger *nozzle, u32 r4, TWaterEmi
     if (nozzle->mFludd->mCurrentNozzle != TWaterGun::Rocket)
         return;
 
-    nozzle->mEmitParams.mReactionPow.set(player->mState != TMario::STATE_DIVE ? 0.0f : 1.0f);
+    nozzle->mEmitParams.mReactionPow.set(player->mState != TMario::STATE_DIVE ? 0.0f : 0.5f);
 }
 #else
 static void checkRocketNozzleDiveBlast(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {}
