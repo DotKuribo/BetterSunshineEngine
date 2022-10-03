@@ -22,7 +22,7 @@ static bool issueCommand(u32 command, DVDCommandBlock *cmdblock) {
     u32 _atomic_state = OSDisableInterrupts();
 
     cmdblock->mCurState = DVD_STATE_WAITING;
-    bool ret            = __DVDPushWaitingQueue(1, cmdblock);
+    bool ret            = __DVDPushWaitingQueue(command, cmdblock);
 
     if (!executing && !PauseFlag)
         stateReady();
@@ -32,42 +32,41 @@ static bool issueCommand(u32 command, DVDCommandBlock *cmdblock) {
     return ret;
 }
 
-static void cbForGetStreamErrorStatusSync(s32 result, DVDCommandBlock *cmdblock) {
+static void cbForCancelStreamSync(u32 result, DVDCommandBlock *cmdblock) {
     cmdblock->mCommandResult = result;
     OSWakeupThread(&__DVDThreadQueue);
 }
 
-static void cbForGetStreamLengthSync(s32 result, DVDCommandBlock *cmdblock) {
+static void cbForGetStreamErrorStatusSync(u32 result, DVDCommandBlock *cmdblock) {
     cmdblock->mCommandResult = result;
     OSWakeupThread(&__DVDThreadQueue);
 }
 
-static void cbForGetStreamPlayAddrSync(s32 result, DVDCommandBlock *cmdblock) {
+static void cbForGetStreamLengthSync(u32 result, DVDCommandBlock *cmdblock) {
     cmdblock->mCommandResult = result;
     OSWakeupThread(&__DVDThreadQueue);
 }
 
-static void cbForGetStreamStartAddrSync(s32 result, DVDCommandBlock *cmdblock) {
+static void cbForGetStreamPlayAddrSync(u32 result, DVDCommandBlock *cmdblock) {
     cmdblock->mCommandResult = result;
     OSWakeupThread(&__DVDThreadQueue);
 }
 
-static void cbForStopStreamAtEndSync(s32 result, DVDCommandBlock *cmdblock) {
+static void cbForGetStreamStartAddrSync(u32 result, DVDCommandBlock *cmdblock) {
     cmdblock->mCommandResult = result;
     OSWakeupThread(&__DVDThreadQueue);
 }
 
-bool DVDGetStreamErrorStatusAsync(DVDCommandBlock *cmdblock, DVDCBCallback cb) {
-    cmdblock->mCurCommand = 9;
-    cmdblock->mCB         = cb;
-    return issueCommand(cmdblock->mCurCommand, cmdblock);
+static void cbForStopStreamAtEndSync(u32 result, DVDCommandBlock *cmdblock) {
+    cmdblock->mCommandResult = result;
+    OSWakeupThread(&__DVDThreadQueue);
 }
 
-u32 DVDGetStreamErrorStatus(DVDCommandBlock *cmdblock) {
-    cmdblock->mCurCommand = 9;
-    cmdblock->mCB         = cbForGetStreamLengthSync;
+u32 DVDCancelStream(DVDCommandBlock *cmdblock) {
+    cmdblock->mCurCommand = 7;
+    cmdblock->mCB         = cbForCancelStreamSync;
 
-    if (!issueCommand(cmdblock->mCurCommand, cmdblock))
+    if (!issueCommand(1, cmdblock))
         return -1;
 
     u32 _atomic_state = OSDisableInterrupts();
@@ -77,22 +76,49 @@ u32 DVDGetStreamErrorStatus(DVDCommandBlock *cmdblock) {
         OSSleepThread(&__DVDThreadQueue);
     }
 
+    u32 commandResult = cmdblock->mCommandResult;
     OSRestoreInterrupts(_atomic_state);
 
-    return cmdblock->mCommandResult;
+    return commandResult;
+}
+
+bool DVDGetStreamErrorStatusAsync(DVDCommandBlock *cmdblock, DVDCBCallback cb) {
+    cmdblock->mCurCommand = 9;
+    cmdblock->mCB         = cb;
+    return issueCommand(1, cmdblock);
+}
+
+u32 DVDGetStreamErrorStatus(DVDCommandBlock *cmdblock) {
+    cmdblock->mCurCommand = 9;
+    cmdblock->mCB         = cbForGetStreamLengthSync;
+
+    if (!issueCommand(1, cmdblock))
+        return -1;
+
+    u32 _atomic_state = OSDisableInterrupts();
+
+    while (cmdblock->mCurState != DVD_STATE_END && cmdblock->mCurState != DVD_STATE_CANCELED &&
+           cmdblock->mCurState != DVD_STATE_FATAL_ERROR) {
+        OSSleepThread(&__DVDThreadQueue);
+    }
+
+    u32 commandResult = cmdblock->mCommandResult;
+    OSRestoreInterrupts(_atomic_state);
+
+    return commandResult;
 }
 
 bool DVDGetStreamLengthAsync(DVDCommandBlock *cmdblock, DVDCBCallback cb) {
     cmdblock->mCurCommand = 12;
     cmdblock->mCB         = cb;
-    return issueCommand(cmdblock->mCurCommand, cmdblock);
+    return issueCommand(1, cmdblock);
 }
 
 u32 DVDGetStreamLength(DVDCommandBlock *cmdblock) {
     cmdblock->mCurCommand = 12;
     cmdblock->mCB         = cbForGetStreamLengthSync;
 
-    if (!issueCommand(cmdblock->mCurCommand, cmdblock))
+    if (!issueCommand(1, cmdblock))
         return -1;
 
     u32 _atomic_state = OSDisableInterrupts();
@@ -104,16 +130,17 @@ u32 DVDGetStreamLength(DVDCommandBlock *cmdblock) {
         OSSleepThread(&__DVDThreadQueue);
     }
 
+    u32 commandResult = cmdblock->mCommandResult;
     OSRestoreInterrupts(_atomic_state);
 
-    return cmdblock->mCommandResult;
+    return commandResult;
 }
 
 #ifdef SME_DVD_OVERRIDE
 bool DVDGetStreamPlayAddrAsync(DVDCommandBlock *cmdblock, DVDCBCallback cb) {
     cmdblock->mCurCommand = 10;
     cmdblock->mCB         = cb;
-    return issueCommand(cmdblock->mCurCommand, cmdblock);
+    return issueCommand(1, cmdblock);
 }
 #endif
 
@@ -121,7 +148,7 @@ u32 DVDGetStreamPlayAddr(DVDCommandBlock *cmdblock) {
     cmdblock->mCurCommand = 10;
     cmdblock->mCB         = cbForGetStreamPlayAddrSync;
 
-    if (!issueCommand(cmdblock->mCurCommand, cmdblock))
+    if (!issueCommand(1, cmdblock))
         return -1;
 
     u32 _atomic_state = OSDisableInterrupts();
@@ -131,22 +158,23 @@ u32 DVDGetStreamPlayAddr(DVDCommandBlock *cmdblock) {
         OSSleepThread(&__DVDThreadQueue);
     }
 
+    u32 commandResult = cmdblock->mCommandResult;
     OSRestoreInterrupts(_atomic_state);
 
-    return cmdblock->mCommandResult;
+    return commandResult;
 }
 
 bool DVDGetStreamStartAddrAsync(DVDCommandBlock *cmdblock, DVDCBCallback cb) {
     cmdblock->mCurCommand = 11;
     cmdblock->mCB         = cb;
-    return issueCommand(cmdblock->mCurCommand, cmdblock);
+    return issueCommand(1, cmdblock);
 }
 
 u32 DVDGetStreamStartAddr(DVDCommandBlock *cmdblock) {
     cmdblock->mCurCommand = 11;
     cmdblock->mCB         = cbForGetStreamStartAddrSync;
 
-    if (!issueCommand(cmdblock->mCurCommand, cmdblock))
+    if (!issueCommand(1, cmdblock))
         return -1;
 
     u32 _atomic_state = OSDisableInterrupts();
@@ -156,9 +184,10 @@ u32 DVDGetStreamStartAddr(DVDCommandBlock *cmdblock) {
         OSSleepThread(&__DVDThreadQueue);
     }
 
+    u32 commandResult = cmdblock->mCommandResult;
     OSRestoreInterrupts(_atomic_state);
 
-    return cmdblock->mCommandResult;
+    return commandResult;
 }
 
 u32 DVDGetTransferredSize(DVDCommandBlock *cmdblock) {
@@ -180,7 +209,7 @@ u32 DVDGetTransferredSize(DVDCommandBlock *cmdblock) {
 bool DVDStopStreamAtEndAsync(DVDCommandBlock *cmdblock, DVDCBCallback cb) {
     cmdblock->mCurCommand = 8;
     cmdblock->mCB         = cb;
-    return issueCommand(cmdblock->mCurCommand, cmdblock);
+    return issueCommand(1, cmdblock);
 }
 #endif
 
@@ -188,7 +217,7 @@ u32 DVDStopStreamAtEnd(DVDCommandBlock *cmdblock) {
     cmdblock->mCurCommand = 8;
     cmdblock->mCB         = cbForGetStreamStartAddrSync;
 
-    if (!issueCommand(cmdblock->mCurCommand, cmdblock))
+    if (!issueCommand(1, cmdblock))
         return -1;
 
     u32 _atomic_state = OSDisableInterrupts();
@@ -198,9 +227,10 @@ u32 DVDStopStreamAtEnd(DVDCommandBlock *cmdblock) {
         OSSleepThread(&__DVDThreadQueue);
     }
 
+    u32 commandResult = cmdblock->mCommandResult;
     OSRestoreInterrupts(_atomic_state);
 
-    return cmdblock->mCommandResult;
+    return commandResult;
 }
 
 void DVDPause() {

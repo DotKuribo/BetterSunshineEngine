@@ -81,6 +81,10 @@ extern void updateTurboFrameEmit(TMario *player, bool isMario);
 extern void checkForYoshiWaterDeath(TMario *player, bool isMario);
 extern void forceValidRidingAnimation(TMario *player, bool isMario);
 
+// MUSIC
+extern void initStreamInfo(TMarDirector *director);
+extern void printStreamInfo(TMarDirector *director, J2DOrthoGraph *graph);
+
 static TMarDirector *initLib() {
 
     TMarDirector *director;
@@ -158,6 +162,9 @@ static TMarDirector *initLib() {
     Debug::registerInitCallback("__init_state_counter", initStateMonitor);
     Debug::registerUpdateCallback("__update_state_counter", updateStateMonitor);
     Debug::registerDrawCallback("__draw_state_counter", drawStateMonitor);
+
+    Debug::registerInitCallback("__init_music_state", initStreamInfo);
+    Debug::registerDrawCallback("__draw_music_state", printStreamInfo);
 
     // Set up loading screen
     // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);

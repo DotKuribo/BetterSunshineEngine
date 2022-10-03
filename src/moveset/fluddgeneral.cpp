@@ -29,20 +29,20 @@ SMS_WRITE_32(SMS_PORT_REGION(0x803DCA00, 0x803D41E0, 0, 0),  // Allow dive spray
              0x00300000 | TMarioAnimeData::FLUDD::FLUDD_ENABLED);
 #endif
 
-static TWaterGun *bindFluddtojoint() {
-    TMario *player;
-    SMS_FROM_GPR(31, player);
+// static TWaterGun *bindFluddtojoint() {
+//     TMario *player;
+//     SMS_FROM_GPR(31, player);
 
-    auto *playerData = Player::getData(player);
-    if (!playerData)
-        return player->mFludd;
+//     auto *playerData = Player::getData(player);
+//     if (!playerData)
+//         return player->mFludd;
 
-    player->mBindBoneIDArray[0] = playerData->getNozzleBoneID(
-        static_cast<TWaterGun::TNozzleType>(player->mFludd->mCurrentNozzle));
+//     player->mBindBoneIDArray[0] = playerData->getNozzleBoneID(
+//         static_cast<TWaterGun::TNozzleType>(player->mFludd->mCurrentNozzle));
 
-    return player->mFludd;
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024D53C, 0x802452C8, 0, 0), bindFluddtojoint);
+//     return player->mFludd;
+// }
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8024D53C, 0x802452C8, 0, 0), bindFluddtojoint);
 
 static bool hasWaterCardOpen() {
     TGCConsole2 *gcConsole;

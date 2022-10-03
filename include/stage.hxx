@@ -38,8 +38,7 @@ namespace BetterSMS {
             TStageParams(const char *prm)
                 : TParams(), CONSTRUCT_PARAM(mIsExStage, false),
                   CONSTRUCT_PARAM(mIsDivingStage, false), CONSTRUCT_PARAM(mIsOptionStage, false),
-                  CONSTRUCT_PARAM(mIsMultiplayerStage, false),
-                  CONSTRUCT_PARAM(mIsYoshiHungry, false), CONSTRUCT_PARAM(mIsEggFree, true),
+                  CONSTRUCT_PARAM(mIsMultiplayerStage, false), CONSTRUCT_PARAM(mIsEggFree, true),
                   CONSTRUCT_PARAM(mPlayerHealth, 8), CONSTRUCT_PARAM(mPlayerMaxHealth, 8),
                   CONSTRUCT_PARAM(mPlayerHasFludd, true), CONSTRUCT_PARAM(mPlayerHasHelmet, false),
                   CONSTRUCT_PARAM(mPlayerHasGlasses, false),
@@ -81,7 +80,6 @@ namespace BetterSMS {
             TParamT<bool> mIsDivingStage;
             TParamT<bool> mIsOptionStage;
             TParamT<bool> mIsMultiplayerStage;
-            TParamT<bool> mIsYoshiHungry;
             TParamT<bool> mIsEggFree;
 
             // Player Info

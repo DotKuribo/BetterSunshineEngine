@@ -122,7 +122,6 @@ void BetterSMS::Stage::TStageParams::reset() {
     mIsDivingStage.set(false);
     mIsOptionStage.set(false);
     mIsMultiplayerStage.set(false);
-    mIsYoshiHungry.set(false);
     mIsEggFree.set(true);
     // mLightType.set(TLightContext::ActiveType::DISABLED);
     // mLightPosX.set(0.0f);
@@ -141,44 +140,92 @@ void BetterSMS::Stage::TStageParams::reset() {
     mPlayerCanRideYoshi.set(true);
 }
 
+static int findNumber(const char *string, size_t max) {
+    for (int i = 0; i < max; ++i) {
+        const char chr = string[i];
+        if (chr == '\0')
+            return -1;
+        if (chr >= 0x30 && chr <= 0x39)
+            return i;
+    }
+    return -1;
+}
+
+static int findExtension(const char *string, size_t max) {
+    for (int i = 0; i < max; ++i) {
+        const char chr = string[i];
+        if (chr == '\0')
+            return -1;
+        if (chr == '.')
+            return i;
+    }
+    return -1;
+}
+
+char *BetterSMS::Stage::TStageParams::stageNameToParamPath(char *dst, const char *stage,
+                                                           bool generalize) {
+    strncpy(dst, "/data/scene/params/", 20);
+
+    const int numIDPos = findNumber(stage, 60);
+    if (generalize && numIDPos != -1) {
+        strncpy(dst + 19, stage, numIDPos);
+        dst[19 + numIDPos] = '\0';
+        strcat(dst, "+.prm");
+    } else {
+        const int extensionPos = findExtension(stage, 60);
+        if (extensionPos == -1)
+            strcat(dst, stage);
+        else
+            strncpy(dst + 19, stage, extensionPos);
+        dst[19 + extensionPos] = '\0';
+        strcat(dst, ".prm");
+    }
+
+    return dst;
+}
+
 void BetterSMS::Stage::TStageParams::load(const char *stageName) {
-    // DVDFileInfo fileInfo;
-    // s32 entrynum;
-    //
-    // char path[64];
-    // stageNameToParamPath(path, stageName, false);
-    //
-    // entrynum = DVDConvertPathToEntrynum(path);
-    // if (entrynum >= 0) {
-    //     DVDFastOpen(entrynum, &fileInfo);
-    //     void* buffer = JKRHeap::alloc(fileInfo.mLen, 32, nullptr);
-    //
-    //     DVDReadPrio(&fileInfo, buffer, fileInfo.mLen, 0, 2);
-    //     DVDClose(&fileInfo);
-    //     JSUMemoryInputStream stream(buffer, fileInfo.mLen);
-    //     TParams::load(stream);
-    //     JKRHeap::free(buffer, nullptr);
-    //     mIsCustomConfigLoaded = true;
-    //     return;
-    // }
-    //
-    // stageNameToParamPath(path, stageName, true);
-    //
-    // entrynum = DVDConvertPathToEntrynum(path);
-    // if (entrynum >= 0) {
-    //     DVDFastOpen(entrynum, &fileInfo);
-    //     void* buffer = JKRHeap::alloc(fileInfo.mLen, 32, nullptr);
-    //
-    //     DVDReadPrio(&fileInfo, buffer, fileInfo.mLen, 0, 2);
-    //     DVDClose(&fileInfo);
-    //     JSUMemoryInputStream stream(buffer, fileInfo.mLen);
-    //     TParams::load(stream);
-    //     JKRHeap::free(buffer, nullptr);
-    //     mIsCustomConfigLoaded = true;
-    //     return;
-    // }
-    //
-    // mIsCustomConfigLoaded = false;
+    DVDFileInfo fileInfo;
+    s32 entrynum;
+
+    char path[64];
+    stageNameToParamPath(path, stageName, false);
+
+    entrynum = DVDConvertPathToEntrynum(path);
+    if (entrynum >= 0) {
+        DVDFastOpen(entrynum, &fileInfo);
+        void *buffer = JKRHeap::alloc(fileInfo.mLen, 32, nullptr);
+
+        DVDReadPrio(&fileInfo, buffer, fileInfo.mLen, 0, 2);
+        DVDClose(&fileInfo);
+        {
+            JSUMemoryInputStream stream(buffer, fileInfo.mLen);
+            TParams::load(stream);
+            JKRHeap::free(buffer, nullptr);
+        }
+        mIsCustomConfigLoaded = true;
+        return;
+    }
+
+    stageNameToParamPath(path, stageName, true);
+
+    entrynum = DVDConvertPathToEntrynum(path);
+    if (entrynum >= 0) {
+        DVDFastOpen(entrynum, &fileInfo);
+        void *buffer = JKRHeap::alloc(fileInfo.mLen, 32, nullptr);
+
+        DVDReadPrio(&fileInfo, buffer, fileInfo.mLen, 0, 2);
+        DVDClose(&fileInfo);
+        {
+            JSUMemoryInputStream stream(buffer, fileInfo.mLen);
+            TParams::load(stream);
+            JKRHeap::free(buffer, nullptr);
+        }
+        mIsCustomConfigLoaded = true;
+        return;
+    }
+
+    mIsCustomConfigLoaded = false;
 }
 
 extern void initDebugCallbacks(TMarDirector *);

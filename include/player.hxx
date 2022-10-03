@@ -58,35 +58,20 @@ namespace BetterSMS {
 
             TPlayerParams()
                 : TParams(), CONSTRUCT_PARAM(mMaxJumps, 1), CONSTRUCT_PARAM(mMaxHealth, 8),
-                  CONSTRUCT_PARAM(mMaxWallHangTimer, 2400),
-                  CONSTRUCT_PARAM(mMaxWallClimbTimer, 1200), CONSTRUCT_PARAM(mCanRideYoshi, true),
-                  CONSTRUCT_PARAM(mCanUseFludd, true), CONSTRUCT_PARAM(mPlayerHasHelmet, false),
+                  CONSTRUCT_PARAM(mCanRideYoshi, true), CONSTRUCT_PARAM(mCanUseFludd, true),
+                  CONSTRUCT_PARAM(mPlayerHasHelmet, false),
                   CONSTRUCT_PARAM(mPlayerHasGlasses, false),
-                  CONSTRUCT_PARAM(mPlayerHasShirt, false), CONSTRUCT_PARAM(mCanCleanSeals, false),
-                  CONSTRUCT_PARAM(mGoopAffected, true), CONSTRUCT_PARAM(mCanHoldNPCs, false),
-                  CONSTRUCT_PARAM(mCanClimbWalls, false), CONSTRUCT_PARAM(mGravityMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mSizeMultiplier, 1.0f), CONSTRUCT_PARAM(mSpeedMultiplier, 1.0f),
+                  CONSTRUCT_PARAM(mPlayerHasShirt, false),
+                  CONSTRUCT_PARAM(mGravityMultiplier, 1.0f), CONSTRUCT_PARAM(mSizeMultiplier, 1.0f),
+                  CONSTRUCT_PARAM(mSpeedMultiplier, 1.0f),
                   CONSTRUCT_PARAM(mBaseJumpMultiplier, 1.0f),
                   CONSTRUCT_PARAM(mMultiJumpMultiplier, 0.875f),
                   CONSTRUCT_PARAM(mMultiJumpFSpeedMulti, 0.9f),
                   CONSTRUCT_PARAM(mThrowPowerMultiplier, 1.0f),
                   CONSTRUCT_PARAM(mUnderwaterHealthMultiplier, 1.0f),
                   CONSTRUCT_PARAM(mFallDamageMinMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mSlideMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mSprayNozzleUsable, true),
-                  CONSTRUCT_PARAM(mRocketNozzleUsable, true),
-                  CONSTRUCT_PARAM(mUnderwaterNozzleUsable, true),
-                  CONSTRUCT_PARAM(mYoshiNozzleUsable, true),
-                  CONSTRUCT_PARAM(mHoverNozzleUsable, true),
-                  CONSTRUCT_PARAM(mTurboNozzleUsable, true),
-                  CONSTRUCT_PARAM(mSniperNozzleUsable, true),
-                  CONSTRUCT_PARAM(mSprayNozzleBoneID, 14), CONSTRUCT_PARAM(mRocketNozzleBoneID, 14),
-                  CONSTRUCT_PARAM(mUnderwaterNozzleBoneID, 14),
-                  CONSTRUCT_PARAM(mYoshiNozzleBoneID, 14), CONSTRUCT_PARAM(mHoverNozzleBoneID, 14),
-                  CONSTRUCT_PARAM(mTurboNozzleBoneID, 14), CONSTRUCT_PARAM(mSniperNozzleBoneID, 14),
-                  CONSTRUCT_PARAM(mWaterColor, JUtility::TColor(60, 70, 120, 20)),
-                  CONSTRUCT_PARAM(mCleaningType, FluddCleanType::CLEAN) {
-                load("/Mario/SME.prm");
+                  CONSTRUCT_PARAM(mSlideMultiplier, 1.0f) {
+                load("/Mario/BetterSMS.prm");
             }
 
 #undef CONSTRUCT_PARAM
@@ -95,17 +80,11 @@ namespace BetterSMS {
 
             TParamRT<u8> mMaxJumps;
             TParamRT<u8> mMaxHealth;
-            TParamRT<u16> mMaxWallHangTimer;
-            TParamRT<s16> mMaxWallClimbTimer;
             TParamRT<bool> mCanRideYoshi;
             TParamRT<bool> mCanUseFludd;
             TParamRT<bool> mPlayerHasHelmet;
             TParamRT<bool> mPlayerHasGlasses;
             TParamRT<bool> mPlayerHasShirt;
-            TParamRT<bool> mCanCleanSeals;
-            TParamRT<bool> mGoopAffected;
-            TParamRT<bool> mCanHoldNPCs;
-            TParamRT<bool> mCanClimbWalls;
             TParamRT<f32> mGravityMultiplier;
             TParamRT<f32> mSizeMultiplier;
             TParamRT<f32> mSpeedMultiplier;
@@ -116,22 +95,6 @@ namespace BetterSMS {
             TParamRT<f32> mUnderwaterHealthMultiplier;
             TParamRT<f32> mFallDamageMinMultiplier;
             TParamRT<f32> mSlideMultiplier;
-            TParamRT<bool> mSprayNozzleUsable;
-            TParamRT<bool> mRocketNozzleUsable;
-            TParamRT<bool> mUnderwaterNozzleUsable;
-            TParamRT<bool> mYoshiNozzleUsable;
-            TParamRT<bool> mHoverNozzleUsable;
-            TParamRT<bool> mTurboNozzleUsable;
-            TParamRT<bool> mSniperNozzleUsable;
-            TParamRT<u8> mSprayNozzleBoneID;
-            TParamRT<u8> mRocketNozzleBoneID;
-            TParamRT<u8> mUnderwaterNozzleBoneID;
-            TParamRT<u8> mYoshiNozzleBoneID;
-            TParamRT<u8> mHoverNozzleBoneID;
-            TParamRT<u8> mTurboNozzleBoneID;
-            TParamRT<u8> mSniperNozzleBoneID;
-            TParamRT<JUtility::TColor> mWaterColor;
-            TParamRT<FluddCleanType> mCleaningType;
         };
 
         class TPlayerData {
@@ -199,7 +162,6 @@ namespace BetterSMS {
             CPolarSubCamera *getCamera() const { return mCamera; }
             bool getCanUseFludd() const { return mCanUseFludd; }
             u8 getMaxJumps() const { return mParams->mMaxJumps.get(); }
-            u8 getNozzleBoneID(TWaterGun::TNozzleType nozzle) const;
             const TPlayerParams *getParams() const {
                 if (!mParams)
                     Console::debugLog("Trying to access player params that don't exist!\n");
@@ -219,7 +181,6 @@ namespace BetterSMS {
             void setPlayerID(u32 id) { mPlayerID = id; }
             void setColliding(bool colliding) { mCollisionFlags.mIsColliding = colliding; }
 
-            bool canUseNozzle(TWaterGun::TNozzleType nozzle) const;
             const char *getPlayerName() const;
             bool loadPrm(const char *prm);
             bool loadPrm(JSUMemoryInputStream &stream);

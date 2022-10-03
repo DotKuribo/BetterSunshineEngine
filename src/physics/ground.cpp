@@ -81,13 +81,13 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8025C410, 0x8025419C, 0, 0), 0x60000000);
 
 // extern -> SME.cpp
 // 0x8024E288
-static void checkGraffitiAffected(TMario *player) {
-    auto playerData = Player::getData(player);
-
-    if (!playerData->isMario()) {
-        player->checkGraffito();
-    } else if (playerData->getParams()->mGoopAffected.get()) {
-        player->checkGraffito();
-    }
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024E288, 0x80246014, 0, 0), checkGraffitiAffected);
+//static void checkGraffitiAffected(TMario *player) {
+//    auto playerData = Player::getData(player);
+//
+//    if (!playerData->isMario()) {
+//        player->checkGraffito();
+//    } else if (playerData->getParams()->mGoopAffected.get()) {
+//        player->checkGraffito();
+//    }
+//}
+//SMS_PATCH_BL(SMS_PORT_REGION(0x8024E288, 0x80246014, 0, 0), checkGraffitiAffected);

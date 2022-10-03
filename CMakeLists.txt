@@ -60,7 +60,6 @@ file(GLOB BETTERSMS_SRC
     "include/objects/*.hxx"
 )
 
-
 add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
 add_subdirectory(lib/sms_interface)
 
@@ -80,7 +79,6 @@ target_link_options(BetterSunshineEngine PUBLIC
 list(APPEND BETTER_SMS_CONFIG_DEFINES "KURIBO_NO_TYPES" "BETTER_SMS_VERSION=\"v1.0\"")
 
 if(SMS_FIX_CRASHES)
-    
     list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_CRASHFIXES=1")
 endif()
 
@@ -160,6 +158,6 @@ target_compile_definitions(BetterSunshineEngine PUBLIC ${BETTER_SMS_CONFIG_DEFIN
 
 add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
 add_custom_command(
-	TARGET ${PROJECT_NAME}.kxe
-	COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} ${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
+    TARGET ${PROJECT_NAME}.kxe
+    COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} _${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
 )

@@ -711,48 +711,6 @@ bool Player::TPlayerData::loadPrm(JSUMemoryInputStream &stream) {
     return true;
 }
 
-bool Player::TPlayerData::canUseNozzle(TWaterGun::TNozzleType nozzle) const {
-    switch (nozzle) {
-    case TWaterGun::TNozzleType::Spray:
-        return mParams->mSprayNozzleUsable.get();
-    case TWaterGun::TNozzleType::Rocket:
-        return mParams->mRocketNozzleUsable.get();
-    case TWaterGun::TNozzleType::Underwater:
-        return mParams->mUnderwaterNozzleUsable.get();
-    case TWaterGun::TNozzleType::Yoshi:
-        return mParams->mYoshiNozzleUsable.get();
-    case TWaterGun::TNozzleType::Hover:
-        return mParams->mHoverNozzleUsable.get();
-    case TWaterGun::TNozzleType::Turbo:
-        return mParams->mTurboNozzleUsable.get();
-    case TWaterGun::TNozzleType::Sniper:
-        return mParams->mSniperNozzleUsable.get();
-    default:
-        return false;
-    }
-}
-
-u8 Player::TPlayerData::getNozzleBoneID(TWaterGun::TNozzleType nozzle) const {
-    switch (nozzle) {
-    case TWaterGun::TNozzleType::Spray:
-        return mParams->mSprayNozzleBoneID.get();
-    case TWaterGun::TNozzleType::Rocket:
-        return mParams->mRocketNozzleBoneID.get();
-    case TWaterGun::TNozzleType::Underwater:
-        return mParams->mUnderwaterNozzleBoneID.get();
-    case TWaterGun::TNozzleType::Yoshi:
-        return mParams->mYoshiNozzleBoneID.get();
-    case TWaterGun::TNozzleType::Hover:
-        return mParams->mHoverNozzleBoneID.get();
-    case TWaterGun::TNozzleType::Turbo:
-        return mParams->mTurboNozzleBoneID.get();
-    case TWaterGun::TNozzleType::Sniper:
-        return mParams->mSniperNozzleBoneID.get();
-    default:
-        return false;
-    }
-}
-
 void Player::TPlayerData::ParamHistory::applyHistoryTo(TMario *player) {
     SMS_ASSERT(player != nullptr, "Can't apply param history to a nullptr");
     player->mDeParams                       = mDeParams;
@@ -866,46 +824,21 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
     SMS_ASSERT(playerData, "Can't init fludd with non existant playerData!");
     Stage::TStageParams *config = Stage::getStageConfiguration();
 
+    player->mFludd->mMario = player;
+
     if (!playerData->isMario())
         return;
-
-    if (!playerData->canUseNozzle(
-            static_cast<TWaterGun::TNozzleType>(player->mFludd->mCurrentNozzle))) {
-        for (u8 i = 0; i < 7; ++i) {
-            if (playerData->canUseNozzle(static_cast<TWaterGun::TNozzleType>(i))) {
-                player->mAttributes.mHasFludd  = playerData->getCanUseFludd();
-                player->mFludd->mCurrentNozzle = i;
-                player->mFludd->mCurrentWater =
-                    player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
-                        ->mEmitParams.mAmountMax.get();
-                break;
-            } else if (i == 6) {
-                player->mAttributes.mHasFludd = false;
-                playerData->setCanUseFludd(false);
-            }
-        }
-    }
-
-    if (!playerData->canUseNozzle(
-            static_cast<TWaterGun::TNozzleType>(player->mFludd->mSecondNozzle))) {
-        for (u8 i = 0; i < 7; ++i) {
-            if (playerData->canUseNozzle(static_cast<TWaterGun::TNozzleType>(i))) {
-                player->mAttributes.mHasFludd = playerData->getCanUseFludd();
-                player->mFludd->mSecondNozzle = i;
-                break;
-            }
-            player->mFludd->mSecondNozzle = player->mFludd->mCurrentNozzle;
-        }
-    }
 
     if (config->mFluddShouldColorWater.get())
         waterColor[0] = config->mFluddWaterColor.get();
 
-    player->mFludd->mCurrentNozzle = config->mFluddPrimary.get();
-    player->mFludd->mSecondNozzle  = config->mFluddSecondary.get();
+    // FIXME: Default params are all wrong
+    // player->mFludd->mCurrentNozzle = config->mFluddPrimary.get();
+    // player->mFludd->mSecondNozzle  = config->mFluddSecondary.get();
 
-    player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
-                                        ->mEmitParams.mAmountMax.get();
+    // player->mFludd->mCurrentWater =
+    // player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
+    //                                     ->mEmitParams.mAmountMax.get();
 }
 
 // Extern to Player Init CB

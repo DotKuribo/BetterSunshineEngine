@@ -72,6 +72,9 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80262584, 0x8025A310, 0, 0), 0x2C030000);
 // extern -> fluddgeneral.cpp
 void checkSpamHover(TNozzleTrigger *nozzle, u32 r4, TWaterEmitInfo *emitInfo) {
     TMario *player = nozzle->mFludd->mMario;
+    if (!player)
+        return;
+
     Vec size;
     player->JSGGetScaling(&size);
 

@@ -92,9 +92,6 @@ static u32 calcYoshiSwimVelocity(TMario *player, u32 arg1) {
         return player->jumpProcess(arg1);
     }
 
-    if (Stage::getStageConfiguration()->mIsYoshiHungry.get())
-        return player->jumpProcess(arg1);
-
     if (!player->mYoshi)
         return player->jumpProcess(arg1);
 
@@ -123,8 +120,7 @@ static u32 isYoshiWaterFlutter() {
     SMS_FROM_GPR(29, yoshi);
     SMS_FROM_GPR(30, animID);
 
-    if (!Stage::getStageConfiguration()->mIsYoshiHungry.get() &&
-        Yoshi::isGreenYoshiAscendingWater(yoshi->mMario))
+    if (Yoshi::isGreenYoshiAscendingWater(yoshi->mMario))
         animID = 9;
 
     if ((animID & 0xFFFF) == 24)
@@ -139,9 +135,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80270084, 0x80267E10, 0, 0), 0x60000000);
 
 // 0x8026FE84 NEEDS ADDI R4, R3, 0
 static u32 isYoshiValidWaterFlutter(s32 anmIdx, u32 unk1, TMario *player) {
-    if (!Stage::getStageConfiguration()->mIsYoshiHungry.get())
-        return player->mState;
-
     if (Yoshi::isGreenYoshiAscendingWater(player))
         return (player->mState & 0xFFFFFBFF) | static_cast<u32>(TMario::STATE_AIRBORN);
     else

@@ -38,6 +38,7 @@ namespace BetterSMS::Music {
     constexpr size_t AudioQueueSize        = 4;
     constexpr size_t AudioStackSize        = 0x4000;
     constexpr u8 AudioVolumeDefault        = 127;
+    constexpr size_t AudioStreamRate       = 48000;
 
     class AudioStreamer {
     public:
@@ -55,19 +56,19 @@ namespace BetterSMS::Music {
 
             AudioPacket(u32 id) : mLoopStart(-1), mLoopEnd(-1) {
                 mIdentifier.as_u32 = id;
-                mIstring           = false;
+                mIsString          = false;
             }
 
             AudioPacket(const char *file) : mLoopStart(-1), mLoopEnd(-1) {
                 mIdentifier.as_string = file;
-                mIstring              = true;
+                mIsString             = true;
             }
 
             bool exec(DVDFileInfo *handle);
             void setLoopPoint(s32 start, size_t length);
             void setLoopPoint(f64 start, f64 length);
 
-            bool mIstring;
+            bool mIsString;
             Identifier mIdentifier;
 
         private:
@@ -76,20 +77,38 @@ namespace BetterSMS::Music {
         };
 
     public:
-        AudioStreamer(void *(*mainLoop)(void *), OSPriority priority, DVDFileInfo *fInfo,
-                      DVDCommandBlock *cb);
+        AudioStreamer(void *(*mainLoop)(void *), OSPriority priority, DVDFileInfo *fInfo);
         ~AudioStreamer();
 
         static AudioStreamer *getInstance() { return &sInstance; }
-        AudioPacket &getCurrentAudio() { return mAudioQueue[mAudioIndex]; }
-        u16 getVolumeLR() const { return (mVolLeft << 8) | mVolRight; }
-        u8 getFullVolumeLR() const { return (mFullVolLeft << 8) | mFullVolRight; }
 
         void setLooping(bool loop) { mIsLooping = loop; }
 
         bool isPlaying() const { return mIsPlaying; }
         bool isPaused() const { return mIsPaused; }
         bool isLooping() const { return mIsLooping; }
+        bool isLoopCustom() const {
+            auto packet = _mAudioQueue[_mAudioIndex];
+            return packet.mLoopStart != 0xFFFFFFFF || packet.mLoopEnd != 0xFFFFFFFF;
+        }
+
+        u32 getStreamPos() const { return mCurrentPlayAddress; }
+        u32 getStreamStart() const { return mAudioHandle->mStart; }
+        u32 getStreamEnd() const { return mEndPlayAddress; }
+
+        u32 getLoopStart() const {
+            auto packet = _mAudioQueue[_mAudioIndex];
+            return packet.mLoopStart != 0xFFFFFFFF ? packet.mLoopStart : 0;
+        }
+
+        u32 getLoopEnd() const {
+            auto packet = _mAudioQueue[_mAudioIndex];
+            return packet.mLoopEnd != 0xFFFFFFFF ? packet.mLoopEnd : mAudioHandle->mLen;
+        }
+
+        AudioPacket &getCurrentAudio() { return _mAudioQueue[_mAudioIndex]; }
+        u16 getVolumeLR() const { return (_mVolLeft << 8) | _mVolRight; }
+        u8 getFullVolumeLR() const { return (_mFullVolLeft << 8) | _mFullVolRight; }
 
         void setVolumeLR(u8 left, u8 right);
         void setFullVolumeLR(u8 left, u8 right);
@@ -106,7 +125,7 @@ namespace BetterSMS::Music {
         void skip(f32 fadeTime);
         void next(f32 fadeTime);
         void seek(s32 where, JSUStreamSeekFrom whence);
-        void seek(f64 seconds, JSUStreamSeekFrom whence);
+        void seek(f32 seconds, JSUStreamSeekFrom whence);
 
         bool play_();
         bool pause_();
@@ -116,27 +135,36 @@ namespace BetterSMS::Music {
         bool seek_();
         void update_();
 
+    private:
+        void initThread(OSPriority);
+
+    public:
         OSThread mMainThread;
         OSAlarm mVolumeFadeAlarm;
         OSMessageQueue mMessageQueue;
         OSMessage mMessageList[AudioMessageQueueSize];
         DVDFileInfo *mAudioHandle;
-        DVDCommandBlock *mAudioCommandBlock;
+        DVDCommandBlock mGetAddrCmd;
+        DVDCommandBlock mStopCmd;
+        DVDCommandBlock mStatusCmd;
         u8 *mAudioStack;
+        u32 mCurrentPlayAddress;
+        u32 mEndPlayAddress;
+        u32 mErrorStatus;
 
     private:
-        AudioPacket mAudioQueue[AudioQueueSize];
-        s32 mAudioIndex;
-        f32 mDelayedTime;
-        f32 mFadeTime;
-        u8 mSrcVolume;
-        u8 mTargetVolume;
-        u8 mVolLeft;
-        u8 mVolRight;
-        u8 mFullVolLeft;
-        u8 mFullVolRight;
-        u8 mPreservedVolLeft;
-        u8 mPreservedVolRight;
+        AudioPacket _mAudioQueue[AudioQueueSize];
+        s32 _mAudioIndex;
+        f32 _mDelayedTime;
+        f32 _mFadeTime;
+        u8 _mSrcVolume;
+        u8 _mTargetVolume;
+        u8 _mVolLeft;
+        u8 _mVolRight;
+        u8 _mFullVolLeft;
+        u8 _mFullVolRight;
+        u8 _mPreservedVolLeft;
+        u8 _mPreservedVolRight;
 
         s32 _mWhere;
         JSUStreamSeekFrom _mWhence;

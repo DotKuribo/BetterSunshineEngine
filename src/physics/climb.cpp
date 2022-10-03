@@ -228,27 +228,27 @@ static void scaleHangSpeed(TMario *player) {
 // SMS_PATCH_BL(SMS_PORT_REGION(0x802615AC, 0, 0, 0), scaleHangSpeed);
 // SMS_WRITE_32(SMS_PORT_REGION(0x802615B0, 0, 0, 0), 0x60000000);
 
-static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
-    TMario *player;
-    SMS_FROM_GPR(30, player);
-
-    u16 colType;
-    SMS_FROM_GPR(4, colType);
-
-    auto playerData = Player::getData(player);
-
-    if (playerData->isMario() && playerData->getParams()->mCanClimbWalls.get())
-        return true;
-
-    return colType == 266;
-}
-SMS_WRITE_32(SMS_PORT_REGION(0x802617C0, 0x8025954C, 0, 0), 0xA0830000);
-SMS_PATCH_BL(SMS_PORT_REGION(0x802617C4, 0x80259550, 0, 0), canHangOnRoof);
-SMS_WRITE_32(SMS_PORT_REGION(0x802617C8, 0x80259554, 0, 0), 0x60000000);
-SMS_WRITE_32(SMS_PORT_REGION(0x802617CC, 0x80259558, 0, 0), 0x60000000);
-SMS_WRITE_32(SMS_PORT_REGION(0x802617D0, 0x8025955C, 0, 0), 0x60000000);
-SMS_WRITE_32(SMS_PORT_REGION(0x802617D4, 0x80259560, 0, 0), 0x60000000);
-SMS_WRITE_32(SMS_PORT_REGION(0x802617D8, 0x80259564, 0, 0), 0x2C030000);
+//static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
+//    TMario *player;
+//    SMS_FROM_GPR(30, player);
+//
+//    u16 colType;
+//    SMS_FROM_GPR(4, colType);
+//
+//    auto playerData = Player::getData(player);
+//
+//    if (playerData->isMario() && playerData->getParams()->mCanClimbWalls.get())
+//        return true;
+//
+//    return colType == 266;
+//}
+//SMS_WRITE_32(SMS_PORT_REGION(0x802617C0, 0x8025954C, 0, 0), 0xA0830000);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x802617C4, 0x80259550, 0, 0), canHangOnRoof);
+//SMS_WRITE_32(SMS_PORT_REGION(0x802617C8, 0x80259554, 0, 0), 0x60000000);
+//SMS_WRITE_32(SMS_PORT_REGION(0x802617CC, 0x80259558, 0, 0), 0x60000000);
+//SMS_WRITE_32(SMS_PORT_REGION(0x802617D0, 0x8025955C, 0, 0), 0x60000000);
+//SMS_WRITE_32(SMS_PORT_REGION(0x802617D4, 0x80259560, 0, 0), 0x60000000);
+//SMS_WRITE_32(SMS_PORT_REGION(0x802617D8, 0x80259564, 0, 0), 0x2C030000);
 
 /* WALL CLIMB CODE */
 

@@ -41,10 +41,9 @@ __attribute__((naked)) u16 AIGetDMAStartAddr() {
                      "blr                    \n\t");
 }
 
-u32 AIGetStreamSampleCount() {
-    volatile u32 *StreamSampleCount = (volatile u32 *)0xCC006C08;
-    return *StreamSampleCount;
-}
+#if _AI_USE_C
+
+u32 AIGetStreamSampleCount() { return *(volatile u32 *)0xCC006C08; }
 
 void AIResetStreamSampleCount() {
     volatile u32 *StreamSampleCountFlag = (volatile u32 *)0xCC006C00;
@@ -52,15 +51,41 @@ void AIResetStreamSampleCount() {
     *StreamSampleCountFlag              = (sampleCount & ~0x20) | 0x20;
 }
 
-u32 AIGetStreamTrigger() {
-    volatile u32 *StreamTrigger = (volatile u32 *)0xCC006C0C;
-    return *StreamTrigger;
+u32 AIGetStreamTrigger() { return *(volatile u32 *)0xCC006C0C; }
+void AISetStreamTrigger(u32 trigger) { *(volatile u32 *)0xCC006C0C = trigger; }
+
+#else
+
+__attribute__((naked)) u32 AIGetStreamSampleCount() {
+    __asm__ volatile("lis 3, 0xCC00          \n\t"
+                     "addi 3, 3, 27648       \n\t"
+                     "lwz 3, 0x0008 (3)      \n\t"
+                     "blr                    \n\t");
 }
 
-void AISetStreamTrigger(u32 trigger) {
-    volatile u32 *StreamTrigger = (volatile u32 *)0xCC006C0C;
-    *StreamTrigger              = trigger;
+__attribute__((naked)) void AIResetStreamSampleCount() {
+    __asm__ volatile("lis 3, 0xCC00          \n\t"
+                     "lwz 0, 0x6C00 (3)      \n\t"
+                     "rlwinm 0, 0, 0, 27, 25 \n\t"
+                     "ori 0, 0, 0x0020       \n\t"
+                     "stw 0, 0x6C00 (3)      \n\t"
+                     "blr                    \n\t");
 }
+
+__attribute__((naked)) u32 AIGetStreamTrigger() {
+    __asm__ volatile("lis 3, 0xCC00          \n\t"
+                     "addi 3, 3, 27648       \n\t"
+                     "lwz 3, 0x000C (3)      \n\t"
+                     "blr                    \n\t");
+}
+
+__attribute__((naked)) void AISetStreamTrigger(u32 trigger) {
+    __asm__ volatile("lis 4, 0xCC00          \n\t"
+                     "stw 3, 0x6C0C (4)      \n\t"
+                     "blr                    \n\t");
+}
+
+#endif
 
 AISCallback AIRegisterStreamCallback(AISCallback cb) {
     AISCallback prev = __AIS_Callback;
