@@ -25,7 +25,7 @@ namespace BetterSMS::Music {
     void setVolume(u8 left, u8 right);
     void setVolumeFade(u8 dstVolume, f32 seconds);
 
-    void setLoopPoint(f64 start, f64 length);
+    void setLoopPoint(f32 start, f32 length);
 
     class AudioStreamer;
     AudioStreamer *getAudioStreamer();
@@ -66,7 +66,7 @@ namespace BetterSMS::Music {
 
             bool exec(DVDFileInfo *handle);
             void setLoopPoint(s32 start, size_t length);
-            void setLoopPoint(f64 start, f64 length);
+            void setLoopPoint(f32 start, f32 length);
 
             bool mIsString;
             Identifier mIdentifier;

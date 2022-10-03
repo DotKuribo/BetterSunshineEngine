@@ -60,7 +60,7 @@ SMS_NO_INLINE void BetterSMS::Music::setVolumeFade(u8 dstVolume, f32 seconds) {
     streamer->setVolumeFadeTo(dstVolume, seconds);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::setLoopPoint(f64 start, f64 length) {
+SMS_NO_INLINE void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
     AudioStreamer *streamer            = getAudioStreamer();
     AudioStreamer::AudioPacket &packet = streamer->getCurrentAudio();
 
@@ -519,7 +519,7 @@ void Music::AudioStreamer::AudioPacket::setLoopPoint(s32 start, size_t length) {
     mLoopEnd   = start + length;
 }
 
-void Music::AudioStreamer::AudioPacket::setLoopPoint(f64 start, f64 length) {
+void Music::AudioStreamer::AudioPacket::setLoopPoint(f32 start, f32 length) {
     mLoopStart = start;
     mLoopEnd   = start + length;
 }
