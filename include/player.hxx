@@ -53,28 +53,23 @@ namespace BetterSMS {
 #pragma region ParamHandler
 
         struct TPlayerParams : public TParams {
-#define CONSTRUCT_PARAM(name, val)                                                                 \
-    name(this, val, JDrama::TNameRef::calcKeyCode(SMS_STRINGIZE(name)), SMS_STRINGIZE(name))
-
             TPlayerParams()
-                : TParams(), CONSTRUCT_PARAM(mMaxJumps, 1), CONSTRUCT_PARAM(mMaxHealth, 8),
-                  CONSTRUCT_PARAM(mCanRideYoshi, true), CONSTRUCT_PARAM(mCanUseFludd, true),
-                  CONSTRUCT_PARAM(mPlayerHasHelmet, false),
-                  CONSTRUCT_PARAM(mPlayerHasGlasses, false),
-                  CONSTRUCT_PARAM(mPlayerHasShirt, false),
-                  CONSTRUCT_PARAM(mGravityMultiplier, 1.0f), CONSTRUCT_PARAM(mSizeMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mSpeedMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mBaseJumpMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mMultiJumpMultiplier, 0.875f),
-                  CONSTRUCT_PARAM(mMultiJumpFSpeedMulti, 0.9f),
-                  CONSTRUCT_PARAM(mThrowPowerMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mUnderwaterHealthMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mFallDamageMinMultiplier, 1.0f),
-                  CONSTRUCT_PARAM(mSlideMultiplier, 1.0f) {
+                : TParams(), SMS_TPARAM_INIT(mMaxJumps, 1), SMS_TPARAM_INIT(mMaxHealth, 8),
+                  SMS_TPARAM_INIT(mCanRideYoshi, true), SMS_TPARAM_INIT(mCanUseFludd, true),
+                  SMS_TPARAM_INIT(mPlayerHasHelmet, false),
+                  SMS_TPARAM_INIT(mPlayerHasGlasses, false),
+                  SMS_TPARAM_INIT(mPlayerHasShirt, false),
+                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f), SMS_TPARAM_INIT(mSizeMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mSpeedMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mBaseJumpMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mMultiJumpMultiplier, 0.875f),
+                  SMS_TPARAM_INIT(mMultiJumpFSpeedMulti, 0.9f),
+                  SMS_TPARAM_INIT(mThrowPowerMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mUnderwaterHealthMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mFallDamageMinMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mSlideMultiplier, 1.0f) {
                 load("/Mario/BetterSMS.prm");
             }
-
-#undef CONSTRUCT_PARAM
 
             enum class FluddCleanType : u8 { NONE, CLEAN, GOOP };
 

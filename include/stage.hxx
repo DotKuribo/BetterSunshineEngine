@@ -32,27 +32,25 @@ namespace BetterSMS {
 
 #pragma region ConfigImplementation
         struct TStageParams : public TParams {
-#define CONSTRUCT_PARAM(name, val)                                                                 \
-    name(this, val, JDrama::TNameRef::calcKeyCode(SMS_STRINGIZE(name)), SMS_STRINGIZE(name))
 
             TStageParams(const char *prm)
-                : TParams(), CONSTRUCT_PARAM(mIsExStage, false),
-                  CONSTRUCT_PARAM(mIsDivingStage, false), CONSTRUCT_PARAM(mIsOptionStage, false),
-                  CONSTRUCT_PARAM(mIsMultiplayerStage, false), CONSTRUCT_PARAM(mIsEggFree, true),
-                  CONSTRUCT_PARAM(mPlayerHealth, 8), CONSTRUCT_PARAM(mPlayerMaxHealth, 8),
-                  CONSTRUCT_PARAM(mPlayerHasFludd, true), CONSTRUCT_PARAM(mPlayerHasHelmet, false),
-                  CONSTRUCT_PARAM(mPlayerHasGlasses, false),
-                  CONSTRUCT_PARAM(mPlayerHasShirt, false),
-                  CONSTRUCT_PARAM(mPlayerCanRideYoshi, true),
-                  CONSTRUCT_PARAM(mPlayerSizeMultiplier, 1.0f), CONSTRUCT_PARAM(mFluddPrimary, 0),
-                  CONSTRUCT_PARAM(mFluddSecondary, 4),
-                  CONSTRUCT_PARAM(mFluddWaterColor, JUtility::TColor(60, 70, 120, 20)),
-                  CONSTRUCT_PARAM(mFluddShouldColorWater, false),
-                  CONSTRUCT_PARAM(mMusicVolume, 0.75f), CONSTRUCT_PARAM(mMusicSpeed, 1.0f),
-                  CONSTRUCT_PARAM(mMusicPitch, 1.0f), CONSTRUCT_PARAM(mMusicID, 1),
-                  CONSTRUCT_PARAM(mMusicAreaID, 1), CONSTRUCT_PARAM(mMusicEpisodeID, 0),
-                  CONSTRUCT_PARAM(mMusicEnabled, true), CONSTRUCT_PARAM(mMusicSetCustom, false),
-                  CONSTRUCT_PARAM(mGravityMultiplier, 1.0f) {
+                : TParams(), SMS_TPARAM_INIT(mIsExStage, false),
+                  SMS_TPARAM_INIT(mIsDivingStage, false), SMS_TPARAM_INIT(mIsOptionStage, false),
+                  SMS_TPARAM_INIT(mIsMultiplayerStage, false), SMS_TPARAM_INIT(mIsEggFree, true),
+                  SMS_TPARAM_INIT(mPlayerHealth, 8), SMS_TPARAM_INIT(mPlayerMaxHealth, 8),
+                  SMS_TPARAM_INIT(mPlayerHasFludd, true), SMS_TPARAM_INIT(mPlayerHasHelmet, false),
+                  SMS_TPARAM_INIT(mPlayerHasGlasses, false),
+                  SMS_TPARAM_INIT(mPlayerHasShirt, false),
+                  SMS_TPARAM_INIT(mPlayerCanRideYoshi, true),
+                  SMS_TPARAM_INIT(mPlayerSizeMultiplier, 1.0f), SMS_TPARAM_INIT(mFluddPrimary, 0),
+                  SMS_TPARAM_INIT(mFluddSecondary, 4),
+                  SMS_TPARAM_INIT(mFluddWaterColor, JUtility::TColor(60, 70, 120, 20)),
+                  SMS_TPARAM_INIT(mFluddShouldColorWater, false),
+                  SMS_TPARAM_INIT(mMusicVolume, 0.75f), SMS_TPARAM_INIT(mMusicSpeed, 1.0f),
+                  SMS_TPARAM_INIT(mMusicPitch, 1.0f), SMS_TPARAM_INIT(mMusicID, 1),
+                  SMS_TPARAM_INIT(mMusicAreaID, 1), SMS_TPARAM_INIT(mMusicEpisodeID, 0),
+                  SMS_TPARAM_INIT(mMusicEnabled, true), SMS_TPARAM_INIT(mMusicSetCustom, false),
+                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f) {
                 delete sStageConfig;
                 sStageConfig = this;
 
@@ -60,7 +58,6 @@ namespace BetterSMS {
                     load(prm);
             }
 
-#undef CONSTRUCT_PARAM
             ~TStageParams() {
                 if (this == sStageConfig)
                     sStageConfig = nullptr;

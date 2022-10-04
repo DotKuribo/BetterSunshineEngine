@@ -39,6 +39,7 @@ namespace BetterSMS::Music {
     constexpr size_t AudioStackSize        = 0x4000;
     constexpr u8 AudioVolumeDefault        = 127;
     constexpr size_t AudioStreamRate       = 48000;
+    constexpr size_t AudioPreparePreOffset = 0x8000;
 
     class AudioStreamer {
     public:
@@ -52,28 +53,37 @@ namespace BetterSMS::Music {
                 const char *as_string;
             };
 
-            AudioPacket() : mLoopStart(-1), mLoopEnd(-1) { mIdentifier.as_u32 = 0xFFFFFFFF; }
+            struct PacketParams : public TParams {
+                PacketParams()
+                    : TParams(), SMS_TPARAM_INIT(mLoopStart, 0xFFFFFFFF),
+                      SMS_TPARAM_INIT(mLoopEnd, 0xFFFFFFFF) {}
 
-            AudioPacket(u32 id) : mLoopStart(-1), mLoopEnd(-1) {
+                TParamT<s32> mLoopStart;
+                TParamT<s32> mLoopEnd;
+            };
+
+            AudioPacket() : mParams() { mIdentifier.as_u32 = 0xFFFFFFFF; }
+
+            AudioPacket(u32 id) : mParams() {
                 mIdentifier.as_u32 = id;
                 mIsString          = false;
             }
 
-            AudioPacket(const char *file) : mLoopStart(-1), mLoopEnd(-1) {
+            AudioPacket(const char *file) : mParams() {
                 mIdentifier.as_string = file;
                 mIsString             = true;
             }
 
-            bool exec(DVDFileInfo *handle);
             void setLoopPoint(s32 start, size_t length);
             void setLoopPoint(f32 start, f32 length);
 
-            bool mIsString;
-            Identifier mIdentifier;
+        private:
+            bool exec(DVDFileInfo *handle);
 
         private:
-            s32 mLoopStart;
-            s32 mLoopEnd;
+            bool mIsString;
+            Identifier mIdentifier;
+            PacketParams mParams;
         };
 
     public:
@@ -82,14 +92,16 @@ namespace BetterSMS::Music {
 
         static AudioStreamer *getInstance() { return &sInstance; }
 
-        void setLooping(bool loop) { mIsLooping = loop; }
+        void setLooping(bool loop) { _mIsLooping = loop; }
 
-        bool isPlaying() const { return mIsPlaying; }
-        bool isPaused() const { return mIsPaused; }
-        bool isLooping() const { return mIsLooping; }
+        bool isPlaying() const;
+        bool isPaused() const;
+        bool isLooping() const;
+
         bool isLoopCustom() const {
             auto packet = _mAudioQueue[_mAudioIndex];
-            return packet.mLoopStart != 0xFFFFFFFF || packet.mLoopEnd != 0xFFFFFFFF;
+            return packet.mParams.mLoopStart.get() != 0xFFFFFFFF ||
+                   packet.mParams.mLoopEnd.get() != 0xFFFFFFFF;
         }
 
         u32 getStreamPos() const { return mCurrentPlayAddress; }
@@ -98,12 +110,14 @@ namespace BetterSMS::Music {
 
         u32 getLoopStart() const {
             auto packet = _mAudioQueue[_mAudioIndex];
-            return packet.mLoopStart != 0xFFFFFFFF ? packet.mLoopStart : 0;
+            return packet.mParams.mLoopStart.get() != 0xFFFFFFFF ? packet.mParams.mLoopStart.get()
+                                                                 : 0;
         }
 
         u32 getLoopEnd() const {
             auto packet = _mAudioQueue[_mAudioIndex];
-            return packet.mLoopEnd != 0xFFFFFFFF ? packet.mLoopEnd : mAudioHandle->mLen;
+            return packet.mParams.mLoopEnd.get() != 0xFFFFFFFF ? packet.mParams.mLoopEnd.get()
+                                                               : mAudioHandle->mLen;
         }
 
         AudioPacket &getCurrentAudio() { return _mAudioQueue[_mAudioIndex]; }
@@ -169,11 +183,12 @@ namespace BetterSMS::Music {
         s32 _mWhere;
         JSUStreamSeekFrom _mWhence;
 
-        bool mIsPlaying;
-        bool mIsPaused;
-        bool mIsLooping;
-
         static AudioStreamer sInstance;
+
+    public:
+        static bool _mIsPlaying;
+        static bool _mIsPaused;
+        static bool _mIsLooping;
     };
 
     bool isValidBGM(u32 id);

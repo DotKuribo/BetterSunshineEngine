@@ -65,6 +65,7 @@ SMS_NO_INLINE void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
     AudioStreamer::AudioPacket &packet = streamer->getCurrentAudio();
 
     packet.setLoopPoint(start, length);
+    streamer->mEndPlayAddress = streamer->getStreamEnd();
 }
 
 SMS_NO_INLINE Music::AudioStreamer *BetterSMS::Music::getAudioStreamer() {
@@ -73,9 +74,10 @@ SMS_NO_INLINE Music::AudioStreamer *BetterSMS::Music::getAudioStreamer() {
 
 #pragma region Implementation
 
-constexpr size_t AudioPreparePreOffset = 0x8000;
-
 static bool _startPaused = false;
+static bool _mIsPlaying  = false;
+static bool _mIsPaused   = false;
+static bool _mIsLooping  = false;
 
 #if BETTER_SMS_CUSTOM_MUSIC
 static void updaterLoop() {
@@ -130,6 +132,8 @@ static void *mainLoop(void *param) {
 }
 #endif
 
+#pragma region CallbackImplementation
+
 static void volumeAlarm(OSAlarm *alarm, OSContext *context) {
     Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
     streamer->fadeAudio_();
@@ -161,19 +165,22 @@ static void cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo) {
     u16 volLR                      = streamer->getVolumeLR();
 
     // Set up AI
+    // AISetDSPSampleRate(0);
+    // AISetStreamSampleRate(AI_SAMPLE_48K);
     AIRegisterStreamCallback(cbForAIInterrupt);
     AISetStreamVolLeft(static_cast<u8>(volLR >> 8));
     AISetStreamVolRight(static_cast<u8>(volLR));
+    AISetStreamSampleRate(AI_SAMPLE_48K);
     AIResetStreamSampleCount();
     AISetStreamTrigger(Music::AudioStreamRate);
     AISetStreamPlayState(true);
 
     streamer->mErrorStatus = 1;
+    _mIsPlaying            = true;
 }
 
 static void cbForCancelStreamAsync_(u32 result, DVDCommandBlock *callback) {
     Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
-    AISetStreamPlayState(false);
     DVDClose(streamer->mAudioHandle);
 }
 
@@ -187,12 +194,18 @@ static void cbForStopStreamAtEndAsync_(u32 result, DVDCommandBlock *cmdblock) {
 #endif
 }
 
+#pragma endregion
+
 static DVDFileInfo sAudioFInfo;
 static DVDCommandBlock sAudioStopCmdBlock;
 static DVDCommandBlock sAudioGetAddrCmdBlock;
 static DVDCommandBlock sAudioStatusCmdBlock;
 
 static Music::AudioStreamer::AudioCommand sAudioCommand = Music::AudioStreamer::AudioCommand::NONE;
+
+bool Music::AudioStreamer::isPlaying() const { return _mIsPlaying; }
+bool Music::AudioStreamer::isPaused() const { return _mIsPaused; }
+bool Music::AudioStreamer::isLooping() const { return _mIsLooping; }
 
 Music::AudioStreamer Music::AudioStreamer::sInstance =
     Music::AudioStreamer(mainLoop, 18, &sAudioFInfo);
@@ -201,10 +214,10 @@ Music::AudioStreamer::AudioStreamer(void *(*mainLoop)(void *), OSPriority priori
                                     DVDFileInfo *fInfo)
     : mAudioHandle(fInfo), mCurrentPlayAddress(0), mEndPlayAddress(0), _mAudioIndex(0),
       _mDelayedTime(0.0f), _mFadeTime(0.0f), _mWhere(0), _mWhence(JSUStreamSeekFrom::BEGIN),
-      mIsPlaying(false), mIsPaused(false), mIsLooping(false), _mVolLeft(AudioVolumeDefault),
-      _mVolRight(AudioVolumeDefault), _mFullVolLeft(AudioVolumeDefault),
-      _mFullVolRight(AudioVolumeDefault), _mTargetVolume(AudioVolumeDefault),
-      _mPreservedVolLeft(AudioVolumeDefault), _mPreservedVolRight(AudioVolumeDefault) {
+      _mVolLeft(AudioVolumeDefault), _mVolRight(AudioVolumeDefault),
+      _mFullVolLeft(AudioVolumeDefault), _mFullVolRight(AudioVolumeDefault),
+      _mTargetVolume(AudioVolumeDefault), _mPreservedVolLeft(AudioVolumeDefault),
+      _mPreservedVolRight(AudioVolumeDefault) {
     initThread(priority);
 }
 
@@ -213,8 +226,8 @@ Music::AudioStreamer::~AudioStreamer() {
     OSCancelAlarm(&mVolumeFadeAlarm);
     OSCancelThread(&mMainThread);
 
-    DVDCancelStream(&mStopCmd);
     AISetStreamPlayState(false);
+    DVDCancelStream(&mStopCmd);
     DVDClose(mAudioHandle);
 }
 
@@ -362,7 +375,7 @@ bool Music::AudioStreamer::play_() {
             setVolumeFadeTo((_mFullVolLeft + _mFullVolRight) / 2, _mFadeTime);
 
             OSReport("%s: Resuming paused audio!\n", SMS_FUNC_SIG);
-            mIsPaused = false;
+            _mIsPaused = false;
             return true;
         } else {
             OSReport("%s: Already playing audio!\n", SMS_FUNC_SIG);
@@ -370,8 +383,8 @@ bool Music::AudioStreamer::play_() {
         }
     }
 
-    mIsPlaying = getCurrentAudio().exec(mAudioHandle);
-    if (mIsPlaying) {
+    _mIsPlaying = getCurrentAudio().exec(mAudioHandle);
+    if (_mIsPlaying) {
         OSReport("%s: Playing new audio!\n", SMS_FUNC_SIG);
         mEndPlayAddress = (mAudioHandle->mStart + getLoopEnd()) - 0x8000;
         resetVolumeToFull();
@@ -383,7 +396,7 @@ bool Music::AudioStreamer::play_() {
 }
 
 bool Music::AudioStreamer::pause_() {
-    if (!mIsPlaying)
+    if (_mIsPaused)
         return false;
 
     _mFadeTime          = _mDelayedTime;
@@ -393,12 +406,12 @@ bool Music::AudioStreamer::pause_() {
 
     OSReport("%s: Pausing audio!\n", SMS_FUNC_SIG);
 
-    mIsPaused = true;
+    _mIsPaused = true;
     return true;
 }
 
 bool Music::AudioStreamer::stop_() {
-    if (!mIsPlaying && !mIsPaused)
+    if (!_mIsPlaying && !_mIsPaused)
         return false;
 
     _mFadeTime          = _mDelayedTime;
@@ -408,10 +421,8 @@ bool Music::AudioStreamer::stop_() {
 
     OSReport("%s: Stopping audio!\n", SMS_FUNC_SIG);
 
-    DVDCancelStreamAsync(&mStopCmd, cbForCancelStreamAsync_);
-
-    mIsPaused  = false;
-    mIsPlaying = false;
+    _mIsPaused  = false;
+    _mIsPlaying = false;
     return true;
 }
 
@@ -456,14 +467,23 @@ bool Music::AudioStreamer::seek_() {
     }
 
     DVDCancelStreamAsync(&mStopCmd, nullptr);
+    _mIsPlaying = false;
     return DVDPrepareStreamAsync(mAudioHandle, getLoopEnd() - streamPos, streamPos,
                                  cbForPrepareStreamAsync_);
 }
 
 void Music::AudioStreamer::update_() {
     const u8 vol = (_mVolLeft + _mVolRight) / 2;
-    if (mIsPaused && vol == 0)
-        AISetStreamPlayState(false);
+    if (vol == 0) {
+        if (_mIsPaused)
+            AISetStreamPlayState(false);
+        else if (!_mIsPlaying) {
+            AISetStreamPlayState(false);
+            if (mStopCmd.mCurCommand != 7)
+                DVDCancelStreamAsync(&mStopCmd, cbForCancelStreamAsync_);
+        }
+        return;
+    }
 
     if (!isPlaying())
         return;
@@ -485,6 +505,7 @@ void Music::AudioStreamer::update_() {
 
     if (isLooping() && mCurrentPlayAddress == mEndPlayAddress) {
         OSReport("%s: Preparing loop stream!\n", SMS_FUNC_SIG);
+        _mIsPlaying = false;
         DVDPrepareStreamAsync(mAudioHandle, getLoopEnd() - getLoopStart(), getLoopStart(),
                               cbForPrepareStreamAsync_);
     } else if (mCurrentPlayAddress == mEndPlayAddress || mEndPlayAddress == 0xFFFF8000) {
@@ -494,34 +515,39 @@ void Music::AudioStreamer::update_() {
 }
 
 bool Music::AudioStreamer::AudioPacket::exec(DVDFileInfo *handle) {
-    char buffer[0x40];
+    char adpPath[0x40];
+    char cfgPath[0x40];
 
     if (mIdentifier.as_u32 == 0xFFFFFFFF)
         return false;
 
-    if (mIsString)
-        snprintf(buffer, 64, "/AudioRes/Streams/Music/%s.adp", mIdentifier.as_string);
-    else
-        snprintf(buffer, 64, "/AudioRes/Streams/Music/%lu.adp", mIdentifier.as_u32);
+    if (mIsString) {
+        snprintf(adpPath, 64, "/AudioRes/Streams/Music/%s.adp", mIdentifier.as_string);
+        snprintf(cfgPath, 64, "/AudioRes/Streams/Music/%s.txt", mIdentifier.as_string);
+    } else {
+        snprintf(adpPath, 64, "/AudioRes/Streams/Music/%lu.adp", mIdentifier.as_u32);
+        snprintf(cfgPath, 64, "/AudioRes/Streams/Music/%lu.txt", mIdentifier.as_u32);
+    }
 
-    if (!DVDOpen(buffer, handle))
+    if (!DVDOpen(adpPath, handle))
         return false;
 
     OSReport("%s: Executing audio packet!\n", SMS_FUNC_SIG);
-    DVDPrepareStreamAsync(handle, mLoopEnd != 0xFFFFFFFF ? mLoopEnd : handle->mLen, 0,
-                          cbForPrepareStreamAsync_);
+    DVDPrepareStreamAsync(
+        handle, mParams.mLoopEnd.get() != 0xFFFFFFFF ? mParams.mLoopEnd.get() : handle->mLen, 0,
+        cbForPrepareStreamAsync_);
 
     return true;
 }
 
 void Music::AudioStreamer::AudioPacket::setLoopPoint(s32 start, size_t length) {
-    mLoopStart = start;
-    mLoopEnd   = start + length;
+    mParams.mLoopStart.set(start);
+    mParams.mLoopEnd.set(start + length);
 }
 
 void Music::AudioStreamer::AudioPacket::setLoopPoint(f32 start, f32 length) {
-    mLoopStart = start;
-    mLoopEnd   = start + length;
+    mParams.mLoopStart.set(start);
+    mParams.mLoopEnd.set(start + length);
 }
 
 #pragma endregion
