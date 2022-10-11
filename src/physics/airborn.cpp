@@ -133,7 +133,7 @@ static void dynamicFallDamage(TMario *player, int dmg, int type, int emitcount, 
 
     const f32 terminalVelocity = -75.0f * player->mJumpParams.mGravity.get();
     const f32 trueContact      = getTrueFloorContactSpeed(player);
-    dmg *= trueContact / terminalVelocity;
+    dmg                        = Max(static_cast<int>(dmg * (trueContact / terminalVelocity)), 1);
 
     if (dmg > 2) {
         type      = 0;  // shaky

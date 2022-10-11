@@ -70,10 +70,12 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
     PSVECNormalize(reinterpret_cast<Vec *>(player->mFloorTriangle->getNormal()), &floorNormal);
 
     const f32 slopeStrength = PSVECDotProduct(&up, &floorNormal);
-    if (slopeStrength < 0.0f)
+    if (slopeStrength > 0.7f)
         return;
 
     const f32 lookAtRatio = Vector3::lookAtRatio(playerForward, floorNormal);
+    if (isnan(lookAtRatio))
+        return;
 
     player->mForwardSpeed =
         Min(player->mForwardSpeed,

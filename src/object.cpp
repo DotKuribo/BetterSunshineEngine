@@ -164,7 +164,7 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
     sCustomMapObjList.items(objMapObjCBs);
 
     for (auto &item : objMapObjCBs) {
-        auto &dictItem = item.mItem;
+        auto &dictItem = item;
         OSReport("Name: %s\n", name);
         if (strcmp(dictItem.mKey, name) == 0) {
             OSReport("Detected custom extended map obj!\n");
@@ -185,7 +185,7 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
     sCustomMiscObjList.items(objBossCBs);
 
     for (auto &item : objBossCBs) {
-        auto &dictItem = item.mItem;
+        auto &dictItem = item;
         if (strcmp(dictItem.mKey, name) == 0) {
             OSReport("Detected custom extended boss obj!\n");
             return dictItem.mValue();
@@ -207,7 +207,7 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
     sCustomEnemyObjList.items(objEnemyCBs);
 
     for (auto &item : objEnemyCBs) {
-        auto &dictItem = item.mItem;
+        auto &dictItem = item;
         if (strcmp(dictItem.mKey, name) == 0) {
             OSReport("Detected custom extended generic obj!\n");
             return dictItem.mValue();
@@ -230,7 +230,7 @@ static THitActor **objectInteractionHandler() {
     sCustomObjInteractionList.items(objInteractionCBs);
 
     for (auto &item : objInteractionCBs) {
-        auto &dictItem = item.mItem;
+        auto &dictItem = item;
         if (dictItem.mKey == obj->mObjectID) {
             dictItem.mValue(obj, player);
             break;
@@ -252,7 +252,7 @@ static THitActor *objGrabHandler() {
     sCustomObjGrabList.items(objGrabCBs);
 
     for (auto &item : objGrabCBs) {
-        auto &dictItem = item.mItem;
+        auto &dictItem = item;
         if (dictItem.mKey == obj->mObjectID) {
             dictItem.mValue(obj, player);
             break;

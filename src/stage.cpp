@@ -10,6 +10,7 @@
 #include <SMS/mapobj/MapObjInit.hxx>
 
 #include "libs/container.hxx"
+#include "loading.hxx"
 #include "logging.hxx"
 #include "stage.hxx"
 
@@ -228,21 +229,25 @@ void BetterSMS::Stage::TStageParams::load(const char *stageName) {
     mIsCustomConfigLoaded = false;
 }
 
-extern void initDebugCallbacks(TMarDirector *);
-extern void updateDebugCallbacks(TMarDirector *);
-extern void drawDebugCallbacks(TMarDirector *director, J2DOrthoGraph *graph);
+extern void updateDebugCallbacks();
+extern void drawDebugCallbacks(J2DOrthoGraph *);
+
+void initStageLoading(TMarDirector *director) {
+    Loading::setLoading(true);
+    director->loadResource();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80296DE0, 0x80291750, 0, 0), initStageLoading);
 
 void initStageCallbacks(TMarDirector *director) {
     TDictS<Stage::InitCallback>::ItemList stageInitCBs;
     sStageInitCBs.items(stageInitCBs);
 
     for (auto &item : stageInitCBs) {
-        item.mItem.mValue(director);
+        item.mValue(director);
     }
 
-    initDebugCallbacks(director);
-
     director->setupObjects();
+    Loading::setLoading(false);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
 
@@ -255,11 +260,11 @@ s32 updateStageCallbacks(void *movieDirector) {
         sStageUpdateCBs.items(stageUpdateCBs);
 
         for (auto &item : stageUpdateCBs) {
-            item.mItem.mValue(gpMarDirector);
+            item.mValue(gpMarDirector);
         }
     }
 
-    updateDebugCallbacks(gpMarDirector);
+    updateDebugCallbacks();
 
     return ((s32(*)(void *))func)(movieDirector);
 }
@@ -272,10 +277,10 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
     sStageDrawCBs.items(stageDrawCBs);
 
     for (auto &item : stageDrawCBs) {
-        item.mItem.mValue(gpMarDirector, ortho);
+        item.mValue(gpMarDirector, ortho);
     }
 
-    drawDebugCallbacks(gpMarDirector, ortho);
+    drawDebugCallbacks(ortho);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
@@ -287,7 +292,7 @@ JKRHeap *exitStageCallbacks() {
     sStageExitCBs.items(stageExitCBs);
 
     for (auto &item : stageExitCBs) {
-        item.mItem.mValue(application);
+        item.mValue(application);
     }
 
     delete Stage::getStageConfiguration();

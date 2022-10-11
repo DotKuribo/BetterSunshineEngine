@@ -6,6 +6,7 @@
 #include <JSystem/JSupport/JSUStream.hxx>
 #include <SMS/Player/Mario.hxx>
 
+#include <SMS/game/Application.hxx>
 #include <SMS/camera/PolarSubCamera.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
@@ -196,10 +197,7 @@ static void cbForStopStreamAtEndAsync_(u32 result, DVDCommandBlock *cmdblock) {
 
 #pragma endregion
 
-static DVDFileInfo sAudioFInfo;
-static DVDCommandBlock sAudioStopCmdBlock;
-static DVDCommandBlock sAudioGetAddrCmdBlock;
-static DVDCommandBlock sAudioStatusCmdBlock;
+static SMS_ALIGN(32) DVDFileInfo sAudioFInfo;
 
 static Music::AudioStreamer::AudioCommand sAudioCommand = Music::AudioStreamer::AudioCommand::NONE;
 
@@ -240,6 +238,8 @@ void Music::AudioStreamer::initThread(OSPriority threadPrio) {
                    threadPrio, OS_THREAD_ATTR_DETACH);
     OSResumeThread(&mMainThread);
 }
+
+void Music::AudioStreamer::setLooping(bool loop) { _mIsLooping = loop; }
 
 void Music::AudioStreamer::setVolumeLR(u8 left, u8 right) {
     if (_mVolLeft != left && _mVolLeft <= _mFullVolLeft) {
@@ -495,10 +495,10 @@ void Music::AudioStreamer::update_() {
 
     AudioPacket &packet = getCurrentAudio();
 
-    if (!_startPaused && gpMarDirector->mCurState == TMarDirector::PAUSE_MENU) {
+    if (!_startPaused && gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU) {
         pause(0.7f);
         _startPaused = true;
-    } else if (_startPaused && gpMarDirector->mCurState != TMarDirector::PAUSE_MENU) {
+    } else if (_startPaused && gpMarDirector->mCurState != TMarDirector::STATE_PAUSE_MENU) {
         play();
         _startPaused = false;
     }
@@ -764,61 +764,6 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802983F0, 0x80290288, 0, 0), initStageMusic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80298420, 0x802902B8, 0, 0), initStageMusic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x802984D0, 0x80290368, 0, 0), initStageMusic);
 
-#if 0
-static u32 updateCurAddress(HardStream::TControl *control) {
-    u32 cur;
-    SMS_FROM_GPR(30, cur);
-
-    curAddress = cur;
-    endAddress = control->getLastAddr();
-    return endAddress;
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x803186B8, 0, 0, 0), updateCurAddress);
-#endif
-
-static void getTriedAddressAndSize() {}
-
-static char sStringBuffer[100]{};
-static J2DTextBox *gpMusicStringW = nullptr;
-static J2DTextBox *gpMusicStringB = nullptr;
-
-void initStreamInfo(TMarDirector *director) {
-    gpMusicStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
-    gpMusicStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
-    gpMusicStringW->mStrPtr         = sStringBuffer;
-    gpMusicStringB->mStrPtr         = sStringBuffer;
-    gpMusicStringW->mNewlineSize    = 15;
-    gpMusicStringW->mCharSizeX      = 12;
-    gpMusicStringW->mCharSizeY      = 15;
-    gpMusicStringB->mNewlineSize    = 15;
-    gpMusicStringB->mCharSizeX      = 12;
-    gpMusicStringB->mCharSizeY      = 15;
-    gpMusicStringW->mGradientTop    = {255, 255, 255, 255};
-    gpMusicStringW->mGradientBottom = {255, 255, 255, 255};
-    gpMusicStringB->mGradientTop    = {0, 0, 0, 255};
-    gpMusicStringB->mGradientBottom = {0, 0, 0, 255};
-}
-
-void printStreamInfo(TMarDirector *director, J2DOrthoGraph *graph) {
-    if (!director || !gpMusicStringW || !gpMusicStringB)
-        return;
-
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
-    if (!streamer)
-        return;
-
-    snprintf(sStringBuffer, 100,
-             "Status: %lu\n"
-             "CurAddress: 0x%lX\n"
-             "EndAddress: 0x%lX\n"
-             "FInfoAddr: 0x%lX\n"
-             "FInfoSize: 0x%lX",
-             streamer->mErrorStatus, streamer->mCurrentPlayAddress, streamer->mEndPlayAddress,
-             streamer->mAudioHandle->mStart, streamer->mAudioHandle->mLen);
-
-    gpMusicStringB->draw(231, 111);
-    gpMusicStringW->draw(230, 110);
-}
 
 // 0x802A670C
 static void stopMusicOnStageExit(TMarioGamePad *gamepad) {

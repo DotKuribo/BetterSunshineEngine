@@ -28,6 +28,8 @@ file(GLOB BETTERSMS_SRC
     "src/*.c"
     "src/*.cpp"
     "src/asm/*.s"
+    "src/camera/*.c"
+    "src/camera/*.cpp"
     "src/collision/*.c"
     "src/collision/*.cpp"
     "src/cstd/*.c"
@@ -65,16 +67,20 @@ add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")
 
-target_link_libraries(BetterSunshineEngine PUBLIC Dolphin JSystem SMS Kamek Kuribo ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a)
-target_include_directories(BetterSunshineEngine PRIVATE include lib/sms_interface/include)
-
-target_compile_options(BetterSunshineEngine PUBLIC
-    ${SMS_COMPILE_FLAGS}
+target_link_libraries(BetterSunshineEngine PUBLIC
+                      Dolphin
+                      JSystem
+                      SMS
+                      Kamek
+                      Kuribo
+                      ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a
 )
 
-target_link_options(BetterSunshineEngine PUBLIC
-    ${SMS_LINK_FLAGS}
-)
+target_include_directories(BetterSunshineEngine PUBLIC "include" "lib/sms_interface/include")
+target_include_directories(BetterSunshineEngine PRIVATE "src")
+
+target_compile_options(BetterSunshineEngine PUBLIC ${SMS_COMPILE_FLAGS})
+target_link_options(BetterSunshineEngine PUBLIC ${SMS_LINK_FLAGS})
 
 list(APPEND BETTER_SMS_CONFIG_DEFINES "KURIBO_NO_TYPES" "BETTER_SMS_VERSION=\"v1.0\"")
 

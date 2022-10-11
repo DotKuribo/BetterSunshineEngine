@@ -14,6 +14,7 @@
 #include "collision/warp.hxx"
 #include "libs/container.hxx"
 #include "logging.hxx"
+#include "module.hxx"
 
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
@@ -29,9 +30,20 @@ namespace BetterSMS {
         bool registerData(TMario *, const char *, void *);
         bool deregisterData(TMario *, const char *);
 
+        enum InteractionFlags {
+            ON_ENTER       = 1 << 0,
+            ON_EXIT        = 1 << 1,
+            ON_CONTACT     = 1 << 2,
+            ON_4CM_CONTACT = 1 << 3,
+            ON_DETACH      = 1 << 4,
+            GROUNDED       = 1 << 5,
+            AIRBORN        = 1 << 6
+        };
+
         typedef void (*InitProcess)(TMario *, bool);
         typedef void (*UpdateProcess)(TMario *, bool);
         typedef bool (*MachineProcess)(TMario *);
+        typedef void (*CollisionProcess)(TMario *, const TBGCheckData *, u32 /*InteractionFlags*/);
 
         // Player init hook
         bool registerInitProcess(const char *, InitProcess);
@@ -39,13 +51,17 @@ namespace BetterSMS {
         bool registerUpdateProcess(const char *, UpdateProcess);
         // Player state handlers (Custom movesets)
         bool registerStateMachine(u32, MachineProcess);
+        // Player collision handlers (Custom collision types)
+        bool registerCollisionHandler(u16, CollisionProcess);
         bool deregisterInitProcess(const char *);
         bool deregisterUpdateProcess(const char *);
         bool deregisterStateMachine(u32);
+        bool deregisterCollisionHandler(u16);
 
         // Warps the player to a collision face
-        void warpToCollisionFace(TMario *, TBGCheckData *, bool);
-        void warpToPoint(TMario *player, const TVec3f &destPoint, WarpKind kind, s32 framesToWarp);
+        void warpToCollisionFace(TMario *player, const TBGCheckData *face, bool isFluid);
+        void warpToPoint(TMario *player, const TVec3f &destPoint, WarpKind kind, s32 framesToWarp,
+                         bool isWarpFluid);
         void rotateRelativeToCamera(TMario *, CPolarSubCamera *, Vec2, f32);
         void setFire(TMario *);
         void extinguishFire(TMario *, bool);
@@ -194,6 +210,7 @@ namespace BetterSMS {
             u8 mCurJump;
             bool mIsLongJumping;
             bool mIsClimbTired;
+            u32 mLastQuarterFrameState;
             u16 mPrevCollisionType;
             const TBGCheckData *mPrevCollisionFloor;
             s32 mCollisionTimer;
@@ -224,7 +241,10 @@ namespace BetterSMS {
             s32 mWarpTimer;
             s32 mWarpTimerMax;
             WarpKind mWarpKind;
+            u8 mWarpState;
             bool mIsWarpActive;
+            bool mIsWarpFluid;
+            bool mIsWarpEnding;
         };
 
 #pragma endregion

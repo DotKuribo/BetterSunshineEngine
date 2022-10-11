@@ -4,10 +4,12 @@
 #include "collision/warp.hxx"
 
 // BetterSMS API
+#include "application.hxx"
 #include "bmg.hxx"
 #include "cstd/ctype.h"
 #include "cstd/stdlib.h"
 #include "debug.hxx"
+#include "game.hxx"
 #include "logging.hxx"
 #include "memory.hxx"
 #include "module.hxx"
@@ -32,26 +34,35 @@ extern "C" void shine_thinkCloseCamera();
 
 using namespace BetterSMS;
 
+// OBJECT
 extern void makeExtendedObjDataTable();
 
+extern bool BetterAppContextGameBoot(TApplication *app);
+extern bool BetterAppContextGameBootLogo(TApplication *app);
+extern bool BetterAppContextDirectMovie(TApplication *app);
+extern bool BetterAppContextGameBootIntro(TApplication *app);
+extern bool BetterAppContextDirectStage(TApplication *app);
+extern bool BetterAppContextDirectShineSelect(TApplication *app);
+extern bool BetterAppContextDirectLevelSelect(TApplication *app);
+
 // DEBUG
-extern void initDebugCallbacks(TMarDirector *);
-extern void updateDebugCallbacks(TMarDirector *);
-extern void drawDebugCallbacks(TMarDirector *, J2DOrthoGraph *);
+extern void initDebugCallbacks(TApplication *);
+extern void updateDebugCallbacks();
+extern void drawDebugCallbacks();
 
-extern void initMarioXYZMode(TMarDirector *);
-extern void updateMarioXYZMode(TMarDirector *);
+extern void initMarioXYZMode(TApplication *);
+extern void updateMarioXYZMode(TApplication *);
 
-extern void drawMonitor(TMarDirector *, J2DOrthoGraph *);
+extern void drawMonitor(TApplication *, J2DOrthoGraph *);
 extern void resetMonitor(TApplication *);
 
-extern void initFPSMonitor(TMarDirector *);
-extern void updateFPSMonitor(TMarDirector *);
-extern void drawFPSMonitor(TMarDirector *, J2DOrthoGraph *);
+extern void initFPSMonitor(TApplication *);
+extern void updateFPSMonitor(TApplication *);
+extern void drawFPSMonitor(TApplication *, J2DOrthoGraph *);
 
-extern void initStateMonitor(TMarDirector *);
-extern void updateStateMonitor(TMarDirector *);
-extern void drawStateMonitor(TMarDirector *, J2DOrthoGraph *);
+extern void initStateMonitor(TApplication *);
+extern void updateStateMonitor(TApplication *);
+extern void drawStateMonitor(TApplication *, J2DOrthoGraph *);
 
 // STAGE CONFIG
 extern void loadStageConfig(TMarDirector *);
@@ -63,6 +74,7 @@ extern void resetPlayerDatas(TApplication *);
 
 // PLAYER WARP
 extern void processWarp(TMario *, bool);
+extern void updateDebugCollision(TMario *, bool);
 
 // PLAYER MOVES
 extern u32 CrouchState;
@@ -73,6 +85,24 @@ extern u32 MultiJumpState;
 extern void checkForMultiJump(TMario *, bool);
 extern bool processMultiJump(TMario *);
 
+// PLAYER COLLISION
+extern void decHealth(TMario *player, const TBGCheckData *data, u32 flags);
+extern void incHealth(TMario *player, const TBGCheckData *data, u32 flags);
+extern void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags);
+extern void burnPlayer(TMario *player, const TBGCheckData *data, u32 flags);
+extern void changeNozzleSpray(TMario *player, const TBGCheckData *data, u32 flags);
+extern void changeNozzleHover(TMario *player, const TBGCheckData *data, u32 flags);
+extern void changeNozzleTurbo(TMario *player, const TBGCheckData *data, u32 flags);
+extern void changeNozzleRocket(TMario *player, const TBGCheckData *data, u32 flags);
+extern void setGravityCol(TMario *player, const TBGCheckData *data, u32 flags);
+extern void antiGravityCol(TMario *player, const TBGCheckData *data, u32 flags);
+extern void boostPadCol(TMario *player, const TBGCheckData *data, u32 flags);
+extern void instantWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
+extern void screenWipeWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
+extern void effectWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
+extern void portalWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
+extern void portalFreeWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
+
 // FLUDD
 extern void initTurboMaxCapacity(TMario *player, bool isMario);
 extern void updateTurboFrameEmit(TMario *player, bool isMario);
@@ -82,8 +112,11 @@ extern void checkForYoshiWaterDeath(TMario *player, bool isMario);
 extern void forceValidRidingAnimation(TMario *player, bool isMario);
 
 // MUSIC
-extern void initStreamInfo(TMarDirector *director);
-extern void printStreamInfo(TMarDirector *director, J2DOrthoGraph *graph);
+extern void initStreamInfo(TApplication *app);
+extern void printStreamInfo(TApplication *app, J2DOrthoGraph *graph);
+
+// LOADING SCREEN
+extern void initLoadingScreen();
 
 static TMarDirector *initLib() {
 
@@ -122,6 +155,16 @@ static TMarDirector *initLib() {
 #undef STRINGIFY_CONFIG
 
     makeExtendedObjDataTable();
+    initLoadingScreen();
+
+    // Set up application context handlers
+    Application::registerContextCallback(2, BetterAppContextGameBoot);
+    Application::registerContextCallback(3, BetterAppContextGameBootLogo);
+    Application::registerContextCallback(4, BetterAppContextGameBootIntro);
+    Application::registerContextCallback(5, BetterAppContextDirectStage);
+    Application::registerContextCallback(6, BetterAppContextDirectMovie);
+    Application::registerContextCallback(8, BetterAppContextDirectShineSelect);
+    Application::registerContextCallback(9, BetterAppContextDirectLevelSelect);
 
     // Set up stage config handlers
     Stage::registerInitCallback("__init_config", loadStageConfig);
@@ -131,14 +174,31 @@ static TMarDirector *initLib() {
     Player::registerInitProcess("__init_mario", initMario);
     Stage::registerExitCallback("__destroy_mario", resetPlayerDatas);
 
-    // Set up player warp handler
-    Player::registerUpdateProcess("__update_mario_warp", processWarp);
-
     Player::registerUpdateProcess("__update_mario_crouch", checkForCrouch);
     Player::registerStateMachine(CrouchState, processCrouch);
 
     Player::registerUpdateProcess("__update_mario_multijump", checkForMultiJump);
     Player::registerStateMachine(MultiJumpState, processMultiJump);
+
+    Player::registerUpdateProcess("__debug_warp_collision", updateDebugCollision);
+
+    // Set up player map collisions
+    Player::registerCollisionHandler(3000, decHealth);
+    Player::registerCollisionHandler(3001, incHealth);
+    Player::registerCollisionHandler(3010, elecPlayer);
+    Player::registerCollisionHandler(3011, burnPlayer);
+    Player::registerCollisionHandler(3030, changeNozzleSpray);
+    Player::registerCollisionHandler(3031, changeNozzleHover);
+    Player::registerCollisionHandler(3032, changeNozzleTurbo);
+    Player::registerCollisionHandler(3033, changeNozzleRocket);
+    Player::registerCollisionHandler(3040, setGravityCol);
+    Player::registerCollisionHandler(3041, antiGravityCol);
+    Player::registerCollisionHandler(3042, boostPadCol);
+    Player::registerCollisionHandler(3060, instantWarpHandler);
+    Player::registerCollisionHandler(3061, screenWipeWarpHandler);
+    Player::registerCollisionHandler(3062, effectWarpHandler);
+    Player::registerCollisionHandler(3063, portalWarpHandler);
+    Player::registerCollisionHandler(3064, portalFreeWarpHandler);
 
     // FLUDD
     Player::registerInitProcess("__init_turbo_max", initTurboMaxCapacity);
@@ -163,20 +223,16 @@ static TMarDirector *initLib() {
     Debug::registerUpdateCallback("__update_state_counter", updateStateMonitor);
     Debug::registerDrawCallback("__draw_state_counter", drawStateMonitor);
 
-    Debug::registerInitCallback("__init_music_state", initStreamInfo);
-    Debug::registerDrawCallback("__draw_music_state", printStreamInfo);
-
-    // Set up loading screen
-    // Stage::registerInitCallback("__init_load_screen", (Stage::StageInitCallback)0);
-    // Stage::registerUpdateCallback("__update_load_screen", (Stage::StageUpdateCallback)0);
+    /*Debug::registerInitCallback("__init_music_state", initStreamInfo);
+    Debug::registerDrawCallback("__draw_music_state", printStreamInfo);*/
 
     Objects::registerObjectAsMapObj("GenericRailObj", &generic_railobj_data,
                                     TGenericRailObj::instantiate);
 
+    Game::registerOnBootCallback("__init_debug_handles", initDebugCallbacks);
+
     return director;
 }
-
-// SMS_PATCH_BL(SMS_PORT_REGION(0x802998B4, 0x8029174C, 0, 0), initLib);
 
 static void destroyLib() {
     Console::log("-- Destroying Module --\n");

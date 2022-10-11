@@ -1,5 +1,7 @@
 #include <Dolphin/OS.h>
 #include <Dolphin/types.h>
+
+#include <SMS/game/Application.hxx>
 #include <SMS/macros.h>
 
 #include "collision/warp.hxx"
@@ -15,24 +17,33 @@ bool BetterSMS::sIsAudioStreaming                                          = fal
 bool BetterSMS::sIsAudioStreamAllowed                                      = false;
 
 #ifdef NDEBUG
-bool BetterSMS::sIsDebugMode = false;
+bool BetterSMS::sIsDebugMode = true;
 #else
 bool BetterSMS::sIsDebugMode = true;
 #endif
 
 #if BETTER_SMS_WIDESCREEN
-f32 BetterSMS::sScreenWidth = 700.0f;
+u32 BetterSMS::sScreenWidth = 700;
 #else
-f32 BetterSMS::sScreenWidth  = 600.0f;
+u32 BetterSMS::sScreenWidth = 600;
 #endif
 
 f32 BetterSMS::sFrameRate = 30.0f;
 
+extern void initDebugCallbacks(TApplication *app);
+
 bool BetterSMS::isGameEmulated() { return BootInfo.mConsoleType == OS_CONSOLE_DEV_KIT3; }
-bool BetterSMS::isDebugMode() { return true/*sIsDebugMode*/; }
+bool BetterSMS::isDebugMode() { return sIsDebugMode; }
 bool BetterSMS::isMusicBeingStreamed() { return sIsAudioStreaming; }
 bool BetterSMS::isMusicStreamingAllowed() { return sIsAudioStreamAllowed; }
-void BetterSMS::setDebugMode(bool active) { sIsDebugMode = active; }
-f32 BetterSMS::getScreenWidth() { return sScreenWidth; }
-f32 BetterSMS::getScreenToFullScreenRatio() { return sScreenWidth / 600.0f; }
+void BetterSMS::setDebugMode(bool active) {
+    const bool isDebugStarted = !sIsDebugMode && active;
+
+	sIsDebugMode = active;
+
+    if (isDebugStarted)
+        initDebugCallbacks(&gpApplication);
+}
+u32 BetterSMS::getScreenWidth() { return sScreenWidth; }
+f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(sScreenWidth) / 600.0f; }
 f32 BetterSMS::getFrameRate() { return sFrameRate; }

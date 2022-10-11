@@ -34,8 +34,9 @@ static J2DTextBox *gpFPSStringW = nullptr;
 static J2DTextBox *gpFPSStringB = nullptr;
 
 static char sStringBuffer[10];
+static bool sIsInitialized = false;
 
-void initFPSMonitor(TMarDirector *director) {
+void initFPSMonitor(TApplication *app) {
     gpFPSStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpFPSStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpFPSStringW->mStrPtr         = sStringBuffer;
@@ -48,10 +49,11 @@ void initFPSMonitor(TMarDirector *director) {
     gpFPSStringB->mCharSizeY      = 18;
     gpFPSStringB->mGradientTop    = {0, 0, 0, 255};
     gpFPSStringB->mGradientBottom = {0, 0, 0, 255};
+    sIsInitialized                = true;
 }
 
-void updateFPSMonitor(TMarDirector *director) {
-    if (!director || !gpFPSStringW || !gpFPSStringB)
+void updateFPSMonitor(TApplication *app) {
+    if (!app->mDirector || !sIsInitialized)
         return;
 
     sFPSCounter += 1.0f;
@@ -80,7 +82,10 @@ void updateFPSMonitor(TMarDirector *director) {
     }
 }
 
-void drawFPSMonitor(TMarDirector *director, J2DOrthoGraph *ortho) {
+void drawFPSMonitor(TApplication *app, J2DOrthoGraph *ortho) {
+    if (!sIsInitialized)
+        return;
+
     gpFPSStringB->draw(gMonitorX + 1, gMonitorY + 2);
     gpFPSStringW->draw(gMonitorX, gMonitorY);
 }

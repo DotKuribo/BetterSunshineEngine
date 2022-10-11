@@ -86,8 +86,8 @@ static void restoreMario(TMarDirector *marDirector, u32 curState) {
 
     u8 *curSaveCard = reinterpret_cast<u8 *>(marDirector->mpNextState[0x118 / 4]);
 
-    if (curState != TMarDirector::Status::NORMAL ||
-        marDirector->mCurState != TMarDirector::Status::SAVE_CARD ||
+    if (curState != TMarDirector::Status::STATE_NORMAL ||
+        marDirector->mCurState != TMarDirector::Status::STATE_SAVE_CARD ||
         gpMarioAddress->mState != static_cast<u32>(TMario::STATE_SHINE_C))
         return;
 

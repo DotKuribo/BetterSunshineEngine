@@ -147,4 +147,9 @@ static bool isYoshiValidDrip(TYoshi *yoshi) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024E788, 0x80246514, 0, 0), isYoshiValidDrip);
 
+static bool isYoshiWaterResetNozzles(TYoshi *yoshi) {
+    return yoshi->onYoshi() && !Yoshi::isGreenYoshi(yoshi);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024F224, 0, 0, 0), isYoshiWaterResetNozzles);
+
 #endif

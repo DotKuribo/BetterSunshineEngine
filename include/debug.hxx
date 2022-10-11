@@ -3,13 +3,13 @@
 #include <Dolphin/types.h>
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRDisplay.hxx>
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/game/Application.hxx>
 
 namespace BetterSMS {
     namespace Debug {
-        typedef void (*InitCallback)(TMarDirector *);
-        typedef void (*UpdateCallback)(TMarDirector *);
-        typedef void (*DrawCallback)(TMarDirector *, J2DOrthoGraph *);
+        typedef void (*InitCallback)(TApplication *);
+        typedef void (*UpdateCallback)(TApplication *);
+        typedef void (*DrawCallback)(TApplication *, J2DOrthoGraph *);
 
         bool isInitRegistered(const char *name);
         bool isUpdateRegistered(const char *name);

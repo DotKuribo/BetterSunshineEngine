@@ -43,7 +43,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802A884C, 0, 0, 0), 0x60000000);  // Allow L butt
 SMS_WRITE_32(SMS_PORT_REGION(0x8024E5CC, 0, 0, 0), 0x60000000);  // Allow nozzle change on backflip
 
 void checkForCrouch(TMario *player, bool isMario) {
-    if (gpMarDirector->mCurState != TMarDirector::Status::NORMAL)
+    if (gpMarDirector->mCurState != TMarDirector::Status::STATE_NORMAL)
         return;
 
     if (player->onYoshi())

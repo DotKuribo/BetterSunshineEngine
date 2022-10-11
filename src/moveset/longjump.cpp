@@ -55,7 +55,9 @@ static void setJumpOrLongJump(TMario *player, u32 state, u32 unk_0) {
     auto &buttons = player->mController->mButtons;
 
     const bool isValidState =
-        !(player->mState & TMario::STATE_AIRBORN) && !(player->mState & TMario::STATE_WATERBORN);
+        !(player->mState & TMario::STATE_AIRBORN) &&
+                              !(player->mState & TMario::STATE_WATERBORN) && player->mState != TMario::STATE_DIVESLIDE &&
+                              !player->onYoshi();
 
     playerData->mIsLongJumping = false;
     if ((buttons.mInput & LongJumpSpecifier) == LongJumpSpecifier &&

@@ -24,13 +24,13 @@ using namespace BetterSMS;
 
 #if BETTER_SMS_WIDESCREEN
 
-static f32 getScreenTransX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
+static s32 getScreenTransX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
 
-static f32 getScreenWidthTranslated() { return getScreenWidth() + getScreenTransX(); }
+static f32 getScreenWidthTranslated() { return static_cast<f32>(getScreenWidth()) + getScreenTransX(); }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A3E78, 0x8029BD54, 0, 0), getScreenWidthTranslated);
 SMS_WRITE_32(SMS_PORT_REGION(0x802A3E7C, 0x8029BD58, 0, 0), 0xD03C0038);
 
-static f32 getNegScreenTransX() { return -getScreenTransX(); }
+static s32 getNegScreenTransX() { return -getScreenTransX(); }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80176AA4, 0x8016CA6C, 0, 0), getNegScreenTransX);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176AA8, 0x8016CA70, 0, 0), 0xD03B0030);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8029B974, 0x80293850, 0, 0), getNegScreenTransX);
@@ -231,16 +231,16 @@ static void scaleSelectMenuGrad(u32 type, u32 idx, u32 count) {
 
     GXBegin(type, idx, count);
 
-    GXPosition3f32(-getScreenTransX(), 16.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(-getScreenTransX()), 16.0f, -100.0f);
     GXColor3u8(grad->mColorX1.r, grad->mColorX1.g, grad->mColorX1.b);
 
-    GXPosition3f32(getScreenWidth(), 16.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(getScreenWidth()), 16.0f, -100.0f);
     GXColor3u8(yColorR, yColorG, yColorB);
 
-    GXPosition3f32(getScreenWidth(), 464.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(getScreenWidth()), 464.0f, -100.0f);
     GXColor3u8(grad->mColorX2.r, grad->mColorX2.g, grad->mColorX2.b);
 
-    GXPosition3f32(-getScreenTransX(), 464.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(-getScreenTransX()), 464.0f, -100.0f);
     GXColor3u8(yColorR, yColorG, yColorB);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80175868, 0x8016B80C, 0, 0), scaleSelectMenuGrad);
@@ -283,7 +283,7 @@ static void fixDemoMasksWideScreen_InitStaticGoPanes(TConsoleStr *consoleStr) {
     for (u32 i = 0; i < 2; ++i) {
         JUTRect &rect = consoleStr->mDemoWipeExPanes[i]->mPane->mRect;
         rect.mX1      = static_cast<s32>(-((ratio - 1) * 600.0f));
-        rect.mX2      = static_cast<s32>(getScreenWidth());
+        rect.mX2      = getScreenWidth();
 
         consoleStr->mDemoWipeExPanes[i]->mRect.copy(rect);
     }
@@ -294,7 +294,7 @@ static void fixDemoMasksWideScreen_InitStaticGoPanes(TConsoleStr *consoleStr) {
     consoleStr->mDemoMaskExPanes[0]->mRect.copy(*rect);
 
     rect      = &consoleStr->mDemoMaskExPanes[1]->mPane->mRect;
-    rect->mX2 = static_cast<s32>(getScreenWidth());
+    rect->mX2 = getScreenWidth();
 
     consoleStr->mDemoMaskExPanes[1]->mRect.copy(*rect);
 }
@@ -335,7 +335,7 @@ static void fixGuideWideScreenOpen(TSMSFader *fader, u32 type, f32 time, f32 del
     sGuideBorderPanes[1] = *pane;
 
     rect->mX1        = guide->mScreen->mRect.mX2;
-    rect->mX2        = static_cast<s32>(getScreenWidth());
+    rect->mX2        = getScreenWidth();
     pane->mAlpha     = 0xFF;
     pane->mIsVisible = true;
 

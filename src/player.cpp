@@ -37,6 +37,7 @@ static TDictI<TDictS<void *>> sPlayerDict;
 static TDictS<Player::InitProcess> sPlayerInitializers;
 static TDictS<Player::UpdateProcess> sPlayerUpdaters;
 static TDictI<Player::MachineProcess> sPlayerStateMachines;
+static TDictI<Player::CollisionProcess> sPlayerCollisionHandlers;
 
 SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
@@ -107,11 +108,23 @@ SMS_NO_INLINE bool BetterSMS::Player::registerUpdateProcess(const char *key,
 SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachineProcess process) {
     if ((state & 0x1C0) != 0x1C0) {
         Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
-                     "engine collisions)\n");
+                     "engine collisions)!\n");
     }
     if (sPlayerStateMachines.hasKey(state))
         return false;
     sPlayerStateMachines.set(state, process);
+    return true;
+}
+
+SMS_NO_INLINE bool BetterSMS::Player::registerCollisionHandler(u16 colType,
+                                                               CollisionProcess process) {
+    if ((colType & 0xC000) != 0) {
+        Console::log("[WARNING] Collision type registered has camera clip and shadow flags set "
+                     "(0x4000 || 0x8000)! This may cause unwanted behaviour!\n");
+    }
+    if (sPlayerCollisionHandlers.hasKey(colType))
+        return false;
+    sPlayerCollisionHandlers.set(colType, process);
     return true;
 }
 
@@ -133,6 +146,13 @@ SMS_NO_INLINE bool BetterSMS::Player::deregisterStateMachine(u32 state) {
     if (!sPlayerStateMachines.hasKey(state))
         return false;
     sPlayerStateMachines.pop(state);
+    return true;
+}
+
+SMS_NO_INLINE bool BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
+    if (!sPlayerCollisionHandlers.hasKey(colType))
+        return false;
+    sPlayerCollisionHandlers.pop(colType);
     return true;
 }
 
@@ -159,138 +179,15 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
     gpCamera->JSGSetViewTargetPosition(reinterpret_cast<const Vec &>(point));
 }
 
-// Extern to player process
-void processWarp(TMario *player, bool isMario) {
-    constexpr s32 DisableMovementTime = 80;
-    constexpr s32 TeleportTime        = 140;
-    constexpr s32 EnableMovementTime  = 60;
-    constexpr f32 WipeKindInDelay     = 1.0f;
-
-    auto playerData = Player::getData(player);
-
-    const TBGCheckData *linkedCol =
-        BetterSMS::sWarpColArray->resolveCollisionWarp(player->mFloorTriangle);
-    if (!linkedCol)
-        return;
-
-    TVectorTriangle colTriangle =
-        TVectorTriangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
-
-    TVec3f colCenter;
-    colTriangle.center(colCenter);
-
-    const f32 speed = PSVECMag(reinterpret_cast<Vec *>(&player->mSpeed));
-
-    if (playerData->mIsWarpActive) {
-        switch (playerData->mWarpKind) {
-        case WarpKind::SPARKLES: {
-            if (playerData->mWarpTimer > EnableMovementTime) {
-                playerData->mCollisionFlags.mIsDisableInput = false;
-                playerData->mIsWarpActive                   = false;
-                player->mController->mState.mReadInput      = true;
-                playerData->mWarpTimer                      = 0;
-            } else {
-                playerData->mWarpTimer += 1;
-            }
-            break;
-        }
-        case WarpKind::WIPE: {
-            if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF) {
-                playerData->mCollisionFlags.mIsDisableInput = false;
-                playerData->mIsWarpActive                   = false;
-                player->mController->mState.mReadInput      = true;
-                playerData->mWarpTimer                      = 0;
-            } else {
-                playerData->mWarpTimer += 1;
-            }
-            break;
-        }
-        case WarpKind::INSTANT:
-        default:
-            playerData->mCollisionFlags.mIsDisableInput = false;
-            playerData->mIsWarpActive                   = false;
-        }
-    } else {
-        if (!linkedCol) {
-            playerData->mWarpTimer = 0;
-            return;
-        }
-
-        switch (playerData->mWarpKind) {
-        case WarpKind::SPARKLES: {
-            size_t timeCut = 0;
-            if (playerData->mWarpTimerMax == -1) {
-                timeCut = DisableMovementTime;
-            } else if (speed > 1.0f) {
-                playerData->mWarpTimer = 0;
-                return;
-            }
-
-            if (playerData->mWarpTimer >= TeleportTime - timeCut) {
-                warpPlayerToPoint(player, colCenter);
-
-                playerData->mIsWarpActive = true;
-                playerData->mWarpTimer    = 0;
-                player->startSoundActor(TMario::VOICE_JUMP);
-            } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
-                if (!playerData->mCollisionFlags.mIsDisableInput) {
-                    player->emitGetEffect();
-                }
-                playerData->mCollisionFlags.mIsDisableInput = true;
-                player->mController->mState.mReadInput      = false;
-            }
-            playerData->mWarpTimer += 1;
-            return;
-        }
-        case WarpKind::WIPE: {
-            size_t timeCut = 0;
-            if (playerData->mWarpTimerMax == -1) {
-                timeCut = DisableMovementTime;
-            } else if (speed > 1.0f) {
-                playerData->mWarpTimer = 0;
-                return;
-            }
-
-            if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_ON) {
-                warpPlayerToPoint(player, colCenter);
-
-                playerData->mIsWarpActive = true;
-                playerData->mWarpTimer    = 0;
-                sIsWiping                 = false;
-
-                gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_CIRCLE_IN, 1.0f,
-                                                WipeKindInDelay);
-            } else if (playerData->mWarpTimer >= DisableMovementTime - timeCut) {
-                playerData->mCollisionFlags.mIsDisableInput = true;
-                player->mController->mState.mReadInput      = false;
-                if (gpApplication.mFader->mFadeStatus == TSMSFader::FADE_OFF && !sIsWiping) {
-                    gpApplication.mFader->startWipe(TSMSFader::WipeRequest::FADE_SPIRAL_OUT, 1.0f,
-                                                    0.0f);
-                    MSoundSE::startSoundSystemSE(0x4859, 0, nullptr, 0);
-                    sIsWiping = true;
-                }
-            }
-            playerData->mWarpTimer += 1;
-            return;
-        }
-        case WarpKind::INSTANT:
-        default: {
-            warpPlayerToPoint(player, colCenter);
-            playerData->mCollisionTimer = 0;
-            return;
-        }
-        }
-    }
-}
-
-SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player, TBGCheckData *colTriangle,
+SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player,
+                                                          const TBGCheckData *colTriangle,
                                                           bool isFluid) {
     constexpr s32 DisableMovementTime = 80;
     constexpr s32 TeleportTime        = 140;
     constexpr s32 EnableMovementTime  = 60;
     constexpr f32 WipeKindInDelay     = 1.0f;
 
-    if (!player)
+    if (!player || !SMS_IsMarioTouchGround4cm__Fv())
         return;
 
     auto playerData = Player::getData(player);
@@ -309,34 +206,37 @@ SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player, TBGChe
     const u16 type = colTriangle->mCollisionType & 0x7FFF;
     switch (type) {
     case EXPAND_WARP_SET(16040):
-    case EXPAND_WARP_SET(17040):
-        warpToPoint(player, triCenter, WarpKind::SPARKLES, TeleportTime);  // Sparkles and then warp
+    case EXPAND_WARP_SET(17040): {
+        warpToPoint(player, triCenter, WarpKind::SPARKLES, TeleportTime,
+                    false);  // Sparkles and then warp
         break;
+    }
     case EXPAND_WARP_SET(16041):
-    case EXPAND_WARP_SET(17041):
-        warpToPoint(player, triFluidCenter, WarpKind::INSTANT,
-                    0);  // Portal momentum warp (locking)
+    case EXPAND_WARP_SET(17041): {
+        warpToPoint(player, triCenter, WarpKind::INSTANT, 0,
+                    true);  // Portal momentum warp (locking)
         break;
+    }
     case EXPAND_WARP_SET(16042):
-    case EXPAND_WARP_SET(17042):
-        warpToPoint(player, triFluidCenter, WarpKind::INSTANT, 0);  // Portal momentum warp (free)
+    case EXPAND_WARP_SET(17042): {
+        warpToPoint(player, triCenter, WarpKind::INSTANT, 0, true);  // Portal momentum warp (free)
         break;
+    }
     case EXPAND_WARP_SET(16043):
     case EXPAND_WARP_SET(17043):
-        warpToPoint(player, triCenter, WarpKind::WIPE, TeleportTime);  // Pipe warp
+        warpToPoint(player, triCenter, WarpKind::WIPE, TeleportTime, false);  // Pipe warp
         break;
     case EXPAND_WARP_SET(16044):
     case EXPAND_WARP_SET(17044):
-        warpToPoint(player, triCenter, WarpKind::INSTANT, 0);  // Portal warp
+        warpToPoint(player, triCenter, WarpKind::INSTANT, 0, false);  // Portal warp
         break;
     case EXPAND_WARP_SET(16045):
     case EXPAND_WARP_SET(17045):
-        warpToPoint(player, triCenter, WarpKind::SPARKLES,
-                    0);  // Sparkled momentum warp
+        warpToPoint(player, triCenter, WarpKind::SPARKLES, 0, true);  // Sparkled momentum warp
         break;
     case EXPAND_WARP_SET(16046):
     case EXPAND_WARP_SET(17046):
-        warpToPoint(player, triCenter, WarpKind::WIPE, 0);  // Pipe momentum warp
+        warpToPoint(player, triCenter, WarpKind::WIPE, 0, true);  // Pipe momentum warp
         break;
     }
 #undef EXPAND_WARP_SET
@@ -344,15 +244,20 @@ SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player, TBGChe
 }
 
 SMS_NO_INLINE void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &destPoint,
-                                                  WarpKind kind, s32 framesToWarp) {
+                                                  WarpKind kind, s32 framesToWarp,
+                                                  bool isWarpFluid) {
     if (!player)
         return;
 
     auto playerData              = Player::getData(player);
-    playerData->mIsWarpActive    = true;
     playerData->mWarpDestination = destPoint;
     playerData->mWarpKind        = kind;
+    playerData->mIsWarpFluid     = isWarpFluid;
     playerData->mWarpTimerMax    = framesToWarp;
+
+    if (playerData->mWarpTimer == -1) {
+        playerData->mIsWarpActive = true;
+    }
 }
 
 SMS_NO_INLINE void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
@@ -503,10 +408,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802569bc, 0x8024E748, 0, 0), patchRoofCollisionSp
 
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
     : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCurJump(0),
-      mIsLongJumping(false), mIsClimbTired(false), mPrevCollisionType(0), mCollisionTimer(0),
-      mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f), mMaxAddVelocity(1000.0f),
-      mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player), mIsOnFire(false), mFireTimer(0),
-      mFireTimerMax(0) {
+      mIsLongJumping(false), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
+      mPrevCollisionType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
+      mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),
+      mWarpTimer(-1), mWarpState(0xFF), mIsOnFire(false), mFireTimer(0), mFireTimerMax(0) {
 
     mParams = new TPlayerParams();
     OSReport("CREATED NEW PLAYER PARAMS AT 0x%X\n", mParams);
@@ -584,7 +489,7 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     SCALE_PARAM(mPlayer->mDeParams.mThrowPower, factor * params->mThrowPowerMultiplier.get());
     SCALE_PARAM(mPlayer->mDeParams.mFeelDeep, factor);
     SCALE_PARAM(mPlayer->mDeParams.mDamageFallHeight, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mClashSpeed, factor * speedMultiplier);
+    SCALE_PARAM(mPlayer->mDeParams.mClashSpeed, factor * speedMultiplier * 2.25f);
     SCALE_PARAM(mPlayer->mDeParams.mSleepingCheckDist, factor);
     SCALE_PARAM(mPlayer->mDeParams.mSleepingCheckHeight, factor);
     SCALE_PARAM(mPlayer->mPunchFenceParams.mRadius, factor);
@@ -889,7 +794,7 @@ static TMario *playerInitHandler(TMario *player) {
     sPlayerInitializers.items(playerInitCBs);
 
     for (auto &item : playerInitCBs) {
-        item.mItem.mValue(player, true);
+        item.mValue(player, true);
     }
 
     return player;
@@ -906,7 +811,7 @@ static bool shadowMarioInitHandler() {
     sPlayerInitializers.items(playerInitCBs);
 
     for (auto &item : playerInitCBs) {
-        item.mItem.mValue(player, false);
+        item.mValue(player, false);
     }
 
     return SMS_isMultiPlayerMap__Fv();
@@ -918,7 +823,7 @@ static void playerUpdateHandler(TMario *player) {
     sPlayerUpdaters.items(playerUpdateCBs);
 
     for (auto &item : playerUpdateCBs) {
-        item.mItem.mValue(player, true);
+        item.mValue(player, true);
     }
 
     player->setPositions();
@@ -930,7 +835,7 @@ static void shadowMarioUpdateHandler(TMario *player) {
     sPlayerUpdaters.items(playerUpdateCBs);
 
     for (auto &item : playerUpdateCBs) {
-        item.mItem.mValue(player, false);
+        item.mValue(player, false);
     }
 
     player->setPositions();
@@ -945,8 +850,8 @@ static bool stateMachineHandler(TMario *player) {
 
     bool shouldProgressState = true;
     for (auto &item : playerStateMachineCBs) {
-        if (item.mItem.mKey == currentState) {
-            shouldProgressState = item.mItem.mValue(player);
+        if (item.mKey == currentState) {
+            shouldProgressState = item.mValue(player);
             break;
         }
     }
@@ -954,3 +859,66 @@ static bool stateMachineHandler(TMario *player) {
     return shouldProgressState;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802500B8, 0, 0, 0), stateMachineHandler);
+
+static u32 collisionHandler(TMario *player) {
+    auto *playerData = Player::getData(player);
+
+    const u16 colType = player->mFloorTriangle->mCollisionType & 0xFFF;
+    const u16 prevColType = playerData->mPrevCollisionType & 0xFFF;
+
+    TDictI<Player::CollisionProcess>::ItemList playerCollisionCBs;
+    sPlayerCollisionHandlers.items(playerCollisionCBs);
+
+    u32 marioFlags = 0;
+    if ((player->mState & TMario::STATE_AIRBORN)) {
+        marioFlags |= Player::InteractionFlags::AIRBORN;
+        if (!(playerData->mLastQuarterFrameState & TMario::STATE_AIRBORN))
+            marioFlags |= Player::InteractionFlags::ON_DETACH;
+        if (SMS_IsMarioTouchGround4cm__Fv())
+            marioFlags |= Player::InteractionFlags::ON_4CM_CONTACT;
+    } else {
+        marioFlags |= Player::InteractionFlags::GROUNDED;
+        if ((playerData->mLastQuarterFrameState & TMario::STATE_AIRBORN))
+            marioFlags |= Player::InteractionFlags::ON_CONTACT;
+    }
+
+    if (colType != prevColType) {
+        for (auto &item : playerCollisionCBs) {
+            if (item.mKey == prevColType)
+                item.mValue(player,
+                                  const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
+                                  marioFlags | Player::InteractionFlags::ON_EXIT);
+        }
+        for (auto &item : playerCollisionCBs) {
+            if (item.mKey == colType)
+                item.mValue(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
+                                  marioFlags | Player::InteractionFlags::ON_ENTER);
+        }
+        playerData->mPrevCollisionType          = colType;
+        playerData->mPrevCollisionFloor         = player->mFloorTriangle;
+        playerData->mCollisionFlags.mIsFaceUsed = false;
+        playerData->mCollisionTimer             = 0;
+    } else if (colType >= 3000) {
+        for (auto &item : playerCollisionCBs) {
+            if (item.mKey == colType)
+                item.mValue(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
+                                  marioFlags);
+        }
+    } else {
+        playerData->mWarpState = 0xFF;
+    }
+
+    TSMSFader *fader = gpApplication.mFader;
+    if (fader->mFadeStatus != TSMSFader::FADE_OFF) {
+        playerData->mCollisionFlags.mIsDisableInput = true;
+        player->mController->mState.mReadInput      = false;
+    } else {
+        playerData->mCollisionFlags.mIsDisableInput = false;
+        player->mController->mState.mReadInput      = true;
+    }
+
+    playerData->mLastQuarterFrameState = player->mState;
+    return player->mState;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8025059C, 0x80248328, 0, 0), collisionHandler);
+SMS_WRITE_32(SMS_PORT_REGION(0x802505A0, 0x8024832C, 0, 0), 0x546004E7);

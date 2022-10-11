@@ -71,19 +71,23 @@ SMS_NO_INLINE bool BetterSMS::Debug::deregisterDrawCallback(const char *name) {
 
 #pragma region CallbackHandlers
 
-void initDebugCallbacks(TMarDirector *director) {
-    if (!director || !BetterSMS::isDebugMode())
+void initDebugCallbacks(TApplication *app) {
+    if (!BetterSMS::isDebugMode())
         return;
 
     TDictS<Debug::InitCallback>::ItemList initCBs;
     sDebugInitCBs.items(initCBs);
 
+    auto *currentHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
+
     for (auto &item : initCBs) {
-        item.mItem.mValue(director);
+        item.mValue(app);
     }
+
+    currentHeap->becomeCurrentHeap();
 }
 
-void updateDebugCallbacks(TMarDirector *director) {
+void updateDebugCallbacks() {
     if (!BetterSMS::isDebugMode())
         return;
 
@@ -91,20 +95,30 @@ void updateDebugCallbacks(TMarDirector *director) {
     sDebugUpdateCBs.items(updateCBs);
 
     for (auto &item : updateCBs) {
-        item.mItem.mValue(director);
+        item.mValue(&gpApplication);
     }
 }
 
-void drawDebugCallbacks(TMarDirector *director, J2DOrthoGraph *ortho) {
-    if (!ortho || !BetterSMS::isDebugMode())
+extern void drawLoadingScreen(TApplication *app);
+
+void drawDebugCallbacks(J2DOrthoGraph *ortho) {
+    THPPlayerDrawDone();
+
+    // Big hack, doing this saves resources even if polluting the file
+    drawLoadingScreen(&gpApplication);
+
+    if (!BetterSMS::isDebugMode())
         return;
+
+    // J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenWidth(), 480);
 
     TDictS<Debug::DrawCallback>::ItemList drawCBs;
     sDebugDrawCBs.items(drawCBs);
 
     for (auto &item : drawCBs) {
-        item.mItem.mValue(director, ortho);
+        item.mValue(&gpApplication, ortho);
     }
 }
+// SMS_PATCH_BL(SMS_PORT_REGION(0x802A630C, 0, 0, 0), drawDebugCallbacks);
 
 #pragma endregion

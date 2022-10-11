@@ -51,9 +51,9 @@ static void drawHeapUsage(JKRHeap *heap, f32 &maxUsage, JUtility::TColor color, 
     drawMonitorBar(currentUsage, maxUsage, color, gMonitorX + 2, y, gMonitorWidth - 6, 4);
 }
 
-void resetMonitor(TApplication *director) { gCurrentHeapMaxUsage = 0.0f; }
+void resetMonitor(TApplication *app) { gCurrentHeapMaxUsage = 0.0f; }
 
-void drawMonitor(TMarDirector *director, J2DOrthoGraph *graph) {
+void drawMonitor(TApplication *app, J2DOrthoGraph *graph) {
     auto *systemHeap  = JKRHeap::sSystemHeap;
     auto *currentHeap = JKRHeap::sCurrentHeap;
     auto *rootHeap    = JKRHeap::sRootHeap;

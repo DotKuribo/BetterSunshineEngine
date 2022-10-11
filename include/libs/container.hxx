@@ -92,8 +92,7 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
+            if (strcmp(item.mKey, key) == 0) {
                 return true;
             }
         }
@@ -106,9 +105,8 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
-                return keyValue.mValue;
+            if (strcmp(item.mKey, key) == 0) {
+                return item.mValue;
             }
         }
 
@@ -120,9 +118,8 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
-                keyValue.mValue = value;
+            if (strcmp(item.mKey, key) == 0) {
+                item.mValue = value;
                 return;
             }
         }
@@ -134,10 +131,10 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto i = itemList.begin(); i != itemList.end(); ++i) {
-            Item &keyValue = i->mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
+            Item &item = i.mNode->mItem;
+            if (strcmp(item.mKey, key) == 0) {
                 itemList.erase(i);
-                return &keyValue.mValue;
+                return &item.mValue;
             }
         }
 
@@ -149,9 +146,8 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
-                return &keyValue.mValue;
+            if (strcmp(item.mKey, key) == 0) {
+                return &item.mValue;
             }
         }
 
@@ -164,10 +160,9 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (strcmp(keyValue.mKey, key) == 0) {
+            if (strcmp(item.mKey, key) == 0) {
                 delete default_;
-                return &keyValue.mValue;
+                return &item.mValue;
             }
         }
 
@@ -181,7 +176,7 @@ public:
 
         for (u32 i = 0; i < SurfaceSize; ++i) {
             for (auto &item : mItemBuffer[i]) {
-                out.insert(out.end(), item.mItem);
+                out.insert(out.end(), item);
             }
         }
     }
@@ -226,8 +221,7 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (keyValue.mKey == key) {
+            if (item.mKey == key) {
                 return true;
             }
         }
@@ -240,9 +234,8 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (keyValue.mKey == key) {
-                return &keyValue.mValue;
+            if (item.mKey == key) {
+                return &item.mValue;
             }
         }
 
@@ -254,9 +247,8 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (keyValue.mKey == key) {
-                keyValue.mValue = value;
+            if (item.mKey == key) {
+                item.mValue = value;
                 return;
             }
         }
@@ -269,10 +261,10 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto i = itemList.begin(); i != itemList.end(); ++i) {
-            Item &keyValue = i->mItem;
-            if (keyValue.mKey == key) {
+            Item &item = i.mNode->mItem;
+            if (item.mKey == key) {
                 itemList.erase(i);
-                return &keyValue.mValue;
+                return &item.mValue;
             }
         }
 
@@ -284,9 +276,8 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (keyValue.mKey == key) {
-                return &keyValue.mValue;
+            if (item.mKey == key) {
+                return &item.mValue;
             }
         }
 
@@ -300,10 +291,9 @@ public:
 
         auto &itemList = mItemBuffer[index];
         for (auto &item : itemList) {
-            Item &keyValue = item.mItem;
-            if (keyValue.mKey == key) {
+            if (item.mKey == key) {
                 delete default_;
-                return &keyValue.mValue;
+                return &item.mValue;
             }
         }
 
@@ -317,7 +307,7 @@ public:
 
         for (u32 i = 0; i < SurfaceSize; ++i) {
             for (auto &item : mItemBuffer[i]) {
-                out.insert(out.end(), item.mItem);
+                out.insert(out.end(), item);
             }
         }
     }

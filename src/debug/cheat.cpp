@@ -44,8 +44,8 @@ static void debugModeNotify(TCheatHandler *) {
 }
 
 // extern -> debug callback
-void drawCheatText(TMarDirector *director, J2DOrthoGraph *graph) {
-    if (!gDebugTextBoxW->getStringPtr())
+void drawCheatText(TApplication *app, J2DOrthoGraph *graph) {
+    if (!gDebugTextBoxW || !gDebugTextBoxW->getStringPtr())
         return;
 
     if (BetterSMS::isDebugMode()) {
@@ -61,8 +61,8 @@ static void *handleDebugCheat(void *GCLogoDir) {
         gDebugHandler.setSuccessCallBack(&debugModeNotify);
 
         auto *currentHeap               = JKRHeap::sSystemHeap->becomeCurrentHeap();
-        gDebugTextBoxW                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
-        gDebugTextBoxB                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
+        gDebugTextBoxW                  = new (JKRHeap::sRootHeap, 4) J2DTextBox(gpSystemFont->mFont, "Debug Mode");
+        gDebugTextBoxB                  = new (JKRHeap::sRootHeap, 4) J2DTextBox(gpSystemFont->mFont, "Debug Mode");
         gDebugTextBoxW->mGradientTop    = {255, 50, 50, 255};
         gDebugTextBoxW->mGradientBottom = {255, 50, 255, 255};
         gDebugTextBoxB->mGradientTop    = {0, 0, 0, 255};
@@ -90,16 +90,18 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802A6794, 0x8029E6EC, 0, 0), isLevelSelectAvailab
 
 bool gInXYZMode = false;
 
-void initMarioXYZMode(TMarDirector *director) { gInXYZMode = false; }
+void initMarioXYZMode(TApplication *app) { gInXYZMode = false; }
 
 // extern -> debug update callback
 // 0x8024D194
-void updateMarioXYZMode(TMarDirector *director) {
+void updateMarioXYZMode(TApplication *app) {
     constexpr f32 baseSpeed = 83.0f;
     constexpr u32 buttons   = TMarioGamePad::EButtons::DPAD_UP;
 
+    TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
+
     if (!director || !BetterSMS::isDebugMode() ||
-        director->mCurState != TMarDirector::Status::NORMAL)
+        director->mCurState != TMarDirector::Status::STATE_NORMAL)
         return;
 
     const JUTGamePad::CStick &mainStick = gpMarioAddress->mController->mControlStick;

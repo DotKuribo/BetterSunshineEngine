@@ -44,6 +44,7 @@ static char sWorldStringBuffer[300]{};
 static char sCollisionStringBuffer[300]{};
 
 static size_t sHitObjCount = 0;
+static bool sIsInitialized = false;
 
 void addToHitActorCount(JDrama::TViewObj *obj, u32 flags, JDrama::TGraphics *graphics) {
     testPerform__Q26JDrama8TViewObjFUlPQ26JDrama9TGraphics(obj, flags, graphics);
@@ -51,7 +52,7 @@ void addToHitActorCount(JDrama::TViewObj *obj, u32 flags, JDrama::TGraphics *gra
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802a0450, 0, 0, 0), addToHitActorCount);
 
-void initStateMonitor(TMarDirector *director) {
+void initStateMonitor(TApplication *app) {
     gpPlayerStateStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpPlayerStateStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpPlayerStateStringW->mStrPtr         = sPlayerStringBuffer;
@@ -96,14 +97,18 @@ void initStateMonitor(TMarDirector *director) {
     gpCollisionStateStringW->mGradientBottom = {255, 255, 255, 255};
     gpCollisionStateStringB->mGradientTop    = {0, 0, 0, 255};
     gpCollisionStateStringB->mGradientBottom = {0, 0, 0, 255};
+
+    sIsInitialized = true;
 }
 
-void updateStateMonitor(TMarDirector *director) {
-    if (!director || !gpMarioAddress || !gpPlayerStateStringW || !gpPlayerStateStringB)
+void updateStateMonitor(TApplication *app) {
+    TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
+
+    if (!director || !gpMarioAddress || !sIsInitialized)
         return;
 
-    if (director->mCurState != TMarDirector::Status::NORMAL &&
-        director->mCurState != TMarDirector::Status::PAUSE_MENU)
+    if (director->mCurState != TMarDirector::Status::STATE_NORMAL &&
+        director->mCurState != TMarDirector::Status::STATE_PAUSE_MENU)
         return;
 
     u16 floorColType =
@@ -169,7 +174,10 @@ void updateStateMonitor(TMarDirector *director) {
     sHitObjCount = 0;
 }
 
-void drawStateMonitor(TMarDirector *director, J2DOrthoGraph *ortho) {
+void drawStateMonitor(TApplication *app, J2DOrthoGraph *ortho) {
+    if (!sIsInitialized)
+        return;
+
     gpPlayerStateStringB->draw(gPlayerMonitorX + 1, gPlayerMonitorY + 1);
     gpPlayerStateStringW->draw(gPlayerMonitorX, gPlayerMonitorY);
     gpWorldStateStringB->draw(gWorldMonitorX + 1, gWorldMonitorY + 1);

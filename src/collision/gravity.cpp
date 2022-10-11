@@ -6,22 +6,23 @@
 #include <SMS/sound/MSoundSESystem.hxx>
 
 #include "geometry.hxx"
+#include "player.hxx"
 #include "module.hxx"
 
 #if BETTER_SMS_EXTRA_COLLISION
 
 /* extern to handlers.cpp */
 
-void setGravityCol(TMario *player) {
-    player->mJumpParams.mGravity.set(static_cast<f32>(player->mFloorTriangle->mValue4) / 100.0f);
+void setGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
+
+    player->mJumpParams.mGravity.set(static_cast<f32>(data->mValue4) / 100.0f);
 }
 
-void antiGravityCol(TMario *player) {
+void antiGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
     Vec position;
     player->JSGGetTranslation(&position);
 
-    if ((position.y - player->mFloorTriangle->mMaxHeight) > player->mFloorTriangle->mValue4 &&
-        player->mFloorTriangle->mValue4 != 0)
+    if ((position.y - data->mMaxHeight) > data->mValue4 && data->mValue4 != 0)
         return;
 
     player->mSpeed.y = 10.0f;

@@ -167,7 +167,7 @@ namespace BetterSMS {
     bool isMusicStreamingAllowed();
     void setMusicStreamingAllowed(bool);
 
-    f32 getScreenWidth();
+    u32 getScreenWidth();
     f32 getScreenToFullScreenRatio();
     f32 getFrameRate();
 }  // namespace BetterSMS
