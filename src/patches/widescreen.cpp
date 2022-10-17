@@ -8,7 +8,7 @@
 #include <SMS/GC2D/SelectDir.hxx>
 #include <SMS/GC2D/SelectMenu.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/game/GCConsole2.hxx>
 #include <SMS/game/MarDirector.hxx>
 #include <SMS/macros.h>
@@ -24,6 +24,8 @@ using namespace BetterSMS;
 
 #if BETTER_SMS_WIDESCREEN
 
+static f32 getScreenWidthf() { return static_cast<f32>(getScreenWidth()); }
+
 static s32 getScreenTransX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
 
 static f32 getScreenWidthTranslated() { return static_cast<f32>(getScreenWidth()) + getScreenTransX(); }
@@ -31,26 +33,28 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802A3E78, 0x8029BD54, 0, 0), getScreenWidthTransl
 SMS_WRITE_32(SMS_PORT_REGION(0x802A3E7C, 0x8029BD58, 0, 0), 0xD03C0038);
 
 static s32 getNegScreenTransX() { return -getScreenTransX(); }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176AA4, 0x8016CA6C, 0, 0), getNegScreenTransX);
+static f32 getNegScreenTransXf() { return static_cast<f32>(getNegScreenTransX()); }
+
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176AA4, 0x8016CA6C, 0, 0), getNegScreenTransXf);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176AA8, 0x8016CA70, 0, 0), 0xD03B0030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029B974, 0x80293850, 0, 0), getNegScreenTransX);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029B974, 0x80293850, 0, 0), getNegScreenTransXf);
 SMS_WRITE_32(SMS_PORT_REGION(0x8029B978, 0x80293854, 0, 0), 0xD0350030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176C40, 0x8016CC00, 0, 0), getNegScreenTransX);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176C40, 0x8016CC00, 0, 0), getNegScreenTransXf);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176C44, 0x8016CC04, 0, 0), 0xD03B0030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176FF4, 0x8016D160, 0, 0), getNegScreenTransX);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176FF4, 0x8016D160, 0, 0), getNegScreenTransXf);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176FF8, 0x8016D164, 0, 0), 0xD03B0030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80177198, 0x8016CFBC, 0, 0), getNegScreenTransX);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80177198, 0x8016CFBC, 0, 0), getNegScreenTransXf);
 SMS_WRITE_32(SMS_PORT_REGION(0x8017719c, 0x8016CFC0, 0, 0), 0xD03B0030);
 
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176AB4, 0x8016CA7C, 0, 0), getScreenWidth);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176AB4, 0x8016CA7C, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176AB8, 0x8016CA80, 0, 0), 0xD03B0038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029B984, 0x80293860, 0, 0), getScreenWidth);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029B984, 0x80293860, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x8029B988, 0x80293864, 0, 0), 0xD0350038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176C50, 0x8016CC10, 0, 0), getScreenWidth);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176C50, 0x8016CC10, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176C54, 0x8016CC14, 0, 0), 0xD03B0038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80177004, 0x8016D170, 0, 0), getScreenWidth);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80177004, 0x8016D170, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x80177008, 0x8016D174, 0, 0), 0xD03B0038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenWidth);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x801771AC, 0x8016CFD0, 0, 0), 0xD03B0038);
 
 static f32 getScreenXRatio2() {
@@ -77,7 +81,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B88, 0x802B0B58, 0, 0), 0xC8010AE0);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B94, 0x802B0B64, 0, 0), 0xEC001028);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 
-#if 1
 
 static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
     const f32 translate = getScreenTransX();
@@ -556,7 +559,5 @@ static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     PSMTXScale(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801ea96c, 0x801E2844, 0, 0), scaleUnderWaterMask);
-
-#endif
 
 #endif

@@ -13,6 +13,11 @@ public:
     SimpleTexAnimator(const ResTIMG **textures, size_t texCount)
         : mTextures(textures), mTexCount(texCount), mRotation(0.0f), mSpin(0.0f), mLastTime(0),
           mCurrentFrame(0.0f), mFrameRate(30.0f) {}
+    SimpleTexAnimator(const u8 **textures, size_t texCount)
+        : mTexCount(texCount), mRotation(0.0f), mSpin(0.0f), mLastTime(0),
+          mCurrentFrame(0.0f), mFrameRate(30.0f) {
+        mTextures = reinterpret_cast<const ResTIMG **>(textures);
+    }
     ~SimpleTexAnimator() {}
 
     void setTextures(const ResTIMG **textures, size_t texCount) {

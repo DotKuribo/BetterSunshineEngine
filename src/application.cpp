@@ -9,7 +9,7 @@
 #include <SMS/System/MovieDirector.hxx>
 #include <SMS/System/RenderModeObj.hxx>
 #include <SMS/System/Resolution.hxx>
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/manager/FlagManager.hxx>
 #include <SMS/manager/RumbleManager.hxx>
 #include <SMS/option/CardManager.hxx>
@@ -18,6 +18,7 @@
 #include "application.hxx"
 #include "libs/container.hxx"
 #include "module.hxx"
+#include "p_settings.hxx"
 
 
 using namespace BetterSMS;
@@ -127,7 +128,25 @@ bool BetterAppContextDirectLevelSelect(TApplication *app) {
     return false;
 }
 
+bool BetterAppContextDirectSettingsMenu(TApplication *app) {
+    SMSSetupTitleRenderingInfo(app->mDisplay);
+
+    app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
+
+    auto *director = new SettingsDirector();
+    app->mDirector = director;
+
+    director->setup(app->mDisplay, app->mGamePad1);
+
+    app->mCurrentScene.set(15, 0, 0);
+    app->mNextScene.set(15, 0, 0);
+    return false;
+}
+
 #define SMS_CHECK_RESET_FLAG(gamepad) (((1 << (gamepad)->mPort) & TMarioGamePad::mResetFlag) == 1)
+
+extern void gameBootCallbackHandler(TApplication *app);
+extern JKRHeap *exitStageCallbacks();
 
 void BetterApplicationProcess(TApplication *app) {
     bool exitLoop   = false;
@@ -145,12 +164,20 @@ void BetterApplicationProcess(TApplication *app) {
         app->mDirector = nullptr;
 
         if (app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
-            if (!SMS_CHECK_RESET_FLAG(app->mGamePad1))
+            if (!SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
                 app->initialize_nlogoAfter();
+                #if 0
+                if (BetterSMS::isDebugMode())
+                    delayContext = TApplication::CONTEXT_DIRECT_LEVEL_SELECT;
+                #endif
+            }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
-            if (!SMS_CHECK_RESET_FLAG(app->mGamePad1))
+            if (!SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
                 app->initialize_bootAfter();
+                gameBootCallbackHandler(app);
+            }
         } else {
+            exitStageCallbacks();
             app->mCurrentHeap->freeAll();
         }
 
@@ -161,15 +188,21 @@ void BetterApplicationProcess(TApplication *app) {
             JUTGamePad::recalibrate(0xF0000000);
 
             exitLoop = DVDCheckDisk();
-            if (exitLoop) {
-                app->mContext = TApplication::CONTEXT_GAME_SHUTDOWN;
+            if (!exitLoop) {
+                delayContext = TApplication::CONTEXT_GAME_SHUTDOWN;
                 app->_44 |= 2;
             } else {
                 if (app->mContext == TApplication::CONTEXT_GAME_BOOT ||
                     app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
                     app->mContext = TApplication::CONTEXT_GAME_SHUTDOWN;
                 } else if (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN) {
-                    app->mContext = TApplication::CONTEXT_DIRECT_MOVIE;
+                    #if 0
+                    delayContext = BetterSMS::isDebugMode()
+                                        ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
+                                        : TApplication::CONTEXT_DIRECT_MOVIE;
+                    #else
+                    delayContext = TApplication::CONTEXT_DIRECT_MOVIE;
+                    #endif
                     gpCardManager->unmount();
                 }
             }

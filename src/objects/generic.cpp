@@ -7,7 +7,7 @@
 #include <SMS/M3DUtil/MActor.hxx>
 #include <SMS/M3DUtil/MActorKeeper.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/collision/BGCheck.hxx>
 #include <SMS/game/Conductor.hxx>
 #include <SMS/manager/ModelWaterManager.hxx>

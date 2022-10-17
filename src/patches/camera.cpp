@@ -2,7 +2,7 @@
 
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 

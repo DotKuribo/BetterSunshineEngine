@@ -2,7 +2,7 @@
 
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/game/MarDirector.hxx>
 #include <SMS/mapobj/MapObjInit.hxx>
 #include <SMS/params/Params.hxx>

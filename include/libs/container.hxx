@@ -211,7 +211,7 @@ public:
 
     using ItemList = JGadget::TList<Item>;
 
-    TDictI() { mItemBuffer = new ItemList[SurfaceSize]; }
+    TDictI() { mItemBuffer = new (JKRHeap::sRootHeap, 4) ItemList[SurfaceSize]; }
     ~TDictI() { delete[] mItemBuffer; }
 
     _V *operator[](u32 key) { return get(key); }

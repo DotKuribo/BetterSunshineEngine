@@ -2,10 +2,10 @@
 #include <Dolphin/types.h>
 
 
-#include <SMS/camera/CamConnector.hxx>
-#include <SMS/camera/CamSaveKindParam.hxx>
-#include <SMS/camera/CameraKindParam.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/Camera/CamConnector.hxx>
+#include <SMS/Camera/CamSaveKindParam.hxx>
+#include <SMS/Camera/CameraKindParam.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 
 
 #include "module.hxx"

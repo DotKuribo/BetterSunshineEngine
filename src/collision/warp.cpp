@@ -2,7 +2,7 @@
 #include <JSystem/JGeometry.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/screen/SMSFader.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
 

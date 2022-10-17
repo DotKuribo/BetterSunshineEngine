@@ -1,5 +1,5 @@
 #include <SMS/Player/Mario.hxx>
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "globals.hxx"
 #include "sunscript.hxx"

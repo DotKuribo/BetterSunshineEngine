@@ -15098,4 +15098,6 @@ hardstream_finfos=0x803fdb7c
 hardstream_cur_finfo=0x8040e66c
 useHardStreaming__Q28JASystem10HardStream=0x8040E660
 
-@12@JSGFindObject__Q26JDrama9TDirectorCFPCcQ26JStage8TEObject=80177974
+@12@JSGFindObject__Q26JDrama9TDirectorCFPCcQ26JStage8TEObject=0x80177974
+
+gSetupThread=0x803FCBE8

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Dolphin/types.h>
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 
 namespace BetterSMS {
     namespace Application {

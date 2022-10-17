@@ -11,7 +11,7 @@
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/collision/MapCollisionData.hxx>
 
 #include "debug.hxx"
@@ -26,10 +26,12 @@ using namespace BetterSMS;
 static s16 gPlayerMonitorX = -86, gPlayerMonitorY = 190;
 static s16 gWorldMonitorX = -86, gWorldMonitorY = 310;
 static s16 gCollisionMonitorX = 430, gCollisionMonitorY = 190;
+static s16 gFontWidth = 12;
 #else
 static s16 gPlayerMonitorX = 10, gPlayerMonitorY = 190;
 static s16 gWorldMonitorX = 10, gWorldMonitorY = 310;
-static s16 gCollisionMonitorX = 490, gCollisionMonitorY = 190;
+static s16 gCollisionMonitorX = 350, gCollisionMonitorY = 190;
+static s16 gFontWidth = 11;
 #endif
 
 static J2DTextBox *gpPlayerStateStringW    = nullptr;
@@ -58,10 +60,10 @@ void initStateMonitor(TApplication *app) {
     gpPlayerStateStringW->mStrPtr         = sPlayerStringBuffer;
     gpPlayerStateStringB->mStrPtr         = sPlayerStringBuffer;
     gpPlayerStateStringW->mNewlineSize    = 14;
-    gpPlayerStateStringW->mCharSizeX      = 12;
+    gpPlayerStateStringW->mCharSizeX      = gFontWidth;
     gpPlayerStateStringW->mCharSizeY      = 14;
     gpPlayerStateStringB->mNewlineSize    = 14;
-    gpPlayerStateStringB->mCharSizeX      = 12;
+    gpPlayerStateStringB->mCharSizeX      = gFontWidth;
     gpPlayerStateStringB->mCharSizeY      = 14;
     gpPlayerStateStringW->mGradientTop    = {255, 255, 255, 255};
     gpPlayerStateStringW->mGradientBottom = {255, 255, 255, 255};
@@ -73,10 +75,10 @@ void initStateMonitor(TApplication *app) {
     gpWorldStateStringW->mStrPtr         = sWorldStringBuffer;
     gpWorldStateStringB->mStrPtr         = sWorldStringBuffer;
     gpWorldStateStringW->mNewlineSize    = 14;
-    gpWorldStateStringW->mCharSizeX      = 12;
+    gpWorldStateStringW->mCharSizeX      = gFontWidth;
     gpWorldStateStringW->mCharSizeY      = 14;
     gpWorldStateStringB->mNewlineSize    = 14;
-    gpWorldStateStringB->mCharSizeX      = 12;
+    gpWorldStateStringB->mCharSizeX      = gFontWidth;
     gpWorldStateStringB->mCharSizeY      = 14;
     gpWorldStateStringW->mGradientTop    = {255, 255, 255, 255};
     gpWorldStateStringW->mGradientBottom = {255, 255, 255, 255};
@@ -88,10 +90,10 @@ void initStateMonitor(TApplication *app) {
     gpCollisionStateStringW->mStrPtr         = sCollisionStringBuffer;
     gpCollisionStateStringB->mStrPtr         = sCollisionStringBuffer;
     gpCollisionStateStringW->mNewlineSize    = 14;
-    gpCollisionStateStringW->mCharSizeX      = 12;
+    gpCollisionStateStringW->mCharSizeX      = gFontWidth;
     gpCollisionStateStringW->mCharSizeY      = 14;
     gpCollisionStateStringB->mNewlineSize    = 14;
-    gpCollisionStateStringB->mCharSizeX      = 12;
+    gpCollisionStateStringB->mCharSizeX      = gFontWidth;
     gpCollisionStateStringB->mCharSizeY      = 14;
     gpCollisionStateStringW->mGradientTop    = {255, 255, 255, 255};
     gpCollisionStateStringW->mGradientBottom = {255, 255, 255, 255};

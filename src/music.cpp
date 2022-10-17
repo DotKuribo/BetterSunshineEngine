@@ -6,8 +6,8 @@
 #include <JSystem/JSupport/JSUStream.hxx>
 #include <SMS/Player/Mario.hxx>
 
-#include <SMS/game/Application.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/System/Application.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 #include <SMS/sound/MSBGM.hxx>

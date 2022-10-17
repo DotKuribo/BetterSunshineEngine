@@ -17,11 +17,29 @@
 #include "object.hxx"
 #include "objects/generic.hxx"
 #include "player.hxx"
+#include "p_settings.hxx"
+#include "settings.hxx"
 #include "stage.hxx"
 #include "time.hxx"
 
 // Kuribo/Kamek
 #include "common_sdk.h"
+
+// SETTINGS //
+static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine");
+
+// Sunshine settings
+static bool sRumbleFlag = false;
+static bool sSubtitleFlag = false;
+
+static Settings::SwitchSetting sRumbleSetting("Controller Rumble", &sRumbleFlag);
+static Settings::SwitchSetting sSubtitleSetting("Movie Subtitles", &sSubtitleFlag);
+static SoundSetting sSoundSetting("Sound Playback");
+//
+
+// BetterSMS settings
+
+//
 
 // mario.cpp
 extern "C" s16 mario_shadowCrashPatch();
@@ -44,6 +62,7 @@ extern bool BetterAppContextGameBootIntro(TApplication *app);
 extern bool BetterAppContextDirectStage(TApplication *app);
 extern bool BetterAppContextDirectShineSelect(TApplication *app);
 extern bool BetterAppContextDirectLevelSelect(TApplication *app);
+extern bool BetterAppContextDirectSettingsMenu(TApplication *app);
 
 // DEBUG
 extern void initDebugCallbacks(TApplication *);
@@ -157,14 +176,24 @@ static TMarDirector *initLib() {
     makeExtendedObjDataTable();
     initLoadingScreen();
 
+    // SETTINGS
+
     // Set up application context handlers
-    Application::registerContextCallback(2, BetterAppContextGameBoot);
-    Application::registerContextCallback(3, BetterAppContextGameBootLogo);
-    Application::registerContextCallback(4, BetterAppContextGameBootIntro);
-    Application::registerContextCallback(5, BetterAppContextDirectStage);
-    Application::registerContextCallback(6, BetterAppContextDirectMovie);
-    Application::registerContextCallback(8, BetterAppContextDirectShineSelect);
-    Application::registerContextCallback(9, BetterAppContextDirectLevelSelect);
+    Application::registerContextCallback(TApplication::CONTEXT_GAME_BOOT,
+                                         BetterAppContextGameBoot);
+    Application::registerContextCallback(TApplication::CONTEXT_GAME_BOOT_LOGO,
+                                         BetterAppContextGameBootLogo);
+    Application::registerContextCallback(TApplication::CONTEXT_GAME_INTRO,
+                                         BetterAppContextGameBootIntro);
+    Application::registerContextCallback(TApplication::CONTEXT_DIRECT_STAGE,
+                                         BetterAppContextDirectStage);
+    Application::registerContextCallback(TApplication::CONTEXT_DIRECT_MOVIE,
+                                         BetterAppContextDirectMovie);
+    Application::registerContextCallback(TApplication::CONTEXT_DIRECT_SHINE_SELECT,
+                                         BetterAppContextDirectShineSelect);
+    Application::registerContextCallback(TApplication::CONTEXT_DIRECT_LEVEL_SELECT,
+                                         BetterAppContextDirectLevelSelect);
+    Application::registerContextCallback(10, BetterAppContextDirectSettingsMenu);
 
     // Set up stage config handlers
     Stage::registerInitCallback("__init_config", loadStageConfig);

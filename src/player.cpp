@@ -8,7 +8,7 @@
 #include <SMS/actor/HitActor.hxx>
 #include <SMS/actor/LiveActor.hxx>
 #include <SMS/assert.h>
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/macros.h>
 #include <SMS/manager/MarioParticleManager.hxx>
 #include <SMS/manager/ModelWaterManager.hxx>
@@ -785,7 +785,9 @@ void initMario(TMario *player, bool isMario) {
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 }
 
-void resetPlayerDatas(TApplication *application) { sPlayerDict.empty(); }
+void resetPlayerDatas(TApplication *application) {
+    sPlayerDict.empty();
+}
 
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();

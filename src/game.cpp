@@ -1,4 +1,4 @@
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "libs/container.hxx"
 #include "game.hxx"
@@ -26,9 +26,7 @@ SMS_NO_INLINE bool BetterSMS::Game::deregisterOnBootCallback(const char *name) {
     return true;
 }
 
-static void gameBootCallbackHandler(TApplication *app) {
-    app->initialize_bootAfter();
-
+void gameBootCallbackHandler(TApplication *app) {
     TDictS<Game::BootCallback>::ItemList bootCBs;
     sGameBootCBs.items(bootCBs);
 
@@ -36,4 +34,4 @@ static void gameBootCallbackHandler(TApplication *app) {
         item.mValue(&gpApplication);
     }
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802A66C0, 0, 0, 0), gameBootCallbackHandler);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x802A66C0, 0, 0, 0), gameBootCallbackHandler);

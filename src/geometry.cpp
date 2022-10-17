@@ -1,7 +1,7 @@
 #include <Dolphin/MTX.h>
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry.hxx>
-#include <SMS/MarioUtil/mathutil.hxx>
+#include <SMS/MarioUtil/MathUtil.hxx>
 #include <SMS/raw_fn.hxx>
 
 #include "geometry.hxx"

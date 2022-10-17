@@ -8,7 +8,7 @@
 #include <JSystem/JSupport/JSUMemoryStream.hxx>
 #include <JSystem/JUtility/JUTColor.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/raw_fn.hxx>
 
 #include "collision/warp.hxx"
@@ -180,9 +180,7 @@ namespace BetterSMS {
             }
             const TMario *getPlayer() const { return mPlayer; }
             u32 getPlayerID() const { return mPlayerID; }
-            const u16 getPlayerKey() const {
-                return JDrama::TNameRef::calcKeyCode(getPlayerName());
-            }
+
             bool getColliding() { return mCollisionFlags.mIsColliding; }
             bool isMario() const { return !mIsEMario; }
 
@@ -192,7 +190,6 @@ namespace BetterSMS {
             void setPlayerID(u32 id) { mPlayerID = id; }
             void setColliding(bool colliding) { mCollisionFlags.mIsColliding = colliding; }
 
-            const char *getPlayerName() const;
             bool loadPrm(const char *prm);
             bool loadPrm(JSUMemoryInputStream &stream);
             void resetPlayer() { mDefaultAttrs.applyHistoryTo(mPlayer); };

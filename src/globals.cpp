@@ -1,7 +1,7 @@
 #include <Dolphin/OS.h>
 #include <Dolphin/types.h>
 
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/macros.h>
 
 #include "collision/warp.hxx"
@@ -44,6 +44,6 @@ void BetterSMS::setDebugMode(bool active) {
     if (isDebugStarted)
         initDebugCallbacks(&gpApplication);
 }
-u32 BetterSMS::getScreenWidth() { return sScreenWidth; }
+int BetterSMS::getScreenWidth() { return sScreenWidth; }
 f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(sScreenWidth) / 600.0f; }
 f32 BetterSMS::getFrameRate() { return sFrameRate; }

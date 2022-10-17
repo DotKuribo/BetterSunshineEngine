@@ -1,10 +1,10 @@
 #include <Dolphin/types.h>
 
-#include <SMS/camera/CameraMarioData.hxx>
-#include <SMS/camera/PolarSubCamera.hxx>
-#include <SMS/camera/LensFlare.hxx>
-#include <SMS/camera/LensGlow.hxx>
-#include <SMS/camera/SunModel.hxx>
+#include <SMS/Camera/CameraMarioData.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
+#include <SMS/Camera/LensFlare.hxx>
+#include <SMS/Camera/LensGlow.hxx>
+#include <SMS/Camera/SunModel.hxx>
 #include <SMS/manager/ModelWaterManager.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>

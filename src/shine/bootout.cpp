@@ -1,7 +1,7 @@
 #include <Dolphin/string.h>
 #include <JSystem/JGeometry.hxx>
 
-#include <SMS/camera/PolarSubCamera.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/game/GameSequence.hxx>
 #include <SMS/actor/item/Shine.hxx>
 #include <SMS/game/Conductor.hxx>

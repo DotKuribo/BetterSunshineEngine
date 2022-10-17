@@ -2,7 +2,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 
-#include <SMS/game/Application.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/game/GameSequence.hxx>
 #include <SMS/game/MarDirector.hxx>
 #include <SMS/macros.h>
@@ -251,7 +251,7 @@ void initStageCallbacks(TMarDirector *director) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
 
-s32 updateStageCallbacks(void *movieDirector) {
+s32 updateStageCallbacks(JDrama::TDirector *director) {
     u32 func;
     SMS_FROM_GPR(12, func);
 
@@ -266,7 +266,7 @@ s32 updateStageCallbacks(void *movieDirector) {
 
     updateDebugCallbacks();
 
-    return ((s32(*)(void *))func)(movieDirector);
+    return director->direct();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), updateStageCallbacks);
 
@@ -299,7 +299,8 @@ JKRHeap *exitStageCallbacks() {
 
     return application->mCurrentHeap;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802A66F4, 0, 0, 0), exitStageCallbacks);
+// Deprecated by custom app loop
+//SMS_PATCH_BL(SMS_PORT_REGION(0x802A66F4, 0, 0, 0), exitStageCallbacks);
 
 #pragma region MapIdentifiers
 
