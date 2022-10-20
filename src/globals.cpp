@@ -7,6 +7,7 @@
 #include "collision/warp.hxx"
 #include "globals.hxx"
 #include "module.hxx"
+#include "p_settings.hxx"
 
 SMS_EXTERN_C OSBootInfo BootInfo;
 
@@ -44,6 +45,21 @@ void BetterSMS::setDebugMode(bool active) {
     if (isDebugStarted)
         initDebugCallbacks(&gpApplication);
 }
-int BetterSMS::getScreenWidth() { return sScreenWidth; }
-f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(sScreenWidth) / 600.0f; }
+
+extern AspectRatioSetting gAspectRatioSetting;
+int BetterSMS::getScreenWidth() {
+    switch (gAspectRatioSetting.getInt()) {
+    default:
+    case AspectRatioSetting::FULL:
+        return 600;
+    case AspectRatioSetting::WIDE:
+        return 700;
+    case AspectRatioSetting::ULTRAWIDE:
+        return 1050;
+    }
+}
+
+f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenWidth()) / 600.0f; }
+f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
+
 f32 BetterSMS::getFrameRate() { return sFrameRate; }

@@ -21,4 +21,4 @@ static void scaleFOV(TCameraKindParam *data, const TCamSaveKindParam &params) {
     data->mSLHoldOffsetAngleXMin *= 1.15f;
     data->mSLHoldOffsetAngleXMax *= 0.75f;
 }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8002374C, 0, 0, 0), scaleFOV);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8002374C, 0, 0, 0), scaleFOV);

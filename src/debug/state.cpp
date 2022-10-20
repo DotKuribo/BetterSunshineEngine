@@ -22,17 +22,10 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_WIDESCREEN
-static s16 gPlayerMonitorX = -86, gPlayerMonitorY = 190;
-static s16 gWorldMonitorX = -86, gWorldMonitorY = 310;
-static s16 gCollisionMonitorX = 430, gCollisionMonitorY = 190;
-static s16 gFontWidth = 12;
-#else
 static s16 gPlayerMonitorX = 10, gPlayerMonitorY = 190;
 static s16 gWorldMonitorX = 10, gWorldMonitorY = 310;
 static s16 gCollisionMonitorX = 350, gCollisionMonitorY = 190;
 static s16 gFontWidth = 11;
-#endif
 
 static J2DTextBox *gpPlayerStateStringW    = nullptr;
 static J2DTextBox *gpPlayerStateStringB    = nullptr;
@@ -180,10 +173,13 @@ void drawStateMonitor(TApplication *app, J2DOrthoGraph *ortho) {
     if (!sIsInitialized)
         return;
 
-    gpPlayerStateStringB->draw(gPlayerMonitorX + 1, gPlayerMonitorY + 1);
-    gpPlayerStateStringW->draw(gPlayerMonitorX, gPlayerMonitorY);
-    gpWorldStateStringB->draw(gWorldMonitorX + 1, gWorldMonitorY + 1);
-    gpWorldStateStringW->draw(gWorldMonitorX, gWorldMonitorY);
-    gpCollisionStateStringB->draw(gCollisionMonitorX + 1, gCollisionMonitorY + 1);
-    gpCollisionStateStringW->draw(gCollisionMonitorX, gCollisionMonitorY);
+    {
+        s16 adjust = getScreenRatioAdjustX();
+        gpPlayerStateStringB->draw(gPlayerMonitorX - adjust + 1, gPlayerMonitorY + 1);
+        gpPlayerStateStringW->draw(gPlayerMonitorX - adjust, gPlayerMonitorY);
+        gpWorldStateStringB->draw(gWorldMonitorX - adjust + 1, gWorldMonitorY + 1);
+        gpWorldStateStringW->draw(gWorldMonitorX - adjust, gWorldMonitorY);
+        gpCollisionStateStringB->draw(gCollisionMonitorX + adjust + 1, gCollisionMonitorY + 1);
+        gpCollisionStateStringW->draw(gCollisionMonitorX + adjust, gCollisionMonitorY);
+    }
 }

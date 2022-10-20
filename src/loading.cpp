@@ -44,22 +44,13 @@ using namespace BetterSMS;
 static bool sIsLoading = false;
 
 static const u8 *sLoadingIconTIMGs[] = {
-    gShineSpriteIconFrame1,
-    gShineSpriteIconFrame2,
-    gShineSpriteIconFrame3,
-    gShineSpriteIconFrame4,
-    gShineSpriteIconFrame5,
-    gShineSpriteIconFrame6,
-    gShineSpriteIconFrame7,
-    gShineSpriteIconFrame8,
-    gShineSpriteIconFrame9,
-    gShineSpriteIconFrame10,
-    gShineSpriteIconFrame11,
-    gShineSpriteIconFrame12,
-    gShineSpriteIconFrame13,
-    gShineSpriteIconFrame14,
-    gShineSpriteIconFrame15,
-    gShineSpriteIconFrame16};
+    gShineSpriteIconFrame1,  gShineSpriteIconFrame2,  gShineSpriteIconFrame3,
+    gShineSpriteIconFrame4,  gShineSpriteIconFrame5,  gShineSpriteIconFrame6,
+    gShineSpriteIconFrame7,  gShineSpriteIconFrame8,  gShineSpriteIconFrame9,
+    gShineSpriteIconFrame10, gShineSpriteIconFrame11, gShineSpriteIconFrame12,
+    gShineSpriteIconFrame13, gShineSpriteIconFrame14, gShineSpriteIconFrame15,
+    gShineSpriteIconFrame16
+};
 
 static SimpleTexAnimator sLoadingIconAnimator(sLoadingIconTIMGs, 16);
 static J2DScreen *sLoadingScreenFull;

@@ -169,5 +169,6 @@ namespace BetterSMS {
 
     int getScreenWidth();
     f32 getScreenToFullScreenRatio();
+    f32 getScreenRatioAdjustX();
     f32 getFrameRate();
 }  // namespace BetterSMS

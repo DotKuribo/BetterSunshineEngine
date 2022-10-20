@@ -201,7 +201,7 @@ void BetterApplicationProcess(TApplication *app) {
                                         ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
                                         : TApplication::CONTEXT_DIRECT_MOVIE;
                     #else
-                    delayContext = TApplication::CONTEXT_DIRECT_MOVIE;
+                    delayContext = TApplication::CONTEXT_GAME_INTRO;
                     #endif
                     gpCardManager->unmount();
                 }

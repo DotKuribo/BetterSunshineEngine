@@ -20,19 +20,14 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_WIDESCREEN
-static s16 gMonitorX = -86, gMonitorY = 443;
-static u16 gMonitorWidth = 300, gMonitorHeight = 6 * 3;
-#else
-static s16 gMonitorX = 10, gMonitorY = 443;
+static s16 gBaseMonitorX = 10, gMonitorY = 443;
 static u16 gMonitorWidth = 210, gMonitorHeight = 6 * 3;
-#endif
 
 static f32 gSystemHeapMaxUsage, gCurrentHeapMaxUsage, gRootHeapMaxUsage;
 static JKRHeap *gCurrentHeap = nullptr;
 
-static void drawMonitorBar(f32 currentFill, f32 maxFill, JUtility::TColor color, u16 x, u16 y,
-                           u16 w, u16 h) {
+static void drawMonitorBar(f32 currentFill, f32 maxFill, JUtility::TColor color, s16 x, s16 y,
+                           s16 w, s16 h) {
     J2DFillBox(x, y, w * currentFill, h, color);
     J2DFillBox(x + (w * maxFill), y, 2, h, {200, 200, 200, 255});
 }
@@ -48,7 +43,10 @@ static void drawHeapUsage(JKRHeap *heap, f32 &maxUsage, JUtility::TColor color, 
     if (currentUsage > maxUsage)
         maxUsage = currentUsage;
 
-    drawMonitorBar(currentUsage, maxUsage, color, gMonitorX + 2, y, gMonitorWidth - 6, 4);
+    {
+        s16 adjust = getScreenRatioAdjustX();
+        drawMonitorBar(currentUsage, maxUsage, color, (gBaseMonitorX - adjust) + 2, y, (gMonitorWidth + adjust) - 6, 4);
+    }
 }
 
 void resetMonitor(TApplication *app) { gCurrentHeapMaxUsage = 0.0f; }
@@ -66,7 +64,11 @@ void drawMonitor(TApplication *app, J2DOrthoGraph *graph) {
         gCurrentHeapMaxUsage = 0.0f;
     }
 
-    J2DFillBox(gMonitorX, gMonitorY, gMonitorWidth, gMonitorHeight, {0, 0, 0, 170});
+    {
+        s16 adjust = getScreenRatioAdjustX();
+        J2DFillBox(gBaseMonitorX - adjust, gMonitorY, gMonitorWidth + adjust, gMonitorHeight,
+                   {0, 0, 0, 170});
+    }
 
     drawHeapUsage(systemHeap, gSystemHeapMaxUsage, {220, 50, 30, 255}, gMonitorY + 2);
     drawHeapUsage(currentHeap, gCurrentHeapMaxUsage, {30, 230, 30, 255}, gMonitorY + 7);

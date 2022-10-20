@@ -19,6 +19,7 @@
 
 #include "libs/constmath.hxx"
 #include "module.hxx"
+#include "globals.hxx"
 
 using namespace BetterSMS;
 
@@ -26,13 +27,11 @@ using namespace BetterSMS;
 
 static f32 getScreenWidthf() { return static_cast<f32>(getScreenWidth()); }
 
-static s32 getScreenTransX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
-
-static f32 getScreenWidthTranslated() { return static_cast<f32>(getScreenWidth()) + getScreenTransX(); }
+static f32 getScreenWidthTranslated() { return static_cast<f32>(getScreenWidth()) + getScreenRatioAdjustX(); }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A3E78, 0x8029BD54, 0, 0), getScreenWidthTranslated);
 SMS_WRITE_32(SMS_PORT_REGION(0x802A3E7C, 0x8029BD58, 0, 0), 0xD03C0038);
 
-static s32 getNegScreenTransX() { return -getScreenTransX(); }
+static s32 getNegScreenTransX() { return -getScreenRatioAdjustX(); }
 static f32 getNegScreenTransXf() { return static_cast<f32>(getNegScreenTransX()); }
 
 SMS_PATCH_BL(SMS_PORT_REGION(0x80176AA4, 0x8016CA6C, 0, 0), getNegScreenTransXf);
@@ -83,7 +82,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 
 
 static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
-    const f32 translate = getScreenTransX();
+    const f32 translate = getScreenRatioAdjustX();
 
     x1 -= translate;
     x2 += translate;
@@ -96,7 +95,7 @@ static void scaleGCConsoleExPane140(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 -= getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x140 / 4] = pane;
 }
@@ -106,7 +105,7 @@ static void scaleGCConsoleExPane108(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 -= getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x108 / 4] = pane;
 }
@@ -116,7 +115,7 @@ static void scaleGCConsoleExPane160(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 -= getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x160 / 4] = pane;
 }
@@ -126,7 +125,7 @@ static void scaleGCConsoleExPane2F8(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 += getScreenTransX();
+    pane->mRect.mX1 += getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x2F8 / 4] = pane;
 }
@@ -136,7 +135,7 @@ static void scaleGCConsoleExPane400(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 -= getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x400 / 4] = pane;
 }
@@ -146,7 +145,7 @@ static void scaleGCConsoleExPane42C(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 -= getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x42C / 4] = pane;
 }
@@ -156,7 +155,7 @@ static void scaleGCConsoleExPane450(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 -= getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x450 / 4] = pane;
 }
@@ -164,12 +163,12 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8014F93C, 0x801445CC, 0, 0), scaleGCConsoleExPane
 
 static void scaleGCConsoleLoadAfter2F8(JUTRect *dst, const JUTRect &ref) {
     dst->copy(ref);
-    dst->mX1 += getScreenTransX();
+    dst->mX1 += getScreenRatioAdjustX();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8014D8E8, 0x80142578, 0, 0), scaleGCConsoleLoadAfter2F8);
 
 static void scaleGCConsoleLoadAfter550Add(JUTRect *src, int x, int y) {
-    x += getScreenTransX();
+    x += getScreenRatioAdjustX();
     src->add(x, y);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8014E7E0, 0x80143470, 0, 0), scaleGCConsoleLoadAfter550Add);
@@ -178,9 +177,9 @@ static void setRecursivePanePos(JSUInputStream *stream, u16 *dst, size_t len) {
     stream->read(dst, len);
 
     if (*dst == 415) {
-        *dst += getScreenTransX();
+        *dst += getScreenRatioAdjustX();
     } else if (*dst == 397) {
-        *dst += getScreenTransX();
+        *dst += getScreenRatioAdjustX();
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802CB320, 0x802C33B4, 0, 0), setRecursivePanePos);
@@ -189,7 +188,7 @@ static void scaleGCConsoleExPane1C4(TExPane *pane) {
     TGCConsole2 *console;
     SMS_FROM_GPR(31, console);
 
-    pane->mRect.mX1 += getScreenTransX();
+    pane->mRect.mX1 += getScreenRatioAdjustX();
 
     reinterpret_cast<TExPane **>(console)[0x1C4 / 4] = pane;
 }
@@ -200,8 +199,8 @@ static void scalePauseMenuMask(J2DScreen *screen, int x, int y, J2DGrafContext *
     SMS_FROM_GPR(31, tPauseMenu);
 
     J2DPane *pane   = reinterpret_cast<J2DPane *>(tPauseMenu[0x18 / 4]);
-    pane->mRect.mX1 = -getScreenTransX();
-    pane->mRect.mX2 = 600 + getScreenTransX();
+    pane->mRect.mX1 = -getScreenRatioAdjustX();
+    pane->mRect.mX2 = 600 + getScreenRatioAdjustX();
 
     screen->draw(x, y, context);
 }
@@ -211,13 +210,13 @@ static void scaleSelectMenuMask(TSelectMenu *menu) {
     TExPane *pane;
 
     pane = menu->mMask1;
-    pane->mRect.mX1 -= getScreenTransX();
-    pane->mRect.mX2 += getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
+    pane->mRect.mX2 += getScreenRatioAdjustX();
     pane->mPane->mRect.copy(pane->mRect);
 
     pane = menu->mMask2;
-    pane->mRect.mX1 -= getScreenTransX();
-    pane->mRect.mX2 += getScreenTransX();
+    pane->mRect.mX1 -= getScreenRatioAdjustX();
+    pane->mRect.mX2 += getScreenRatioAdjustX();
     pane->mPane->mRect.copy(pane->mRect);
 
     startMove__11TSelectMenuFv(menu);
@@ -234,7 +233,7 @@ static void scaleSelectMenuGrad(u32 type, u32 idx, u32 count) {
 
     GXBegin(type, idx, count);
 
-    GXPosition3f32(static_cast<f32>(-getScreenTransX()), 16.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(-getScreenRatioAdjustX()), 16.0f, -100.0f);
     GXColor3u8(grad->mColorX1.r, grad->mColorX1.g, grad->mColorX1.b);
 
     GXPosition3f32(static_cast<f32>(getScreenWidth()), 16.0f, -100.0f);
@@ -243,7 +242,7 @@ static void scaleSelectMenuGrad(u32 type, u32 idx, u32 count) {
     GXPosition3f32(static_cast<f32>(getScreenWidth()), 464.0f, -100.0f);
     GXColor3u8(grad->mColorX2.r, grad->mColorX2.g, grad->mColorX2.b);
 
-    GXPosition3f32(static_cast<f32>(-getScreenTransX()), 464.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(-getScreenRatioAdjustX()), 464.0f, -100.0f);
     GXColor3u8(yColorR, yColorG, yColorB);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80175868, 0x8016B80C, 0, 0), scaleSelectMenuGrad);
@@ -406,6 +405,7 @@ static void fixDEBSWideScreenText(s32 x1, s32 y1, s32 width, s32 height) {
     TGCConsole2 *console = gpMarDirector->mGCConsole;
     const f32 ratio      = getScreenToFullScreenRatio();
 
+    //sDEBSToTimerRatio = lerp<f32>(0.0f, 1.0f, f32(console->mRedCoinCardTimer) / 117.1f);
     sDEBSToTimerRatio = lerp<f32>(0.0f, 1.0f, f32(console->mRedCoinCardTimer) / 117.1f);
 
     TExPane *pane          = console->mTelopWindow;
@@ -417,14 +417,14 @@ static void fixDEBSWideScreenText(s32 x1, s32 y1, s32 width, s32 height) {
     const s32 offset = static_cast<s32>(((ratio - 1.0f) * 45.0f));
     x1 -= offset;
 
-    GXSetScissor(x1 + (195.0f * sDEBSToTimerRatio), y1, width - (195.0f * sDEBSToTimerRatio),
+    GXSetScissor(300 + (195.0f * sDEBSToTimerRatio), y1, 100 - (195.0f * sDEBSToTimerRatio),
                  height);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143FDC, 0x80138CAC, 0, 0), fixDEBSWideScreenText);
 
 static void fixDEBSWideScreenPanel(TGCConsole2 *console) {
     const f32 ratio  = getScreenToFullScreenRatio();
-    const s32 offset = getScreenTransX();
+    const s32 offset = getScreenRatioAdjustX();
 
     TExPane *pane = console->mTelopWindow;
     pane->mRect.mX1 -= offset;
@@ -444,7 +444,7 @@ static void fixDEBSWideScreenPanel(TGCConsole2 *console) {
 static void fixDeathScreenRatio(u32 *cardsave, TMarioGamePad *gamepad) {
     initData__9TCardSaveFP13TMarioGamePad(cardsave, gamepad);
 
-    const s32 offset = getScreenTransX();
+    const s32 offset = getScreenRatioAdjustX();
     J2DPane *pane    = reinterpret_cast<J2DScreen *>(cardsave[0x14 / 4])->search('mask');
 
     pane->mRect.mX1 -= offset;
@@ -454,7 +454,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80163468, 0x801584B4, 0, 0), fixDeathScreenRatio)
 
 static void fixYoshiFruitText(TGCConsole2 *console) {
     const f32 ratio  = getScreenToFullScreenRatio();
-    const s32 offset = getScreenTransX();
+    const s32 offset = getScreenRatioAdjustX();
 
     J2DPicture *pane = reinterpret_cast<J2DPicture **>(console)[0x314 / 4];
     pane->mRect.mX1 += offset;
@@ -498,8 +498,8 @@ static void loadAfterGCConsolePatches(TGCConsole2 *console) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8014D8A4, 0x80142534, 0, 0), loadAfterGCConsolePatches);
 
 static void patchSMSFaderInOut(JDrama::TRect *rect, JUtility::TColor color) {
-    rect->mX1 -= 1;
-    rect->mX2 += 1;
+    rect->mX1 -= getScreenRatioAdjustX();  // TODO
+    rect->mX2 += getScreenRatioAdjustX();
     GXSetScissor(rect->mX1, rect->mY1, rect->mX2, rect->mY2);
     GXSetViewport(rect->mX1, rect->mY1, rect->mX2, rect->mY2, 0.0f, 1.0f);
     fill_rect__9(rect, color);
@@ -508,14 +508,13 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013FDAC, 0x80134928, 0, 0), patchSMSFaderInOut);
 
 static void patchLevelSelectPosition(J2DScreen *screen, int x, int y, J2DGrafContext *context) {
     reinterpret_cast<J2DPane *>(screen->mChildrenList.mFirst->mItemPtr)
-        ->mRect.move(getScreenTransX(), 0);
+        ->mRect.move(getScreenRatioAdjustX(), 0);
     screen->draw(x, y, context);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosition);
 
 static SMS_ASM_FUNC void patchGXScissor() {
     // clang-format off
-  // todo: account for screen ratio shit
     SMS_ASM_BLOCK (
         SMS_PORT_REGION (
             "lwz       7, -0x72F8(13)   \n\t",
@@ -551,11 +550,12 @@ static SMS_ASM_FUNC void patchGXScissor() {
     );
     // clang-format on
 }
-SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
+//SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
 
 static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;
-    x *= (reinterpret_cast<f32 *>(camera)[0x48 / 4] / 50.0f);
+    //x *= camera->mProjectionFovy / 50.0f;
+    x *= getScreenToFullScreenRatio();
     PSMTXScale(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801ea96c, 0x801E2844, 0, 0), scaleUnderWaterMask);

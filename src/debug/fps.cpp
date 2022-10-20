@@ -20,11 +20,7 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_WIDESCREEN
-static s16 gMonitorX = 390, gMonitorY = 460;
-#else
-static s16 gMonitorX = 390, gMonitorY = 460;
-#endif
+static s16 gBaseMonitorX = 500, gBaseMonitorY = 460;
 
 static f32 sFPSTimer       = 0.0f;
 static f32 sFPSCounter     = 0.0f;
@@ -41,12 +37,12 @@ void initFPSMonitor(TApplication *app) {
     gpFPSStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpFPSStringW->mStrPtr         = sStringBuffer;
     gpFPSStringB->mStrPtr         = sStringBuffer;
-    gpFPSStringW->mNewlineSize    = 18;
-    gpFPSStringW->mCharSizeX      = 15;
-    gpFPSStringW->mCharSizeY      = 18;
-    gpFPSStringB->mNewlineSize    = 18;
-    gpFPSStringB->mCharSizeX      = 15;
-    gpFPSStringB->mCharSizeY      = 18;
+    gpFPSStringW->mNewlineSize    = 17;
+    gpFPSStringW->mCharSizeX      = 14;
+    gpFPSStringW->mCharSizeY      = 17;
+    gpFPSStringB->mNewlineSize    = 17;
+    gpFPSStringB->mCharSizeX      = 14;
+    gpFPSStringB->mCharSizeY      = 17;
     gpFPSStringB->mGradientTop    = {0, 0, 0, 255};
     gpFPSStringB->mGradientBottom = {0, 0, 0, 255};
     sIsInitialized                = true;
@@ -86,6 +82,10 @@ void drawFPSMonitor(TApplication *app, J2DOrthoGraph *ortho) {
     if (!sIsInitialized)
         return;
 
-    gpFPSStringB->draw(gMonitorX + 1, gMonitorY + 2);
-    gpFPSStringW->draw(gMonitorX, gMonitorY);
+    {
+        auto monitorX = gBaseMonitorX + getScreenRatioAdjustX();
+        gpFPSStringB->draw(monitorX + 1, gBaseMonitorY + 2);
+        gpFPSStringW->draw(monitorX, gBaseMonitorY);
+    }
+
 }

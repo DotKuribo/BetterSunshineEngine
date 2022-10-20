@@ -29,16 +29,16 @@
 static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine");
 
 // Sunshine settings
-static bool sRumbleFlag = false;
-static bool sSubtitleFlag = false;
-
-static Settings::SwitchSetting sRumbleSetting("Controller Rumble", &sRumbleFlag);
-static Settings::SwitchSetting sSubtitleSetting("Movie Subtitles", &sSubtitleFlag);
-static SoundSetting sSoundSetting("Sound Playback");
+RumbleSetting gRumbleSetting("Controller Rumble");
+SoundSetting gSoundSetting("Sound Mode");
+SubtitleSetting gSubtitleSetting("Movie Subtitles");
 //
 
 // BetterSMS settings
+static bool sBugFixesFlag = true;
+Settings::SwitchSetting gBugFixesSetting("Bug & Exploit Fixes", &sBugFixesFlag);
 
+AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 //
 
 // mario.cpp
@@ -177,6 +177,15 @@ static TMarDirector *initLib() {
     initLoadingScreen();
 
     // SETTINGS
+    sSettingsGroup.addSetting(&gRumbleSetting);
+    sSettingsGroup.addSetting(&gSoundSetting);
+    sSettingsGroup.addSetting(&gSubtitleSetting);
+
+    sSettingsGroup.addSetting(&gBugFixesSetting);
+    sSettingsGroup.addSetting(&gAspectRatioSetting);
+
+    Settings::registerGroup("Better Sunshine Engine", &sSettingsGroup);
+    //
 
     // Set up application context handlers
     Application::registerContextCallback(TApplication::CONTEXT_GAME_BOOT,

@@ -26,6 +26,7 @@
 #include <SMS/object/DemoCannon.hxx>
 #include <SMS/params/Params.hxx>
 #include <SMS/screen/ShineFader.hxx>
+#include <SMS/assert.h>
 
 namespace BetterSMS {
     namespace Settings {
@@ -58,9 +59,11 @@ namespace BetterSMS {
             }
             virtual ~SingleSetting() {}
 
-            virtual ValueKind getKind() const = 0;
-            virtual void getValueStr(char *dst) const = 0;
+            virtual ValueKind getKind() const            = 0;
+            virtual void getValueStr(char *dst) const    = 0;
             virtual void setValue(const void *val) const = 0;
+            virtual void prevValue()                     = 0;
+            virtual void nextValue()                     = 0;
 
             const char *getName() { return mName; }
             void setName(const char *name) { mName = name; }
@@ -114,7 +117,7 @@ namespace BetterSMS {
             ValueChangedCallback mValueChangedCB;
         };
 
-        class BoolSetting final : public SingleSetting {
+        class BoolSetting : public SingleSetting {
         public:
             BoolSetting() = delete;
             BoolSetting(const char *name, void *valuePtr) : SingleSetting(name, valuePtr) {}
@@ -122,29 +125,31 @@ namespace BetterSMS {
 
             ValueKind getKind() const override { return ValueKind::BOOL; }
             void getValueStr(char *dst) const override {
-                getBool() ? strncpy(dst, "TRUE", 4) : strncpy(dst, "FALSE", 5);
+                getBool() ? strncpy(dst, "TRUE", 5) : strncpy(dst, "FALSE", 6);
             }
             void setValue(const void *val) const override {
                 *reinterpret_cast<bool *>(mValuePtr) = *reinterpret_cast<const bool *>(val);
             }
+            void prevValue() override {
+                setBool(getBool() ^ true);
+            }
+            void nextValue() override {
+                setBool(getBool() ^ true);
+            }
         };
 
-        class SwitchSetting final : public SingleSetting {
+        class SwitchSetting : public BoolSetting {
         public:
             SwitchSetting() = delete;
-            SwitchSetting(const char *name, void *valuePtr) : SingleSetting(name, valuePtr) {}
+            SwitchSetting(const char *name, void *valuePtr) : BoolSetting(name, valuePtr) {}
             ~SwitchSetting() override {}
 
-            ValueKind getKind() const override { return ValueKind::BOOL; }
             void getValueStr(char *dst) const override {
-                getBool() ? strncpy(dst, "ON", 2) : strncpy(dst, "OFF", 3);
-            }
-            void setValue(const void *val) const override {
-                *reinterpret_cast<bool *>(mValuePtr) = *reinterpret_cast<const bool *>(val);
+                getBool() ? strncpy(dst, "ON", 3) : strncpy(dst, "OFF", 4);
             }
         };
 
-        class IntSetting final : public SingleSetting {
+        class IntSetting : public SingleSetting {
         public:
             IntSetting() = delete;
             IntSetting(const char *name, void *valuePtr) : SingleSetting(name, valuePtr) {}
@@ -155,9 +160,25 @@ namespace BetterSMS {
             void setValue(const void *val) const override {
                 *reinterpret_cast<int *>(mValuePtr) = *reinterpret_cast<const int *>(val);
             }
+            void prevValue() override {
+                setInt(clampValueToRange(getInt() - mValueRange.mStep));
+            }
+            void nextValue() override {
+                setInt(clampValueToRange(getInt() + mValueRange.mStep));
+            }
+
+        private:
+            int clampValueToRange(int x) const {
+                if (x > mValueRange.mStop) {
+                    x = mValueRange.mStart + (x - mValueRange.mStop - 1);
+                } else if (x < mValueRange.mStart) {
+                    x = mValueRange.mStop + (x - mValueRange.mStart + 1);
+                }
+                return x;
+            }
         };
 
-        class FloatSetting final : public SingleSetting {
+        class FloatSetting : public SingleSetting {
         public:
             FloatSetting() = delete;
             FloatSetting(const char *name, void *valuePtr) : SingleSetting(name, valuePtr) {}
@@ -167,6 +188,22 @@ namespace BetterSMS {
             void getValueStr(char *dst) const override { snprintf(dst, 16, "%f", getFloat()); }
             void setValue(const void *val) const override {
                 *reinterpret_cast<float *>(mValuePtr) = *reinterpret_cast<const float *>(val);
+            }
+            void prevValue() override {
+                setFloat(clampValueToRange(getFloat() - mValueRange.mStep));
+            }
+            void nextValue() override {
+                setFloat(clampValueToRange(getFloat() + mValueRange.mStep));
+            }
+
+        private:
+            f32 clampValueToRange(f32 x) const {
+                if (x > mValueRange.mStop) {
+                    x = mValueRange.mStart + (x - mValueRange.mStop);
+                } else if (x < mValueRange.mStart) {
+                    x = mValueRange.mStop + (x - mValueRange.mStart);
+                }
+                return x;
             }
         };
 
@@ -192,7 +229,7 @@ namespace BetterSMS {
                 }
                 return nullptr;
             }
-            SettingsList getSettings() const { return mSettings; }
+            SettingsList &getSettings() { return mSettings; }
 
             void setName(const char *name) { mName = name; }
             void setSettings(const SettingsList &settings) { mSettings = settings; }
