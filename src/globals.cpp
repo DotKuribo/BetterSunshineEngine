@@ -23,12 +23,6 @@ bool BetterSMS::sIsDebugMode = true;
 bool BetterSMS::sIsDebugMode = true;
 #endif
 
-#if BETTER_SMS_WIDESCREEN
-u32 BetterSMS::sScreenWidth = 700;
-#else
-u32 BetterSMS::sScreenWidth = 600;
-#endif
-
 f32 BetterSMS::sFrameRate = 30.0f;
 
 extern void initDebugCallbacks(TApplication *app);
@@ -47,7 +41,19 @@ void BetterSMS::setDebugMode(bool active) {
 }
 
 extern AspectRatioSetting gAspectRatioSetting;
-int BetterSMS::getScreenWidth() {
+int BetterSMS::getScreenRenderWidth() {
+    switch (gAspectRatioSetting.getInt()) {
+    default:
+    case AspectRatioSetting::FULL:
+        return 640;
+    case AspectRatioSetting::WIDE:
+        return 853;
+    case AspectRatioSetting::ULTRAWIDE:
+        return 1120;
+    }
+}
+
+int BetterSMS::getScreenOrthoWidth() {
     switch (gAspectRatioSetting.getInt()) {
     default:
     case AspectRatioSetting::FULL:
@@ -59,7 +65,7 @@ int BetterSMS::getScreenWidth() {
     }
 }
 
-f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenWidth()) / 600.0f; }
+f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenRenderWidth()) / 600.0f; }
 f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
 
 f32 BetterSMS::getFrameRate() { return sFrameRate; }

@@ -210,7 +210,7 @@ void SettingsDirector::initialize() {
 }
 
 void SettingsDirector::initializeLayout() {
-    const int screenWidth   = BetterSMS::getScreenWidth();
+    const int screenWidth   = BetterSMS::getScreenRenderWidth();
     const int screenHeight  = 480;
     const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
 

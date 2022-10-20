@@ -25,9 +25,9 @@ using namespace BetterSMS;
 
 #if BETTER_SMS_WIDESCREEN
 
-static f32 getScreenWidthf() { return static_cast<f32>(getScreenWidth()); }
+static f32 getScreenWidthf() { return static_cast<f32>(getScreenRenderWidth()); }
 
-static f32 getScreenWidthTranslated() { return static_cast<f32>(getScreenWidth()) + getScreenRatioAdjustX(); }
+static f32 getScreenWidthTranslated() { return static_cast<f32>(getScreenRenderWidth()) + getScreenRatioAdjustX(); }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A3E78, 0x8029BD54, 0, 0), getScreenWidthTranslated);
 SMS_WRITE_32(SMS_PORT_REGION(0x802A3E7C, 0x8029BD58, 0, 0), 0xD03C0038);
 
@@ -236,10 +236,10 @@ static void scaleSelectMenuGrad(u32 type, u32 idx, u32 count) {
     GXPosition3f32(static_cast<f32>(-getScreenRatioAdjustX()), 16.0f, -100.0f);
     GXColor3u8(grad->mColorX1.r, grad->mColorX1.g, grad->mColorX1.b);
 
-    GXPosition3f32(static_cast<f32>(getScreenWidth()), 16.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(getScreenRenderWidth()), 16.0f, -100.0f);
     GXColor3u8(yColorR, yColorG, yColorB);
 
-    GXPosition3f32(static_cast<f32>(getScreenWidth()), 464.0f, -100.0f);
+    GXPosition3f32(static_cast<f32>(getScreenRenderWidth()), 464.0f, -100.0f);
     GXColor3u8(grad->mColorX2.r, grad->mColorX2.g, grad->mColorX2.b);
 
     GXPosition3f32(static_cast<f32>(-getScreenRatioAdjustX()), 464.0f, -100.0f);
@@ -285,7 +285,7 @@ static void fixDemoMasksWideScreen_InitStaticGoPanes(TConsoleStr *consoleStr) {
     for (u32 i = 0; i < 2; ++i) {
         JUTRect &rect = consoleStr->mDemoWipeExPanes[i]->mPane->mRect;
         rect.mX1      = static_cast<s32>(-((ratio - 1) * 600.0f));
-        rect.mX2      = getScreenWidth();
+        rect.mX2      = getScreenRenderWidth();
 
         consoleStr->mDemoWipeExPanes[i]->mRect.copy(rect);
     }
@@ -296,7 +296,7 @@ static void fixDemoMasksWideScreen_InitStaticGoPanes(TConsoleStr *consoleStr) {
     consoleStr->mDemoMaskExPanes[0]->mRect.copy(*rect);
 
     rect      = &consoleStr->mDemoMaskExPanes[1]->mPane->mRect;
-    rect->mX2 = getScreenWidth();
+    rect->mX2 = getScreenRenderWidth();
 
     consoleStr->mDemoMaskExPanes[1]->mRect.copy(*rect);
 }
@@ -337,7 +337,7 @@ static void fixGuideWideScreenOpen(TSMSFader *fader, u32 type, f32 time, f32 del
     sGuideBorderPanes[1] = *pane;
 
     rect->mX1        = guide->mScreen->mRect.mX2;
-    rect->mX2        = getScreenWidth();
+    rect->mX2        = getScreenRenderWidth();
     pane->mAlpha     = 0xFF;
     pane->mIsVisible = true;
 
