@@ -110,7 +110,7 @@ void drawDebugCallbacks(J2DOrthoGraph *ortho) {
     if (!BetterSMS::isDebugMode())
         return;
 
-    // J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenWidth(), 480);
+    // J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenRenderWidth(), 480);
 
     TDictS<Debug::DrawCallback>::ItemList drawCBs;
     sDebugDrawCBs.items(drawCBs);

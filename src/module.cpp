@@ -26,19 +26,24 @@
 #include "common_sdk.h"
 
 // SETTINGS //
-static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine");
 
 // Sunshine settings
+static Settings::SettingsGroup sBaseSettingsGroup("Super Mario Sunshine", Settings::Priority::CORE);
 RumbleSetting gRumbleSetting("Controller Rumble");
 SoundSetting gSoundSetting("Sound Mode");
 SubtitleSetting gSubtitleSetting("Movie Subtitles");
 //
 
 // BetterSMS settings
+static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine",
+                                              Settings::Priority::CORE);
+
 static bool sBugFixesFlag = true;
 Settings::SwitchSetting gBugFixesSetting("Bug & Exploit Fixes", &sBugFixesFlag);
 
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
+
+FPSSetting gFPSSetting("Frame Rate");
 //
 
 // mario.cpp
@@ -134,6 +139,9 @@ extern void forceValidRidingAnimation(TMario *player, bool isMario);
 extern void initStreamInfo(TApplication *app);
 extern void printStreamInfo(TApplication *app, J2DOrthoGraph *graph);
 
+// FPS
+extern void updateFPS(TMarDirector *);
+
 // LOADING SCREEN
 extern void initLoadingScreen();
 
@@ -177,13 +185,15 @@ static TMarDirector *initLib() {
     initLoadingScreen();
 
     // SETTINGS
-    sSettingsGroup.addSetting(&gRumbleSetting);
-    sSettingsGroup.addSetting(&gSoundSetting);
-    sSettingsGroup.addSetting(&gSubtitleSetting);
+    sBaseSettingsGroup.addSetting(&gRumbleSetting);
+    sBaseSettingsGroup.addSetting(&gSoundSetting);
+    sBaseSettingsGroup.addSetting(&gSubtitleSetting);
 
     sSettingsGroup.addSetting(&gBugFixesSetting);
     sSettingsGroup.addSetting(&gAspectRatioSetting);
+    sSettingsGroup.addSetting(&gFPSSetting);
 
+    Settings::registerGroup("Super Mario Sunshine", &sBaseSettingsGroup);
     Settings::registerGroup("Better Sunshine Engine", &sSettingsGroup);
     //
 
@@ -268,6 +278,10 @@ static TMarDirector *initLib() {
                                     TGenericRailObj::instantiate);
 
     Game::registerOnBootCallback("__init_debug_handles", initDebugCallbacks);
+
+    //Game::registerOnBootCallback("__init_fps", updateFPSBoot);
+    Stage::registerInitCallback("__init_fps", updateFPS);
+    Stage::registerUpdateCallback("__update_fps", updateFPS);
 
     return director;
 }

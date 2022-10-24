@@ -8,7 +8,6 @@
 #include <SMS/sound/MSoundSESystem.hxx>
 
 #include "collision/warp.hxx"
-#include "globals.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"
 #include "player.hxx"

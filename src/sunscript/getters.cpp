@@ -1,7 +1,6 @@
 #include <SMS/Player/Mario.hxx>
 #include <SMS/System/Application.hxx>
 
-#include "globals.hxx"
 #include "sunscript.hxx"
 #include "time.hxx"
 

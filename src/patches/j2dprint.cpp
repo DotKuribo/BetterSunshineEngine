@@ -60,7 +60,7 @@ static void cullJ2DPrint(J2DPrint *printer, int unk_0, int unk_1, u8 unk_2, cons
 
   va_end(vargs);
 
-  if (sPrintX > 0 && (sPrintX + strlen(msg)) < SME::TGlobals::getScreenWidth())
+  if (sPrintX > 0 && (sPrintX + strlen(msg)) < SME::TGlobals::getScreenRenderWidth())
     printer->print(0, 0, unk_2, formatter, msg);
 
   String finalStr(1024);
@@ -71,7 +71,7 @@ static void cullJ2DPrint(J2DPrint *printer, int unk_0, int unk_1, u8 unk_2, cons
   for (u32 i = 0; i < numLines; ++i) {
     String *line = lines[i];
     size_t cullL = Max((-sPrintX / fontWidth) - 2, 0);
-    size_t cullR = ((-sPrintX + (line->size() * fontWidth)) / SME::TGlobals::getScreenWidth()) + 2;
+    size_t cullR = ((-sPrintX + (line->size() * fontWidth)) / SME::TGlobals::getScreenRenderWidth()) + 2;
 
     line->substr(const_cast<char *>(finalStr.data()) + finalStr.end(), cullL, cullR);
   }
@@ -102,7 +102,7 @@ static void cullJ2DPrint(J2DPrint *printer, int unk_0, int unk_1, u8 unk_2, cons
 
     va_end(vargs);
 
-    if ((sPrintX > 0 && (sPrintX + strlen(msg)) < SME::TGlobals::getScreenWidth()) ||
+    if ((sPrintX > 0 && (sPrintX + strlen(msg)) < SME::TGlobals::getScreenRenderWidth()) ||
         strchr(msg, '\n') != nullptr)
         printer->print(0, 0, unk_2, formatter, msg);
 
@@ -110,7 +110,7 @@ static void cullJ2DPrint(J2DPrint *printer, int unk_0, int unk_1, u8 unk_2, cons
 
     f32 cullL = Max((f32(-sPrintX) / fontWidth) - 2.0f, 0);
     f32 cullR = Max(
-        ((f32(-sPrintX) + (f32(culledMsg.size()) * fontWidth)) / SME::TGlobals::getScreenWidth()) +
+        ((f32(-sPrintX) + (f32(culledMsg.size()) * fontWidth)) / SME::TGlobals::getScreenRenderWidth()) +
             2.0f,
         cullL);
 
@@ -137,7 +137,7 @@ static void maybePrintChar(JUTFont *font, f32 x, f32 y, f32 w, f32 h, int ascii,
     int absX = static_cast<int>(sDrawMtx[0][3] + x);
     int absY = static_cast<int>(sDrawMtx[1][3] + y);
 
-    if (absX + fontWidth > -offset && absX < SME::TGlobals::getScreenWidth())
+    if (absX + fontWidth > -offset && absX < SME::TGlobals::getScreenRenderWidth())
         font->drawChar_scale(x, y, w, h, ascii, unk_1);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802CEC2C, 0x802C6DD4, 0, 0), maybePrintChar);

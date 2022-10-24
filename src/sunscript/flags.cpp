@@ -1,4 +1,5 @@
-#include "globals.hxx"
+#include <Dolphin/types.h>
+#include "module.hxx"
 #include "sunscript.hxx"
 
 void Spc::isDebugMode(TSpcInterp *interp, u32 argc) {

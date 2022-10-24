@@ -13,9 +13,4 @@ namespace BetterSMS {
     extern bool sIsDebugMode;
     extern u32 sScreenWidth;
     extern f32 sFrameRate;
-
-    bool isDebugMode();
-    bool isMusicBeingStreamed();
-    bool isMusicStreamingAllowed();
-    void setDebugMode(bool active);
 }  // namespace BetterSMS

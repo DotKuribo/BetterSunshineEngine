@@ -21,7 +21,6 @@
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"
-#include "globals.hxx"
 #include "libs/constmath.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"

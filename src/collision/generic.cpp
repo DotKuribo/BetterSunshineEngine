@@ -6,7 +6,7 @@
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"
-#include "globals.hxx"
+#include "p_globals.hxx"
 #include "logging.hxx"
 #include "math.hxx"
 #include "module.hxx"

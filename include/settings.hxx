@@ -30,6 +30,8 @@
 
 namespace BetterSMS {
     namespace Settings {
+        enum class Priority { CORE, GAME, MODE };
+
         class SettingsGroup;
 
         SettingsGroup *getGroup(const char *name);
@@ -54,7 +56,8 @@ namespace BetterSMS {
         public:
             SingleSetting() = delete;
             SingleSetting(const char *name, void *valuePtr)
-                : mName(name), mValuePtr(valuePtr), mValueRange() {
+                : mName(name), mValuePtr(valuePtr), mValueRange(), mIsUserEditable(true),
+                  mEditPriority(Priority::MODE) {
                 mValueChangedCB = nullptr;
             }
             virtual ~SingleSetting() {}
@@ -64,6 +67,14 @@ namespace BetterSMS {
             virtual void setValue(const void *val) const = 0;
             virtual void prevValue()                     = 0;
             virtual void nextValue()                     = 0;
+
+            bool isUserEditable() const { return mIsUserEditable; }
+            void setUserEditable(bool editable, Priority priority) {
+                if (static_cast<int>(priority) <= static_cast<int>(mEditPriority)) {
+                    mIsUserEditable = editable;
+                    mEditPriority   = priority;
+                }
+            }
 
             const char *getName() { return mName; }
             void setName(const char *name) { mName = name; }
@@ -113,6 +124,8 @@ namespace BetterSMS {
         protected:
             const char *mName;
             void *mValuePtr;
+            bool mIsUserEditable;
+            Priority mEditPriority;
             ValueRange mValueRange;
             ValueChangedCallback mValueChangedCB;
         };
@@ -213,12 +226,9 @@ namespace BetterSMS {
 
         public:
             SettingsGroup() = delete;
-            SettingsGroup(const char *name) : mName(name), mSettings(), mIsUserEditable(true) {}
-            SettingsGroup(const char *name, const SettingsList &settings)
-                : mName(name), mSettings(settings), mIsUserEditable(true) {}
-
-            bool isUserEditable() const { return mIsUserEditable; }
-            void setUserEditable(bool editable) { mIsUserEditable = editable; }
+            SettingsGroup(const char *name, Priority prio) : mName(name), mOrderPriority(prio), mSettings() {}
+            SettingsGroup(const char *name, const SettingsList &settings, Priority prio)
+                : mName(name), mOrderPriority(prio), mSettings(settings) {}
 
             const char *getName() const { return mName; }
             SingleSetting *getSetting(const char *name) {
@@ -230,6 +240,7 @@ namespace BetterSMS {
                 return nullptr;
             }
             SettingsList &getSettings() { return mSettings; }
+            Priority getPriority() { return mOrderPriority; }
 
             void setName(const char *name) { mName = name; }
             void setSettings(const SettingsList &settings) { mSettings = settings; }
@@ -255,7 +266,7 @@ namespace BetterSMS {
         private:
             const char *mName;
             SettingsList mSettings;
-            bool mIsUserEditable;
+            Priority mOrderPriority;
         };
 
 #pragma endregion

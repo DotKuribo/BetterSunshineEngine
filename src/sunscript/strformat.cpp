@@ -1,4 +1,4 @@
-#include "globals.hxx"
+#include <Dolphin/types.h>
 #include "sunscript.hxx"
 
 

@@ -14,9 +14,10 @@
 #include <SMS/System/Resolution.hxx>
 
 #include "libs/anim2d.hxx"
+#include "libs/container.hxx"
 #include "icons.hxx"
-#include "globals.hxx"
 #include "settings.hxx"
+#include "module.hxx"
 
 using namespace BetterSMS;
 
@@ -28,6 +29,8 @@ static const u8 *sLoadingIconTIMGs[] = {
     gShineSpriteIconFrame13, gShineSpriteIconFrame14, gShineSpriteIconFrame15,
     gShineSpriteIconFrame16
 };
+
+void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out);
 
 inline int getTextWidth(J2DTextBox *textbox) {
     const size_t textLength = strlen(textbox->mStrPtr);
@@ -45,7 +48,7 @@ inline int getTextWidth(J2DTextBox *textbox) {
 inline void centerTextBoxX(J2DTextBox* textbox, int width) {
     int textWidth      = getTextWidth(textbox);
     textbox->mRect.mX1 = ((width >> 1) - (getScreenRatioAdjustX() / 2)) -
-                         (getTextWidth(textbox) >> 1) - textbox->mCharSizeX;
+                         (getTextWidth(textbox) >> 1) - textbox->mCharSizeX - 4;
     textbox->mRect.mX2 = textbox->mRect.mX1 + textWidth + (strlen(textbox->mStrPtr) * textbox->mCharSizeX);
 }
 
@@ -58,6 +61,7 @@ struct SettingInfo {
 struct GroupInfo {
     J2DPane *mGroupPane;
     Settings::SettingsGroup *mSettingGroup;
+    JGadget::TList<SettingInfo *> mSettingInfos;
 };
 
 class SettingsScreen : public JDrama::TViewObj {
@@ -67,7 +71,7 @@ public:
     SettingsScreen(TMarioGamePad *controller)
         : TViewObj("<SettingsScreen>"),
           mScreen(nullptr), mController(controller), mShineIcon(nullptr), mCurrentTextBox(nullptr), mGroupID(0),
-          mSettingID(0), mGroups(), mSettings() {
+          mSettingID(0), mGroups() {
         mShineAnimator = SimpleTexAnimator(sLoadingIconTIMGs, 16);
     }
 
@@ -93,12 +97,12 @@ public:
             //mShineIcon->mIsVisible = true;
 
             const u32 settingMagic = ('s' << 24) | mSettingID;
-            J2DPane *settingPane   = mScreen->search(settingMagic);
+            J2DPane *settingPane   = groupPane->search(settingMagic);
             if (!settingPane)
                 return;
 
             const u32 settingBackMagic = ('b' << 24) | mSettingID;
-            J2DPane *settingBackPane   = mScreen->search(settingBackMagic);
+            J2DPane *settingBackPane   = groupPane->search(settingBackMagic);
             if (!settingBackPane)
                 return;
 
@@ -120,7 +124,7 @@ public:
             ReInitializeGX();
             SMS_DrawInit();
 
-            J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenWidth(), 480);
+            J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), SMSGetTitleRenderHeight());
             ortho.setup2D();
 
             mScreen->draw(0, 0, &ortho);
@@ -130,18 +134,27 @@ public:
 private:
     void processInput() {
         {
-            auto oldID = mSettingID;
+            auto currentID = mSettingID;
 
             if ((mController->mFrameMeaning & 0x4)) {
-                mSettingID += 1;
+                for (int i = mSettingID + 1; i < mCurrentGroupInfo->mSettingInfos.size(); ++i) {
+                    auto *settingInfo = getSettingInfo(i);
+                    if (settingInfo->mSettingData->isUserEditable()) {
+                        mCurrentSettingInfo = settingInfo;
+                        mSettingID          = i;
+                        break;
+                    }
+                }
             }
             if ((mController->mFrameMeaning & 0x2)) {
-                mSettingID -= 1;
-            }
-            mSettingID = Clamp(mSettingID, 0, mSettings.size() - 1);
-
-            if (oldID != mSettingID || !mCurrentSettingInfo) {
-                mCurrentSettingInfo = getSettingInfo(mSettingID);
+                for (int i = mSettingID - 1; i >= 0; --i) {
+                    auto *settingInfo = getSettingInfo(i);
+                    if (settingInfo->mSettingData->isUserEditable()) {
+                        mCurrentSettingInfo = settingInfo;
+                        mSettingID          = i;
+                        break;
+                    }
+                }
             }
         }
 
@@ -154,16 +167,17 @@ private:
                 snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
                          mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
             }
-            centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenWidth());
-            mCurrentSettingInfo->mSettingTextBox->mRect.mY1 = 120 + (28 * mSettingID);
-            mCurrentSettingInfo->mSettingTextBox->mRect.mY2 = 140 + (28 * mSettingID);
+            centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenRenderWidth());
+            mCurrentSettingInfo->mSettingTextBox->mRect.mY1 = 110 + (28 * mSettingID);
+            mCurrentSettingInfo->mSettingTextBox->mRect.mY2 = 158 + (28 * mSettingID);
 
-            centerTextBoxX(mCurrentSettingInfo->mSettingTextBoxBack, BetterSMS::getScreenWidth());
+            centerTextBoxX(mCurrentSettingInfo->mSettingTextBoxBack, BetterSMS::getScreenRenderWidth());
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX1 += 2;
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX2 += 2;
-            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY1 = 120 + (28 * mSettingID) + 2;
-            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 140 + (28 * mSettingID) + 2;
+            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY1 = 110 + (28 * mSettingID) + 2;
+            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;
         }
+
         if (mController->mFrameMeaning & 0x8) {
             mCurrentSettingInfo->mSettingData->prevValue();
             {
@@ -173,15 +187,15 @@ private:
                 snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
                          mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
             }
-            centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenWidth());
-            mCurrentSettingInfo->mSettingTextBox->mRect.mY1 = 120 + (28 * mSettingID);
-            mCurrentSettingInfo->mSettingTextBox->mRect.mY2 = 140 + (28 * mSettingID);
+            centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenRenderWidth());
+            mCurrentSettingInfo->mSettingTextBox->mRect.mY1 = 110 + (28 * mSettingID);
+            mCurrentSettingInfo->mSettingTextBox->mRect.mY2 = 158 + (28 * mSettingID);
 
-            centerTextBoxX(mCurrentSettingInfo->mSettingTextBoxBack, BetterSMS::getScreenWidth());
+            centerTextBoxX(mCurrentSettingInfo->mSettingTextBoxBack, BetterSMS::getScreenRenderWidth());
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX1 += 2;
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX2 += 2;
-            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY1 = 120 + (28 * mSettingID) + 2;
-            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 140 + (28 * mSettingID) + 2;
+            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY1 = 110 + (28 * mSettingID) + 2;
+            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;
         }
 
         {
@@ -196,7 +210,10 @@ private:
             mGroupID = Clamp(mGroupID, 0, mGroups.size() - 1);
 
             if (oldID != mGroupID) {
-                mCurrentSettingInfo = getSettingInfo(mGroupID);
+                mCurrentGroupInfo->mGroupPane->mIsVisible = false;
+                mCurrentGroupInfo = getGroupInfo(mGroupID);
+                mCurrentGroupInfo->mGroupPane->mIsVisible = true;
+                mCurrentSettingInfo = getSettingInfo(0);
                 mSettingID          = 0;
             }
         }
@@ -212,8 +229,8 @@ private:
     }
 
     SettingInfo *getSettingInfo(u32 index) {
-        auto it = mSettings.begin();
-        for (int i = 0; i < mSettings.size(); ++i, ++it) {
+        auto it = mCurrentGroupInfo->mSettingInfos.begin();
+        for (int i = 0; i < mCurrentGroupInfo->mSettingInfos.size(); ++i, ++it) {
             if (i == index)
                 return *it;
         }
@@ -230,7 +247,6 @@ private:
     SettingInfo *mCurrentSettingInfo;
     SimpleTexAnimator mShineAnimator;
     JGadget::TList<GroupInfo *> mGroups;
-    JGadget::TList<SettingInfo *> mSettings;
 };
 
 class SettingsDirector : public JDrama::TDirector {
@@ -248,6 +264,7 @@ public:
 private:
     void initialize();
     void initializeLayout();
+    void saveSettings();
 
     s32 exit();
 
@@ -329,8 +346,6 @@ private:
     static int sSoundValue;
 };
 
-
-
 class AspectRatioSetting final : public Settings::IntSetting {
 public:
     enum Kind { FULL, WIDE, ULTRAWIDE };
@@ -357,4 +372,32 @@ public:
 
 private:
     static int sAspectRatioValue;
+};
+
+class FPSSetting final : public Settings::IntSetting {
+public:
+    enum Kind { FPS_30, FPS_60, FPS_120 };
+
+    FPSSetting(const char *name) : IntSetting(name, &FPSSetting::sFPSValue) {
+        mValueRange = {0, 1, 1};
+    }
+    ~FPSSetting() override {}
+
+    void getValueStr(char *dst) const override {
+        switch (getInt()) {
+        default:
+        case Kind::FPS_30:
+            strncpy(dst, "30 FPS", 7);
+            break;
+        case Kind::FPS_60:
+            strncpy(dst, "60 FPS", 7);
+            break;
+        case Kind::FPS_120:
+            strncpy(dst, "120 FPS", 8);
+            break;
+        }
+    }
+
+private:
+    static int sFPSValue;
 };

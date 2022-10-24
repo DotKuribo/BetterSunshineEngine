@@ -5,7 +5,7 @@
 #include <SMS/macros.h>
 
 #include "collision/warp.hxx"
-#include "globals.hxx"
+#include "p_globals.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"
 
@@ -41,19 +41,9 @@ void BetterSMS::setDebugMode(bool active) {
 }
 
 extern AspectRatioSetting gAspectRatioSetting;
-int BetterSMS::getScreenRenderWidth() {
-    switch (gAspectRatioSetting.getInt()) {
-    default:
-    case AspectRatioSetting::FULL:
-        return 640;
-    case AspectRatioSetting::WIDE:
-        return 853;
-    case AspectRatioSetting::ULTRAWIDE:
-        return 1120;
-    }
-}
+extern FPSSetting gFPSSetting;
 
-int BetterSMS::getScreenOrthoWidth() {
+int BetterSMS::getScreenRenderWidth() {
     switch (gAspectRatioSetting.getInt()) {
     default:
     case AspectRatioSetting::FULL:
@@ -62,6 +52,17 @@ int BetterSMS::getScreenOrthoWidth() {
         return 700;
     case AspectRatioSetting::ULTRAWIDE:
         return 1050;
+    }
+}
+int BetterSMS::getScreenOrthoWidth() {
+    switch (gAspectRatioSetting.getInt()) {
+    default:
+    case AspectRatioSetting::FULL:
+        return 640;
+    case AspectRatioSetting::WIDE:
+        return 853;
+    case AspectRatioSetting::ULTRAWIDE:
+        return 1120;
     }
 }
 

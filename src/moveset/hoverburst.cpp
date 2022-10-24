@@ -57,7 +57,8 @@ static bool checkAirNozzle() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    sIsTriggerNozzleDead &= !SMS_IsMarioTouchGround4cm__Fv();
+    sIsTriggerNozzleDead &=
+        !SMS_IsMarioTouchGround4cm__Fv() && !SMS_IsMarioStatusTypeSwimming__Fv() && !(player->mState == TMario::STATE_NPC_BOUNCE);
 
     if (player->mFludd->mCurrentNozzle == TWaterGun::Spray ||
         player->mFludd->mCurrentNozzle == TWaterGun::Yoshi ||

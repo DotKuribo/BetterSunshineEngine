@@ -3,7 +3,7 @@
 #include <SMS/Player/MarioGamePad.hxx>
 #include <SMS/collision/BGCheck.hxx>
 
-#include "globals.hxx"
+#include "p_globals.hxx"
 #include "module.hxx"
 
 static u8 sHomeID   = 0;
