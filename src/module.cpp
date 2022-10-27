@@ -410,6 +410,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     KURIBO_EXPORT(BetterSMS::Music::setLoopPoint);
     KURIBO_EXPORT(BetterSMS::Music::getAudioStreamer);
 
+    /* SETTINGS */
+    KURIBO_EXPORT(BetterSMS::Settings::getGroup);
+    KURIBO_EXPORT(BetterSMS::Settings::isGroupRegistered);
+    KURIBO_EXPORT(BetterSMS::Settings::registerGroup);
+    KURIBO_EXPORT(BetterSMS::Settings::deregisterGroup);
+
 /* OBJECTS */
 #if BETTER_SMS_EXTRA_OBJECTS
     KURIBO_EXPORT(BetterSMS::Objects::isObjectRegistered);
