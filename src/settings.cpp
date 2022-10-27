@@ -777,7 +777,7 @@ int SettingsDirector::openSave(const s32 channel, char *dataOut, const Settings:
         CARDSetBannerFmt(&fstatus, info.mBannerFmt);
         CARDSetIconAddr(&fstatus, CARD_DIRENTRY_SIZE);
         CARDSetCommentAddr(&fstatus, 4);
-        for (s32 i = info.mIconCount - 1; i >= 0; --i) {
+        for (s32 i = 0; i < info.mIconCount; ++i) {
             CARDSetIconFmt(&fstatus, i, info.mIconFmt);
             CARDSetIconSpeed(&fstatus, i, info.mIconSpeed);
         }

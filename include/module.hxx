@@ -156,13 +156,10 @@
 namespace BetterSMS {
     bool isGameEmulated();
     bool isMusicBeingStreamed();
+    bool isMusicStreamingAllowed();
 
     bool isDebugMode();
     void setDebugMode(bool);
-
-    bool isMusicStreamingAllowed();
-    bool isMusicBeingStreamed();
-    void setMusicStreamingAllowed(bool);
 
     int getScreenRenderWidth();
     int getScreenOrthoWidth();

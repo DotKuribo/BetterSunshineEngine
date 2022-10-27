@@ -331,11 +331,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     /* MODULE */
     KURIBO_EXPORT(BetterSMS::isGameEmulated);
     KURIBO_EXPORT(BetterSMS::isMusicBeingStreamed);
+    KURIBO_EXPORT(BetterSMS::isMusicStreamingAllowed);
     KURIBO_EXPORT(BetterSMS::isDebugMode);
     KURIBO_EXPORT(BetterSMS::setDebugMode);
-    KURIBO_EXPORT(BetterSMS::isMusicStreamingAllowed);
-    KURIBO_EXPORT(BetterSMS::isMusicBeingStreamed);
-    KURIBO_EXPORT(BetterSMS::setMusicStreamingAllowed);
     KURIBO_EXPORT(BetterSMS::getScreenRenderWidth);
     KURIBO_EXPORT(BetterSMS::getScreenOrthoWidth);
     KURIBO_EXPORT(BetterSMS::getScreenToFullScreenRatio);

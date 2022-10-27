@@ -30,7 +30,7 @@ extern void initDebugCallbacks(TApplication *app);
 bool BetterSMS::isGameEmulated() { return BootInfo.mConsoleType == OS_CONSOLE_DEV_KIT3; }
 bool BetterSMS::isDebugMode() { return sIsDebugMode; }
 bool BetterSMS::isMusicBeingStreamed() { return sIsAudioStreaming; }
-bool BetterSMS::isMusicStreamingAllowed() { return sIsAudioStreamAllowed; }
+bool BetterSMS::isMusicStreamingAllowed() { return *reinterpret_cast<bool *>(0x80000008); }
 void BetterSMS::setDebugMode(bool active) {
     const bool isDebugStarted = !sIsDebugMode && active;
 
