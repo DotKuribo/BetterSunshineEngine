@@ -54,7 +54,7 @@ SMS_NO_INLINE void *BetterSMS::Memory::hcalloc(JKRHeap *heap, const size_t size,
 
 SMS_NO_INLINE void BetterSMS::Memory::free(const void *ptr) { delete (u8 *)ptr; }
 
-SMS_NO_INLINE u32 *BetterSMS::PPC::getBranchDest(u32 *bAddr) {
+SMS_NO_INLINE u32 *BetterSMS::PowerPC::getBranchDest(u32 *bAddr) {
     s32 offset;
     u32 instr = *bAddr;
 
@@ -65,17 +65,17 @@ SMS_NO_INLINE u32 *BetterSMS::PPC::getBranchDest(u32 *bAddr) {
     return static_cast<u32 *>(bAddr + (offset / 4));
 }
 
-SMS_NO_INLINE void BetterSMS::PPC::writeU8(u8 *ptr, u8 value) {
+SMS_NO_INLINE void BetterSMS::PowerPC::writeU8(u8 *ptr, u8 value) {
     *ptr = value;
     BetterSMS::Cache::flush(ptr, sizeof(u8));
 }
 
-SMS_NO_INLINE void BetterSMS::PPC::writeU16(u16 *ptr, u16 value) {
+SMS_NO_INLINE void BetterSMS::PowerPC::writeU16(u16 *ptr, u16 value) {
     *ptr = value;
     BetterSMS::Cache::flush(ptr, sizeof(u16));
 }
 
-SMS_NO_INLINE void BetterSMS::PPC::writeU32(u32 *ptr, u32 value) {
+SMS_NO_INLINE void BetterSMS::PowerPC::writeU32(u32 *ptr, u32 value) {
     *ptr = value;
     BetterSMS::Cache::flush(ptr, sizeof(u32));
 }

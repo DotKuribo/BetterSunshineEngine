@@ -10,6 +10,7 @@
 #include "cstd/stdlib.h"
 #include "debug.hxx"
 #include "game.hxx"
+#include "loading.hxx"
 #include "logging.hxx"
 #include "memory.hxx"
 #include "module.hxx"
@@ -327,10 +328,30 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     KURIBO_EXECUTE_ON_UNLOAD { destroyLib(); }
 
     // Generate exports
+    /* MODULE */
+    KURIBO_EXPORT(BetterSMS::isGameEmulated);
+    KURIBO_EXPORT(BetterSMS::isMusicBeingStreamed);
+    KURIBO_EXPORT(BetterSMS::isDebugMode);
+    KURIBO_EXPORT(BetterSMS::setDebugMode);
+    KURIBO_EXPORT(BetterSMS::isMusicStreamingAllowed);
+    KURIBO_EXPORT(BetterSMS::isMusicBeingStreamed);
+    KURIBO_EXPORT(BetterSMS::setMusicStreamingAllowed);
+    KURIBO_EXPORT(BetterSMS::getScreenRenderWidth);
+    KURIBO_EXPORT(BetterSMS::getScreenOrthoWidth);
+    KURIBO_EXPORT(BetterSMS::getScreenToFullScreenRatio);
+    KURIBO_EXPORT(BetterSMS::getScreenRatioAdjustX);
+    KURIBO_EXPORT(BetterSMS::getFrameRate);
+
     /* BMG */
     KURIBO_EXPORT(BetterSMS::BMG::isBMGCommandRegistered);
     KURIBO_EXPORT(BetterSMS::BMG::registerBMGCommandCallback);
     KURIBO_EXPORT(BetterSMS::BMG::deregisterBMGCommandCallback);
+
+    /* LOGGING */
+    KURIBO_EXPORT(BetterSMS::Console::log);
+    KURIBO_EXPORT(BetterSMS::Console::emulatorLog);
+    KURIBO_EXPORT(BetterSMS::Console::hardwareLog);
+    KURIBO_EXPORT(BetterSMS::Console::debugLog);
 
     /* DEBUG */
     KURIBO_EXPORT(BetterSMS::Debug::isInitRegistered);
@@ -340,22 +361,43 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     KURIBO_EXPORT(BetterSMS::Debug::deregisterInitCallback);
     KURIBO_EXPORT(BetterSMS::Debug::deregisterUpdateCallback);
 
-    /* LOGGING */
-    KURIBO_EXPORT(BetterSMS::Console::log);
-    KURIBO_EXPORT(BetterSMS::Console::emulatorLog);
-    KURIBO_EXPORT(BetterSMS::Console::hardwareLog);
-    KURIBO_EXPORT(BetterSMS::Console::debugLog);
-
     /* MEMORY */
     KURIBO_EXPORT(BetterSMS::Memory::malloc);
     KURIBO_EXPORT(BetterSMS::Memory::calloc);
     KURIBO_EXPORT(BetterSMS::Memory::hmalloc);
     KURIBO_EXPORT(BetterSMS::Memory::hcalloc);
     KURIBO_EXPORT(BetterSMS::Memory::free);
-    KURIBO_EXPORT(BetterSMS::PPC::getBranchDest);
-    KURIBO_EXPORT(BetterSMS::PPC::writeU8);
-    KURIBO_EXPORT(BetterSMS::PPC::writeU16);
-    KURIBO_EXPORT(BetterSMS::PPC::writeU32);
+    KURIBO_EXPORT(BetterSMS::PowerPC::getBranchDest);
+    KURIBO_EXPORT(BetterSMS::PowerPC::writeU8);
+    KURIBO_EXPORT(BetterSMS::PowerPC::writeU16);
+    KURIBO_EXPORT(BetterSMS::PowerPC::writeU32);
+
+    /* LOADING */
+    KURIBO_EXPORT(BetterSMS::Loading::setLoading);
+    KURIBO_EXPORT(BetterSMS::Loading::setLoadingIconB);
+    KURIBO_EXPORT(BetterSMS::Loading::setLoadingIconW);
+    KURIBO_EXPORT(BetterSMS::Loading::setFullScreenLayout);
+    KURIBO_EXPORT(BetterSMS::Loading::setWideScreenLayout);
+    KURIBO_EXPORT(BetterSMS::Loading::setFrameRate);
+
+    /* PLAYER */
+    KURIBO_EXPORT(BetterSMS::Player::getRegisteredData);
+    KURIBO_EXPORT(BetterSMS::Player::getData);
+    KURIBO_EXPORT(BetterSMS::Player::registerData);
+    KURIBO_EXPORT(BetterSMS::Player::deregisterData);
+    KURIBO_EXPORT(BetterSMS::Player::registerInitProcess);
+    KURIBO_EXPORT(BetterSMS::Player::registerUpdateProcess);
+    KURIBO_EXPORT(BetterSMS::Player::registerStateMachine);
+    KURIBO_EXPORT(BetterSMS::Player::registerCollisionHandler);
+    KURIBO_EXPORT(BetterSMS::Player::deregisterInitProcess);
+    KURIBO_EXPORT(BetterSMS::Player::deregisterUpdateProcess);
+    KURIBO_EXPORT(BetterSMS::Player::deregisterStateMachine);
+    KURIBO_EXPORT(BetterSMS::Player::deregisterCollisionHandler);
+    KURIBO_EXPORT(BetterSMS::Player::warpToCollisionFace);
+    KURIBO_EXPORT(BetterSMS::Player::warpToPoint);
+    KURIBO_EXPORT(BetterSMS::Player::rotateRelativeToCamera);
+    KURIBO_EXPORT(BetterSMS::Player::setFire);
+    KURIBO_EXPORT(BetterSMS::Player::extinguishFire);
 
     /* MUSIC */
     KURIBO_EXPORT(BetterSMS::Music::queueSong);

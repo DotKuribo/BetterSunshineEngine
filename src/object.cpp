@@ -149,8 +149,8 @@ void makeExtendedObjDataTable() {
         u16 lo   = addr;
         u16 hi   = (addr >> 16) + (lo >> 15);
         for (u32 i = 0; i < sLoadAddrTableSize; ++i) {  // Edit instructions to point to our table
-            PPC::writeU16(sObjLoadAddrTable[i][0], hi);
-            PPC::writeU16(sObjLoadAddrTable[i][1], lo);
+            PowerPC::writeU16(sObjLoadAddrTable[i][0], hi);
+            PowerPC::writeU16(sObjLoadAddrTable[i][1], lo);
         }
     }
 }
