@@ -188,13 +188,27 @@ static TMarDirector *initLib() {
     sBaseSettingsGroup.addSetting(&gRumbleSetting);
     sBaseSettingsGroup.addSetting(&gSoundSetting);
     sBaseSettingsGroup.addSetting(&gSubtitleSetting);
+    Settings::registerGroup("Super Mario Sunshine", &sBaseSettingsGroup);
 
     sSettingsGroup.addSetting(&gBugFixesSetting);
     sSettingsGroup.addSetting(&gAspectRatioSetting);
     sSettingsGroup.addSetting(&gFPSSetting);
-
-    Settings::registerGroup("Super Mario Sunshine", &sBaseSettingsGroup);
+    {
+        auto &saveInfo        = sSettingsGroup.getSaveInfo();
+        saveInfo.mSaveName    = sSettingsGroup.getName();
+        saveInfo.mBlocks      = 1;
+        saveInfo.mGameCode    = 'GMSB';
+        // saveInfo.mCompany     = '01';
+        saveInfo.mCompany     = 0x3031;
+        saveInfo.mBannerFmt   = CARD_BANNER_CI;
+        saveInfo.mBannerImage = GetResourceTextureHeader(gSaveBnr);
+        saveInfo.mIconFmt     = CARD_ICON_CI;
+        saveInfo.mIconSpeed   = CARD_SPEED_SLOW;
+        saveInfo.mIconCount   = 2;
+        saveInfo.mIconTable   = GetResourceTextureHeader(gSaveIcon);
+    }
     Settings::registerGroup("Better Sunshine Engine", &sSettingsGroup);
+
     //
 
     // Set up application context handlers

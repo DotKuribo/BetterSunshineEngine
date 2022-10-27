@@ -1,4 +1,5 @@
 #include <Dolphin/GX.h>
+#include <Dolphin/OS.h>
 #include <Dolphin/VI.h>
 #include <Dolphin/VI_types.h>
 
@@ -1418,5 +1419,7 @@ GXRenderModeObj TVEurgb60Hz480ProgAa =
 		 4          // line n+1
 	}
 };
+
+OSThreadQueue retraceQueue;
 
 // clang-format on

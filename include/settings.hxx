@@ -220,6 +220,19 @@ namespace BetterSMS {
             }
         };
 
+        struct SettingsSaveInfo {
+            const char *mSaveName;
+            size_t mBlocks;
+            u32 mGameCode;
+            u16 mCompany;
+            u8 mBannerFmt;
+            const ResTIMG *mBannerImage;
+            u16 mIconFmt;
+            u16 mIconSpeed;
+            size_t mIconCount;
+            const ResTIMG *mIconTable; // Should be one BTI image vertically stacked for each icon
+        };
+
         class SettingsGroup {
         public:
             using SettingsList = JGadget::TList<SingleSetting *>;
@@ -240,6 +253,7 @@ namespace BetterSMS {
                 return nullptr;
             }
             SettingsList &getSettings() { return mSettings; }
+            SettingsSaveInfo &getSaveInfo() { return mSaveInfo; }
             Priority getPriority() { return mOrderPriority; }
 
             void setName(const char *name) { mName = name; }
@@ -266,6 +280,7 @@ namespace BetterSMS {
         private:
             const char *mName;
             SettingsList mSettings;
+            SettingsSaveInfo mSaveInfo;
             Priority mOrderPriority;
         };
 
