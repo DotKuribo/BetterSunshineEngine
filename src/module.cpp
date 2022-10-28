@@ -146,6 +146,9 @@ extern void updateFPS(TMarDirector *);
 // LOADING SCREEN
 extern void initLoadingScreen();
 
+// SETTINGS
+extern void initAllSettings(TApplication *);
+
 static TMarDirector *initLib() {
 
     TMarDirector *director;
@@ -297,6 +300,9 @@ static TMarDirector *initLib() {
     //Game::registerOnBootCallback("__init_fps", updateFPSBoot);
     Stage::registerInitCallback("__init_fps", updateFPS);
     Stage::registerUpdateCallback("__update_fps", updateFPS);
+
+    // SETTINGS
+    Game::registerOnBootCallback("__load_settings", initAllSettings);
 
     return director;
 }

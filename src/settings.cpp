@@ -86,6 +86,41 @@ void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out) {
     }
 }
 
+void initAllSettings(TApplication *app) {
+    s32 cardChannel = CARD_SLOTA;
+    s32 cardStatus  = MountCard(cardChannel);
+    if (cardStatus < CARD_ERROR_READY) {
+        cardChannel    = CARD_SLOTB;
+        cardStatus = MountCard(cardChannel);
+        if (cardStatus < CARD_ERROR_READY) {
+            return;
+        }
+    }
+
+    CARDFileInfo finfo;
+
+    TDictS<Settings::SettingsGroup *>::ItemList groups;
+    getSettingsGroups(groups);
+
+    for (auto &group : groups) {
+        if (group.mValue->getPriority() == Settings::Priority::CORE &&
+            strcmp(group.mValue->getName(), "Super Mario Sunshine") == 0) {
+            continue;
+        }
+
+
+        size_t saveDataStartData = 0;
+        int ret                  = OpenSavedSettings(*group.mValue, cardChannel, finfo);
+        if (ret < CARD_ERROR_READY) {
+            CloseSavedSettings(*group.mValue, &finfo);
+            return;
+        }
+
+        ReadSavedSettings(*group.mValue, &finfo);
+        CloseSavedSettings(*group.mValue, &finfo);
+    }
+}
+
 //
 
 // PUBLIC
@@ -110,6 +145,212 @@ bool BetterSMS::Settings::deregisterGroup(const char *name) {
         return false;
     sSettingsGroups.pop(name);
     return true;
+}
+
+/****************************************************************************
+ * MountCard
+ *
+ * Mounts the memory card in the given slot.
+ * CARD_Mount is called for a maximum of 10 tries
+ * Returns the result of the last attempted CARD_Mount command.
+ ***************************************************************************/
+
+/*** Memory Card Work Area ***/
+static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
+
+s32 MountCard(s32 channel) {
+    s32 ret   = -1;
+    int tries = 0;
+    int isMounted;
+
+    s32 memsize, sectsize;
+
+    // Mount the card, try several times as they are tricky
+    while ((tries < 10) && (ret < 0)) {
+        /*** We already initialized the Memory Card subsystem with CARD_Init() in
+        select_memcard_slot(). Let's reset the EXI subsystem, just to make sure we have no problems
+        mounting the card ***/
+        CARDInit();
+
+        /*** Mount the card ***/
+        ret = CARDMount(channel, SysArea, detachCallback);
+        if (ret >= 0)
+            break;
+
+        __CARDSync(channel);
+        tries++;
+    }
+
+    /*** Make sure the card is really mounted ***/
+    isMounted = CARDProbeEx(channel, &memsize, &sectsize);
+    if (memsize > 0 && sectsize > 0)  // then we really mounted de card
+    {
+        return isMounted;
+    }
+
+    /*** If this point is reached, something went wrong ***/
+    CARDUnmount(channel);
+    return ret;
+}
+
+s32 OpenSavedSettings(const Settings::SettingsGroup &group, const s32 channel, CARDFileInfo &infoOut) {
+    auto &info = group.getSaveInfo();
+
+    // Create and open save file for this group
+    char normalizedPath[32];
+    for (int i = 0; i < 32; ++i) {
+        if (info.mSaveName[i] == ' ')
+            normalizedPath[i] = '_';
+        else
+            normalizedPath[i] = tolower(info.mSaveName[i]);
+    }
+
+    __CARDSetDiskID(&info.mGameCode);
+
+    int ret;
+    do {
+        ret = CARDOpen(channel, normalizedPath, &infoOut);
+    } while (ret == CARD_ERROR_BUSY);
+
+    if (ret == CARD_ERROR_NOFILE) {
+        int cret =
+            CARDCreate(channel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
+        if (cret < CARD_ERROR_READY) {
+            __CARDSetDiskID((void *)0x80000000);
+            return cret;
+        }
+    } else if (ret < CARD_ERROR_READY) {
+        __CARDSetDiskID((void *)0x80000000);
+        return ret;
+    }
+
+    // We now have an open handle to the settings file
+    return CARD_ERROR_READY;
+}
+
+s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
+    auto &info                = group.getSaveInfo();
+
+    const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
+    char *saveBuffer          = new char[saveDataSize];
+
+    {
+        CARDStat fstatus;
+
+        // Work out status
+        int statusRet = CARDGetStatus(finfo->mChannel, finfo->mFileNo, &fstatus);
+        if (statusRet < CARD_ERROR_READY)
+            return statusRet;
+
+        fstatus.mGameCode = 'GMSB';
+        fstatus.mCompany  = 0x3031;
+        CARDSetBannerFmt(&fstatus, info.mBannerFmt);
+        CARDSetIconAddr(&fstatus, CARD_DIRENTRY_SIZE);
+        CARDSetCommentAddr(&fstatus, 4);
+        for (s32 i = 0; i < info.mIconCount; ++i) {
+            CARDSetIconFmt(&fstatus, i, info.mIconFmt);
+            CARDSetIconSpeed(&fstatus, i, info.mIconSpeed);
+        }
+        fstatus.mLastModified = OSTicksToSeconds(OSGetTime());
+
+        CARDSetStatus(finfo->mChannel, finfo->mFileNo, &fstatus);
+    }
+
+    // Reset data
+    memset(saveBuffer + 4, 0, saveDataSize - 4);
+
+    // Copy group name into save data
+    snprintf(saveBuffer + 4, 32, "%s", info.mSaveName);
+
+    // Copy date saved into save data
+    {
+        OSCalendarTime calendar;
+        OSTicksToCalendarTime(OSGetTime(), &calendar);
+        snprintf(saveBuffer + 36, 32, "Module Save Data (%lu/%lu/%lu)", calendar.mon + 1,
+                 calendar.mday, calendar.year);
+    }
+
+    memcpy(saveBuffer + CARD_DIRENTRY_SIZE,
+           reinterpret_cast<const u8 *>(info.mBannerImage) + info.mBannerImage->mTextureOffset,
+           0xE00);
+    memcpy(saveBuffer + CARD_DIRENTRY_SIZE + 0xE00,
+           reinterpret_cast<const u8 *>(info.mIconTable) + info.mIconTable->mTextureOffset,
+           0x500 * info.mIconCount);
+
+    size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
+
+    // Write contents to save file
+    JSUMemoryOutputStream out(saveBuffer + dataPosOut, saveDataSize - dataPosOut);
+    for (auto &setting : group.getSettings()) {
+        switch (setting->getKind()) {
+        case Settings::SingleSetting::ValueKind::INT:
+        case Settings::SingleSetting::ValueKind::FLOAT:
+            out.write(setting->getValue(), 4);
+            break;
+        case Settings::SingleSetting::ValueKind::BOOL:
+            out.write(setting->getValue(), 1);
+        }
+    }
+
+    for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
+        s32 result = CARDWrite(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
+        if (result < CARD_ERROR_READY) {
+            return result;
+        }
+    }
+
+    return CARD_ERROR_READY;
+}
+
+s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
+    auto &info = group.getSaveInfo();
+
+    const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
+    char *saveBuffer          = new (32) char[saveDataSize];
+
+    // Reset data
+    memset(saveBuffer + 4, 0, saveDataSize - 4);
+
+    for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
+        s32 result = CARDRead(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
+        if (result < CARD_ERROR_READY) {
+            return result;
+        }
+    }
+
+    size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
+
+    // Write contents to save file
+    JSUMemoryInputStream in(saveBuffer + dataPosOut + 8, saveDataSize - dataPosOut - 8);
+    for (auto &setting : group.getSettings()) {
+        switch (setting->getKind()) {
+        case Settings::SingleSetting::ValueKind::INT:
+            int x;
+            in.read(&x, 4);
+            setting->setInt(x);
+            break;
+        case Settings::SingleSetting::ValueKind::FLOAT:
+            float f;
+            in.read(&f, 4);
+            setting->setFloat(f);
+            break;
+        case Settings::SingleSetting::ValueKind::BOOL:
+            bool b;
+            in.read(&b, 1);
+            setting->setBool(b);
+            break;
+        }
+    }
+
+    return CARD_ERROR_READY;
+}
+
+s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo) {
+    auto &info = group.getSaveInfo();
+    __CARDSetDiskID(&info.mGameCode);
+    s32 ret = CARDClose(finfo);
+    __CARDSetDiskID((void *)0x80000000);
+    return ret;
 }
 
 SettingsDirector::~SettingsDirector() { gpMSound->exitStage(); }
@@ -143,8 +384,8 @@ s32 SettingsDirector::direct() {
     }
 
     TDirector::direct();
-    mSettingScreen->mPerformFlags &= 1;  // Enable input by default;
-    mSaveErrorPanel->mPerformFlags |= 3;  // Disable view and input by default
+    mSettingScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
+    mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
 
     switch (mState) {
     case State::INIT:
@@ -155,14 +396,16 @@ s32 SettingsDirector::direct() {
         break;
     case State::SAVE_START:
         saveSettings();
+        mSaveErrorPanel->appear();
         break;
     case State::SAVE_BUSY:
-        mSettingScreen->mPerformFlags |= 1;  // Disable input
-        mSaveErrorPanel->mPerformFlags &= 3;  // Enable view and input
+        mSettingScreen->mPerformFlags |= 0b0001;  // Disable input
+        mSaveErrorPanel->mPerformFlags &= ~0b1011;  // Enable view and input
         break;
     case State::SAVE_FAIL:
         [[fallthrough]];
     case State::SAVE_SUCCESS:
+        mSaveErrorPanel->disappear();
         mState = State::EXIT;
         [[fallthrough]];	
     case State::EXIT: {
@@ -198,19 +441,25 @@ s32 SettingsDirector::exit() {
 }
 
 void SettingsDirector::initialize() {
+    initializeDramaHierarchy();
+    initializeSettingsLayout();
+    initializeErrorLayout();
+}
+
+void SettingsDirector::initializeDramaHierarchy() {
     auto *stageObjGroup = reinterpret_cast<JDrama::TDStageGroup *>(mViewObjStageGroup);
     auto *rootObjGroup  = new JDrama::TViewObjPtrListT<JDrama::TViewObj>("Root View Objs");
-    mViewObjRoot       = rootObjGroup;
+    mViewObjRoot        = rootObjGroup;
 
     JDrama::TRect screenRect{0, 0, SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight()};
 
     auto *group2D = new JDrama::TViewObjPtrListT<JDrama::TViewObj>("Group 2D");
     {
         mSettingScreen = new SettingsScreen(mController);
-        group2D->mViewObjList.insert(group2D->mViewObjList.begin(), mSettingScreen);
+        group2D->mViewObjList.insert(group2D->mViewObjList.end(), mSettingScreen);
 
         mSaveErrorPanel = new SaveErrorPanel(this, mController);
-        group2D->mViewObjList.insert(group2D->mViewObjList.begin(), mSaveErrorPanel);
+        group2D->mViewObjList.insert(group2D->mViewObjList.end(), mSaveErrorPanel);
 
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), group2D);
     }
@@ -268,9 +517,6 @@ void SettingsDirector::initialize() {
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), screen);
         stageObjGroup->mViewObjList.insert(stageObjGroup->mViewObjList.end(), screen);
     }
-
-    initializeSettingsLayout();
-    initializeErrorLayout();
 }
 
 void SettingsDirector::initializeSettingsLayout() {
@@ -513,7 +759,7 @@ void SettingsDirector::initializeErrorLayout() {
                 "Something went wrong when saving the settings.\nWould you like to try again?",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
-                description->mCharSizeX = 24;
+                description->mCharSizeX = 22;
                 description->mCharSizeY = 24;
             }
             mSaveErrorPanel->mErrorHandlerPane->mChildrenList.append(&description->mPtrLink);
@@ -538,273 +784,22 @@ void SettingsDirector::initializeErrorLayout() {
             mSaveErrorPanel->mErrorHandlerPane->mChildrenList.append(
                 &mSaveErrorPanel->mChoiceBoxes[1]->mPtrLink);
         }
+        rootPane->mChildrenList.append(&mSaveErrorPanel->mErrorHandlerPane->mPtrLink);
 
-        mSaveErrorPanel->mSaveTryingPane = new J2DPane(19, 'err_', {0, 0, 400, 300});
+        mSaveErrorPanel->mSaveTryingPane = new J2DPane(19, 'save', {0, 0, 400, 300});
         {
             J2DTextBox *description = new J2DTextBox(
                 'desc', {20, 50, 380, 250}, gpSystemFont->mFont,
                 "Saving to the memory card...",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
-                description->mCharSizeX = 24;
+                description->mCharSizeX = 22;
                 description->mCharSizeY = 24;
             }
             mSaveErrorPanel->mSaveTryingPane->mChildrenList.append(&description->mPtrLink);
         }
-
-        J2DTextBox *label = new J2DTextBox(
-            'code', {0, screenRenderHeight - 90, 600, screenRenderHeight}, gpSystemFont->mFont,
-            "Game Settings", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-        label->mCharSizeX   = 24;
-        label->mCharSizeY   = 24;
-        label->mNewlineSize = 24;
-        mSettingScreen->mScreen->mChildrenList.append(&label->mPtrLink);
-
-        J2DTextBox *exitLabel = new J2DTextBox(
-            'exit',
-            {static_cast<int>(20 - getScreenRatioAdjustX()), screenRenderHeight - 90,
-             static_cast<int>(100 - getScreenRatioAdjustX()), screenRenderHeight},
-            gpSystemFont->mFont, "# Exit", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
-        mSettingScreen->mScreen->mChildrenList.append(&exitLabel->mPtrLink);
+        rootPane->mChildrenList.append(&mSaveErrorPanel->mSaveTryingPane->mPtrLink);
     }
-
-    int i = 0;
-    TDictS<Settings::SettingsGroup *>::ItemList settingsGroups;
-    getSettingsGroups(settingsGroups);
-
-    for (auto &group : settingsGroups) {
-        auto *groupName = group.mValue->getName();
-
-        J2DPane *groupPane =
-            new J2DPane(19, ('p' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
-        groupPane->mIsVisible = false;
-        {
-
-            char *groupTextBuf = new char[70];
-            memset(groupTextBuf, 0, 70);
-
-            if (settingsGroups.mSize == 1) {
-                snprintf(groupTextBuf, 70, "    %s    ", groupName);
-            } else {
-                if (i == 0)
-                    snprintf(groupTextBuf, 70, "    %s   >", groupName);
-                else if (i == settingsGroups.mSize - 1)
-                    snprintf(groupTextBuf, 70, "<   %s    ", groupName);
-                else
-                    snprintf(groupTextBuf, 70, "<   %s   >", groupName);
-            }
-
-            J2DTextBox *label =
-                new J2DTextBox(('t' << 24) | i, {0, 0, 600, 90}, gpSystemFont->mFont, groupTextBuf,
-                               J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-            label->mCharSizeX   = 24;
-            label->mCharSizeY   = 24;
-            label->mNewlineSize = 24;
-            groupPane->mChildrenList.append(&label->mPtrLink);
-        }
-
-        auto *groupInfo          = new GroupInfo();
-        groupInfo->mGroupPane    = groupPane;
-        groupInfo->mSettingGroup = group.mValue;
-
-        int n            = 0;
-        auto settingList = new JGadget::TList<SettingInfo *>();
-        for (auto &setting : group.mValue->getSettings()) {
-            J2DPane *settingPane =
-                new J2DPane(19, ('q' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
-
-            J2DTextBox *settingText =
-                new J2DTextBox(('s' << 24) | n, {0, 0, 0, 0}, gpSystemFont->mFont, "",
-                               J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
-
-            J2DTextBox *settingTextBehind =
-                new J2DTextBox(('b' << 24) | n, {0, 0, 0, 0}, gpSystemFont->mFont, "",
-                               J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
-            {
-                char valueTextbuf[40];
-                setting->getValueStr(valueTextbuf);
-
-                char *settingTextBuf = new char[100];
-                memset(settingTextBuf, 0, 100);
-                snprintf(settingTextBuf, 100, "%s: %s", setting->getName(), valueTextbuf);
-
-                const u8 alpha = setting->isUserEditable() ? 255 : 210;
-                const u8 color = setting->isUserEditable() ? 255 : 140;
-
-                settingText->mStrPtr         = settingTextBuf;
-                settingText->mCharSizeX      = 24;
-                settingText->mCharSizeY      = 24;
-                settingText->mNewlineSize    = 24;
-                settingText->mGradientBottom = {color, color, color, alpha};
-                settingText->mGradientTop    = {color, color, color, alpha};
-
-                centerTextBoxX(settingText, screenRenderWidth);
-                settingText->mRect.mY1 = 110 + (28 * n);
-                settingText->mRect.mY2 = 158 + (28 * n);
-
-                settingTextBehind->mStrPtr         = settingTextBuf;
-                settingTextBehind->mCharSizeX      = 24;
-                settingTextBehind->mCharSizeY      = 24;
-                settingTextBehind->mNewlineSize    = 24;
-                settingTextBehind->mGradientBottom = {0, 0, 0, alpha};
-                settingTextBehind->mGradientTop    = {0, 0, 0, alpha};
-
-                centerTextBoxX(settingTextBehind, screenRenderWidth);
-                settingTextBehind->mRect.mX1 += 2;
-                settingTextBehind->mRect.mX2 += 2;
-                settingTextBehind->mRect.mY1 = 110 + (28 * n) + 2;
-                settingTextBehind->mRect.mY2 = 158 + (28 * n) + 2;
-
-                settingPane->mChildrenList.append(&settingTextBehind->mPtrLink);
-                settingPane->mChildrenList.append(&settingText->mPtrLink);
-            }
-            groupPane->mChildrenList.append(&settingPane->mPtrLink);
-
-            auto *settingInfo                = new SettingInfo();
-            settingInfo->mSettingTextBox     = settingText;
-            settingInfo->mSettingTextBoxBack = settingTextBehind;
-            settingInfo->mSettingData        = setting;
-            groupInfo->mSettingInfos.insert(groupInfo->mSettingInfos.end(), settingInfo);
-
-            ++n;
-        }
-
-        /*{
-            JUTTexture *texture      = new JUTTexture();
-            texture->mTexObj2.val[2] = 0;
-            texture->storeTIMG(GetResourceTextureHeader(gShineSpriteIconFrame1));
-            texture->_50 = false;
-
-            mSettingScreen->mShineIcon = new J2DPicture(('i' << 24) | n, {0, 0, 0, 0});
-            mSettingScreen->mShineIcon->insert(texture, 0, 0.0f);
-            mSettingScreen->mShineIcon->mRect.resize(32, 32);
-
-            pane->mChildrenList.append(&mSettingScreen->mShineIcon->mPtrLink);
-        }*/
-
-        mSettingScreen->mScreen->mChildrenList.append(&groupPane->mPtrLink);
-        mSettingScreen->mGroups.insert(mSettingScreen->mGroups.end(), groupInfo);
-
-        if (i == 0) {
-            mSettingScreen->mCurrentGroupInfo   = groupInfo;
-            mSettingScreen->mCurrentSettingInfo = mSettingScreen->getSettingInfo(0);
-            mSettingScreen->mCurrentGroupInfo->mGroupPane->mIsVisible = true;
-        }
-
-        ++i;
-    }
-}
-
-/****************************************************************************
- * MountCard
- *
- * Mounts the memory card in the given slot.
- * CARD_Mount is called for a maximum of 10 tries
- * Returns the result of the last attempted CARD_Mount command.
- ***************************************************************************/
-
-/*** Memory Card Work Area ***/
-static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
-
-static int mountCard(int channel) {
-    s32 ret   = -1;
-    int tries = 0;
-    int isMounted;
-
-    s32 memsize, sectsize;
-
-    // Mount the card, try several times as they are tricky
-    while ((tries < 10) && (ret < 0)) {
-        /*** We already initialized the Memory Card subsystem with CARD_Init() in
-        select_memcard_slot(). Let's reset the EXI subsystem, just to make sure we have no problems
-        mounting the card ***/
-        CARDInit();
-
-        /*** Mount the card ***/
-        ret = CARDMount(channel, SysArea, detachCallback);
-        if (ret >= 0)
-            break;
-
-        OSSleepThread(&retraceQueue);
-        tries++;
-    }
-
-    /*** Make sure the card is really mounted ***/
-    isMounted = CARDProbeEx(channel, &memsize, &sectsize);
-    if (memsize > 0 && sectsize > 0)  // then we really mounted de card
-    {
-        return isMounted;
-    }
-
-    /*** If this point is reached, something went wrong ***/
-    CARDUnmount(channel);
-    return ret;
-}
-
-int SettingsDirector::openSave(const s32 channel, char *dataOut, const Settings::SettingsSaveInfo& info, CARDFileInfo& infoOut, size_t &dataPosOut) {
-    // Create and open save file for this group
-    char normalizedPath[32];
-    for (int i = 0; i < 32; ++i) {
-        if (info.mSaveName[i] == ' ')
-            normalizedPath[i] = '_';
-        else
-            normalizedPath[i] = tolower(info.mSaveName[i]);
-    }
-    int ret;
-    do {
-        ret = CARDOpen(channel, normalizedPath, &infoOut);
-    } while (ret == CARD_ERROR_BUSY);
-
-    if (ret == CARD_ERROR_NOFILE) {
-        int cret = CARDCreate(channel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
-        if (cret < CARD_ERROR_READY) {
-            return cret;
-        }
-    } else if (ret < CARD_ERROR_READY) {
-        return ret;
-    }
-
-    // We now have an open handle to the settings file
-    {
-        CARDStat fstatus;
-
-        // Work out status
-        int statusRet = CARDGetStatus(infoOut.mChannel, infoOut.mFileNo, &fstatus);
-        if (statusRet < CARD_ERROR_READY)
-            return statusRet;
-
-        fstatus.mLastModified = OSTicksToSeconds(OSGetTime());
-        CARDSetBannerFmt(&fstatus, info.mBannerFmt);
-        CARDSetIconAddr(&fstatus, CARD_DIRENTRY_SIZE);
-        CARDSetCommentAddr(&fstatus, 4);
-        for (s32 i = 0; i < info.mIconCount; ++i) {
-            CARDSetIconFmt(&fstatus, i, info.mIconFmt);
-            CARDSetIconSpeed(&fstatus, i, info.mIconSpeed);
-        }
-
-        CARDSetStatus(infoOut.mChannel, infoOut.mFileNo, &fstatus);
-    }
-
-    // Reset data
-    memset(dataOut + 4, 0, 0x1FFC);
-
-    // Copy group name into save data
-    snprintf(dataOut + 4, 32, "%s", info.mSaveName);
-    
-    // Copy date saved into save data
-    {
-        OSCalendarTime calendar;
-        OSTicksToCalendarTime(OSGetTime(), &calendar);
-        snprintf(dataOut + 36, 32, "Module Save Data (%lu/%lu/%lu)", calendar.mon, calendar.mday,
-                 calendar.year);
-    }
-
-    memcpy(dataOut + CARD_DIRENTRY_SIZE, reinterpret_cast<const u8 *>(info.mBannerImage) + info.mBannerImage->mTextureOffset, 0xE00);
-    memcpy(dataOut + CARD_DIRENTRY_SIZE + 0xE00,
-           reinterpret_cast<const u8 *>(info.mIconTable) + info.mIconTable->mTextureOffset,
-           0x500 * info.mIconCount);
-    dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
-    return CARD_ERROR_READY;
 }
 
 void *SettingsDirector::saveThreadFunc(void *data) {
@@ -830,10 +825,7 @@ void SettingsDirector::saveSettings_() {
     // errors...
 
     s32 cardChannel = gpCardManager->mChannel;
-    mountCard(cardChannel);
-
-    s32 cardStatus = CARDCheck(cardChannel);
-
+    s32 cardStatus  = MountCard(cardChannel);
     if (cardStatus < CARD_ERROR_READY) {
         failSave(cardStatus);
         return;
@@ -858,40 +850,18 @@ void SettingsDirector::saveSettings_() {
             continue;
         }
 
-        const auto &saveInfo = group.mValue->getSaveInfo();
-        const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(saveInfo.mBlocks);
-        char *saveBuffer          = new char[saveDataSize];
-
         size_t saveDataStartData = 0;
-        int ret = openSave(cardChannel, saveBuffer, saveInfo, finfo, saveDataStartData);
+        int ret = OpenSavedSettings(*group.mValue, cardChannel, finfo);
         if (ret < CARD_ERROR_READY) {
-            delete[] saveBuffer;
+            CloseSavedSettings(*group.mValue, &finfo);
             failSave(ret);
             return;
         }
 
-        // Write contents to save file
-        JSUMemoryOutputStream out(saveBuffer + saveDataStartData,
-                                    saveDataSize - saveDataStartData);
-        for (auto &setting : group.mValue->getSettings()) {
-            switch (setting->getKind()) {
-            case Settings::SingleSetting::ValueKind::INT:
-            case Settings::SingleSetting::ValueKind::FLOAT:
-                out.write(setting->getValue(), 4);
-                break;
-            case Settings::SingleSetting::ValueKind::BOOL:
-                out.write(setting->getValue(), 1);
-            }
-        }
-
-        for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
-            CARDWrite(&finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
-        }
-
-        delete[] saveBuffer;
+        UpdateSavedSettings(*group.mValue, &finfo);
+        CloseSavedSettings(*group.mValue, &finfo);
     }
 
-    CARDClose(&finfo);
     mState = State::SAVE_SUCCESS;
     mErrorCode = CARD_ERROR_READY;
     return;
@@ -899,7 +869,7 @@ void SettingsDirector::saveSettings_() {
 
 void SettingsDirector::failSave(int errorcode) {
     CARDUnmount(gpCardManager->mChannel);
-    mState = State::SAVE_FAIL;
+    mSaveErrorPanel->switchScreen();
     mErrorCode = errorcode;
     return;
 }
