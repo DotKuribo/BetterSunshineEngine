@@ -391,12 +391,13 @@ s32 SettingsDirector::direct() {
     case State::INIT:
         break;
     case State::CONTROL:
-        if ((mController->mButtons.mFrameInput & TMarioGamePad::B))
+        if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
             mState = State::SAVE_START;
+            mSaveErrorPanel->appear();
+        }
         break;
     case State::SAVE_START:
         saveSettings();
-        mSaveErrorPanel->appear();
         break;
     case State::SAVE_BUSY:
         mSettingScreen->mPerformFlags |= 0b0001;  // Disable input
@@ -723,7 +724,7 @@ void SettingsDirector::initializeErrorLayout() {
         J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 300});
         mSaveErrorPanel->mScreen->mChildrenList.append(&rootPane->mPtrLink);
 
-        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 300});
+        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 260});
         mSaveErrorPanel->mAnimatedPane->mPane = rootPane;
 
         J2DPicture *maskPanel    = new J2DPicture('mask', {0, 0, 0, 0});
@@ -739,7 +740,7 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&maskPanel->mPtrLink);
 
-        mSaveErrorPanel->mErrorHandlerPane = new J2DPane(19, 'err_', {0, 0, 400, 300});
+        mSaveErrorPanel->mErrorHandlerPane = new J2DPane(19, 'err_', {0, 0, 400, 260});
         {
             mSaveErrorPanel->mErrorTextBox =
                 new J2DTextBox('errl', {8, 8, 392, 40}, gpSystemFont->mFont, "UNKNOWN ERROR",
@@ -765,7 +766,7 @@ void SettingsDirector::initializeErrorLayout() {
             mSaveErrorPanel->mErrorHandlerPane->mChildrenList.append(&description->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[0] =
-                new J2DTextBox('exit', {100, 260, 202, 292}, gpSystemFont->mFont, "Exit",
+                new J2DTextBox('exit', {100, 260, 202, 252}, gpSystemFont->mFont, "Exit",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[0]->mCharSizeX = 24;
@@ -775,7 +776,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mChoiceBoxes[0]->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[1] =
-                new J2DTextBox('save', {290, 260, 392, 292}, gpSystemFont->mFont, "Retry",
+                new J2DTextBox('save', {290, 260, 392, 252}, gpSystemFont->mFont, "Retry",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[1]->mCharSizeX = 24;

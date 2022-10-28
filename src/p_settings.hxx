@@ -545,7 +545,7 @@ private:
         {
             auto currentID = mSettingID;
 
-            if ((mController->mFrameMeaning & 0x4)) {
+            if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_DOWN)) {
                 for (int i = mSettingID + 1; i < mCurrentGroupInfo->mSettingInfos.size(); ++i) {
                     auto *settingInfo = getSettingInfo(i);
                     if (settingInfo->mSettingData->isUserEditable()) {
@@ -555,7 +555,7 @@ private:
                     }
                 }
             }
-            if ((mController->mFrameMeaning & 0x2)) {
+            if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_UP)) {
                 for (int i = mSettingID - 1; i >= 0; --i) {
                     auto *settingInfo = getSettingInfo(i);
                     if (settingInfo->mSettingData->isUserEditable()) {
@@ -567,7 +567,7 @@ private:
             }
         }
 
-        if (mController->mFrameMeaning & 0x10) {
+        if (mController->mButtons.mRapidInput & TMarioGamePad::DPAD_RIGHT) {
             mCurrentSettingInfo->mSettingData->nextValue();
             {
                 char valueTextBuf[40];
@@ -587,7 +587,7 @@ private:
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;
         }
 
-        if (mController->mFrameMeaning & 0x8) {
+        if (mController->mButtons.mRapidInput & TMarioGamePad::DPAD_LEFT) {
             mCurrentSettingInfo->mSettingData->prevValue();
             {
                 char valueTextBuf[40];
@@ -696,19 +696,20 @@ public:
             J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), SMSGetTitleRenderHeight());
             ortho.setup2D();
 
+            mAnimatedPane->update();
             mScreen->draw(0, 0, &ortho);
         }
     }
 
     void appear() {
         const s32 midX = getScreenRenderWidth() / 2;
-        mAnimatedPane->setPanePosition(40, {midX, 480}, {midX, 240}, {midX, 120});
+        mAnimatedPane->setPanePosition(5, {100, 480}, {100, 200}, {100, 98});
         mAnimatedPane->startAnimation();
     }
 
     void disappear() {
         const s32 midX = getScreenRenderWidth() / 2;
-        mAnimatedPane->setPanePosition(40, {midX, 120}, {midX, 240}, {midX, 480});
+        mAnimatedPane->setPanePosition(5, {100, 98}, {100, 200}, {100, 480});
         mAnimatedPane->startAnimation();
     }
 
@@ -718,11 +719,11 @@ private:
     void switchScreen() { 
         mWhichScreen ^= 1;
         if (mWhichScreen == 0) {
-            mErrorHandlerPane->mIsVisible = true;
-            mSaveTryingPane->mIsVisible   = false;
-        } else {
             mErrorHandlerPane->mIsVisible = false;
             mSaveTryingPane->mIsVisible   = true;
+        } else {
+            mErrorHandlerPane->mIsVisible = true;
+            mSaveTryingPane->mIsVisible   = false;
         }
     }
 
@@ -738,6 +739,7 @@ private:
                 return;
             }
             case Choice::YES: {
+                mDirector->mState = SettingsDirector::State::SAVE_START;
                 switchScreen();
                 return;
             }
