@@ -22,6 +22,12 @@
 
 using namespace BetterSMS;
 
+s32 MountCard(const s32 channel);
+s32 OpenSavedSettings(const Settings::SettingsGroup &group, const s32 channel, CARDFileInfo &infoOut);
+s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
+s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
+s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo);
+
 const u8 SMS_ALIGN(32) gSaveBnr[] = {
     0x09, 0x02, 0x00, 0x60, 0x00, 0x20, 0x00, 0x00, 0x01, 0x02, 0x00, 0x53, 0x00, 0x00, 0x0c, 0x20,
     0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20,
@@ -446,12 +452,12 @@ public:
 private:
     s32 exit();
     void initialize();
+    void initializeDramaHierarchy();
     void initializeSettingsLayout();
     void initializeErrorLayout();
     void saveSettings();
     void saveSettings_();
     void failSave(int errorcode);
-    int openSave(const s32, char *, const Settings::SettingsSaveInfo &, CARDFileInfo &, size_t &);
 
     static const char *getErrorString(int errorcode);
     static void *saveThreadFunc(void *);
@@ -606,11 +612,14 @@ private:
 
             if ((mController->mButtons.mFrameInput & TMarioGamePad::R)) {
                 mGroupID += 1;
+                if (mGroupID >= mGroups.size())
+                    mGroupID = mGroups.size() - 1;
             }
             if ((mController->mButtons.mFrameInput & TMarioGamePad::L)) {
                 mGroupID -= 1;
+                if (mGroupID < 0)
+                    mGroupID = 0;
             }
-            mGroupID = Clamp(mGroupID, 0, mGroups.size() - 1);
 
             if (oldID != mGroupID) {
                 mCurrentGroupInfo->mGroupPane->mIsVisible = false;

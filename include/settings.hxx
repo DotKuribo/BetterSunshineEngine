@@ -254,6 +254,7 @@ namespace BetterSMS {
             }
             SettingsList &getSettings() { return mSettings; }
             SettingsSaveInfo &getSaveInfo() { return mSaveInfo; }
+            const SettingsSaveInfo &getSaveInfo() const { return mSaveInfo; }
             Priority getPriority() { return mOrderPriority; }
 
             void setName(const char *name) { mName = name; }
