@@ -23,7 +23,7 @@
 using namespace BetterSMS;
 
 s32 MountCard(const s32 channel);
-s32 OpenSavedSettings(const Settings::SettingsGroup &group, const s32 channel, CARDFileInfo &infoOut);
+s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFileInfo &infoOut);
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo);
@@ -545,7 +545,7 @@ private:
         {
             auto currentID = mSettingID;
 
-            if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_DOWN)) {
+            if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
                 for (int i = mSettingID + 1; i < mCurrentGroupInfo->mSettingInfos.size(); ++i) {
                     auto *settingInfo = getSettingInfo(i);
                     if (settingInfo->mSettingData->isUserEditable()) {
@@ -555,7 +555,8 @@ private:
                     }
                 }
             }
-            if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_UP)) {
+            if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_UP |
+                 TMarioGamePad::MAINSTICK_UP))) {
                 for (int i = mSettingID - 1; i >= 0; --i) {
                     auto *settingInfo = getSettingInfo(i);
                     if (settingInfo->mSettingData->isUserEditable()) {
@@ -567,7 +568,8 @@ private:
             }
         }
 
-        if (mController->mButtons.mRapidInput & TMarioGamePad::DPAD_RIGHT) {
+        if (mController->mButtons.mRapidInput &
+            (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT)) {
             mCurrentSettingInfo->mSettingData->nextValue();
             {
                 char valueTextBuf[40];
@@ -587,7 +589,8 @@ private:
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;
         }
 
-        if (mController->mButtons.mRapidInput & TMarioGamePad::DPAD_LEFT) {
+        if (mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_LEFT |
+            TMarioGamePad::MAINSTICK_LEFT)) {
             mCurrentSettingInfo->mSettingData->prevValue();
             {
                 char valueTextBuf[40];
@@ -746,10 +749,12 @@ private:
             }
         }
 
-        if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_RIGHT))
+        if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_RIGHT |
+             TMarioGamePad::MAINSTICK_RIGHT)))
             mChoice ^= 1;
 
-        if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_LEFT))
+        if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_LEFT |
+             TMarioGamePad::MAINSTICK_LEFT)))
             mChoice ^= 1;
     }
 
