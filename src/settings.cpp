@@ -384,13 +384,13 @@ s32 SettingsDirector::direct() {
     }
 
     TDirector::direct();
-    mSettingScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
-    mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
 
     switch (mState) {
     case State::INIT:
         break;
     case State::CONTROL:
+        mSettingScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
+        mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
         if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
             mState = State::SAVE_START;
             mSaveErrorPanel->appear();
@@ -724,7 +724,7 @@ void SettingsDirector::initializeErrorLayout() {
         J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 300});
         mSaveErrorPanel->mScreen->mChildrenList.append(&rootPane->mPtrLink);
 
-        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 260});
+        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 300});
         mSaveErrorPanel->mAnimatedPane->mPane = rootPane;
 
         J2DPicture *maskPanel    = new J2DPicture('mask', {0, 0, 0, 0});
@@ -740,14 +740,15 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&maskPanel->mPtrLink);
 
-        mSaveErrorPanel->mErrorHandlerPane = new J2DPane(19, 'err_', {0, 0, 400, 260});
+        mSaveErrorPanel->mErrorHandlerPane             = new J2DPane(19, 'err_', {0, 0, 400, 300});
+        mSaveErrorPanel->mErrorHandlerPane->mIsVisible = false;
         {
             mSaveErrorPanel->mErrorTextBox =
-                new J2DTextBox('errl', {8, 8, 392, 40}, gpSystemFont->mFont, "UNKNOWN ERROR",
-                                        J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Top);
+                new J2DTextBox('errl', {12, 16, 388, 40}, gpSystemFont->mFont, "UNKNOWN ERROR",
+                                        J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Top);
             {
                 mSaveErrorPanel->mErrorTextBox->mStrPtr         = sErrorTag;
-                mSaveErrorPanel->mErrorTextBox->mCharSizeX      = 24;
+                mSaveErrorPanel->mErrorTextBox->mCharSizeX      = 21;
                 mSaveErrorPanel->mErrorTextBox->mCharSizeY      = 24;
                 mSaveErrorPanel->mErrorTextBox->mGradientBottom = {160, 190, 20, 255};
                 mSaveErrorPanel->mErrorTextBox->mGradientBottom = {160, 190, 20, 255};
@@ -760,13 +761,13 @@ void SettingsDirector::initializeErrorLayout() {
                 "Something went wrong when saving the settings.\nWould you like to try again?",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
-                description->mCharSizeX = 22;
+                description->mCharSizeX = 21;
                 description->mCharSizeY = 24;
             }
             mSaveErrorPanel->mErrorHandlerPane->mChildrenList.append(&description->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[0] =
-                new J2DTextBox('exit', {100, 260, 202, 252}, gpSystemFont->mFont, "Exit",
+                new J2DTextBox('exit', {80, 260, 202, 288}, gpSystemFont->mFont, "Exit",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[0]->mCharSizeX = 24;
@@ -776,7 +777,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mChoiceBoxes[0]->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[1] =
-                new J2DTextBox('save', {290, 260, 392, 252}, gpSystemFont->mFont, "Retry",
+                new J2DTextBox('save', {250, 260, 392, 288}, gpSystemFont->mFont, "Retry",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[1]->mCharSizeX = 24;
@@ -787,14 +788,15 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&mSaveErrorPanel->mErrorHandlerPane->mPtrLink);
 
-        mSaveErrorPanel->mSaveTryingPane = new J2DPane(19, 'save', {0, 0, 400, 300});
+        mSaveErrorPanel->mSaveTryingPane             = new J2DPane(19, 'save', {0, 0, 400, 300});
+        mSaveErrorPanel->mSaveTryingPane->mIsVisible = true;
         {
             J2DTextBox *description = new J2DTextBox(
                 'desc', {20, 50, 380, 250}, gpSystemFont->mFont,
                 "Saving to the memory card...",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
-                description->mCharSizeX = 22;
+                description->mCharSizeX = 21;
                 description->mCharSizeY = 24;
             }
             mSaveErrorPanel->mSaveTryingPane->mChildrenList.append(&description->mPtrLink);
@@ -872,6 +874,7 @@ void SettingsDirector::failSave(int errorcode) {
     CARDUnmount(gpCardManager->mChannel);
     mSaveErrorPanel->switchScreen();
     mErrorCode = errorcode;
+    strncpy(sErrorTag, getErrorString(errorcode), 64);
     return;
 }
 

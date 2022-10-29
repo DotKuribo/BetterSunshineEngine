@@ -746,10 +746,10 @@ private:
             }
         }
 
-        if (mController->mFrameMeaning & 0x10)
+        if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_RIGHT))
             mChoice ^= 1;
 
-        if (mController->mFrameMeaning & 0x8)
+        if ((mController->mButtons.mRapidInput & TMarioGamePad::DPAD_LEFT))
             mChoice ^= 1;
     }
 
