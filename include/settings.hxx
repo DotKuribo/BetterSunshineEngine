@@ -231,6 +231,7 @@ namespace BetterSMS {
             u16 mIconSpeed;
             size_t mIconCount;
             const ResTIMG *mIconTable; // Should be one BTI image vertically stacked for each icon
+            bool mSaveGlobal;
         };
 
         class SettingsGroup {

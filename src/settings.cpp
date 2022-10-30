@@ -205,7 +205,8 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFil
             normalizedPath[i] = tolower(info.mSaveName[i]);
     }
 
-    __CARDSetDiskID(&info.mGameCode);
+    if (info.mSaveGlobal)
+        __CARDSetDiskID(&info.mGameCode);
 
     int ret;
     do {
@@ -216,12 +217,14 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFil
         int cret =
             CARDCreate(channel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
         if (cret < CARD_ERROR_READY) {
-            __CARDSetDiskID((void *)0x80000000);
+            if (info.mSaveGlobal)
+                __CARDSetDiskID((void *)0x80000000);
             return cret;
         }
         UpdateSavedSettings(group, &infoOut);
     } else if (ret < CARD_ERROR_READY) {
-        __CARDSetDiskID((void *)0x80000000);
+        if (info.mSaveGlobal)
+            __CARDSetDiskID((void *)0x80000000);
         return ret;
     }
 
@@ -348,9 +351,11 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
 s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     auto &info = group.getSaveInfo();
-    __CARDSetDiskID(&info.mGameCode);
+    if (info.mSaveGlobal)
+        __CARDSetDiskID(&info.mGameCode);
     s32 ret = CARDClose(finfo);
-    __CARDSetDiskID((void *)0x80000000);
+    if (info.mSaveGlobal)
+        __CARDSetDiskID((void *)0x80000000);
     return ret;
 }
 
@@ -442,7 +447,16 @@ s32 SettingsDirector::exit() {
     return fader->mFadeStatus == TSMSFader::FADE_ON ? 5 : 1;
 }
 
+extern RumbleSetting gRumbleSetting;
+extern SoundSetting gSoundSetting;
+extern SubtitleSetting gSubtitleSetting;
+
 void SettingsDirector::initialize() {
+
+    gRumbleSetting.setBool(TFlagManager::smInstance->getBool(0x90000));
+    gSoundSetting.setInt(TFlagManager::smInstance->getFlag(0xA0000));
+    gSubtitleSetting.setBool(TFlagManager::smInstance->getBool(0x90001));
+
     initializeDramaHierarchy();
     initializeSettingsLayout();
     initializeErrorLayout();

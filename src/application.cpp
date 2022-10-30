@@ -166,7 +166,7 @@ void BetterApplicationProcess(TApplication *app) {
         if (app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
                 app->initialize_nlogoAfter();
-                #if 0
+                #if 1
                 if (BetterSMS::isDebugMode())
                     delayContext = TApplication::CONTEXT_DIRECT_LEVEL_SELECT;
                 #endif
@@ -196,7 +196,7 @@ void BetterApplicationProcess(TApplication *app) {
                     app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
                     app->mContext = TApplication::CONTEXT_GAME_SHUTDOWN;
                 } else if (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN) {
-                    #if 0
+                    #if 1
                     delayContext = BetterSMS::isDebugMode()
                                         ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
                                         : TApplication::CONTEXT_DIRECT_MOVIE;

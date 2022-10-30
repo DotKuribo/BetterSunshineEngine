@@ -210,6 +210,7 @@ static TMarDirector *initLib() {
         saveInfo.mIconSpeed   = CARD_SPEED_SLOW;
         saveInfo.mIconCount   = 2;
         saveInfo.mIconTable   = GetResourceTextureHeader(gSaveIcon);
+        saveInfo.mSaveGlobal  = true;
     }
     Settings::registerGroup("Better Sunshine Engine", &sSettingsGroup);
 
