@@ -54,6 +54,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80014F9C, 0x80014ff8, 0, 0), smartMSoundLoad);
 // Restore Chao Seed
 SMS_WRITE_32(SMS_PORT_REGION(0x802FD1A0, 0x802f5330, 0, 0), 0x808D8C70);
 
+// TODO: Account for BetterSMS::areBugsPatched()
+
 // Fix Infinte Flutter
 SMS_WRITE_32(SMS_PORT_REGION(0x8028113C, 0x80278ec8, 0, 0),
              SMS_PORT_REGION(0xC002F69C, 0xC002F824, 0, 0));

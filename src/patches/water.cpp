@@ -14,8 +14,7 @@
 
 #include "common_sdk.h"
 #include "module.hxx"
-
-#include "module.hxx"
+#include "p_settings.hxx"
 
 using namespace BetterSMS;
 
@@ -26,6 +25,11 @@ static inline bool isColTypeWater(u16 type) { return (type > 255 && type < 261) 
 static void patchWaterDownWarp(f32 y) {
     TMario *player;
     SMS_FROM_GPR(31, player);
+
+    if (!BetterSMS::areBugsPatched()) {
+        player->mPosition.y = y;
+        return;
+    }
 
     if (player->mFloorTriangleWater == player->mFloorTriangle &&
         !isColTypeWater(player->mFloorTriangle->mCollisionType))
@@ -42,6 +46,9 @@ static bool canDiePlane(f32 floorY) {
     Vec playerPos;
     player->JSGGetTranslation(&playerPos);
 
+    if (!BetterSMS::areBugsPatched())
+        return floorY > playerPos.y;
+
     return (floorY > playerPos.y) && !player->mAttributes.mIsGameOver;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB54, 0x802478E4, 0, 0), canDiePlane);
@@ -52,19 +59,21 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     SMS_FROM_GPR(29, player);
 
     const TBGCheckData **tri = const_cast<const TBGCheckData **>(&player->mFloorTriangleWater);
-
     const TMapCollisionData *mapCol = gpMapCollisionData;
-    if (!(player->mState & TMario::STATE_WATERBORN)) {
-        f32 yPos = mapCol->checkGround(x, player->mCeilingAbove - 10.0f, z, 0, tri);
-        if (*tri && isColTypeWater((*tri)->mCollisionType)) {
-            // if (!(player->mState & TMario::STATE_AIRBORN) &&
-            //     isColTypeWater(player->mFloorTriangle->mCollisionType)) {
-            //     player->mFloorBelow = gpMapCollisionData->checkGround(
-            //         player->mPosition.x, player->mPosition.y, player->mPosition.z, 1,
-            //         &player->mFloorTriangle);
-            //     player->mPosition.y = player->mFloorBelow;
-            // }
-            return yPos;
+
+    if (BetterSMS::areBugsPatched()) {
+        if (!(player->mState & TMario::STATE_WATERBORN)) {
+            f32 yPos = mapCol->checkGround(x, player->mCeilingAbove - 10.0f, z, 0, tri);
+            if (*tri && isColTypeWater((*tri)->mCollisionType)) {
+                // if (!(player->mState & TMario::STATE_AIRBORN) &&
+                //     isColTypeWater(player->mFloorTriangle->mCollisionType)) {
+                //     player->mFloorBelow = gpMapCollisionData->checkGround(
+                //         player->mPosition.x, player->mPosition.y, player->mPosition.z, 1,
+                //         &player->mFloorTriangle);
+                //     player->mPosition.y = player->mFloorBelow;
+                // }
+                return yPos;
+            }
         }
     }
 

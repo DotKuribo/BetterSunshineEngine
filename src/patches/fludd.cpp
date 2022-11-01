@@ -18,12 +18,14 @@
 #include "geometry.hxx"
 #include "libs/constmath.hxx"
 #include "module.hxx"
+#include "p_settings.hxx"
 
 #if BETTER_SMS_BUGFIXES
 
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
+// TODO: Make check for BetterSMS::areBugsPatched()
 static SMS_ASM_FUNC bool makeWaterHitCheckForDeath(TBGCheckData *col) {
     // clang-format off
   SMS_ASM_BLOCK (
@@ -57,6 +59,9 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
     SMS_FROM_GPR(22, player);
 
     player->mPosition.y = floorPos;
+
+    if (!BetterSMS::areBugsPatched())
+        return;
 
     if (!(player->mState == static_cast<u32>(TMario::STATE_HOVER)))
         return;

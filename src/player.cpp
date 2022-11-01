@@ -27,6 +27,7 @@
 #include "math.hxx"
 #include "module.hxx"
 #include "player.hxx"
+#include "p_settings.hxx"
 #include "stage.hxx"
 
 using namespace BetterSMS;
@@ -365,8 +366,10 @@ static u32 patchYStorage() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    if (player->mState != static_cast<u32>(TMario::STATE_IDLE))
-        player->mSpeed.y = 0.0f;
+    if (BetterSMS::areBugsPatched()) {
+        if (player->mState != static_cast<u32>(TMario::STATE_IDLE))
+            player->mSpeed.y = 0.0f;
+    }
 
     return 0;
 }

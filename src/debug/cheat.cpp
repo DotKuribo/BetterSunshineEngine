@@ -93,7 +93,6 @@ bool gInXYZMode = false;
 void initMarioXYZMode(TApplication *app) { gInXYZMode = false; }
 
 // extern -> debug update callback
-// 0x8024D194
 void updateMarioXYZMode(TApplication *app) {
     constexpr f32 baseSpeed = 83.0f;
     constexpr u32 buttons   = TMarioGamePad::EButtons::DPAD_UP;
@@ -137,6 +136,98 @@ void updateMarioXYZMode(TApplication *app) {
         gpMarioAddress->JSGSetTranslation(playerPos);
     }
     return;
+}
+
+enum DebugNozzleKind {
+    SPRAY,
+    ROCKET,
+    UNDERWATER,
+    YOSHI,
+    HOVER,
+    TURBO,
+    NONE
+};
+
+static s32 sNozzleKind = DebugNozzleKind::SPRAY;
+
+// extern -> debug update callback
+void updateFluddNozzle(TApplication *app) {
+    TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
+
+    if (!director || !BetterSMS::isDebugMode() ||
+        director->mCurState != TMarDirector::Status::STATE_NORMAL)
+        return;
+
+    TMario *player = gpMarioAddress;
+    TWaterGun *fludd = player->mFludd;
+
+    if (!fludd)
+        return;
+
+    if (sNozzleKind != DebugNozzleKind::NONE) {
+        sNozzleKind = fludd->mSecondNozzle;
+    } else {
+        player->mAttributes.mHasFludd = false;
+    }
+
+    s32 adjust = 0;
+    if ((player->mController->mButtons.mFrameInput & TMarioGamePad::DPAD_RIGHT))
+        adjust = 1;
+    else if ((player->mController->mButtons.mFrameInput & TMarioGamePad::DPAD_LEFT))
+        adjust = -1;
+
+    if (adjust == 0)
+        return;
+
+    switch (sNozzleKind) {
+    case SPRAY:
+        fludd->mSecondNozzle = TWaterGun::Spray + adjust;
+        if (adjust < 0) {
+            fludd->mSecondNozzle = TWaterGun::Hover;
+            sNozzleKind          = NONE;
+        }
+        break;
+    case ROCKET:
+        fludd->mSecondNozzle = TWaterGun::Rocket + adjust;
+        break;
+    case UNDERWATER:
+        fludd->mSecondNozzle = TWaterGun::Underwater + adjust;
+        break;
+    case YOSHI:
+        fludd->mSecondNozzle = TWaterGun::Yoshi + adjust;
+        break;
+    case HOVER:
+        fludd->mSecondNozzle = TWaterGun::Hover + adjust;
+        break;
+    case TURBO:
+        fludd->mSecondNozzle = TWaterGun::Turbo + adjust;
+        if (adjust > 0) {
+            fludd->mSecondNozzle = TWaterGun::Hover;
+            sNozzleKind          = NONE;
+        }
+        break;
+    case NONE:
+        if (adjust > 0) {
+            fludd->mSecondNozzle = TWaterGun::Spray;
+            sNozzleKind          = SPRAY;
+        } else {
+            fludd->mSecondNozzle = TWaterGun::Turbo;
+            sNozzleKind          = TURBO;
+        }
+        player->mAttributes.mHasFludd = true;
+        break;
+    }
+    fludd->mCurrentNozzle = fludd->mSecondNozzle;
+
+    if (sNozzleKind != DebugNozzleKind::NONE) {
+        if (sNozzleKind != fludd->mSecondNozzle) {
+            fludd->mCurrentNozzle = fludd->mSecondNozzle;
+            TNozzleBase *currentNozzle = fludd->mNozzleList[fludd->mCurrentNozzle];
+            fludd->mCurrentWater       = currentNozzle->mEmitParams.mAmountMax.get();
+        }
+    }
+
+    sNozzleKind %= 7;
 }
 
 // static u8 sHomeID   = 0;

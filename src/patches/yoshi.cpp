@@ -122,7 +122,7 @@ void forceValidRidingAnimation(TMario *player, bool isMario) {
         return;
 
     // Force valid animation
-    if (yoshi->mState == TYoshi::MOUNTED)
+    if (yoshi->mState == TYoshi::MOUNTED && player->mState != TMario::STATE_SHINE_C)
         player->setAnimation(TMario::ANIMATION_IDLE, 1.0f);
 }
 
@@ -131,8 +131,24 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8026F14C, 0, 0, 0), 0x60000000);
 
 SMS_WRITE_32(SMS_PORT_REGION(0x802703C8, 0, 0, 0), 0x38000003);  // Fix fruit storage
 
+static bool checkShouldMount() {
+    TMario *player;
+    SMS_FROM_GPR(31, player);
+
+    return player->mSpeed.y < -1.0f;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8028113C, 0x80278EC8, 0, 0), checkShouldMount);
+SMS_WRITE_32(SMS_PORT_REGION(0x80281140, 0x80278ECC, 0, 0), 0x2C030000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80281144, 0x80278ED0, 0, 0), 0x41820134);
+
+static void keepDistanceIsolated(TMario *player, f32 x, f32 y) {
+    player->keepDistance(player->mYoshi->mPosition, x, y);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80281284, 0, 0, 0), keepDistanceIsolated);
+
+
 // Fix Infinte Flutter
-SMS_WRITE_32(SMS_PORT_REGION(0x8028113C, 0x80278EC8, 0, 0),
-             SMS_PORT_REGION(0xC002F69C, 0xC002F824, 0, 0));
+//SMS_WRITE_32(SMS_PORT_REGION(0x8028113C, 0x80278EC8, 0, 0),
+//             SMS_PORT_REGION(0xC002F69C, 0xC002F824, 0, 0));
 
 #endif

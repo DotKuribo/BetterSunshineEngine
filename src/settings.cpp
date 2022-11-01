@@ -451,8 +451,18 @@ extern RumbleSetting gRumbleSetting;
 extern SoundSetting gSoundSetting;
 extern SubtitleSetting gSubtitleSetting;
 
-void SettingsDirector::initialize() {
+extern Settings::SwitchSetting gBugFixesSetting;
+bool BetterSMS::areBugsPatched() {
+    return gBugFixesSetting.getBool();
+}
 
+extern Settings::SwitchSetting gCameraInvertXSetting;
+bool BetterSMS::isCameraInvertedX() { return gCameraInvertXSetting.getBool(); }
+
+extern Settings::SwitchSetting gCameraInvertYSetting;
+bool BetterSMS::isCameraInvertedY() { return gCameraInvertYSetting.getBool(); }
+
+void SettingsDirector::initialize() {
     gRumbleSetting.setBool(TFlagManager::smInstance->getBool(0x90000));
     gSoundSetting.setInt(TFlagManager::smInstance->getFlag(0xA0000));
     gSubtitleSetting.setBool(TFlagManager::smInstance->getBool(0x90001));

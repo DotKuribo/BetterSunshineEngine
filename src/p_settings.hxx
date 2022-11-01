@@ -893,3 +893,9 @@ public:
 private:
     static int sFPSValue;
 };
+
+namespace BetterSMS {
+    bool areBugsPatched();
+    bool isCameraInvertedX();
+    bool isCameraInvertedY();
+}

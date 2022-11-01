@@ -3,6 +3,7 @@
 #include <SMS/macros.h>
 
 #include "common_sdk.h"
+#include "p_settings.hxx"
 #include "module.hxx"
 
 #if defined(BETTER_SMS_BUGFIXES) || defined(BETTER_SMS_CRASHFIXES)
@@ -14,22 +15,24 @@ static SMS_ASM_FUNC void shadowCrashPatch() {
                  "lhz         0, 0x18 (4)     \n\t"
                  "blr                         \n\t");
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802320E0, 0X8022A034, 0, 0), shadowCrashPatch);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802320E0, 0x8022A034, 0, 0), shadowCrashPatch);
 
 static u32 clampRotation(TLiveActor *actor) {
-    TVec3f &rot = actor->mRotation;
+    if (BetterSMS::areBugsPatched()) {
+        TVec3f &rot = actor->mRotation;
 
-    auto clampPreserve = [](f32 rotation) {
-        if (rotation > 360.0f)
-            rotation -= 360.0f;
-        else if (rotation < -360.0f)
-            rotation += 360.0f;
-        return rotation;
-    };
+        auto clampPreserve = [](f32 rotation) {
+            if (rotation > 360.0f)
+                rotation -= 360.0f;
+            else if (rotation < -360.0f)
+                rotation += 360.0f;
+            return rotation;
+        };
 
-    rot.x = clampPreserve(rot.x);
-    rot.y = clampPreserve(rot.y);
-    rot.z = clampPreserve(rot.z);
+        rot.x = clampPreserve(rot.x);
+        rot.y = clampPreserve(rot.y);
+        rot.z = clampPreserve(rot.z);
+    }
 
     return actor->mStateFlags.asU32;
 }

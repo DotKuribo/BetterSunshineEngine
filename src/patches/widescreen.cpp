@@ -531,7 +531,7 @@ static void patchSMSFaderInOut(JDrama::TRect *rect, JUtility::TColor color) {
     GXSetViewport(rect->mX1, rect->mY1, rect->mX2, rect->mY2, 0.0f, 1.0f);
     fill_rect__9(rect, color);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8013FDAC, 0x80134928, 0, 0), patchSMSFaderInOut);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x8013FDAC, 0x80134928, 0, 0), patchSMSFaderInOut);
 
 static void patchLevelSelectPosition(J2DScreen *screen, int x, int y, J2DGrafContext *context) {
     reinterpret_cast<J2DPane *>(screen->mChildrenList.mFirst->mItemPtr)

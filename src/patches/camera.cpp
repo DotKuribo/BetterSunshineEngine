@@ -6,9 +6,10 @@
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
-#include "common_sdk.h"
 #include "libs/constmath.hxx"
+#include "common_sdk.h"
 #include "module.hxx"
+#include "p_settings.hxx"
 #include "player.hxx"
 
 using namespace BetterSMS;
@@ -19,13 +20,13 @@ constexpr f32 DrawDistanceMultiplier = 100.0f;
 constexpr f32 DrawDistance           = 300000.0f * DrawDistanceMultiplier;
 
 static bool cameraScaleRenderDistance(CPolarSubCamera *cam) {
-    JSGSetProjectionFar__Q26JDrama7TCameraFf(cam, DrawDistance);  // Draw Distance
+    JSGSetProjectionFar__Q26JDrama7TCameraFf(cam, BetterSMS::areBugsPatched() ? DrawDistance : 300000.0f);  // Draw Distance
     return cam->isNormalDeadDemo();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80023828, 0x800238e0, 0, 0), cameraScaleRenderDistance);
 
 static void scaleDrawDistanceNPC(f32 x, f32 y, f32 near, f32 far) {
-    SetViewFrustumClipCheckPerspective__Fffff(x, y, near, far * DrawDistanceMultiplier);
+    SetViewFrustumClipCheckPerspective__Fffff(x, y, near, BetterSMS::areBugsPatched() ? far * DrawDistanceMultiplier : far);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8020A2A4, 0x80202188, 0, 0), scaleDrawDistanceNPC);
 
@@ -82,3 +83,13 @@ static void modifyCameraRangeToSize(f32 *cameraParams, f32 *saveParams) {
     }
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x80027548, 0x80027600, 0, 0), modifyCameraRangeToSize);
+
+static void checkInvertCamCStickX(CPolarSubCamera *camera, f32 x) {
+    camera->rotateY_ByStickX_(BetterSMS::isCameraInvertedX() ? -x : x);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80029EAC, 0, 0, 0), checkInvertCamCStickX);
+
+static void checkInvertCamCStickY(CPolarSubCamera *camera, f32 y) {
+    camera->rotateX_ByStickY_(BetterSMS::isCameraInvertedY() ? -y : y);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8002A1E0, 0, 0, 0), checkInvertCamCStickY);

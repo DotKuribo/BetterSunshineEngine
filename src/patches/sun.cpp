@@ -12,6 +12,7 @@
 #include "common_sdk.h"
 #include "libs/constmath.hxx"
 #include "module.hxx"
+#include "p_settings.hxx"
 
 #if BETTER_SMS_BUGFIXES
 
@@ -38,6 +39,9 @@ static bool sunFollowCameraAndScaleLightness(TCameraMarioData *cam) {
     TSunModel *sun;
     SMS_FROM_GPR(29, sun);
 
+    if (!BetterSMS::areBugsPatched())
+        return cam->isMarioIndoor();
+
     TVec3f spos(sSunBasePos);
     TVec3f cpos;
 
@@ -54,13 +58,16 @@ static bool sunFollowCameraAndScaleLightness(TCameraMarioData *cam) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002EB34, 0x8002EBEC, 0, 0), sunFollowCameraAndScaleLightness);
 
 static f32 scaleFlareToLightness(f32 a, f32 b, f32 c) {
-    return CLBEaseOutInbetween_f(a, static_cast<f32>(gpModelWaterManager->mDarkLevel), c);
+    return CLBEaseOutInbetween_f(a, BetterSMS::areBugsPatched() ? static_cast<f32>(gpModelWaterManager->mDarkLevel) : b, c);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002D358, 0x8002D410, 0, 0), scaleFlareToLightness);
 
 static bool scaleGlowToLightness(f32 a, f32 b, f32 c) {
     TLensGlow *glow;
     SMS_FROM_GPR(28, glow);
+
+    if (!BetterSMS::areBugsPatched())
+        return CLBLinearInbetween_f(a, b, c);
 
     const f32 factor = static_cast<f32>(gpModelWaterManager->mDarkLevel) / 255.0f;
 

@@ -10,6 +10,8 @@
 #include "common_sdk.h"
 #include "module.hxx"
 
+// TODO: Account for BetterSMS::areBugsPatched()
+
 static bool isSeaBMDPresent(TMarDirector *director) {
     return JKRArchive::getGlbResource("/scene/map/map/sea.bmd") != nullptr;
 }
