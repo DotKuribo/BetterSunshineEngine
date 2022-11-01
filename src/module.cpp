@@ -491,23 +491,23 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                      "deregisterDraw2DCallback__Q29BetterSMS5StageFPCc");
 
     /* TIME */
-    KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::buildTime, "buildTime__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime, "calendarTime__Q29BetterSMS5MusicFR14OSCalendarTime");
-    KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate, "calendarToDate__Q29BetterSMS5MusicFPcRC14OSCalendarTime");
-    KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime, "calendarToTime__Q29BetterSMS5MusicFPcRC14OSCalendarTime");
-    KURIBO_EXPORT_AS(BetterSMS::Time::date, "date__Q29BetterSMS5MusicFPc");
-    KURIBO_EXPORT_AS(BetterSMS::Time::day, "day__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::hour, "hour__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::microsecond, "microsecond__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::millisecond, "millisecond__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::minute, "minute__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::month, "month__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::nanosecond, "nanosecond__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::ostime, "ostime__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::second, "second__Q29BetterSMS5MusicFv");
-    KURIBO_EXPORT_AS(BetterSMS::Time::time, "time__Q29BetterSMS5MusicFPc");
-    KURIBO_EXPORT_AS(BetterSMS::Time::year, "year__Q29BetterSMS5MusicFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::buildTime, "buildTime__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime, "calendarTime__Q29BetterSMS4TimeFR14OSCalendarTime");
+    KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate, "calendarToDate__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
+    KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime, "calendarToTime__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
+    KURIBO_EXPORT_AS(BetterSMS::Time::date, "date__Q29BetterSMS4TimeFPc");
+    KURIBO_EXPORT_AS(BetterSMS::Time::day, "day__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::hour, "hour__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::microsecond, "microsecond__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::millisecond, "millisecond__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::minute, "minute__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::month, "month__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::nanosecond, "nanosecond__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::ostime, "ostime__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::second, "second__Q29BetterSMS4TimeFv");
+    KURIBO_EXPORT_AS(BetterSMS::Time::time, "time__Q29BetterSMS4TimeFPc");
+    KURIBO_EXPORT_AS(BetterSMS::Time::year, "year__Q29BetterSMS4TimeFv");
 
     /* CTYPE */
     KURIBO_EXPORT(isxdigit);
