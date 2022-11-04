@@ -152,8 +152,6 @@ void checkForYoshiDeath(TMario *player, bool isMario) {
                                     player->mYoshi->mPosition.z, 0,
                                     &ground);
 
-    OSReport("%d\n", ground->mCollisionType);
-
     checkForWaterDeath(player->mYoshi, ground, groundY);
     checkForOOBDeath(player->mYoshi, ground, groundY);
 }

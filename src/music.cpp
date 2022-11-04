@@ -473,6 +473,22 @@ bool Music::AudioStreamer::seek_() {
 }
 
 void Music::AudioStreamer::update_() {
+    if (!gpMarDirector) {
+        if (isPlaying() || isPaused())
+            stop(0.0f);
+        return;
+    }
+
+    if (!_startPaused && gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU) {
+        if (isPlaying())
+            pause(0.7f);
+        _startPaused = true;
+    } else if (_startPaused && gpMarDirector->mCurState != TMarDirector::STATE_PAUSE_MENU) {
+        if (isPaused())
+            play();
+        _startPaused = false;
+    }
+
     const u8 vol = (_mVolLeft + _mVolRight) / 2;
     if (vol == 0) {
         if (_mIsPaused)
@@ -488,20 +504,8 @@ void Music::AudioStreamer::update_() {
     if (!isPlaying())
         return;
 
-    if (!gpMarDirector) {
-        stop(0.0f);
-        return;
-    }
 
     AudioPacket &packet = getCurrentAudio();
-
-    if (!_startPaused && gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU) {
-        pause(0.7f);
-        _startPaused = true;
-    } else if (_startPaused && gpMarDirector->mCurState != TMarDirector::STATE_PAUSE_MENU) {
-        play();
-        _startPaused = false;
-    }
 
     if (isLooping() && mCurrentPlayAddress == mEndPlayAddress) {
         OSReport("%s: Preparing loop stream!\n", SMS_FUNC_SIG);
