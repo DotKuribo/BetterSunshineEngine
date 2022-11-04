@@ -29,18 +29,17 @@
 // SETTINGS //
 
 // Sunshine settings
-static Settings::SettingsGroup sBaseSettingsGroup("Super Mario Sunshine", Settings::Priority::CORE);
+static Settings::SettingsGroup sBaseSettingsGroup("Super Mario Sunshine", 1, 0, Settings::Priority::CORE);
 RumbleSetting gRumbleSetting("Controller Rumble");
 SoundSetting gSoundSetting("Sound Mode");
 SubtitleSetting gSubtitleSetting("Movie Subtitles");
 //
 
 // BetterSMS settings
-static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine",
+static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine", 1, 0,
                                               Settings::Priority::CORE);
 
-static bool sBugFixesFlag = true;
-Settings::SwitchSetting gBugFixesSetting("Bug & Exploit Fixes", &sBugFixesFlag);
+BugsSetting gBugFixesSetting("Bug & Exploit Fixes");
 
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 FPSSetting gFPSSetting("Frame Rate");
@@ -76,8 +75,6 @@ extern bool BetterAppContextDirectSettingsMenu(TApplication *app);
 
 // DEBUG
 extern void initDebugCallbacks(TApplication *);
-extern void updateDebugCallbacks();
-extern void drawDebugCallbacks();
 
 extern void initMarioXYZMode(TApplication *);
 extern void updateMarioXYZMode(TApplication *);
@@ -138,7 +135,7 @@ extern void initTurboMaxCapacity(TMario *player, bool isMario);
 extern void updateTurboFrameEmit(TMario *player, bool isMario);
 
 // YOSHI
-extern void checkForYoshiWaterDeath(TMario *player, bool isMario);
+extern void checkForYoshiDeath(TMario *player, bool isMario);
 extern void forceValidRidingAnimation(TMario *player, bool isMario);
 
 // MUSIC
@@ -153,6 +150,11 @@ extern void initLoadingScreen();
 
 // SETTINGS
 extern void initAllSettings(TApplication *);
+
+extern void initUnlockedSettings(TApplication *);
+extern void updateUnlockedSettings(TMarDirector *);
+extern void checkForCompletionAwards(TApplication *);
+extern void drawUnlockedSettings(TApplication *, J2DOrthoGraph *);
 
 static TMarDirector *initLib() {
 
@@ -279,7 +281,7 @@ static TMarDirector *initLib() {
     Player::registerUpdateProcess("__update_turbo_usage", updateTurboFrameEmit);
 
     // YOSHI
-    Player::registerUpdateProcess("__update_yoshi_swim", checkForYoshiWaterDeath);
+    Player::registerUpdateProcess("__update_yoshi_swim", checkForYoshiDeath);
     Player::registerUpdateProcess("__update_yoshi_riding", forceValidRidingAnimation);
 
     // DEBUG
@@ -312,6 +314,10 @@ static TMarDirector *initLib() {
 
     // SETTINGS
     Game::registerOnBootCallback("__load_settings", initAllSettings);
+    Game::registerOnBootCallback("__init_setting_notifs", initUnlockedSettings);
+    Stage::registerUpdateCallback("__update_setting_notifs", updateUnlockedSettings);
+    Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
+    Debug::registerDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
 
     return director;
 }
@@ -533,3 +539,5 @@ KURIBO_MODULE_END()
 #error "BetterSMS only supports Kuribo style modulation"
 
 #endif
+
+extern "C" void __cxa_pure_virtual() { SMS_ASM_BLOCK("trap \r\n"); }

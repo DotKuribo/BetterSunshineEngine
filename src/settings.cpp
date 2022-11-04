@@ -40,7 +40,9 @@ bool RumbleSetting::sRumbleFlag           = true;
 int SoundSetting::sSoundValue             = SoundSetting::MONO;
 bool SubtitleSetting::sSubtitleFlag       = true;
 int AspectRatioSetting::sAspectRatioValue = AspectRatioSetting::FULL;
-int FPSSetting::sFPSValue                 = FPSSetting::FPS_30; 
+int FPSSetting::sFPSValue                 = FPSSetting::FPS_30;
+bool BugsSetting::sIsUnlocked             = false;
+bool BugsSetting::sBugsValue              = true;
 
 using namespace BetterSMS;
 
@@ -261,7 +263,11 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     }
 
     // Reset data
-    memset(saveBuffer + 4, 0, saveDataSize - 4);
+    memset(saveBuffer, 0, saveDataSize);
+
+    // Write version info
+    saveBuffer[0] = group.getMajorVersion();
+    saveBuffer[1] = group.getMinorVersion();
 
     // Copy group name into save data
     snprintf(saveBuffer + 4, 32, "%s", info.mSaveName);
@@ -286,14 +292,7 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     // Write contents to save file
     JSUMemoryOutputStream out(saveBuffer + dataPosOut, saveDataSize - dataPosOut);
     for (auto &setting : group.getSettings()) {
-        switch (setting->getKind()) {
-        case Settings::SingleSetting::ValueKind::INT:
-        case Settings::SingleSetting::ValueKind::FLOAT:
-            out.write(setting->getValue(), 4);
-            break;
-        case Settings::SingleSetting::ValueKind::BOOL:
-            out.write(setting->getValue(), 1);
-        }
+        setting->save(out);
     }
 
     for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
@@ -313,7 +312,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     char *saveBuffer          = new (32) char[saveDataSize];
 
     // Reset data
-    memset(saveBuffer + 4, 0, saveDataSize - 4);
+    memset(saveBuffer, 0, saveDataSize);
 
     for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
         s32 result = CARDRead(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
@@ -322,28 +321,18 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         }
     }
 
+    if (saveBuffer[0] != group.getMajorVersion()) {
+        OSReport("Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n",
+                 group.getName());
+        return CARD_ERROR_READY;
+    }
+
     size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
 
     // Write contents to save file
     JSUMemoryInputStream in(saveBuffer + dataPosOut, saveDataSize - dataPosOut);
     for (auto &setting : group.getSettings()) {
-        switch (setting->getKind()) {
-        case Settings::SingleSetting::ValueKind::INT:
-            int x;
-            in.read(&x, 4);
-            setting->setInt(x);
-            break;
-        case Settings::SingleSetting::ValueKind::FLOAT:
-            float f;
-            in.read(&f, 4);
-            setting->setFloat(f);
-            break;
-        case Settings::SingleSetting::ValueKind::BOOL:
-            bool b;
-            in.read(&b, 1);
-            setting->setBool(b);
-            break;
-        }
+        setting->load(in);
     }
 
     return CARD_ERROR_READY;
@@ -451,7 +440,7 @@ extern RumbleSetting gRumbleSetting;
 extern SoundSetting gSoundSetting;
 extern SubtitleSetting gSubtitleSetting;
 
-extern Settings::SwitchSetting gBugFixesSetting;
+extern BugsSetting gBugFixesSetting;
 bool BetterSMS::areBugsPatched() {
     return gBugFixesSetting.getBool();
 }
@@ -527,7 +516,11 @@ void SettingsDirector::initializeDramaHierarchy() {
     {
         auto *screen = new JDrama::TScreen(screenRect, "Screen Grad");
 
-        screen->assignCamera(new JDrama::TOrthoProj());
+        auto *orthoProj = new JDrama::TOrthoProj();
+        orthoProj->mProjectionField[0] = -BetterSMS::getScreenRatioAdjustX();
+        orthoProj->mProjectionField[2] = BetterSMS::getScreenRenderWidth();
+        screen->assignCamera(orthoProj);
+
         screen->assignViewObj(groupGrad);
 
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), screen);
@@ -537,7 +530,11 @@ void SettingsDirector::initializeDramaHierarchy() {
     {
         auto *screen = new JDrama::TScreen(screenRect, "Screen 2D");
 
-        screen->assignCamera(new JDrama::TOrthoProj());
+        auto *orthoProj                = new JDrama::TOrthoProj();
+        orthoProj->mProjectionField[0] = -BetterSMS::getScreenRatioAdjustX();
+        orthoProj->mProjectionField[2] = BetterSMS::getScreenRenderWidth();
+        screen->assignCamera(orthoProj);
+
         screen->assignViewObj(group2D);
 
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), screen);
@@ -645,6 +642,9 @@ void SettingsDirector::initializeSettingsLayout() {
         int n = 0;
         auto settingList = new JGadget::TList<SettingInfo *>();
         for (auto &setting : group.mValue->getSettings()) {
+            if (!setting->isUnlocked())
+                continue;
+
             J2DPane *settingPane =
                 new J2DPane(19, ('q' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
 
@@ -937,3 +937,94 @@ static s32 checkForSettingsMenu(TMarDirector *director) {
     return ret;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80299D0C, 0, 0, 0), checkForSettingsMenu);
+
+static JGadget::TList<J2DTextBox *> sUnlockedNotifications;
+
+static OSTime sLastTime = 0;
+static TDictI<int> sVisualMap;
+
+void initUnlockedSettings(TApplication *app) {
+    sLastTime = 0;
+    sUnlockedNotifications.erase(sUnlockedNotifications.begin(), sUnlockedNotifications.end());
+}
+
+void updateUnlockedSettings(TMarDirector *app) {
+    TDictS<Settings::SettingsGroup *>::ItemList groups;
+    getSettingsGroups(groups);
+
+    for (auto &group : groups) {
+        JGadget::TList<Settings::SingleSetting *> unlockedSettings;
+        group.mValue->checkForUnlockedSettings(unlockedSettings);
+
+        for (auto &setting : unlockedSettings) {
+            char notifText[100];
+            snprintf(notifText, 100, "%s\nUnlocked the \"%s\" setting!", group.mValue->getName(), setting->getName());
+
+            auto *notificationText =
+                new J2DTextBox('NOTF', {100, 180, 500, 240}, gpSystemFont->mFont, notifText,
+                               J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+            {
+                notificationText->mAlpha          = 0;
+                notificationText->mCharSizeX      = 11;
+                notificationText->mCharSizeY      = 12;
+                notificationText->mNewlineSize    = 12;
+                notificationText->mGradientTop    = {180, 230, 10, 255};
+                notificationText->mGradientBottom = {240, 170, 10, 255};
+            }
+
+            sUnlockedNotifications.insert(sUnlockedNotifications.end(), notificationText);
+            sVisualMap.set(reinterpret_cast<u32>(notificationText), 0);
+        }
+    }
+}
+
+void drawUnlockedSettings(TApplication *app, J2DOrthoGraph *ortho) {
+    int yOfs = 0;
+
+    f32 diff = OSTicksToSeconds(f32(OSGetTime() - sLastTime));
+    s32 alphaInc = diff * 512;
+
+    for (auto iter = sUnlockedNotifications.begin(); iter != sUnlockedNotifications.end(); ++iter) {
+        auto &notif = *iter;
+
+        OSReport("0x%X\n", (u32)notif);
+
+        J2DFillBox({100, 180 + yOfs, 500, 240 + yOfs}, {30, 30, 30, notif->mAlpha});
+        notif->draw(0, 0);
+        if (notif->mAlpha != 255)
+            notif->mAlpha += 1;
+
+        /*if (sVisualMap.get(reinterpret_cast<u32>(notif) == 0)) {
+            if (alphaInc != 0)
+                sLastTime = OSGetTime();
+            notif->mAlpha = Min(255, notif->mAlpha + alphaInc);
+            if (notif->mAlpha == 255)
+                sVisualMap.set(reinterpret_cast<u32>(notif), 1);
+        } else if (sVisualMap.get(reinterpret_cast<u32>(notif) == 1)) {
+            if (diff > 5.0f) {
+                sVisualMap.set(reinterpret_cast<u32>(notif), 2);
+                sLastTime = OSGetTime();
+            }
+        } else {
+            if (alphaInc != 0)
+                sLastTime = OSGetTime();
+            notif->mAlpha = Max(0, notif->mAlpha - alphaInc);
+            if (notif->mAlpha == 0) {
+                sVisualMap.pop(reinterpret_cast<u32>(notif));
+                iter = sUnlockedNotifications.erase(iter);
+            }
+        }*/
+
+        yOfs += 70;
+    }
+}
+
+void checkForCompletionAwards(TApplication *app) {
+    if (!TFlagManager::smInstance)
+        return;
+
+    const size_t shineCount = TFlagManager::smInstance->getFlag(0x40000);
+    if (shineCount >= 300 && !gBugFixesSetting.isUnlocked()) {
+        gBugFixesSetting.unlock();
+    }
+}

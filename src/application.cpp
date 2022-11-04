@@ -145,8 +145,9 @@ bool BetterAppContextDirectSettingsMenu(TApplication *app) {
 
 #define SMS_CHECK_RESET_FLAG(gamepad) (((1 << (gamepad)->mPort) & TMarioGamePad::mResetFlag) == 1)
 
+extern void gameInitCallbackHandler(TApplication *app);
 extern void gameBootCallbackHandler(TApplication *app);
-extern JKRHeap *exitStageCallbacks();
+extern void gameChangeCallbackHandler(TApplication *app);
 
 void BetterApplicationProcess(TApplication *app) {
     bool exitLoop   = false;
@@ -156,8 +157,10 @@ void BetterApplicationProcess(TApplication *app) {
         SMS_ASSERT(cb, "Application attempted to fetch a context handler but it wasn't found!");
 
         exitLoop = (*cb)(app);
-        if (!exitLoop)
+        if (!exitLoop) {
             delayContext = app->gameLoop();
+            gameChangeCallbackHandler(app);
+        }
 
         if (app->mDirector)
             delete app->mDirector;
@@ -173,11 +176,11 @@ void BetterApplicationProcess(TApplication *app) {
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
+                gameInitCallbackHandler(app);
                 app->initialize_bootAfter();
                 gameBootCallbackHandler(app);
             }
         } else {
-            exitStageCallbacks();
             app->mCurrentHeap->freeAll();
         }
 

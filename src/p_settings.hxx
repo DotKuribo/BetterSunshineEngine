@@ -879,19 +879,49 @@ public:
         switch (getInt()) {
         default:
         case Kind::FPS_30:
-            strncpy(dst, "30 FPS", 7);
+            strncpy(dst, SMS_PORT_REGION("30 FPS", "25 FPS", "30 FPS", "30 FPS"), 7);
             break;
         case Kind::FPS_60:
-            strncpy(dst, "60 FPS", 7);
+            strncpy(dst, SMS_PORT_REGION("60 FPS", "50 FPS", "60 FPS", "60 FPS"), 7);
             break;
         case Kind::FPS_120:
-            strncpy(dst, "120 FPS", 8);
+            strncpy(dst, SMS_PORT_REGION("120 FPS", "100 FPS", "120 FPS", "120 FPS"), 8);
             break;
         }
     }
 
 private:
     static int sFPSValue;
+};
+
+class BugsSetting final : public Settings::SwitchSetting {
+public:
+    BugsSetting(const char *name) : SwitchSetting(name, &BugsSetting::sBugsValue) {
+        mValueRange = {0, 1, 1};
+    }
+    ~BugsSetting() override {}
+
+    bool isUnlocked() const override { return sIsUnlocked; }
+
+    void load(JSUMemoryInputStream &in) override {
+        in.read(&sIsUnlocked, 1);
+        {
+            bool b;
+            in.read(&b, 1);
+            setBool(b);
+        }
+    }
+    void save(JSUMemoryOutputStream &out) override {
+        out.write(&sIsUnlocked, 1);
+        out.write(mValuePtr, 1);
+    }
+
+    inline void lock() { sIsUnlocked = false; }
+    inline void unlock() { sIsUnlocked = true; }
+
+private:
+    static bool sIsUnlocked;
+    static bool sBugsValue;
 };
 
 namespace BetterSMS {

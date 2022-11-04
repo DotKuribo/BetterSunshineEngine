@@ -23,8 +23,6 @@ bool BetterSMS::sIsDebugMode = true;
 bool BetterSMS::sIsDebugMode = true;
 #endif
 
-f32 BetterSMS::sFrameRate = 30.0f;
-
 extern void initDebugCallbacks(TApplication *app);
 
 bool BetterSMS::isGameEmulated() { return BootInfo.mConsoleType == OS_CONSOLE_DEV_KIT3; }
@@ -69,4 +67,14 @@ int BetterSMS::getScreenOrthoWidth() {
 f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenRenderWidth()) / 600.0f; }
 f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
 
-f32 BetterSMS::getFrameRate() { return sFrameRate; }
+f32 BetterSMS::getFrameRate() {
+    switch (gFPSSetting.getInt()) {
+    default:
+    case FPSSetting::FPS_30:
+        return SMS_PORT_REGION(30.0f, 25.0f, 30.0f, 30.0f);
+    case FPSSetting::FPS_60:
+        return SMS_PORT_REGION(60.0f, 50.0f, 60.0f, 60.0f);
+    case FPSSetting::FPS_120:
+        return SMS_PORT_REGION(120.0f, 100.0f, 120.0f, 120.0f);
+    }
+}

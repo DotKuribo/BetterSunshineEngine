@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Dolphin/OS.h>
 #include <Dolphin/types.h>
 

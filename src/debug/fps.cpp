@@ -12,11 +12,12 @@
 #include <SMS/sound/MSound.hxx>
 #include <SMS/sound/MSoundSESystem.hxx>
 
-#include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
+#include "debug.hxx"
 #include "logging.hxx"
 #include "module.hxx"
+#include "p_settings.hxx"
 
 using namespace BetterSMS;
 
@@ -48,6 +49,8 @@ void initFPSMonitor(TApplication *app) {
     sIsInitialized                = true;
 }
 
+extern FPSSetting gFPSSetting;
+
 void updateFPSMonitor(TApplication *app) {
     if (!app->mDirector || !sIsInitialized)
         return;
@@ -62,10 +65,12 @@ void updateFPSMonitor(TApplication *app) {
 
         snprintf(sStringBuffer, 10, "%.02f FPS", fps);
 
-        if (fps < 24.0f) {
+        int thresholdMultiplier = gFPSSetting.getInt() + 1;
+
+        if (fps < 24.0f * thresholdMultiplier) {
             gpFPSStringW->mGradientTop    = {210, 60, 20, 255};
             gpFPSStringW->mGradientBottom = {210, 60, 20, 255};
-        } else if (fps < 29.97f) {
+        } else if (fps < 29.97f * thresholdMultiplier) {
             gpFPSStringW->mGradientTop    = {130, 170, 10, 255};
             gpFPSStringW->mGradientBottom = {130, 170, 10, 255};
         } else {

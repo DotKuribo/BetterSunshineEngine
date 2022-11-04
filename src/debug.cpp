@@ -2,6 +2,8 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRDisplay.hxx>
 
+#include <SMS/MarioUtil/DrawUtil.hxx>
+#include <SMS/System/Resolution.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
@@ -87,7 +89,7 @@ void initDebugCallbacks(TApplication *app) {
     currentHeap->becomeCurrentHeap();
 }
 
-void updateDebugCallbacks() {
+void updateDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
         return;
 
@@ -95,30 +97,20 @@ void updateDebugCallbacks() {
     sDebugUpdateCBs.items(updateCBs);
 
     for (auto &item : updateCBs) {
-        item.mValue(&gpApplication);
+        item.mValue(app);
     }
 }
 
-extern void drawLoadingScreen(TApplication *app);
-
-void drawDebugCallbacks(J2DOrthoGraph *ortho) {
-    THPPlayerDrawDone();
-
-    // Big hack, doing this saves resources even if polluting the file
-    drawLoadingScreen(&gpApplication);
-
+void drawDebugCallbacks(TApplication *app, J2DOrthoGraph *ortho) {
     if (!BetterSMS::isDebugMode())
         return;
-
-    // J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenRenderWidth(), 480);
 
     TDictS<Debug::DrawCallback>::ItemList drawCBs;
     sDebugDrawCBs.items(drawCBs);
 
     for (auto &item : drawCBs) {
-        item.mValue(&gpApplication, ortho);
+        item.mValue(app, ortho);
     }
 }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x802A630C, 0, 0, 0), drawDebugCallbacks);
 
 #pragma endregion

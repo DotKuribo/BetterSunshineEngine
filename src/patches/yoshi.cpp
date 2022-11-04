@@ -71,16 +71,11 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024EC2C, 0x802469A8, 0, 0), 0x60000000);
 
 #if BETTER_SMS_GREEN_YOSHI
 
-void checkForYoshiWaterDeath(TMario *player, bool isMario) {
-    TYoshi *yoshi = player->mYoshi;
-    if (!yoshi || yoshi->mType == TYoshi::GREEN)
+static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
+    if (yoshi->mType == TYoshi::GREEN)
         return;
 
-    // Check for water death
-    const TBGCheckData *ground;
-    gpMapCollisionData->checkGround(yoshi->mPosition.x, yoshi->mPosition.y, yoshi->mPosition.z, 0,
-                                    &ground);
-
+    // Check for water hit
     if (ground->isWaterSurface())
         return;
 
@@ -88,8 +83,11 @@ void checkForYoshiWaterDeath(TMario *player, bool isMario) {
     f32 roofHeight = gpMapCollisionData->checkRoof(yoshi->mPosition.x, yoshi->mPosition.y,
                                                    yoshi->mPosition.z, 0, &roof);
     const TBGCheckData *water;
-    gpMapCollisionData->checkGround(yoshi->mPosition.x, roofHeight - 10.0f, yoshi->mPosition.z, 0,
-                                    &water);
+    f32 waterY = gpMapCollisionData->checkGround(yoshi->mPosition.x, roofHeight - 10.0f, yoshi->mPosition.z, 0,
+                                                 &water);
+
+    if (waterY - yoshi->mPosition.y < 100)
+        return;
 
     if (!water->isWaterSurface() ||
         !(yoshi->mState == TYoshi::UNMOUNTED || yoshi->mState == TYoshi::MOUNTED))
@@ -99,7 +97,7 @@ void checkForYoshiWaterDeath(TMario *player, bool isMario) {
         MSoundSE::startSoundActor(31000, yoshi->mPosition, 0, nullptr, 0, 4);
 
     if (yoshi->mState == TYoshi::MOUNTED)
-        player->getOffYoshi(true);
+        yoshi->mMario->getOffYoshi(true);
 
     yoshi->mState = TYoshi::DROWNING;
 
@@ -114,6 +112,50 @@ void checkForYoshiWaterDeath(TMario *player, bool isMario) {
 
     yoshi->mType     = 0;
     yoshi->mSubState = 30;
+}
+
+static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
+    if (yoshi->mState != TYoshi::UNMOUNTED)
+        return;
+
+    if (ground->mCollisionType != 1536 && ground->mCollisionType != 2048)
+        return;
+
+    if (yoshi->mPosition.y - groundY > 200)
+        return;
+
+    if (gpMSound->gateCheck(31000))
+        MSoundSE::startSoundActor(31000, yoshi->mPosition, 0, nullptr, 0, 4);
+
+    yoshi->mState = TYoshi::DROWNING;
+
+    MActor *actor = yoshi->mActor;
+    if (actor->getCurAnmIdx(MActor::BCK) != 25) {
+        if (!actor->checkCurBckFromIndex(25))
+            actor->setBckFromIndex(25);
+        thinkBtp__6TYoshiFi(yoshi, 25);
+        initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
+                                       ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
+    }
+
+    yoshi->mType     = 0;
+    yoshi->mSubState = 30;
+}
+
+void checkForYoshiDeath(TMario *player, bool isMario) {
+    if (!player->mYoshi)
+        return;
+
+    // Check for water death
+    const TBGCheckData *ground;
+    f32 groundY = gpMapCollisionData->checkGround(player->mYoshi->mPosition.x, player->mYoshi->mPosition.y,
+                                    player->mYoshi->mPosition.z, 0,
+                                    &ground);
+
+    OSReport("%d\n", ground->mCollisionType);
+
+    checkForWaterDeath(player->mYoshi, ground, groundY);
+    checkForOOBDeath(player->mYoshi, ground, groundY);
 }
 
 void forceValidRidingAnimation(TMario *player, bool isMario) {

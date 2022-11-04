@@ -62,11 +62,15 @@ namespace BetterSMS {
             }
             virtual ~SingleSetting() {}
 
-            virtual ValueKind getKind() const            = 0;
-            virtual void getValueStr(char *dst) const    = 0;
-            virtual void setValue(const void *val) const = 0;
-            virtual void prevValue()                     = 0;
-            virtual void nextValue()                     = 0;
+            virtual bool isUnlocked() const { return true; }
+
+            virtual ValueKind getKind() const             = 0;
+            virtual void getValueStr(char *dst) const     = 0;
+            virtual void setValue(const void *val) const  = 0;
+            virtual void prevValue()                      = 0;
+            virtual void nextValue()                      = 0;
+            virtual void load(JSUMemoryInputStream &in)   = 0;
+            virtual void save(JSUMemoryOutputStream &out) = 0;
 
             bool isUserEditable() const { return mIsUserEditable; }
             void setUserEditable(bool editable, Priority priority) {
@@ -149,6 +153,14 @@ namespace BetterSMS {
             void nextValue() override {
                 setBool(getBool() ^ true);
             }
+            void load(JSUMemoryInputStream &in) override {
+                u8 b;
+                in.read(&b, 1);
+                setBool(b > 0 ? true : false);
+            }
+            void save(JSUMemoryOutputStream &out) override {
+                out.write(mValuePtr, 1);
+            }
         };
 
         class SwitchSetting : public BoolSetting {
@@ -179,6 +191,12 @@ namespace BetterSMS {
             void nextValue() override {
                 setInt(clampValueToRange(getInt() + mValueRange.mStep));
             }
+            void load(JSUMemoryInputStream &in) override {
+                int x;
+                in.read(&x, 4);
+                setInt(clampValueToRange(x));
+            }
+            void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 4); }
 
         private:
             int clampValueToRange(int x) const {
@@ -187,6 +205,8 @@ namespace BetterSMS {
                 } else if (x < mValueRange.mStart) {
                     x = mValueRange.mStop + (x - mValueRange.mStart + 1);
                 }
+                if (x < mValueRange.mStart && x > mValueRange.mStop)
+                    x = mValueRange.mStart;
                 return x;
             }
         };
@@ -208,6 +228,12 @@ namespace BetterSMS {
             void nextValue() override {
                 setFloat(clampValueToRange(getFloat() + mValueRange.mStep));
             }
+            void load(JSUMemoryInputStream &in) override {
+                float f;
+                in.read(&f, 4);
+                setFloat(clampValueToRange(f));
+            }
+            void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 4); }
 
         private:
             f32 clampValueToRange(f32 x) const {
@@ -216,6 +242,8 @@ namespace BetterSMS {
                 } else if (x < mValueRange.mStart) {
                     x = mValueRange.mStop + (x - mValueRange.mStart);
                 }
+                if (x < mValueRange.mStart && x > mValueRange.mStop)
+                    x = mValueRange.mStart;
                 return x;
             }
         };
@@ -240,11 +268,16 @@ namespace BetterSMS {
 
         public:
             SettingsGroup() = delete;
-            SettingsGroup(const char *name, Priority prio) : mName(name), mOrderPriority(prio), mSettings() {}
-            SettingsGroup(const char *name, const SettingsList &settings, Priority prio)
-                : mName(name), mOrderPriority(prio), mSettings(settings) {}
+            SettingsGroup(const char *name, u8 major, u8 minor, Priority prio) : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
+            SettingsGroup(const char *name, u8 major, u8 minor, const SettingsList &settings,
+                          Priority prio)
+                : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio),
+                  mSettings(settings) {}
 
             const char *getName() const { return mName; }
+            u8 getMajorVersion() const { return (mVersion >> 8) & 0xFF; }
+            u8 getMinorVersion() const { return mVersion & 0xFF; }
+
             SingleSetting *getSetting(const char *name) {
                 for (auto &setting : mSettings) {
                     if (strcmp(setting->getName(), name) == 0) {
@@ -261,11 +294,15 @@ namespace BetterSMS {
             void setName(const char *name) { mName = name; }
             void setSettings(const SettingsList &settings) { mSettings = settings; }
 
-            void addSetting(SingleSetting *setting) { mSettings.insert(mSettings.end(), setting); }
+            void addSetting(SingleSetting *setting) {
+                mSettings.insert(mSettings.end(), setting);
+                mUnlockedMap.set(reinterpret_cast<u32>(setting), setting->isUnlocked()); 
+            }
             void removeSetting(SingleSetting *setting) {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
                     if (*iter == setting) {
                         mSettings.erase(iter);
+                        mUnlockedMap.pop(reinterpret_cast<u32>(setting)); 
                         return;
                     }
                 }
@@ -274,14 +311,27 @@ namespace BetterSMS {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
                     if (iter->getName() == name) {
                         mSettings.erase(iter);
+                        mUnlockedMap.pop(reinterpret_cast<u32>(*iter)); 
                         return;
+                    }
+                }
+            }
+
+            void checkForUnlockedSettings(JGadget::TList<SingleSetting *> &out) {
+                for (auto &setting : mSettings) {
+                    bool *unlocked = mUnlockedMap.get(reinterpret_cast<u32>(setting));
+                    if (setting->isUnlocked() && (!unlocked || !*unlocked)) {
+                        mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
+                        out.insert(out.begin(), setting);
                     }
                 }
             }
 
         private:
             const char *mName;
+            u16 mVersion;
             SettingsList mSettings;
+            TDictI<bool> mUnlockedMap;
             SettingsSaveInfo mSaveInfo;
             Priority mOrderPriority;
         };

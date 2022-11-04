@@ -30,7 +30,7 @@ void updateFPS(TMarDirector *director) {
     }
 }
 
-static f32 setBoidSpeed(f32 thing) {
-    return sqrt__Q29JGeometry8TUtil_f(thing) * (SMS_PORT_REGION(30.0f, 25.0f, 30.0f, 30.0f) / BetterSMS::getFrameRate());
+static f32 setBoidSpeed(f32 dot) {
+    return sqrtf(dot) * (SMS_PORT_REGION(30.0f, 25.0f, 30.0f, 30.0f) / BetterSMS::getFrameRate());
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x800066E4, 0x800066E4, 0, 0), setBoidSpeed);

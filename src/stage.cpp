@@ -230,7 +230,6 @@ void BetterSMS::Stage::TStageParams::load(const char *stageName) {
 }
 
 extern void updateDebugCallbacks();
-extern void drawDebugCallbacks(J2DOrthoGraph *);
 
 void initStageLoading(TMarDirector *director) {
     Loading::setLoading(true);
@@ -251,11 +250,11 @@ void initStageCallbacks(TMarDirector *director) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
 
-s32 updateStageCallbacks(JDrama::TDirector *director) {
+void updateStageCallbacks(TApplication *app) {
     u32 func;
     SMS_FROM_GPR(12, func);
 
-    if (gpMarDirector) {
+    if (gpMarDirector && app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         TDictS<Stage::UpdateCallback>::ItemList stageUpdateCBs;
         sStageUpdateCBs.items(stageUpdateCBs);
 
@@ -263,12 +262,7 @@ s32 updateStageCallbacks(JDrama::TDirector *director) {
             item.mValue(gpMarDirector);
         }
     }
-
-    updateDebugCallbacks();
-
-    return director->direct();
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), updateStageCallbacks);
 
 void drawStageCallbacks(J2DOrthoGraph *ortho) {
     ortho->setup2D();
@@ -279,28 +273,22 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
     for (auto &item : stageDrawCBs) {
         item.mValue(gpMarDirector, ortho);
     }
-
-    drawDebugCallbacks(ortho);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
-JKRHeap *exitStageCallbacks() {
-    TApplication *application;
-    SMS_FROM_GPR(31, application);
+void exitStageCallbacks(TApplication *app) {
+    if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
+        return;
 
     TDictS<Stage::ExitCallback>::ItemList stageExitCBs;
     sStageExitCBs.items(stageExitCBs);
 
     for (auto &item : stageExitCBs) {
-        item.mValue(application);
+        item.mValue(app);
     }
 
     delete Stage::getStageConfiguration();
-
-    return application->mCurrentHeap;
 }
-// Deprecated by custom app loop
-//SMS_PATCH_BL(SMS_PORT_REGION(0x802A66F4, 0, 0, 0), exitStageCallbacks);
 
 #pragma region MapIdentifiers
 
