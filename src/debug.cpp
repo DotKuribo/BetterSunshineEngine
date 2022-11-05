@@ -89,9 +89,14 @@ void initDebugCallbacks(TApplication *app) {
     currentHeap->becomeCurrentHeap();
 }
 
+static bool sIsActive = true;
+
 void updateDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
         return;
+
+    if ((app->mGamePad1->mButtons.mFrameInput & TMarioGamePad::Z))
+        sIsActive ^= true;
 
     TDictS<Debug::UpdateCallback>::ItemList updateCBs;
     sDebugUpdateCBs.items(updateCBs);
@@ -101,8 +106,12 @@ void updateDebugCallbacks(TApplication *app) {
     }
 }
 
-void drawDebugCallbacks(TApplication *app, J2DOrthoGraph *ortho) {
+
+void drawDebugCallbacks(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!BetterSMS::isDebugMode())
+        return;
+
+    if (!sIsActive)
         return;
 
     TDictS<Debug::DrawCallback>::ItemList drawCBs;

@@ -80,16 +80,16 @@ extern void initMarioXYZMode(TApplication *);
 extern void updateMarioXYZMode(TApplication *);
 extern void updateFluddNozzle(TApplication *);
 
-extern void drawMonitor(TApplication *, J2DOrthoGraph *);
+extern void drawMonitor(TApplication *, const J2DOrthoGraph *);
 extern void resetMonitor(TApplication *);
 
 extern void initFPSMonitor(TApplication *);
 extern void updateFPSMonitor(TApplication *);
-extern void drawFPSMonitor(TApplication *, J2DOrthoGraph *);
+extern void drawFPSMonitor(TApplication *, const J2DOrthoGraph *);
 
 extern void initStateMonitor(TApplication *);
 extern void updateStateMonitor(TApplication *);
-extern void drawStateMonitor(TApplication *, J2DOrthoGraph *);
+extern void drawStateMonitor(TApplication *, const J2DOrthoGraph *);
 
 // STAGE CONFIG
 extern void loadStageConfig(TMarDirector *);
@@ -140,7 +140,7 @@ extern void forceValidRidingAnimation(TMario *player, bool isMario);
 
 // MUSIC
 extern void initStreamInfo(TApplication *app);
-extern void printStreamInfo(TApplication *app, J2DOrthoGraph *graph);
+extern void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph);
 
 // FPS
 extern void updateFPS(TMarDirector *);
@@ -154,7 +154,7 @@ extern void initAllSettings(TApplication *);
 extern void initUnlockedSettings(TApplication *);
 extern void updateUnlockedSettings(TMarDirector *);
 extern void checkForCompletionAwards(TApplication *);
-extern void drawUnlockedSettings(TApplication *, J2DOrthoGraph *);
+extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
 static TMarDirector *initLib() {
 
@@ -317,7 +317,7 @@ static TMarDirector *initLib() {
     Game::registerOnBootCallback("__init_setting_notifs", initUnlockedSettings);
     Stage::registerUpdateCallback("__update_setting_notifs", updateUnlockedSettings);
     Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
-    Debug::registerDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
+    Game::registerOnPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
 
     return director;
 }

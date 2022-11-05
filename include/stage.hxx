@@ -11,7 +11,7 @@ namespace BetterSMS {
     namespace Stage {
         typedef void (*InitCallback)(TMarDirector *);
         typedef void (*UpdateCallback)(TMarDirector *);
-        typedef void (*Draw2DCallback)(TMarDirector *, J2DOrthoGraph *);
+        typedef void (*Draw2DCallback)(TMarDirector *, const J2DOrthoGraph *);
         typedef void (*ExitCallback)(TApplication *);
 
         struct TStageParams;

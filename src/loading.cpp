@@ -143,7 +143,7 @@ void initLoadingScreen() {
 
 extern AspectRatioSetting gAspectRatioSetting;
 
-void drawLoadingScreen(TApplication *app, J2DOrthoGraph *ortho) {
+void drawLoadingScreen(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!sIsLoading || !sLoadingScreenFull || !sLoadingScreenWide || !sLoadingScreenUltraWide)
         return;
 

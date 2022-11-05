@@ -960,16 +960,17 @@ void updateUnlockedSettings(TMarDirector *app) {
             char notifText[100];
             snprintf(notifText, 100, "%s\nUnlocked the \"%s\" setting!", group.mValue->getName(), setting->getName());
 
-            auto *notificationText =
-                new J2DTextBox('NOTF', {100, 180, 500, 240}, gpSystemFont->mFont, notifText,
-                               J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+            auto *notificationText = new J2DTextBox(gpSystemFont->mFont, notifText);
             {
-                notificationText->mAlpha          = 0;
+                notificationText->mRect.set(100, 180, 500, 240);
+                notificationText->mAlpha          = 1;
                 notificationText->mCharSizeX      = 11;
                 notificationText->mCharSizeY      = 12;
                 notificationText->mNewlineSize    = 12;
                 notificationText->mGradientTop    = {180, 230, 10, 255};
                 notificationText->mGradientBottom = {240, 170, 10, 255};
+                notificationText->mHBinding       = J2DTextBoxHBinding::Center;
+                notificationText->mVBinding       = J2DTextBoxVBinding::Center;
             }
 
             sUnlockedNotifications.insert(sUnlockedNotifications.end(), notificationText);
@@ -978,45 +979,45 @@ void updateUnlockedSettings(TMarDirector *app) {
     }
 }
 
-void drawUnlockedSettings(TApplication *app, J2DOrthoGraph *ortho) {
+void drawUnlockedSettings(TApplication *app, const J2DOrthoGraph *ortho) {
     int yOfs = 0;
 
     f32 diff = OSTicksToSeconds(f32(OSGetTime() - sLastTime));
     s32 alphaInc = diff * 512;
 
-    for (auto iter = sUnlockedNotifications.begin(); iter != sUnlockedNotifications.end(); ++iter) {
-        auto &notif = *iter;
+    //for (auto iter = sUnlockedNotifications.begin(); iter != sUnlockedNotifications.end(); ++iter) {
+    //    auto &notif = *iter;
 
-        OSReport("0x%X\n", (u32)notif);
+    //    OSReport("0x%X\n", (u32)notif);
 
-        J2DFillBox({100, 180 + yOfs, 500, 240 + yOfs}, {30, 30, 30, notif->mAlpha});
-        notif->draw(0, 0);
-        if (notif->mAlpha != 255)
-            notif->mAlpha += 1;
+    //    J2DFillBox({100, 180 + yOfs, 500, 240 + yOfs}, {30, 30, 30, notif->mAlpha});
+    //    notif->draw(0, 0);
+    //    if (notif->mAlpha != 255)
+    //        notif->mAlpha += 1;
 
-        /*if (sVisualMap.get(reinterpret_cast<u32>(notif) == 0)) {
-            if (alphaInc != 0)
-                sLastTime = OSGetTime();
-            notif->mAlpha = Min(255, notif->mAlpha + alphaInc);
-            if (notif->mAlpha == 255)
-                sVisualMap.set(reinterpret_cast<u32>(notif), 1);
-        } else if (sVisualMap.get(reinterpret_cast<u32>(notif) == 1)) {
-            if (diff > 5.0f) {
-                sVisualMap.set(reinterpret_cast<u32>(notif), 2);
-                sLastTime = OSGetTime();
-            }
-        } else {
-            if (alphaInc != 0)
-                sLastTime = OSGetTime();
-            notif->mAlpha = Max(0, notif->mAlpha - alphaInc);
-            if (notif->mAlpha == 0) {
-                sVisualMap.pop(reinterpret_cast<u32>(notif));
-                iter = sUnlockedNotifications.erase(iter);
-            }
-        }*/
+    //    /*if (sVisualMap.get(reinterpret_cast<u32>(notif) == 0)) {
+    //        if (alphaInc != 0)
+    //            sLastTime = OSGetTime();
+    //        notif->mAlpha = Min(255, notif->mAlpha + alphaInc);
+    //        if (notif->mAlpha == 255)
+    //            sVisualMap.set(reinterpret_cast<u32>(notif), 1);
+    //    } else if (sVisualMap.get(reinterpret_cast<u32>(notif) == 1)) {
+    //        if (diff > 5.0f) {
+    //            sVisualMap.set(reinterpret_cast<u32>(notif), 2);
+    //            sLastTime = OSGetTime();
+    //        }
+    //    } else {
+    //        if (alphaInc != 0)
+    //            sLastTime = OSGetTime();
+    //        notif->mAlpha = Max(0, notif->mAlpha - alphaInc);
+    //        if (notif->mAlpha == 0) {
+    //            sVisualMap.pop(reinterpret_cast<u32>(notif));
+    //            iter = sUnlockedNotifications.erase(iter);
+    //        }
+    //    }*/
 
-        yOfs += 70;
-    }
+    //    yOfs += 70;
+    //}
 }
 
 void checkForCompletionAwards(TApplication *app) {

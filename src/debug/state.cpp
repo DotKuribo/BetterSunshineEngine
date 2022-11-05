@@ -169,7 +169,7 @@ void updateStateMonitor(TApplication *app) {
     sHitObjCount = 0;
 }
 
-void drawStateMonitor(TApplication *app, J2DOrthoGraph *ortho) {
+void drawStateMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!sIsInitialized)
         return;
 

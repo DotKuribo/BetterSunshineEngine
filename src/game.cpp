@@ -11,10 +11,11 @@
 
 using namespace BetterSMS;
 
-static TDictS<Game::BootCallback> sGameInitCBs;
+static TDictS<Game::InitCallback> sGameInitCBs;
 static TDictS<Game::BootCallback> sGameBootCBs;
-static TDictS<Game::BootCallback> sGameLoopCBs;
-static TDictS<Game::BootCallback> sGameChangeCBs;
+static TDictS<Game::LoopCallback> sGameLoopCBs;
+static TDictS<Game::DrawCallback> sGameDrawCBs;
+static TDictS<Game::ChangeCallback> sGameChangeCBs;
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnInitRegistered(const char *name) {
     return sGameInitCBs.hasKey(name);
@@ -26,6 +27,10 @@ SMS_NO_INLINE bool BetterSMS::Game::isOnBootRegistered(const char *name) {
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnLoopRegistered(const char *name) {
     return sGameLoopCBs.hasKey(name);
+}
+
+SMS_NO_INLINE bool BetterSMS::Game::isOnPostDrawRegistered(const char *name) {
+    return sGameDrawCBs.hasKey(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnChangeRegistered(const char *name) {
@@ -50,6 +55,13 @@ SMS_NO_INLINE bool BetterSMS::Game::registerOnLoopCallback(const char *name, Loo
     if (sGameLoopCBs.hasKey(name))
         return false;
     sGameLoopCBs.set(name, cb);
+    return true;
+}
+
+SMS_NO_INLINE bool BetterSMS::Game::registerOnPostDrawCallback(const char *name, DrawCallback cb) {
+    if (sGameDrawCBs.hasKey(name))
+        return false;
+    sGameDrawCBs.set(name, cb);
     return true;
 }
 
@@ -78,6 +90,13 @@ SMS_NO_INLINE bool BetterSMS::Game::deregisterOnLoopCallback(const char *name) {
     if (!sGameLoopCBs.hasKey(name))
         return false;
     sGameLoopCBs.pop(name);
+    return true;
+}
+
+SMS_NO_INLINE bool BetterSMS::Game::deregisterOnPostDrawCallback(const char *name) {
+    if (!sGameDrawCBs.hasKey(name))
+        return false;
+    sGameDrawCBs.pop(name);
     return true;
 }
 
@@ -110,8 +129,8 @@ void gameBootCallbackHandler(TApplication *app) {
 
 extern void updateStageCallbacks(TApplication *);
 extern void updateDebugCallbacks(TApplication *);
-extern void drawLoadingScreen(TApplication *, J2DOrthoGraph *);
-extern void drawDebugCallbacks(TApplication *, J2DOrthoGraph *);
+extern void drawLoadingScreen(TApplication *, const J2DOrthoGraph *);
+extern void drawDebugCallbacks(TApplication *, const J2DOrthoGraph *);
 
 // extern -> custom app proc
 s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
@@ -135,45 +154,30 @@ s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), gameLoopCallbackHandler);
 
 void gameDrawCallbackHandler() {
-    int height;
-    if (gpApplication.mContext == TApplication::CONTEXT_DIRECT_MOVIE)
-        height = SMSGetGameRenderHeight();
-    else
-        height = 448;
+    ReInitializeGX();
 
+    J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), 448);
+    ortho.setup2D();
+
+    GXSetViewport(0, 0, 640, 480, 0, 1);
     {
-        ReInitializeGX();
-
-        J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), height);
-        ortho.setup2D();
-
-        GXSetViewport(0, 0, 640, 480, 0, 1);
-        {
-            Mtx44 mtx;
-            C_MTXOrtho(mtx, 16, 500, -BetterSMS::getScreenRatioAdjustX(),
-                       BetterSMS::getScreenRenderWidth(), -1, 1);
-            GXSetProjection(mtx, GX_ORTHOGRAPHIC);
-        }
-
-        drawLoadingScreen(&gpApplication, &ortho);
+        Mtx44 mtx;
+        C_MTXOrtho(mtx, 16, 500, -BetterSMS::getScreenRatioAdjustX(),
+                   BetterSMS::getScreenRenderWidth(), -1, 1);
+        GXSetProjection(mtx, GX_ORTHOGRAPHIC);
     }
 
     {
-        ReInitializeGX();
+        TDictS<Game::DrawCallback>::ItemList drawCBs;
+        sGameDrawCBs.items(drawCBs);
 
-        J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), height);
-        ortho.setup2D();
-
-        GXSetViewport(0, 0, 640, 480, 0, 1);
-        {
-            Mtx44 mtx;
-            C_MTXOrtho(mtx, 16, 500, -BetterSMS::getScreenRatioAdjustX(),
-                       BetterSMS::getScreenRenderWidth(), -1, 1);
-            GXSetProjection(mtx, GX_ORTHOGRAPHIC);
+        for (auto &item : drawCBs) {
+            item.mValue(&gpApplication, &ortho);
         }
-
-        drawDebugCallbacks(&gpApplication, &ortho);
     }
+
+    drawLoadingScreen(&gpApplication, &ortho);
+    drawDebugCallbacks(&gpApplication, &ortho);
 
     THPPlayerDrawDone();
 }

@@ -416,3 +416,6 @@ MigrationBackup/
 # Clion
 cmake-build-debug/
 build/
+
+# KuriboConverter
+!tools/KuriboConverter.exe

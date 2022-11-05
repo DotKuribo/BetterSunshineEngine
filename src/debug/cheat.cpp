@@ -44,7 +44,7 @@ static void debugModeNotify(TCheatHandler *) {
 }
 
 // extern -> debug callback
-void drawCheatText(TApplication *app, J2DOrthoGraph *graph) {
+void drawCheatText(TApplication *app, const J2DOrthoGraph *graph) {
     if (!gDebugTextBoxW || !gDebugTextBoxW->getStringPtr())
         return;
 
@@ -144,8 +144,7 @@ enum DebugNozzleKind {
     UNDERWATER,
     YOSHI,
     HOVER,
-    TURBO,
-    NONE
+    TURBO
 };
 
 static s32 sNozzleKind = DebugNozzleKind::SPRAY;
@@ -164,11 +163,7 @@ void updateFluddNozzle(TApplication *app) {
     if (!fludd)
         return;
 
-    if (sNozzleKind != DebugNozzleKind::NONE) {
-        sNozzleKind = fludd->mSecondNozzle;
-    } else {
-        player->mAttributes.mHasFludd = false;
-    }
+    sNozzleKind = fludd->mSecondNozzle;
 
     s32 adjust = 0;
     if ((player->mController->mButtons.mFrameInput & TMarioGamePad::DPAD_RIGHT))
@@ -179,13 +174,14 @@ void updateFluddNozzle(TApplication *app) {
     if (adjust == 0)
         return;
 
+    player->mAttributes.mHasFludd = true;
+
     switch (sNozzleKind) {
     case SPRAY:
-        fludd->mSecondNozzle = TWaterGun::Spray + adjust;
-        if (adjust < 0) {
-            fludd->mSecondNozzle = TWaterGun::Hover;
-            sNozzleKind          = NONE;
-        }
+        if (adjust > 0)
+            fludd->mSecondNozzle = TWaterGun::Rocket;
+        else if (adjust < 0)
+            fludd->mSecondNozzle = TWaterGun::Turbo;
         break;
     case ROCKET:
         fludd->mSecondNozzle = TWaterGun::Rocket + adjust;
@@ -201,30 +197,19 @@ void updateFluddNozzle(TApplication *app) {
         break;
     case TURBO:
         fludd->mSecondNozzle = TWaterGun::Turbo + adjust;
-        if (adjust > 0) {
-            fludd->mSecondNozzle = TWaterGun::Hover;
-            sNozzleKind          = NONE;
-        }
-        break;
-    case NONE:
-        if (adjust > 0) {
+        if (adjust > 0)
             fludd->mSecondNozzle = TWaterGun::Spray;
-            sNozzleKind          = SPRAY;
-        } else {
-            fludd->mSecondNozzle = TWaterGun::Turbo;
-            sNozzleKind          = TURBO;
-        }
-        player->mAttributes.mHasFludd = true;
+        else if (adjust < 0)
+            fludd->mSecondNozzle = TWaterGun::Hover;
         break;
     }
+
     fludd->mCurrentNozzle = fludd->mSecondNozzle;
 
-    if (sNozzleKind != DebugNozzleKind::NONE) {
-        if (sNozzleKind != fludd->mSecondNozzle) {
-            fludd->mCurrentNozzle = fludd->mSecondNozzle;
-            TNozzleBase *currentNozzle = fludd->mNozzleList[fludd->mCurrentNozzle];
-            fludd->mCurrentWater       = currentNozzle->mEmitParams.mAmountMax.get();
-        }
+    if (sNozzleKind != fludd->mSecondNozzle) {
+        fludd->mCurrentNozzle = fludd->mSecondNozzle;
+        TNozzleBase *currentNozzle = fludd->mNozzleList[fludd->mCurrentNozzle];
+        fludd->mCurrentWater       = currentNozzle->mEmitParams.mAmountMax.get();
     }
 
     sNozzleKind %= 7;

@@ -24,6 +24,9 @@ option(SMS_INCLUDE_SHADOW_MARIO_HEALTH "Includes the visibility of Shadow Mario'
 option(SMS_INCLUDE_DYNAMIC_FALL_DAMAGE "Includes dynamic fall damage in SMS" ON)
 option(SMS_INCLUDE_EXCEPTION_HANDLER "Includes the exception handler information" ON)
 
+set(SMS_KURIBO_CONVERTER_PATH ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe)
+set(SMS_LINKER_MAP_PATH ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map)
+
 file(GLOB BETTERSMS_SRC
     "src/*.c"
     "src/*.cpp"

@@ -9,7 +9,7 @@ namespace BetterSMS {
     namespace Debug {
         typedef void (*InitCallback)(TApplication *);
         typedef void (*UpdateCallback)(TApplication *);
-        typedef void (*DrawCallback)(TApplication *, J2DOrthoGraph *);
+        typedef void (*DrawCallback)(TApplication *, const J2DOrthoGraph *);
 
         bool isInitRegistered(const char *name);
         bool isUpdateRegistered(const char *name);

@@ -83,7 +83,7 @@ void updateFPSMonitor(TApplication *app) {
     }
 }
 
-void drawFPSMonitor(TApplication *app, J2DOrthoGraph *ortho) {
+void drawFPSMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!sIsInitialized)
         return;
 

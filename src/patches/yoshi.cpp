@@ -22,7 +22,7 @@ static bool isYoshiMaintainFluddModel() {
         return player->mAttributes.mHasFludd;
 
     if (player->mYoshi->mState == TYoshi::MOUNTED)
-        return (playerData->mFluddHistory.mHadFludd & player->mAttributes.mHasFludd);
+        return (playerData->mFluddHistory.mHadFludd && player->mAttributes.mHasFludd);
     else
         return player->mAttributes.mHasFludd;
 }
@@ -186,9 +186,19 @@ static void keepDistanceIsolated(TMario *player, f32 x, f32 y) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80281284, 0, 0, 0), keepDistanceIsolated);
 
+static void checkForYoshiGrabFludd(TWaterGun *fludd, int nozzle, bool unk_1) {
+    fludd->changeNozzle(
+        (TWaterGun::TNozzleType)(fludd->mMario->onYoshi() ? TWaterGun::Yoshi : nozzle), unk_1);
 
-// Fix Infinte Flutter
-//SMS_WRITE_32(SMS_PORT_REGION(0x8028113C, 0x80278EC8, 0, 0),
-//             SMS_PORT_REGION(0xC002F69C, 0xC002F824, 0, 0));
+    auto playerData = Player::getData(fludd->mMario);
+    if (!playerData->isMario())
+        return;
+
+    playerData->mFluddHistory.mHadFludd = true;
+    playerData->mFluddHistory.mWaterLevel =
+        fludd->mNozzleList[fludd->mCurrentNozzle]->mEmitParams.mAmountMax.get();
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x80283334, 0, 0, 0), 0x60000000);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80283370, 0, 0, 0), checkForYoshiGrabFludd);
 
 #endif
