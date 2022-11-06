@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JSystem/JDrama/JDRNameRef.hxx>
-#include <SMS/mapobj/MapObjInit.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
 
 namespace BetterSMS {
     namespace Objects {

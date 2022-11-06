@@ -1,6 +1,6 @@
 #include <JSystem/J3D/J3DTransform.hxx>
 
-#include <SMS/mapobj/MapObjRailBlock.hxx>
+#include <SMS/MapObj/MapObjRailBlock.hxx>
 #include <SMS/macros.h>
 #include "module.hxx"
 

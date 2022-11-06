@@ -7,12 +7,12 @@
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Player/Mario.hxx>
 
-#include <SMS/npc/BaseNPC.hxx>
+#include <SMS/NPC/NpcBase.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/System/Application.hxx>
-#include <SMS/collision/MapCollisionData.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
 
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"

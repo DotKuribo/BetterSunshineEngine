@@ -1,13 +1,13 @@
 #include <Dolphin/MTX.h>
 #include <JSystem/JUtility/JUTColor.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/actor/HitActor.hxx>
-#include <SMS/actor/LiveActor.hxx>
+#include <SMS/Strategic/HitActor.hxx>
+#include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/macros.h>
-#include <SMS/option/CardManager.hxx>
+#include <SMS/System/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
 
-#include "common_sdk.h"
+
 #include "libs/constmath.hxx"
 #include "module.hxx"
 

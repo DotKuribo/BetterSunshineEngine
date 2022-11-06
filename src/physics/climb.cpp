@@ -4,12 +4,12 @@
 
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/collision/MapCollisionData.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
-#include <SMS/mapobj/MapObjTree.hxx>
-#include <SMS/npc/BaseNPC.hxx>
+#include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/NPC/NpcBase.hxx>
 
-#include "common_sdk.h"
+
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "player.hxx"

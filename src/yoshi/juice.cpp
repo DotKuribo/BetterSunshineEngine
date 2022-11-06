@@ -1,7 +1,6 @@
 #include <SMS/Player/Mario.hxx>
-#include <SMS/actor/Yoshi.hxx>
+#include <SMS/Player/Yoshi.hxx>
 
-#include "common_sdk.h"
 #include "module.hxx"
 
 #if BETTER_SMS_GREEN_YOSHI

@@ -16,8 +16,8 @@
 #include <JSystem/J2D/J2DTextBox.hxx>
 #include <JSystem/JUtility/JUTTexture.hxx>
 
-#include <SMS/manager/RumbleManager.hxx>
-#include <SMS/screen/SMSFader.hxx>
+#include <SMS/Manager/RumbleManager.hxx>
+#include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSBGM.hxx>
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
@@ -26,8 +26,8 @@
 #include <SMS/MarioUtil/DrawUtil.hxx>
 #include <SMS/MarioUtil/gd-reinit-gx.hxx>
 #include <SMS/System/Resolution.hxx>
-#include <SMS/option/CardManager.hxx>
-#include <SMS/manager/FlagManager.hxx>
+#include <SMS/System/CardManager.hxx>
+#include <SMS/Manager/FlagManager.hxx>
 
 #include "libs/container.hxx"
 #include "settings.hxx"

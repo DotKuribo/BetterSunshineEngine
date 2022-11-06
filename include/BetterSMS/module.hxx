@@ -4,8 +4,8 @@
 #define HW_DOL
 #endif
 
-#include "common_sdk.h"
 #include <Dolphin/types.h>
+#include <sdk.h>
 
 #define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
 #define BETTER_SMS_AUTHOR_NAME "JoshuaMK"

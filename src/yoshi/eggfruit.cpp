@@ -2,7 +2,7 @@
 
 #include <SMS/macros.h>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 #include "player.hxx"
 #include "stage.hxx"

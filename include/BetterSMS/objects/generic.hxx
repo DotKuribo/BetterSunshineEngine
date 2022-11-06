@@ -1,6 +1,6 @@
 #include <Dolphin/types.h>
 #include <JSystem/JAudio/JAISound.hxx>
-#include <SMS/mapobj/MapObjRail.hxx>
+#include <SMS/MapObj/MapObjRail.hxx>
 
 class TGenericRailObj : public TRailMapObj {
 public:

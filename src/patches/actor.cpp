@@ -1,8 +1,7 @@
-#include <SMS/actor/HitActor.hxx>
-#include <SMS/actor/LiveActor.hxx>
+#include <SMS/Strategic/HitActor.hxx>
+#include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/macros.h>
 
-#include "common_sdk.h"
 #include "p_settings.hxx"
 #include "module.hxx"
 

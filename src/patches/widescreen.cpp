@@ -9,12 +9,12 @@
 #include <SMS/GC2D/SelectMenu.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
 #include <SMS/Camera/PolarSubCamera.hxx>
-#include <SMS/game/GCConsole2.hxx>
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/GC2D/GCConsole2.hxx>
+#include <SMS/System/MarDirector.hxx>
 #include <SMS/macros.h>
-#include <SMS/manager/SelectShineManager.hxx>
+#include <SMS/Manager/SelectShineManager.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/screen/SMSFader.hxx>
+#include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/Player/MarioGamePad.hxx>
 
 #include "libs/constmath.hxx"

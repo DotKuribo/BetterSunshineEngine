@@ -2,7 +2,7 @@
 #include <SMS/Player/Mario.hxx>
 #include <SMS/Player/MarioBlend.hxx>
 #include <SMS/macros.h>
-#include <SMS/object/ResetFruit.hxx>
+#include <SMS/MoveBG/ResetFruit.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 

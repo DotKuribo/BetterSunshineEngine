@@ -5,14 +5,14 @@
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/collision/MapCollisionData.hxx>
-#include <SMS/mapobj/MapObjNormalLift.hxx>
-#include <SMS/mapobj/MapObjTree.hxx>
-#include <SMS/object/ResetFruit.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
+#include <SMS/MapObj/MapObjNormalLift.hxx>
+#include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/MoveBG/ResetFruit.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 #include "p_settings.hxx"
 

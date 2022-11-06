@@ -1,19 +1,19 @@
 #include <Dolphin/string.h>
 
-#include <SMS/collision/BGCheck.hxx>
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/Map/BGCheck.hxx>
+#include <SMS/System/MarDirector.hxx>
 #include <SMS/macros.h>
-#include <SMS/manager/FlagManager.hxx>
-#include <SMS/map/Map.hxx>
-#include <SMS/mapobj/MapObjTree.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/Map/Map.hxx>
+#include <SMS/MapObj/MapObjTree.hxx>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 
 // TODO: Account for BetterSMS::areBugsPatched()
 
 static bool isSeaBMDPresent(TMarDirector *director) {
-    return JKRArchive::getGlbResource("/scene/map/map/sea.bmd") != nullptr;
+    return JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8018A064, 0, 0, 0), isSeaBMDPresent);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A068, 0, 0, 0), 0x2C030000);

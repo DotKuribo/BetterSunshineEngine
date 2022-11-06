@@ -1,7 +1,7 @@
 #include <SMS/macros.h>
-#include <SMS/manager/FlagManager.hxx>
+#include <SMS/Manager/FlagManager.hxx>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 
 #if BETTER_SMS_BUGFIXES

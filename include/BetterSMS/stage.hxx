@@ -3,9 +3,9 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <SMS/System/Application.hxx>
-#include <SMS/game/MarDirector.hxx>
-#include <SMS/mapobj/MapObjInit.hxx>
-#include <SMS/params/Params.hxx>
+#include <SMS/System/MarDirector.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
+#include <SMS/System/Params.hxx>
 
 namespace BetterSMS {
     namespace Stage {

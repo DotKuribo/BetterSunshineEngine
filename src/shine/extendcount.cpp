@@ -1,13 +1,13 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry.hxx>
-#include <SMS/actor/item/Shine.hxx>
-#include <SMS/game/Conductor.hxx>
-#include <SMS/manager/FlagManager.hxx>
+#include <SMS/MoveBG/Shine.hxx>
+#include <SMS/Enemy/Conductor.hxx>
+#include <SMS/Manager/FlagManager.hxx>
 #include <SMS/MSound/MSBGM.hxx>
 
 #include "module.hxx"
 
-#include "common_sdk.h"
+
 
 using namespace BetterSMS;
 

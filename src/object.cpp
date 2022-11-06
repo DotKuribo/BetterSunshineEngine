@@ -1,8 +1,8 @@
 #include <Dolphin/string.h>
 #include <JSystem/JGadget/List.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/actor/HitActor.hxx>
-#include <SMS/game/MarNameRefGen.hxx>
+#include <SMS/Strategic/HitActor.hxx>
+#include <SMS/System/MarNameRefGen.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 

@@ -5,8 +5,6 @@
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Player/Mario.hxx>
 
-#include <SMS/npc/BaseNPC.hxx>
-
 #include "libs/constmath.hxx"
 #include "libs/triangle.hxx"
 #include "module.hxx"

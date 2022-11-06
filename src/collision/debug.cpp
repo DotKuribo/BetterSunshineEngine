@@ -1,7 +1,7 @@
 #include <Dolphin/types.h>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/Player/MarioGamePad.hxx>
-#include <SMS/collision/BGCheck.hxx>
+#include <SMS/Map/BGCheck.hxx>
 
 #include "p_globals.hxx"
 #include "module.hxx"
@@ -14,15 +14,15 @@ void updateDebugCollision(TMario *player, bool isMario) {
     if (!isMario)
         return;
 
-    constexpr u32 SetHomeTriangleButtons   = TMarioGamePad::EButtons::DPAD_LEFT;
-    constexpr u32 SetTargetTriangleButtons = TMarioGamePad::EButtons::DPAD_RIGHT;
+    constexpr u32 SetHomeTriangleButtons   = TMarioGamePad::DPAD_LEFT;
+    constexpr u32 SetTargetTriangleButtons = TMarioGamePad::DPAD_RIGHT;
 
     if (!BetterSMS::isDebugMode())
         return;
 
     const JUTGamePad::CButton &buttons = player->mController->mButtons;
 
-    if ((buttons.mInput & TMarioGamePad::EButtons::Z) == 0)
+    if ((buttons.mInput & TMarioGamePad::Z) == 0)
         return;
 
     if ((buttons.mFrameInput & SetHomeTriangleButtons)) {

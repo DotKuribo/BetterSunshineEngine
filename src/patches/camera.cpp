@@ -1,13 +1,12 @@
 #include <Dolphin/types.h>
 
-#include <SMS/actor/HitActor.hxx>
-#include <SMS/actor/LiveActor.hxx>
+#include <SMS/Strategic/HitActor.hxx>
+#include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
 #include "libs/constmath.hxx"
-#include "common_sdk.h"
 #include "module.hxx"
 #include "p_settings.hxx"
 #include "player.hxx"

@@ -1,12 +1,11 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
-#include <SMS/collision/MapCollisionData.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "collision/warp.hxx"
-#include "common_sdk.h"
 #include "logging.hxx"
 #include "math.hxx"
 #include "module.hxx"

@@ -8,11 +8,11 @@
 #include <SMS/M3DUtil/MActorKeeper.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/Camera/PolarSubCamera.hxx>
-#include <SMS/collision/BGCheck.hxx>
-#include <SMS/game/Conductor.hxx>
-#include <SMS/manager/ModelWaterManager.hxx>
-#include <SMS/mapobj/MapObjBall.hxx>
-#include <SMS/mapobj/MapObjInit.hxx>
+#include <SMS/Map/BGCheck.hxx>
+#include <SMS/Enemy/Conductor.hxx>
+#include <SMS/Manager/ModelWaterManager.hxx>
+#include <SMS/MapObj/MapObjBall.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
 #include <SMS/Player/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
@@ -98,7 +98,7 @@ void TGenericRailObj::makeMActors() {
 
 void TGenericRailObj::initMapCollisionData() {
     char colPath[128];
-    snprintf(colPath, 128, "/scene/mapObj/%s.col", mModelName);
+    snprintf(colPath, 128, "/scene/MapObj/%s.col", mModelName);
 
     if (!JKRArchive::getGlbResource(colPath))
         return;

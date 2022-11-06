@@ -5,10 +5,9 @@
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/macros.h>
-#include <SMS/npc/BaseNPC.hxx>
 
 #include "collision/warp.hxx"
-#include "common_sdk.h"
+
 #include "geometry.hxx"
 #include "module.hxx"
 #include "player.hxx"

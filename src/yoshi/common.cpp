@@ -1,5 +1,5 @@
 #include <SMS/Player/Mario.hxx>
-#include <SMS/actor/Yoshi.hxx>
+#include <SMS/Player/Yoshi.hxx>
 
 #include "yoshi.hxx"
 

@@ -1,6 +1,6 @@
 #include <SMS/macros.h>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 
 #if BETTER_SMS_NO_DOWNWARP

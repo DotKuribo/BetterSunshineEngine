@@ -3,7 +3,7 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
-#include <SMS/collision/BGCheck.hxx>
+#include <SMS/Map/BGCheck.hxx>
 
 #include "geometry.hxx"
 

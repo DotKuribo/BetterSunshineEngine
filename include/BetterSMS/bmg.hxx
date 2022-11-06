@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Dolphin/types.h>
-#include <SMS/manager/FlagManager.hxx>
+#include <SMS/Manager/FlagManager.hxx>
 
 #include "libs/cheathandler.hxx"
 

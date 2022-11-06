@@ -2,13 +2,13 @@
 #include <JSystem/JGeometry.hxx>
 
 #include <SMS/Camera/PolarSubCamera.hxx>
-#include <SMS/game/GameSequence.hxx>
-#include <SMS/actor/item/Shine.hxx>
-#include <SMS/game/Conductor.hxx>
+#include <SMS/System/GameSequence.hxx>
+#include <SMS/MoveBG/Shine.hxx>
+#include <SMS/Enemy/Conductor.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSBGM.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/System/MarDirector.hxx>
 
 #include "music.hxx"
 

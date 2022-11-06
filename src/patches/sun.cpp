@@ -5,11 +5,11 @@
 #include <SMS/Camera/LensFlare.hxx>
 #include <SMS/Camera/LensGlow.hxx>
 #include <SMS/Camera/SunModel.hxx>
-#include <SMS/manager/ModelWaterManager.hxx>
+#include <SMS/Manager/ModelWaterManager.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
-#include "common_sdk.h"
+
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"

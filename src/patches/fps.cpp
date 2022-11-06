@@ -3,7 +3,7 @@
 #include <JSystem/JDrama/JDRDirector.hxx>
 #include <JSystem/JDrama/JDRDisplay.hxx>
 
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/System/MarDirector.hxx>
 #include <SMS/raw_fn.hxx>
 
 #include "p_settings.hxx"

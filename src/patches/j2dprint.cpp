@@ -6,16 +6,16 @@
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
 #include <SMS/Player/Mario.hxx>
-#include <SMS/mapobj/MapObjNormalLift.hxx>
-#include <SMS/mapobj/MapObjTree.hxx>
+#include <SMS/MapObj/MapObjNormalLift.hxx>
+#include <SMS/MapObj/MapObjTree.hxx>
 
-#include <SMS/actor/HitActor.hxx>
-#include <SMS/actor/LiveActor.hxx>
+#include <SMS/Strategic/HitActor.hxx>
+#include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/macros.h>
-#include <SMS/option/CardManager.hxx>
+#include <SMS/System/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 
 #if 0

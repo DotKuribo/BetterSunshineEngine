@@ -3,8 +3,8 @@
 #include <JSystem/JKernel/JKRHeap.hxx>
 
 #include <SMS/System/Application.hxx>
-#include <SMS/manager/MarioParticleManager.hxx>
-#include <SMS/screen/SMSFader.hxx>
+#include <SMS/Manager/MarioParticleManager.hxx>
+#include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "collision/warp.hxx"

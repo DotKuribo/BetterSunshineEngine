@@ -10,9 +10,9 @@
 #include <SMS/System/RenderModeObj.hxx>
 #include <SMS/System/Resolution.hxx>
 #include <SMS/System/Application.hxx>
-#include <SMS/manager/FlagManager.hxx>
-#include <SMS/manager/RumbleManager.hxx>
-#include <SMS/option/CardManager.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/Manager/RumbleManager.hxx>
+#include <SMS/System/CardManager.hxx>
 
 
 #include "application.hxx"

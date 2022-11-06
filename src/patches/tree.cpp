@@ -1,10 +1,10 @@
 #include <Dolphin/string.h>
 
 #include <SMS/macros.h>
-#include <SMS/manager/FlagManager.hxx>
-#include <SMS/mapobj/MapObjTree.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/MapObj/MapObjTree.hxx>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 
 #if BETTER_SMS_EXTRA_OBJECTS
@@ -14,7 +14,7 @@ static TMapObjTree *getLeafCount(TMapObjTree *tree) {
     char cacheBuffer[128];
     char buffer[128];
 
-    snprintf(cacheBuffer, 96, "/scene/mapObj/%sLeaf", tree->mRegisterName);
+    snprintf(cacheBuffer, 96, "/scene/MapObj/%sLeaf", tree->mRegisterName);
     strcat(cacheBuffer, "%02d.col");
 
     s32 num             = 0;

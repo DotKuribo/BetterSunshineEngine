@@ -1,8 +1,7 @@
 #include <SMS/macros.h>
-#include <SMS/manager/FlagManager.hxx>
-#include <SMS/spc/SpcBinary.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/SPC/SpcBinary.hxx>
 
-#include "common_sdk.h"
 #include "logging.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"

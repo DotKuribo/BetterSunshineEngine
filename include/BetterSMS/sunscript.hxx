@@ -2,8 +2,8 @@
 
 #include <Dolphin/types.h>
 #include <SMS/assert.h>
-#include <SMS/spc/SpcInterp.hxx>
-#include <SMS/spc/SpcSlice.hxx>
+#include <SMS/SPC/SpcInterp.hxx>
+#include <SMS/SPC/SpcSlice.hxx>
 
 namespace Spc {
 

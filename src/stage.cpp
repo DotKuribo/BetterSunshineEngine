@@ -3,18 +3,17 @@
 #include <JSystem/JDrama/JDRNameRef.hxx>
 
 #include <SMS/System/Application.hxx>
-#include <SMS/game/GameSequence.hxx>
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/System/GameSequence.hxx>
+#include <SMS/System/MarDirector.hxx>
 #include <SMS/macros.h>
-#include <SMS/manager/ModelWaterManager.hxx>
-#include <SMS/mapobj/MapObjInit.hxx>
+#include <SMS/Manager/ModelWaterManager.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
 
 #include "libs/container.hxx"
 #include "loading.hxx"
 #include "logging.hxx"
 #include "stage.hxx"
-
-#include "common_sdk.h"
+#include "module.hxx"
 
 using namespace BetterSMS;
 
@@ -165,7 +164,7 @@ static int findExtension(const char *string, size_t max) {
 
 char *BetterSMS::Stage::TStageParams::stageNameToParamPath(char *dst, const char *stage,
                                                            bool generalize) {
-    strncpy(dst, "/data/scene/params/", 20);
+    strncpy(dst, "/data/scene/System/", 20);
 
     const int numIDPos = findNumber(stage, 60);
     if (generalize && numIDPos != -1) {

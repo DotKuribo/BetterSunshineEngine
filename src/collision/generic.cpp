@@ -1,11 +1,12 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
-#include <SMS/collision/MapCollisionData.hxx>
+#include <JSystem/JDrama/JDRNameRef.hxx>
+
+#include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
 
 #include "collision/warp.hxx"
-#include "common_sdk.h"
 #include "p_globals.hxx"
 #include "logging.hxx"
 #include "math.hxx"

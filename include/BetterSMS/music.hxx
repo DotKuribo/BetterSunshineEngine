@@ -6,7 +6,7 @@
 #include <Dolphin/types.h>
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <JSystem/JSupport/JSUStream.hxx>
-#include <SMS/params/Params.hxx>
+#include <SMS/System/Params.hxx>
 #include <SMS/MSound/MSBGM.hxx>
 
 namespace BetterSMS {

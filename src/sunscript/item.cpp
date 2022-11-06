@@ -1,7 +1,7 @@
-#include <SMS/actor/Item.hxx>
-#include <SMS/actor/item/Coin.hxx>
-#include <SMS/actor/item/Shine.hxx>
-#include <SMS/manager/ItemManager.hxx>
+#include <SMS/MoveBG/Item.hxx>
+#include <SMS/MoveBG/Coin.hxx>
+#include <SMS/MoveBG/Shine.hxx>
+#include <SMS/Manager/ItemManager.hxx>
 
 #include "sunscript.hxx"
 

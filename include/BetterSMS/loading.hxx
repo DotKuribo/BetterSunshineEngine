@@ -4,7 +4,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRDisplay.hxx>
 #include <JSystem/JUtility/JUTTexture.hxx>
-#include <SMS/game/MarDirector.hxx>
+#include <SMS/System/MarDirector.hxx>
 
 namespace BetterSMS {
     namespace Loading {

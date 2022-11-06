@@ -1,9 +1,9 @@
-#include <SMS/collision/MapCollisionData.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "common_sdk.h"
+
 #include "module.hxx"
 #include "player.hxx"
 #include "stage.hxx"

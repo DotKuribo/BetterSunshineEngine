@@ -8,7 +8,7 @@
 #include <JSystem/JDrama/JDRDirector.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/manager/FlagManager.hxx>
+#include <SMS/Manager/FlagManager.hxx>
 #include <SMS/GC2D/SelectGrad.hxx>
 #include <SMS/MarioUtil/DrawUtil.hxx>
 #include <SMS/MarioUtil/gd-reinit-gx.hxx>
