@@ -156,10 +156,7 @@ extern void updateUnlockedSettings(TMarDirector *);
 extern void checkForCompletionAwards(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
-static TMarDirector *initLib() {
-
-    TMarDirector *director;
-    SMS_FROM_GPR(26, director);
+static void initLib() {
 
 #define STRINGIFY_CONFIG(c) " " #c " = " SMS_STRINGIZE(c) "\n"
 
@@ -318,8 +315,6 @@ static TMarDirector *initLib() {
     Stage::registerUpdateCallback("__update_setting_notifs", updateUnlockedSettings);
     Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
     Game::registerOnPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
-
-    return director;
 }
 
 static void destroyLib() {
@@ -344,7 +339,8 @@ static void destroyLib() {
 
 #if defined(SMS_BUILD_KURIBO) && !defined(SMS_BUILD_KAMEK) && !defined(SMS_BUILD_KAMEK_INLINE)
 
-KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG) {
+KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG)
+{
     KURIBO_EXECUTE_ON_LOAD { initLib(); }
     KURIBO_EXECUTE_ON_UNLOAD { destroyLib(); }
 

@@ -27,45 +27,50 @@ option(SMS_INCLUDE_EXCEPTION_HANDLER "Includes the exception handler information
 set(SMS_KURIBO_CONVERTER_PATH ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe)
 set(SMS_LINKER_MAP_PATH ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map)
 
-file(GLOB BETTERSMS_SRC
-    "src/*.c"
-    "src/*.cpp"
-    "src/asm/*.s"
-    "src/Camera/*.c"
-    "src/Camera/*.cpp"
-    "src/collision/*.c"
-    "src/collision/*.cpp"
-    "src/cstd/*.c"
-    "src/cstd/*.cpp"
-    "src/debug/*.c"
-    "src/debug/*.cpp"
-    "src/libs/*.cpp"
-    "src/libs/dolphin/*.c"
-    "src/moveset/*.c"
-    "src/moveset/*.cpp"
-    "src/patches/*.c"
-    "src/patches/*.cpp"
-    "src/physics/*.c"
-    "src/physics/*.cpp"
-    "src/shine/*.c"
-    "src/shine/*.cpp"
-    "src/sunscript/*.c"
-    "src/sunscript/*.cpp"
-    "src/yoshi/*.c"
-    "src/yoshi/*.cpp"
-    "include/*.h"
-    "include/*.hxx"
-    "include/collision/*.h"
-    "include/collision/*.hxx"
-    "include/cstd/*.h"
-    "include/cstd/*.hxx"
-    "include/libs/*.h"
-    "include/libs/*.hxx"
-    "include/objects/*.h"
-    "include/objects/*.hxx"
-)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    file(GLOB BETTERSMS_SRC
+        "src/*.c"
+        "src/*.cpp"
+        "src/asm/*.s"
+        "src/Camera/*.c"
+        "src/Camera/*.cpp"
+        "src/collision/*.c"
+        "src/collision/*.cpp"
+        "src/cstd/*.c"
+        "src/cstd/*.cpp"
+        "src/debug/*.c"
+        "src/debug/*.cpp"
+        "src/libs/*.cpp"
+        "src/libs/dolphin/*.c"
+        "src/moveset/*.c"
+        "src/moveset/*.cpp"
+        "src/patches/*.c"
+        "src/patches/*.cpp"
+        "src/physics/*.c"
+        "src/physics/*.cpp"
+        "src/shine/*.c"
+        "src/shine/*.cpp"
+        "src/sunscript/*.c"
+        "src/sunscript/*.cpp"
+        "src/yoshi/*.c"
+        "src/yoshi/*.cpp"
+        "include/*.h"
+        "include/*.hxx"
+        "include/collision/*.h"
+        "include/collision/*.hxx"
+        "include/cstd/*.h"
+        "include/cstd/*.hxx"
+        "include/libs/*.h"
+        "include/libs/*.hxx"
+        "include/objects/*.h"
+        "include/objects/*.hxx"
+    )
 
-add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
+    add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
+else()
+    add_library(BetterSunshineEngine INTERFACE)
+endif()
+
 add_subdirectory(lib/sms_interface)
 
 link_directories("C:/Windows/System32")
@@ -165,11 +170,13 @@ endif()
 
 target_compile_definitions(BetterSunshineEngine PUBLIC ${BETTER_SMS_CONFIG_DEFINES})
 
-add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
-add_custom_command(
-    TARGET ${PROJECT_NAME}.kxe
-    COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} _${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
-)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
+    add_custom_command(
+        TARGET ${PROJECT_NAME}.kxe
+        COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} _${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
+    )
+endif()
 
 unset(SMS_FIX_CRASHES CACHE)
 unset(SMS_FIX_BUGS CACHE)
