@@ -419,3 +419,4 @@ build/
 
 # KuriboConverter
 !tools/KuriboConverter.exe
+!compiler/*.exe
