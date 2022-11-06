@@ -73,4 +73,4 @@ set(SMS_LINK_FLAGS
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 
-set(CMAKE_OBJCOPY C:/devkitPro/devkitPPC/bin/powerpc-eabi-objcopy.exe CACHE PATH "" FORCE)
+set(CMAKE_OBJCOPY "${PROJECT_SOURCE_DIR}/compiler/powerpc-eabi-objcopy.exe" CACHE PATH "" FORCE)

@@ -60,17 +60,7 @@ set(SMS_LINK_FLAGS
     -fpermissive -Werror
 )
 
-set(LIBSTDCPP_VERSION "12.1.0")
-set(DKP_PATH "C:/devkitPro/devkitPPC/powerpc-eabi/include")
-
-include_directories(SYSTEM
-    "C:/Program Files/KuriboClang/lib/clang/14.0.6/include"
-	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}"
-	"C:/devkitPro/devkitPPC/powerpc-eabi/include"
-	"C:/devkitPro/devkitPPC/powerpc-eabi/include/c++/${LIBSTDCPP_VERSION}/powerpc-eabi"
-)
-
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 
-set(CMAKE_OBJCOPY C:/devkitPro/devkitPPC/bin/powerpc-eabi-objcopy.exe CACHE PATH "" FORCE)
+set(CMAKE_OBJCOPY "${PROJECT_SOURCE_DIR}/compiler/powerpc-eabi-objcopy.exe" CACHE PATH "" FORCE)
