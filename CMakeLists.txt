@@ -124,6 +124,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "src/libs/dolphin/*.c"
         "src/moveset/*.c"
         "src/moveset/*.cpp"
+        "src/objects/*.c"
+        "src/objects/*.cpp"
         "src/patches/*.c"
         "src/patches/*.cpp"
         "src/physics/*.c"
