@@ -134,19 +134,19 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "src/sunscript/*.cpp"
         "src/yoshi/*.c"
         "src/yoshi/*.cpp"
-        "include/*.h"
-        "include/*.hxx"
-        "include/collision/*.h"
-        "include/collision/*.hxx"
-        "include/cstd/*.h"
-        "include/cstd/*.hxx"
-        "include/libs/*.h"
-        "include/libs/*.hxx"
-        "include/objects/*.h"
-        "include/objects/*.hxx"
+        "include/BetterSMS/*.h"
+        "include/BetterSMS/*.hxx"
+        "include/BetterSMS/collision/*.h"
+        "include/BetterSMS/collision/*.hxx"
+        "include/BetterSMS/cstd/*.h"
+        "include/BetterSMS/cstd/*.hxx"
+        "include/BetterSMS/libs/*.h"
+        "include/BetterSMS/libs/*.hxx"
+        "include/BetterSMS/objects/*.h"
+        "include/BetterSMS/objects/*.hxx"
     )
 
-    add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
+    add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
     target_link_libraries(BetterSunshineEngine PUBLIC
                           Dolphin
                           JSystem
@@ -155,7 +155,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
                           Kuribo
                           ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a
     )
-    target_include_directories(BetterSunshineEngine PUBLIC "include" "lib/sms_interface/include")
+    target_include_directories(BetterSunshineEngine PUBLIC "include/BetterSMS" "lib/sms_interface/include")
     target_include_directories(BetterSunshineEngine PRIVATE "src")
     target_compile_options(BetterSunshineEngine PUBLIC ${SMS_COMPILE_FLAGS})
     target_link_options(BetterSunshineEngine PUBLIC ${SMS_LINK_FLAGS})
