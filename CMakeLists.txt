@@ -24,72 +24,6 @@ option(SMS_INCLUDE_SHADOW_MARIO_HEALTH "Includes the visibility of Shadow Mario'
 option(SMS_INCLUDE_DYNAMIC_FALL_DAMAGE "Includes dynamic fall damage in SMS" ON)
 option(SMS_INCLUDE_EXCEPTION_HANDLER "Includes the exception handler information" ON)
 
-set(SMS_KURIBO_CONVERTER_PATH ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe)
-set(SMS_LINKER_MAP_PATH ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map)
-
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    file(GLOB BETTERSMS_SRC
-        "src/*.c"
-        "src/*.cpp"
-        "src/asm/*.s"
-        "src/Camera/*.c"
-        "src/Camera/*.cpp"
-        "src/collision/*.c"
-        "src/collision/*.cpp"
-        "src/cstd/*.c"
-        "src/cstd/*.cpp"
-        "src/debug/*.c"
-        "src/debug/*.cpp"
-        "src/libs/*.cpp"
-        "src/libs/dolphin/*.c"
-        "src/moveset/*.c"
-        "src/moveset/*.cpp"
-        "src/patches/*.c"
-        "src/patches/*.cpp"
-        "src/physics/*.c"
-        "src/physics/*.cpp"
-        "src/shine/*.c"
-        "src/shine/*.cpp"
-        "src/sunscript/*.c"
-        "src/sunscript/*.cpp"
-        "src/yoshi/*.c"
-        "src/yoshi/*.cpp"
-        "include/*.h"
-        "include/*.hxx"
-        "include/collision/*.h"
-        "include/collision/*.hxx"
-        "include/cstd/*.h"
-        "include/cstd/*.hxx"
-        "include/libs/*.h"
-        "include/libs/*.hxx"
-        "include/objects/*.h"
-        "include/objects/*.hxx"
-    )
-
-    add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
-else()
-    add_library(BetterSunshineEngine INTERFACE)
-endif()
-
-add_subdirectory(lib/sms_interface)
-
-link_directories("C:/Windows/System32")
-
-target_link_libraries(BetterSunshineEngine PUBLIC
-                      Dolphin
-                      JSystem
-                      SMS
-                      Kamek
-                      Kuribo
-                      ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a
-)
-
-target_include_directories(BetterSunshineEngine PUBLIC "include" "lib/sms_interface/include")
-target_include_directories(BetterSunshineEngine PRIVATE "src")
-
-target_compile_options(BetterSunshineEngine PUBLIC ${SMS_COMPILE_FLAGS})
-target_link_options(BetterSunshineEngine PUBLIC ${SMS_LINK_FLAGS})
-
 list(APPEND BETTER_SMS_CONFIG_DEFINES "KURIBO_NO_TYPES" "BETTER_SMS_VERSION=\"v1.0\"")
 
 if(SMS_FIX_CRASHES)
@@ -168,7 +102,80 @@ if(SMS_INCLUDE_EXCEPTION_HANDLER)
     list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXCEPTION_HANDLER=1")
 endif()
 
-target_compile_definitions(BetterSunshineEngine PUBLIC ${BETTER_SMS_CONFIG_DEFINES})
+set(SMS_KURIBO_CONVERTER_PATH ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe)
+set(SMS_LINKER_MAP_PATH ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map)
+
+add_subdirectory(lib/sms_interface)
+
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    file(GLOB BETTERSMS_SRC
+        "src/*.c"
+        "src/*.cpp"
+        "src/asm/*.s"
+        "src/Camera/*.c"
+        "src/Camera/*.cpp"
+        "src/collision/*.c"
+        "src/collision/*.cpp"
+        "src/cstd/*.c"
+        "src/cstd/*.cpp"
+        "src/debug/*.c"
+        "src/debug/*.cpp"
+        "src/libs/*.cpp"
+        "src/libs/dolphin/*.c"
+        "src/moveset/*.c"
+        "src/moveset/*.cpp"
+        "src/patches/*.c"
+        "src/patches/*.cpp"
+        "src/physics/*.c"
+        "src/physics/*.cpp"
+        "src/shine/*.c"
+        "src/shine/*.cpp"
+        "src/sunscript/*.c"
+        "src/sunscript/*.cpp"
+        "src/yoshi/*.c"
+        "src/yoshi/*.cpp"
+        "include/*.h"
+        "include/*.hxx"
+        "include/collision/*.h"
+        "include/collision/*.hxx"
+        "include/cstd/*.h"
+        "include/cstd/*.hxx"
+        "include/libs/*.h"
+        "include/libs/*.hxx"
+        "include/objects/*.h"
+        "include/objects/*.hxx"
+    )
+
+    add_executable(BetterSunshineEngine ${BETTERSMS_SRC} include/objects/generic.hxx "src/objects/generic.cpp")
+    target_link_libraries(BetterSunshineEngine PUBLIC
+                          Dolphin
+                          JSystem
+                          SMS
+                          Kamek
+                          Kuribo
+                          ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a
+    )
+    target_include_directories(BetterSunshineEngine PUBLIC "include" "lib/sms_interface/include")
+    target_include_directories(BetterSunshineEngine PRIVATE "src")
+    target_compile_options(BetterSunshineEngine PUBLIC ${SMS_COMPILE_FLAGS})
+    target_link_options(BetterSunshineEngine PUBLIC ${SMS_LINK_FLAGS})
+    target_compile_definitions(BetterSunshineEngine PUBLIC ${BETTER_SMS_CONFIG_DEFINES})
+else()
+    add_library(BetterSunshineEngine INTERFACE)
+    target_link_libraries(BetterSunshineEngine INTERFACE
+                          Dolphin
+                          JSystem
+                          SMS
+                          Kamek
+                          Kuribo
+                          ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a
+    )
+    target_include_directories(BetterSunshineEngine INTERFACE "include" "lib/sms_interface/include")
+    target_include_directories(BetterSunshineEngine PRIVATE "src")
+    target_compile_options(BetterSunshineEngine INTERFACE ${SMS_COMPILE_FLAGS})
+    target_link_options(BetterSunshineEngine INTERFACE ${SMS_LINK_FLAGS})
+    target_compile_definitions(BetterSunshineEngine INTERFACE ${BETTER_SMS_CONFIG_DEFINES})
+endif()
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
