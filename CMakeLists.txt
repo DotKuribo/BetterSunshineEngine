@@ -171,7 +171,6 @@ else()
                           ${PROJECT_SOURCE_DIR}/lib/libKuriboClang/libKuriboClang.a
     )
     target_include_directories(BetterSunshineEngine INTERFACE "include" "lib/sms_interface/include")
-    target_include_directories(BetterSunshineEngine PRIVATE "src")
     target_compile_options(BetterSunshineEngine INTERFACE ${SMS_COMPILE_FLAGS})
     target_link_options(BetterSunshineEngine INTERFACE ${SMS_LINK_FLAGS})
     target_compile_definitions(BetterSunshineEngine INTERFACE ${BETTER_SMS_CONFIG_DEFINES})
