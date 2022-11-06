@@ -3,7 +3,7 @@
 #include <SMS/actor/item/Shine.hxx>
 #include <SMS/game/Conductor.hxx>
 #include <SMS/manager/FlagManager.hxx>
-#include <SMS/sound/MSBGM.hxx>
+#include <SMS/MSound/MSBGM.hxx>
 
 #include "module.hxx"
 

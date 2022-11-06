@@ -4,7 +4,7 @@
 #include <SMS/macros.h>
 #include <SMS/object/ResetFruit.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "module.hxx"
 

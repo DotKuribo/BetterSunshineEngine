@@ -1,8 +1,8 @@
 #include <SMS/Player/Mario.hxx>
 #include <SMS/Camera/PolarSubCamera.hxx>
-#include <SMS/nozzle/Watergun.hxx>
-#include <SMS/sound/MSound.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/Player/Watergun.hxx>
+#include <SMS/MSound/MSound.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 
 
 #include "module.hxx"

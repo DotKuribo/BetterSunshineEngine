@@ -17,7 +17,7 @@
 #include <SMS/object/EffectObjBase.hxx>
 #include <SMS/option/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"

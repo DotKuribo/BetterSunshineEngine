@@ -7,7 +7,7 @@
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <JSystem/JSupport/JSUStream.hxx>
 #include <SMS/params/Params.hxx>
-#include <SMS/sound/MSBGM.hxx>
+#include <SMS/MSound/MSBGM.hxx>
 
 namespace BetterSMS {
     namespace Music {

@@ -18,9 +18,9 @@
 
 #include <SMS/manager/RumbleManager.hxx>
 #include <SMS/screen/SMSFader.hxx>
-#include <SMS/sound/MSBGM.hxx>
-#include <SMS/sound/MSound.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSBGM.hxx>
+#include <SMS/MSound/MSound.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/Camera/CubeManagerBase.hxx>
 #include <SMS/MarioUtil/DrawUtil.hxx>
@@ -1025,7 +1025,7 @@ void checkForCompletionAwards(TApplication *app) {
         return;
 
     const size_t shineCount = TFlagManager::smInstance->getFlag(0x40000);
-    if (shineCount >= 300 && !gBugFixesSetting.isUnlocked()) {
+    if (shineCount >= 120 && !gBugFixesSetting.isUnlocked()) {
         gBugFixesSetting.unlock();
     }
 }

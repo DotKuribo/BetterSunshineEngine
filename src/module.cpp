@@ -343,131 +343,131 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
 {
     KURIBO_EXECUTE_ON_LOAD {
         // Generate exports
-        /* MODULE */
-        KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed, "isMusicStreamingAllowed__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::isDebugMode, "isDebugMode__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::setDebugMode, "setDebugMode__9BetterSMSFb");
-        KURIBO_EXPORT_AS(BetterSMS::getScreenRenderWidth, "getScreenRenderWidth__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::getScreenOrthoWidth, "getScreenOrthoWidth__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio, "getScreenToFullScreenRatio__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::getScreenRatioAdjustX, "getScreenRatioAdjustX__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::getFrameRate, "getFrameRate__9BetterSMSFv");
+    //    /* MODULE */
+    //    KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed, "isMusicStreamingAllowed__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::isDebugMode, "isDebugMode__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::setDebugMode, "setDebugMode__9BetterSMSFb");
+    //    KURIBO_EXPORT_AS(BetterSMS::getScreenRenderWidth, "getScreenRenderWidth__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::getScreenOrthoWidth, "getScreenOrthoWidth__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio, "getScreenToFullScreenRatio__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::getScreenRatioAdjustX, "getScreenRatioAdjustX__9BetterSMSFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::getFrameRate, "getFrameRate__9BetterSMSFv");
 
-        /* BMG */
-        KURIBO_EXPORT_AS(BetterSMS::BMG::isBMGCommandRegistered, "getFrameRate__Q29BetterSMS3BMGFUc");
-        KURIBO_EXPORT_AS(BetterSMS::BMG::registerBMGCommandCallback,
-                         "registerBMGCommandCallback__Q29BetterSMS3BMGFUcPFPCUcCUcP12TFlagManager_PCc");
-        KURIBO_EXPORT_AS(BetterSMS::BMG::deregisterBMGCommandCallback,
-                         "deregisterBMGCommandCallback__Q29BetterSMS3BMGFUc");
+    //    /* BMG */
+    //    KURIBO_EXPORT_AS(BetterSMS::BMG::isBMGCommandRegistered, "getFrameRate__Q29BetterSMS3BMGFUc");
+    //    KURIBO_EXPORT_AS(BetterSMS::BMG::registerBMGCommandCallback,
+    //                     "registerBMGCommandCallback__Q29BetterSMS3BMGFUcPFPCUcCUcP12TFlagManager_PCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::BMG::deregisterBMGCommandCallback,
+    //                     "deregisterBMGCommandCallback__Q29BetterSMS3BMGFUc");
 
-        /* LOGGING */
-        KURIBO_EXPORT_AS(BetterSMS::Console::log, "log__Q29BetterSMS7ConsoleFPCce");
-        KURIBO_EXPORT_AS(BetterSMS::Console::emulatorLog, "emulatorLog__Q29BetterSMS7ConsoleFPCce");
-        KURIBO_EXPORT_AS(BetterSMS::Console::hardwareLog, "hardwareLog__Q29BetterSMS7ConsoleFPCce");
-        KURIBO_EXPORT_AS(BetterSMS::Console::debugLog, "debugLog__Q29BetterSMS7ConsoleFPCce");
+    //    /* LOGGING */
+    //    KURIBO_EXPORT_AS(BetterSMS::Console::log, "log__Q29BetterSMS7ConsoleFPCce");
+    //    KURIBO_EXPORT_AS(BetterSMS::Console::emulatorLog, "emulatorLog__Q29BetterSMS7ConsoleFPCce");
+    //    KURIBO_EXPORT_AS(BetterSMS::Console::hardwareLog, "hardwareLog__Q29BetterSMS7ConsoleFPCce");
+    //    KURIBO_EXPORT_AS(BetterSMS::Console::debugLog, "debugLog__Q29BetterSMS7ConsoleFPCce");
 
-        /* DEBUG */
-        KURIBO_EXPORT_AS(BetterSMS::Debug::isInitRegistered, "isInitRegistered__Q29BetterSMS5DebugFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::isUpdateRegistered, "isUpdateRegistered__Q29BetterSMS5DebugFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::registerInitCallback, "registerInitCallback,__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::registerUpdateCallback, "registerUpdateCallback__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterInitCallback, "deregisterInitCallback__Q29BetterSMS5DebugFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterUpdateCallback,
-                         "deregisterUpdateCallback__Q29BetterSMS5DebugFPCc");
+    //    /* DEBUG */
+    //    KURIBO_EXPORT_AS(BetterSMS::Debug::isInitRegistered, "isInitRegistered__Q29BetterSMS5DebugFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Debug::isUpdateRegistered, "isUpdateRegistered__Q29BetterSMS5DebugFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Debug::registerInitCallback, "registerInitCallback,__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
+    //    KURIBO_EXPORT_AS(BetterSMS::Debug::registerUpdateCallback, "registerUpdateCallback__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
+    //    KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterInitCallback, "deregisterInitCallback__Q29BetterSMS5DebugFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterUpdateCallback,
+    //                     "deregisterUpdateCallback__Q29BetterSMS5DebugFPCc");
 
-        /* MEMORY */
-        KURIBO_EXPORT_AS(BetterSMS::Memory::malloc, "malloc__Q29BetterSMS6MemoryFUlUl");
-        KURIBO_EXPORT_AS(BetterSMS::Memory::calloc, "calloc__Q29BetterSMS6MemoryFUlUl");
-        KURIBO_EXPORT_AS(BetterSMS::Memory::hmalloc, "hmalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
-        KURIBO_EXPORT_AS(BetterSMS::Memory::hcalloc, "hcalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
-        KURIBO_EXPORT_AS(BetterSMS::Memory::free, "free__Q29BetterSMS6MemoryFPCv");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::getBranchDest,
-                         "getBranchDest__Q29BetterSMS6MemoryFPUl");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU8, "writeU8__Q29BetterSMS6MemoryFPUcUc");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU16,
-                         "writeU16__Q29BetterSMS6MemoryFPUsUs");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU32,
-                         "writeU32__Q29BetterSMS6MemoryFPUlUl");
+    //    /* MEMORY */
+    //    KURIBO_EXPORT_AS(BetterSMS::Memory::malloc, "malloc__Q29BetterSMS6MemoryFUlUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Memory::calloc, "calloc__Q29BetterSMS6MemoryFUlUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Memory::hmalloc, "hmalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Memory::hcalloc, "hcalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Memory::free, "free__Q29BetterSMS6MemoryFPCv");
+    //    KURIBO_EXPORT_AS(BetterSMS::PowerPC::getBranchDest,
+    //                     "getBranchDest__Q29BetterSMS6MemoryFPUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU8, "writeU8__Q29BetterSMS6MemoryFPUcUc");
+    //    KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU16,
+    //                     "writeU16__Q29BetterSMS6MemoryFPUsUs");
+    //    KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU32,
+    //                     "writeU32__Q29BetterSMS6MemoryFPUlUl");
 
-        /* LOADING */
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setLoading, "setLoading__Q29BetterSMS7LoadingFb");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIconB, "setLoadingIconB__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIconW, "setLoadingIconW__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setFullScreenLayout, "setFullScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setWideScreenLayout, "setWideScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setFrameRate, "setFrameRate__Q29BetterSMS7LoadingFf");
+    //    /* LOADING */
+    //    KURIBO_EXPORT_AS(BetterSMS::Loading::setLoading, "setLoading__Q29BetterSMS7LoadingFb");
+    //    KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIconB, "setLoadingIconB__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIconW, "setLoadingIconW__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Loading::setFullScreenLayout, "setFullScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
+    //    KURIBO_EXPORT_AS(BetterSMS::Loading::setWideScreenLayout, "setWideScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
+    //    KURIBO_EXPORT_AS(BetterSMS::Loading::setFrameRate, "setFrameRate__Q29BetterSMS7LoadingFf");
 
-        /* PLAYER */
-        KURIBO_EXPORT_AS(BetterSMS::Player::getRegisteredData, "getRegisteredData__Q29BetterSMS6PlayerFP6TMarioPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Player::getData, "getData__Q29BetterSMS6PlayerFP6TMario");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerData, "registerData__Q29BetterSMS6PlayerFP6TMarioPCcPv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterData, "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerInitProcess,
-                         "registerInitProcess__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerUpdateProcess,
-                         "registerUpdateProcess__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerStateMachine,
-                         "registerStateMachine__Q29BetterSMS6PlayerFUlPFP6TMariob_v");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerCollisionHandler,
-                         "registerCollisionHandler__Q29BetterSMS6PlayerFUsPFP6TMarioPC12TBGCheckDataUl_v");
-        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterInitProcess,
-                         "deregisterInitProcess__Q29BetterSMS6PlayerFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterUpdateProcess,
-                         "deregisterUpdateProcess__Q29BetterSMS6PlayerFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterStateMachine,
-                         "deregisterStateMachine__Q29BetterSMS6PlayerFUl");
-        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterCollisionHandler,
-                         "deregisterCollisionHandler__Q29BetterSMS6PlayerFUs");
-        KURIBO_EXPORT_AS(BetterSMS::Player::warpToCollisionFace,
-                         "warpToCollisionFace__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::warpToPoint, "warpToPoint__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::rotateRelativeToCamera,
-                         "rotateRelativeToCamera__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::setFire, "setFire__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::extinguishFire, "extinguishFire__Q29BetterSMS6PlayerFv");
+    //    /* PLAYER */
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::getRegisteredData, "getRegisteredData__Q29BetterSMS6PlayerFP6TMarioPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::getData, "getData__Q29BetterSMS6PlayerFP6TMario");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::registerData, "registerData__Q29BetterSMS6PlayerFP6TMarioPCcPv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::deregisterData, "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::registerInitProcess,
+    //                     "registerInitProcess__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::registerUpdateProcess,
+    //                     "registerUpdateProcess__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::registerStateMachine,
+    //                     "registerStateMachine__Q29BetterSMS6PlayerFUlPFP6TMariob_v");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::registerCollisionHandler,
+    //                     "registerCollisionHandler__Q29BetterSMS6PlayerFUsPFP6TMarioPC12TBGCheckDataUl_v");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::deregisterInitProcess,
+    //                     "deregisterInitProcess__Q29BetterSMS6PlayerFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::deregisterUpdateProcess,
+    //                     "deregisterUpdateProcess__Q29BetterSMS6PlayerFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::deregisterStateMachine,
+    //                     "deregisterStateMachine__Q29BetterSMS6PlayerFUl");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::deregisterCollisionHandler,
+    //                     "deregisterCollisionHandler__Q29BetterSMS6PlayerFUs");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::warpToCollisionFace,
+    //                     "warpToCollisionFace__Q29BetterSMS6PlayerFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::warpToPoint, "warpToPoint__Q29BetterSMS6PlayerFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::rotateRelativeToCamera,
+    //                     "rotateRelativeToCamera__Q29BetterSMS6PlayerFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::setFire, "setFire__Q29BetterSMS6PlayerFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Player::extinguishFire, "extinguishFire__Q29BetterSMS6PlayerFv");
 
-        /* MUSIC */
-        KURIBO_EXPORT_AS(BetterSMS::Music::queueSong, "queueSong__Q29BetterSMS5MusicFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Music::playSong, "playSong__Q29BetterSMS5MusicFv");
-        KURIBO_EXPORT_AS(BetterSMS::Music::pauseSong, "pauseSong__Q29BetterSMS5MusicFf");
-        KURIBO_EXPORT_AS(BetterSMS::Music::stopSong, "stopSong__Q29BetterSMS5MusicFf");
-        KURIBO_EXPORT_AS(BetterSMS::Music::skipSong, "skipSong__Q29BetterSMS5MusicFf");
-        KURIBO_EXPORT_AS(BetterSMS::Music::setVolume, "setVolume__Q29BetterSMS5MusicFUcUc");
-        KURIBO_EXPORT_AS(BetterSMS::Music::setVolumeFade, "setVolumeFade__Q29BetterSMS5MusicFUcf");
-        KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFff");
-        KURIBO_EXPORT_AS(BetterSMS::Music::getAudioStreamer, "getAudioStreamer__Q29BetterSMS5MusicFv");
+    //    /* MUSIC */
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::queueSong, "queueSong__Q29BetterSMS5MusicFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::playSong, "playSong__Q29BetterSMS5MusicFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::pauseSong, "pauseSong__Q29BetterSMS5MusicFf");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::stopSong, "stopSong__Q29BetterSMS5MusicFf");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::skipSong, "skipSong__Q29BetterSMS5MusicFf");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::setVolume, "setVolume__Q29BetterSMS5MusicFUcUc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::setVolumeFade, "setVolumeFade__Q29BetterSMS5MusicFUcf");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFff");
+    //    KURIBO_EXPORT_AS(BetterSMS::Music::getAudioStreamer, "getAudioStreamer__Q29BetterSMS5MusicFv");
 
-        /* SETTINGS */
-        KURIBO_EXPORT_AS(BetterSMS::Settings::getGroup, "getGroup__Q29BetterSMS8SettingsFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::isGroupRegistered,
-                         "isGroupRegistered__Q29BetterSMS8SettingsFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::registerGroup, "registerGroup__Q29BetterSMS8SettingsFPCcPQ39BetterSMS8Settings13SettingsGroup");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::deregisterGroup,
-                         "deregisterGroup__Q29BetterSMS8SettingsFPCc");
+    //    /* SETTINGS */
+    //    KURIBO_EXPORT_AS(BetterSMS::Settings::getGroup, "getGroup__Q29BetterSMS8SettingsFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Settings::isGroupRegistered,
+    //                     "isGroupRegistered__Q29BetterSMS8SettingsFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Settings::registerGroup, "registerGroup__Q29BetterSMS8SettingsFPCcPQ39BetterSMS8Settings13SettingsGroup");
+    //    KURIBO_EXPORT_AS(BetterSMS::Settings::deregisterGroup,
+    //                     "deregisterGroup__Q29BetterSMS8SettingsFPCc");
 
-    /* OBJECTS */
-    #if BETTER_SMS_EXTRA_OBJECTS
-        KURIBO_EXPORT_AS(BetterSMS::Objects::isObjectRegistered,
-                         "isObjectRegistered__Q29BetterSMS7ObjectsFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMapObj,
-                         "registerObjectAsMapObj__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsEnemy,
-                         "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMisc,
-                         "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::deregisterObject,
-                         "deregisterObject__Q29BetterSMS7ObjectsFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::getRegisteredObjectCount,
-                         "getRegisteredObjectCount__Q29BetterSMS7ObjectsFv");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::getRegisteredCustomObjectCount,
-                         "getRegisteredCustomObjectCount__Q29BetterSMS7ObjectsFv");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::getRemainingCapacity,
-                         "getRemainingCapacity__Q29BetterSMS7ObjectsFv");
-    #endif
+    ///* OBJECTS */
+    //#if BETTER_SMS_EXTRA_OBJECTS
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::isObjectRegistered,
+    //                     "isObjectRegistered__Q29BetterSMS7ObjectsFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMapObj,
+    //                     "registerObjectAsMapObj__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsEnemy,
+    //                     "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMisc,
+    //                     "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::deregisterObject,
+    //                     "deregisterObject__Q29BetterSMS7ObjectsFPCc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::getRegisteredObjectCount,
+    //                     "getRegisteredObjectCount__Q29BetterSMS7ObjectsFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::getRegisteredCustomObjectCount,
+    //                     "getRegisteredCustomObjectCount__Q29BetterSMS7ObjectsFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Objects::getRemainingCapacity,
+    //                     "getRemainingCapacity__Q29BetterSMS7ObjectsFv");
+    //#endif
 
-        /* GAME */
+    //    /* GAME */
         KURIBO_EXPORT_AS(BetterSMS::Game::isOnInitRegistered,
                          "isOnInitRegistered__Q29BetterSMS4GameFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Game::isOnBootRegistered,
@@ -486,7 +486,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
             BetterSMS::Game::registerOnLoopCallback,
             "registerOnLoopCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Game::registerOnPostDrawCallback,
-                         "registerOnPostDrawCallback__Q29BetterSMS4GameFPCcPFP12TApplicationP13J2DOrthoGraph_v");
+                         "registerOnPostDrawCallback__Q29BetterSMS4GameFPCcPFP12TApplicationPC13J2DOrthoGraph_v");
         KURIBO_EXPORT_AS(BetterSMS::Game::registerOnChangeCallback,
                          "registerOnChangeCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Game::deregisterOnInitCallback,
@@ -501,7 +501,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Game::deregisterOnChangeCallback,
                          "deregisterOnChangeCallback__Q29BetterSMS4GameFPCc");
 
-        /* STAGE */
+    //    /* STAGE */
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageConfiguration,
                          "getStageConfiguration__Q29BetterSMS5StageFv");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageName, "getStageName__Q29BetterSMS5StageFP12TApplication");
@@ -516,7 +516,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerUpdateCallback,
                          "registerUpdateCallback__Q29BetterSMS5StageFPCcPFP12TMarDirector_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerDraw2DCallback,
-                         "registerDraw2DCallback__Q29BetterSMS5StageFPCcPFP12TMarDirectorP13J2DOrthoGraph_v");
+                         "registerDraw2DCallback__Q29BetterSMS5StageFPCcPFP12TMarDirectorPC13J2DOrthoGraph_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterInitCallback,
                          "deregisterInitCallback__Q29BetterSMS5StageFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterUpdateCallback,
@@ -524,41 +524,41 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterDraw2DCallback,
                          "deregisterDraw2DCallback__Q29BetterSMS5StageFPCc");
 
-        /* TIME */
-        KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::buildTime, "buildTime__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime, "calendarTime__Q29BetterSMS4TimeFR14OSCalendarTime");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate, "calendarToDate__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime, "calendarToTime__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
-        KURIBO_EXPORT_AS(BetterSMS::Time::date, "date__Q29BetterSMS4TimeFPc");
-        KURIBO_EXPORT_AS(BetterSMS::Time::day, "day__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::hour, "hour__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::microsecond, "microsecond__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::millisecond, "millisecond__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::minute, "minute__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::month, "month__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::nanosecond, "nanosecond__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::ostime, "ostime__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::second, "second__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::time, "time__Q29BetterSMS4TimeFPc");
-        KURIBO_EXPORT_AS(BetterSMS::Time::year, "year__Q29BetterSMS4TimeFv");
+    //    /* TIME */
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::buildTime, "buildTime__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime, "calendarTime__Q29BetterSMS4TimeFR14OSCalendarTime");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate, "calendarToDate__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime, "calendarToTime__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::date, "date__Q29BetterSMS4TimeFPc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::day, "day__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::hour, "hour__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::microsecond, "microsecond__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::millisecond, "millisecond__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::minute, "minute__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::month, "month__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::nanosecond, "nanosecond__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::ostime, "ostime__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::second, "second__Q29BetterSMS4TimeFv");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::time, "time__Q29BetterSMS4TimeFPc");
+    //    KURIBO_EXPORT_AS(BetterSMS::Time::year, "year__Q29BetterSMS4TimeFv");
 
-        /* CTYPE */
-        KURIBO_EXPORT(isxdigit);
-        KURIBO_EXPORT(isupper);
-        KURIBO_EXPORT(isspace);
-        KURIBO_EXPORT(ispunct);
-        KURIBO_EXPORT(isprint);
-        KURIBO_EXPORT(islower);
-        KURIBO_EXPORT(isgraph);
-        KURIBO_EXPORT(isdigit);
-        KURIBO_EXPORT(iscntrl);
-        KURIBO_EXPORT(isalpha);
-        KURIBO_EXPORT(isalnum);
+    //    /* CTYPE */
+    //    KURIBO_EXPORT(isxdigit);
+    //    KURIBO_EXPORT(isupper);
+    //    KURIBO_EXPORT(isspace);
+    //    KURIBO_EXPORT(ispunct);
+    //    KURIBO_EXPORT(isprint);
+    //    KURIBO_EXPORT(islower);
+    //    KURIBO_EXPORT(isgraph);
+    //    KURIBO_EXPORT(isdigit);
+    //    KURIBO_EXPORT(iscntrl);
+    //    KURIBO_EXPORT(isalpha);
+    //    KURIBO_EXPORT(isalnum);
 
-        /* STRLIB */
-        KURIBO_EXPORT(reverse);
-        KURIBO_EXPORT(itoa);
+    //    /* STRLIB */
+    //    KURIBO_EXPORT(reverse);
+    //    KURIBO_EXPORT(itoa);
 
         initLib();
     }

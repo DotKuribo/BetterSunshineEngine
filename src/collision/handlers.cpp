@@ -3,7 +3,7 @@
 
 #include <SMS/collision/MapCollisionData.hxx>
 #include <SMS/macros.h>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "collision/warp.hxx"
 #include "common_sdk.h"

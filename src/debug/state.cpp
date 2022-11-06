@@ -9,8 +9,8 @@
 
 #include <SMS/npc/BaseNPC.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSound.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSound.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/collision/MapCollisionData.hxx>
 

@@ -1,10 +1,10 @@
 #include <SMS/Player/Mario.hxx>
 
 #include <SMS/game/MarDirector.hxx>
-#include <SMS/nozzle/Watergun.hxx>
+#include <SMS/Player/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSound.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSound.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "module.hxx"
 #include "player.hxx"

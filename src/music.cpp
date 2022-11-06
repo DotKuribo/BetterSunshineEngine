@@ -10,7 +10,7 @@
 #include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSBGM.hxx>
+#include <SMS/MSound/MSBGM.hxx>
 
 #include "libs/constmath.hxx"
 #include "logging.hxx"

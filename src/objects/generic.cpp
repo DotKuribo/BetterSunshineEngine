@@ -13,9 +13,9 @@
 #include <SMS/manager/ModelWaterManager.hxx>
 #include <SMS/mapobj/MapObjBall.hxx>
 #include <SMS/mapobj/MapObjInit.hxx>
-#include <SMS/nozzle/Watergun.hxx>
+#include <SMS/Player/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSoundSESystem.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "libs/constmath.hxx"
 #include "objects/generic.hxx"

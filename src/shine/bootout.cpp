@@ -6,7 +6,7 @@
 #include <SMS/actor/item/Shine.hxx>
 #include <SMS/game/Conductor.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/sound/MSBGM.hxx>
+#include <SMS/MSound/MSBGM.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/game/MarDirector.hxx>
 
