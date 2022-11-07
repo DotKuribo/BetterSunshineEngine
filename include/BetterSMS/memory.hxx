@@ -5,14 +5,16 @@
 #include <Dolphin/types.h>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-namespace BetterSMS::Cache {
-    void flush(void *addr, size_t size);
-    void flash();
-    void store(void *addr, size_t size);
-    void zero(void *addr, size_t size);
-    void enable();
-    void disable();
-}  // namespace BetterSMS::Cache
+namespace BetterSMS {
+    namespace Cache {
+        void flush(void *addr, size_t size);
+        void flash();
+        void store(void *addr, size_t size);
+        void zero(void *addr, size_t size);
+        void enable();
+        void disable();
+    }  // namespace Cache
+}  // namespace BetterSMS
 
 namespace BetterSMS {
     namespace Memory {
@@ -68,5 +70,5 @@ namespace BetterSMS {
         void writeU8(u8 *ptr, u8 value);
         void writeU16(u16 *ptr, u16 value);
         void writeU32(u32 *ptr, u32 value);
-    }  // namespace PPC
-}  // namespace BetterSMS::PPC
+    }  // namespace PowerPC
+}  // namespace BetterSMS
