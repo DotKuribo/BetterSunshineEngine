@@ -28,6 +28,8 @@
 #include <SMS/GC2D/ShineFader.hxx>
 #include <SMS/assert.h>
 
+#include "libs/container.hxx"
+
 namespace BetterSMS {
     namespace Settings {
         enum class Priority { CORE, GAME, MODE };
