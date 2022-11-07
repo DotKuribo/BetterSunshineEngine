@@ -652,13 +652,13 @@ void SettingsDirector::initializeSettingsLayout() {
             J2DPane *settingPane =
                 new J2DPane(19, ('q' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
 
-            J2DTextBox *settingText =
-                new J2DTextBox(('s' << 24) | n, {0, 0, 0, 0}, gpSystemFont->mFont, "",
-                               J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+            J2DTextBox *settingText = new J2DTextBox(
+                ('s' << 24) | n, {0, 110 + (28 * n), 600, 158 + (28 * n)},
+                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
 
-            J2DTextBox *settingTextBehind =
-                new J2DTextBox(('b' << 24) | n, {0, 0, 0, 0}, gpSystemFont->mFont, "",
-                               J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+            J2DTextBox *settingTextBehind = new J2DTextBox(
+                ('b' << 24) | n, {2, 112 + (28 * n), 602, 160 + (28 * n)},
+                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
                 char valueTextbuf[40];
                 setting->getValueStr(valueTextbuf);
@@ -677,9 +677,9 @@ void SettingsDirector::initializeSettingsLayout() {
                 settingText->mGradientBottom         = {color, color, color, alpha};
                 settingText->mGradientTop            = {color, color, color, alpha};
 
-                centerTextBoxX(settingText, screenRenderWidth);
+                /*centerTextBoxX(settingText, screenRenderWidth);
                 settingText->mRect.mY1 = 110 + (28 * n);
-                settingText->mRect.mY2 = 158 + (28 * n);
+                settingText->mRect.mY2 = 158 + (28 * n);*/
 
                 settingTextBehind->mStrPtr         = settingTextBuf;
                 settingTextBehind->mCharSizeX      = 24;
@@ -688,11 +688,11 @@ void SettingsDirector::initializeSettingsLayout() {
                 settingTextBehind->mGradientBottom = {0, 0, 0, alpha};
                 settingTextBehind->mGradientTop    = {0, 0, 0, alpha};
 
-                centerTextBoxX(settingTextBehind, screenRenderWidth);
+                /*centerTextBoxX(settingTextBehind, screenRenderWidth);
                 settingTextBehind->mRect.mX1 += 2;
                 settingTextBehind->mRect.mX2 += 2;
                 settingTextBehind->mRect.mY1 = 110 + (28 * n) + 2;
-                settingTextBehind->mRect.mY2 = 158 + (28 * n) + 2;
+                settingTextBehind->mRect.mY2 = 158 + (28 * n) + 2;*/
 
                 settingPane->mChildrenList.append(&settingTextBehind->mPtrLink);
                 settingPane->mChildrenList.append(&settingText->mPtrLink);

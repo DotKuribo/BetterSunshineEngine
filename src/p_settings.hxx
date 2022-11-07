@@ -578,7 +578,7 @@ private:
                 snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
                          mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
             }
-            centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenRenderWidth());
+            /*centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenRenderWidth());
             mCurrentSettingInfo->mSettingTextBox->mRect.mY1 = 110 + (28 * mSettingID);
             mCurrentSettingInfo->mSettingTextBox->mRect.mY2 = 158 + (28 * mSettingID);
 
@@ -586,7 +586,7 @@ private:
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX1 += 2;
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX2 += 2;
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY1 = 110 + (28 * mSettingID) + 2;
-            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;
+            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;*/
         }
 
         if (mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_LEFT |
@@ -599,7 +599,7 @@ private:
                 snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
                          mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
             }
-            centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenRenderWidth());
+            /*centerTextBoxX(mCurrentSettingInfo->mSettingTextBox, BetterSMS::getScreenRenderWidth());
             mCurrentSettingInfo->mSettingTextBox->mRect.mY1 = 110 + (28 * mSettingID);
             mCurrentSettingInfo->mSettingTextBox->mRect.mY2 = 158 + (28 * mSettingID);
 
@@ -607,7 +607,7 @@ private:
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX1 += 2;
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mX2 += 2;
             mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY1 = 110 + (28 * mSettingID) + 2;
-            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;
+            mCurrentSettingInfo->mSettingTextBoxBack->mRect.mY2 = 158 + (28 * mSettingID) + 2;*/
         }
 
         {
