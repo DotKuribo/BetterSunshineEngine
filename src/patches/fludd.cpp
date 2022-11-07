@@ -15,7 +15,7 @@
 #include <SMS/raw_fn.hxx>
 
 
-#include "geometry.hxx"
+#include "libs/geometry.hxx"
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"

@@ -4,8 +4,8 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry.hxx>
 
-#include "constmath.hxx"
-#include "geometry.hxx"
+#include "libs/constmath.hxx"
+#include "libs/geometry.hxx"
 
 using namespace BetterSMS::Geometry;
 

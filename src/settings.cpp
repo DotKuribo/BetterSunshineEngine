@@ -677,22 +677,12 @@ void SettingsDirector::initializeSettingsLayout() {
                 settingText->mGradientBottom         = {color, color, color, alpha};
                 settingText->mGradientTop            = {color, color, color, alpha};
 
-                /*centerTextBoxX(settingText, screenRenderWidth);
-                settingText->mRect.mY1 = 110 + (28 * n);
-                settingText->mRect.mY2 = 158 + (28 * n);*/
-
                 settingTextBehind->mStrPtr         = settingTextBuf;
                 settingTextBehind->mCharSizeX      = 24;
                 settingTextBehind->mCharSizeY      = 24;
                 settingTextBehind->mNewlineSize    = 24;
                 settingTextBehind->mGradientBottom = {0, 0, 0, alpha};
                 settingTextBehind->mGradientTop    = {0, 0, 0, alpha};
-
-                /*centerTextBoxX(settingTextBehind, screenRenderWidth);
-                settingTextBehind->mRect.mX1 += 2;
-                settingTextBehind->mRect.mX2 += 2;
-                settingTextBehind->mRect.mY1 = 110 + (28 * n) + 2;
-                settingTextBehind->mRect.mY2 = 158 + (28 * n) + 2;*/
 
                 settingPane->mChildrenList.append(&settingTextBehind->mPtrLink);
                 settingPane->mChildrenList.append(&settingText->mPtrLink);
@@ -707,19 +697,6 @@ void SettingsDirector::initializeSettingsLayout() {
 
             ++n;
         }
-
-        /*{
-            JUTTexture *texture      = new JUTTexture();
-            texture->mTexObj2.val[2] = 0;
-            texture->storeTIMG(GetResourceTextureHeader(gShineSpriteIconFrame1));
-            texture->_50 = false;
-
-            mSettingScreen->mShineIcon = new J2DPicture(('i' << 24) | n, {0, 0, 0, 0});
-            mSettingScreen->mShineIcon->insert(texture, 0, 0.0f);
-            mSettingScreen->mShineIcon->mRect.resize(32, 32);
-
-            pane->mChildrenList.append(&mSettingScreen->mShineIcon->mPtrLink);
-        }*/
 
         mSettingScreen->mScreen->mChildrenList.append(&groupPane->mPtrLink);
         mSettingScreen->mGroups.insert(mSettingScreen->mGroups.end(), groupInfo);

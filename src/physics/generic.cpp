@@ -8,7 +8,7 @@
 
 #include "collision/warp.hxx"
 
-#include "geometry.hxx"
+#include "libs/geometry.hxx"
 #include "module.hxx"
 #include "player.hxx"
 

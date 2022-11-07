@@ -4,7 +4,7 @@
 #include <SMS/MarioUtil/MathUtil.hxx>
 #include <SMS/raw_fn.hxx>
 
-#include "geometry.hxx"
+#include "libs/geometry.hxx"
 #include "libs/constmath.hxx"
 #include "math.hxx"
 #include "module.hxx"
