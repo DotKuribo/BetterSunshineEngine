@@ -153,6 +153,8 @@ extern void updateUnlockedSettings(TMarDirector *);
 extern void checkForCompletionAwards(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
+extern "C" void __cxa_pure_virtual();
+
 static void initLib() {
 
 #define STRINGIFY_CONFIG(c) " " #c " = " SMS_STRINGIZE(c) "\n"
@@ -557,6 +559,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         /* STRLIB */
         KURIBO_EXPORT(reverse);
         KURIBO_EXPORT(itoa);
+
+        /* CXA VIRTUAL */
+        KURIBO_EXPORT(__cxa_pure_virtual);
     }
     KURIBO_EXECUTE_ON_UNLOAD { destroyLib(); }
 
