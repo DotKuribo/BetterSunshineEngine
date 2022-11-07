@@ -58,20 +58,24 @@ void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out) {
     sSettingsGroups.items(temp);
 
     for (auto &item : temp) {
-        if (strcmp(item.mKey, "Super Mario Sunshine")) {
+        if (strcmp(item.mKey, "Super Mario Sunshine") == 0) {
             tempCore.insert(tempCore.begin(), item);
             continue;
-        } else if (strcmp(item.mKey, "Better Sunshine Engine")) {
+        } else if (strcmp(item.mKey, "Better Sunshine Engine") == 0) {
             tempCore.insert(tempCore.begin(), item);
             continue;
         }
+
         switch (item.mValue->getPriority()) {
         case Settings::Priority::CORE:
             tempCore.insert(tempCore.end(), item);
+            break;
         case Settings::Priority::GAME:
             tempGame.insert(tempGame.end(), item);
+            break;
         case Settings::Priority::MODE:
             tempMode.insert(tempMode.end(), item);
+            break;
         }
     }
 
@@ -80,7 +84,7 @@ void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out) {
     }
 
     for (auto &item : tempGame) {
-        out.insert(out.end(), item);
+        out.insert(out.begin(), item);
     }
 
     for (auto &item : tempMode) {
