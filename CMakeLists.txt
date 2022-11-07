@@ -182,7 +182,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     add_custom_target(${PROJECT_NAME}.kxe ALL DEPENDS ${PROJECT_NAME})
     add_custom_command(
         TARGET ${PROJECT_NAME}.kxe
-        COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} _${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
+        COMMAND ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe ARGS ${PROJECT_NAME} ${PROJECT_NAME}.kxe ${PROJECT_SOURCE_DIR}/maps/${SMS_REGION}.map
     )
 endif()
 

@@ -236,6 +236,8 @@ void initStageLoading(TMarDirector *director) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80296DE0, 0x80291750, 0, 0), initStageLoading);
 
+static bool sIsStageInitialized = false;
+
 void initStageCallbacks(TMarDirector *director) {
     TDictS<Stage::InitCallback>::ItemList stageInitCBs;
     sStageInitCBs.items(stageInitCBs);
@@ -246,12 +248,17 @@ void initStageCallbacks(TMarDirector *director) {
 
     director->setupObjects();
     Loading::setLoading(false);
+
+    sIsStageInitialized = true;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
 
 void updateStageCallbacks(TApplication *app) {
     u32 func;
     SMS_FROM_GPR(12, func);
+
+    if (!sIsStageInitialized)
+        return;
 
     if (gpMarDirector && app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         TDictS<Stage::UpdateCallback>::ItemList stageUpdateCBs;
@@ -287,6 +294,8 @@ void exitStageCallbacks(TApplication *app) {
     }
 
     delete Stage::getStageConfiguration();
+
+    sIsStageInitialized = false;
 }
 
 #pragma region MapIdentifiers

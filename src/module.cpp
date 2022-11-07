@@ -337,9 +337,10 @@ static void destroyLib() {
 KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG)
 {
     KURIBO_EXECUTE_ON_LOAD {
-      // Generate exports
-
         initLib();
+
+        // Generate exports
+
         /* MODULE */
         KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
@@ -375,7 +376,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "deregisterUpdateCallback__Q29BetterSMS5DebugFPCc");
 
         /* MEMORY */
-        /*KURIBO_EXPORT_AS(BetterSMS::Memory::malloc, "malloc__Q29BetterSMS6MemoryFUlUl");
+        KURIBO_EXPORT_AS(BetterSMS::Memory::malloc, "malloc__Q29BetterSMS6MemoryFUlUl");
         KURIBO_EXPORT_AS(BetterSMS::Memory::calloc, "calloc__Q29BetterSMS6MemoryFUlUl");
         KURIBO_EXPORT_AS(BetterSMS::Memory::hmalloc, "hmalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
         KURIBO_EXPORT_AS(BetterSMS::Memory::hcalloc, "hcalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
@@ -386,7 +387,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU16,
                          "writeU16__Q29BetterSMS6MemoryFPUsUs");
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU32,
-                         "writeU32__Q29BetterSMS6MemoryFPUlUl");*/
+                         "writeU32__Q29BetterSMS6MemoryFPUlUl");
 
         /* LOADING */
         KURIBO_EXPORT_AS(BetterSMS::Loading::setLoading, "setLoading__Q29BetterSMS7LoadingFb");

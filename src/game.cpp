@@ -162,7 +162,7 @@ void gameDrawCallbackHandler() {
     GXSetViewport(0, 0, 640, 480, 0, 1);
     {
         Mtx44 mtx;
-        C_MTXOrtho(mtx, 16, 500, -BetterSMS::getScreenRatioAdjustX(),
+        C_MTXOrtho(mtx, 16, 496, -BetterSMS::getScreenRatioAdjustX(),
                    BetterSMS::getScreenRenderWidth(), -1, 1);
         GXSetProjection(mtx, GX_ORTHOGRAPHIC);
     }
