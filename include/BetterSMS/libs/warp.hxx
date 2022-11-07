@@ -5,7 +5,7 @@
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <SMS/Map/BGCheck.hxx>
 
-#include "libs/geometry.hxx"
+#include "geometry.hxx"
 
 namespace BetterSMS {
     namespace Collision {

@@ -19,7 +19,7 @@
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 
 #include "libs/constmath.hxx"
 #include "libs/triangle.hxx"

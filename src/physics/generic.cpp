@@ -6,7 +6,7 @@
 #include <SMS/Player/Mario.hxx>
 #include <SMS/macros.h>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 
 #include "libs/geometry.hxx"
 #include "module.hxx"

@@ -1,7 +1,7 @@
 #include <Dolphin/OS.h>
 #include <SMS/macros.h>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 
 // BetterSMS API
 #include "application.hxx"

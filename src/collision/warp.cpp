@@ -6,7 +6,7 @@
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"
 #include "player.hxx"

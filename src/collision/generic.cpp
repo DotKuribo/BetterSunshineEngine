@@ -6,7 +6,7 @@
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 #include "p_globals.hxx"
 #include "logging.hxx"
 #include "math.hxx"

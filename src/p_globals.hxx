@@ -2,7 +2,7 @@
 
 #include <Dolphin/types.h>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 
 namespace BetterSMS {
     extern void *sPRMFile;

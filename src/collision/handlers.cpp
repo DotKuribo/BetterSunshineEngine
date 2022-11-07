@@ -5,7 +5,7 @@
 #include <SMS/macros.h>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "collision/warp.hxx"
+#include "libs/warp.hxx"
 #include "logging.hxx"
 #include "math.hxx"
 #include "module.hxx"
