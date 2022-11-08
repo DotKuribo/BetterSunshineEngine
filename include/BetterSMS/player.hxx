@@ -178,7 +178,7 @@ namespace BetterSMS {
                     Console::debugLog("Trying to access player params that don't exist!\n");
                 return mParams;
             }
-            const TMario *getPlayer() const { return mPlayer; }
+            TMario *getPlayer() const { return mPlayer; }
             u32 getPlayerID() const { return mPlayerID; }
 
             bool getColliding() { return mCollisionFlags.mIsColliding; }

@@ -101,10 +101,6 @@ extern void processWarp(TMario *, bool);
 extern void updateDebugCollision(TMario *, bool);
 
 // PLAYER MOVES
-extern u32 CrouchState;
-extern void checkForCrouch(TMario *, bool);
-extern bool processCrouch(TMario *);
-
 extern u32 MultiJumpState;
 extern void checkForMultiJump(TMario *, bool);
 extern bool processMultiJump(TMario *);
@@ -126,10 +122,6 @@ extern void screenWipeWarpHandler(TMario *player, const TBGCheckData *data, u32 
 extern void effectWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
 extern void portalWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
 extern void portalFreeWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
-
-// FLUDD
-extern void initTurboMaxCapacity(TMario *player, bool isMario);
-extern void updateTurboFrameEmit(TMario *player, bool isMario);
 
 // YOSHI
 extern void checkForYoshiDeath(TMario *player, bool isMario);
@@ -246,9 +238,6 @@ static void initLib() {
     Player::registerInitProcess("__init_mario", initMario);
     Stage::registerExitCallback("__destroy_mario", resetPlayerDatas);
 
-    Player::registerUpdateProcess("__update_mario_crouch", checkForCrouch);
-    Player::registerStateMachine(CrouchState, processCrouch);
-
     Player::registerUpdateProcess("__update_mario_multijump", checkForMultiJump);
     Player::registerStateMachine(MultiJumpState, processMultiJump);
 
@@ -271,10 +260,6 @@ static void initLib() {
     Player::registerCollisionHandler(3062, effectWarpHandler);
     Player::registerCollisionHandler(3063, portalWarpHandler);
     Player::registerCollisionHandler(3064, portalFreeWarpHandler);
-
-    // FLUDD
-    Player::registerInitProcess("__init_turbo_max", initTurboMaxCapacity);
-    Player::registerUpdateProcess("__update_turbo_usage", updateTurboFrameEmit);
 
     // YOSHI
     Player::registerUpdateProcess("__update_yoshi_swim", checkForYoshiDeath);
@@ -384,12 +369,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Memory::hcalloc, "hcalloc__Q29BetterSMS6MemoryFP7JKRHeapUlUl");
         KURIBO_EXPORT_AS(BetterSMS::Memory::free, "free__Q29BetterSMS6MemoryFPCv");
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::getBranchDest,
-                         "getBranchDest__Q29BetterSMS6MemoryFPUl");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU8, "writeU8__Q29BetterSMS6MemoryFPUcUc");
+                         "getBranchDest__Q29BetterSMS7PowerPCFPUl");
+        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU8, "writeU8__Q29BetterSMS7PowerPCFPUcUc");
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU16,
-                         "writeU16__Q29BetterSMS6MemoryFPUsUs");
+                         "writeU16__Q29BetterSMS7PowerPCFPUsUs");
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU32,
-                         "writeU32__Q29BetterSMS6MemoryFPUlUl");
+                         "writeU32__Q29BetterSMS7PowerPCFPUlUl");
 
         /* LOADING */
         KURIBO_EXPORT_AS(BetterSMS::Loading::setLoading, "setLoading__Q29BetterSMS7LoadingFb");
@@ -409,7 +394,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Player::registerUpdateProcess,
                          "registerUpdateProcess__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerStateMachine,
-                         "registerStateMachine__Q29BetterSMS6PlayerFUlPFP6TMariob_v");
+                         "registerStateMachine__Q29BetterSMS6PlayerFUlPFP6TMario_b");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerCollisionHandler,
                          "registerCollisionHandler__Q29BetterSMS6PlayerFUsPFP6TMarioPC12TBGCheckDataUl_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterInitProcess,

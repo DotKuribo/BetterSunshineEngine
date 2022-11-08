@@ -455,7 +455,7 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     if (mPlayer->mModelData)
         mPlayer->mModelData->mModel->mBaseScale = size;
 
-    mDefaultAttrs.applyHistoryTo(const_cast<TMario *>(getPlayer()));
+    mDefaultAttrs.applyHistoryTo(getPlayer());
 
 #define SCALE_PARAM(param, scale) param.set(param.get() * scale)
 
@@ -474,8 +474,8 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
         jumpMultiplier  = 1.0f;
     }
 
-    SCALE_PARAM(mPlayer->mDeParams.mRunningMax, factor * speedMultiplier * 2.25f);
-    SCALE_PARAM(mPlayer->mDeParams.mDashMax, factor * speedMultiplier * 2.25f);
+    SCALE_PARAM(mPlayer->mDeParams.mRunningMax, factor * speedMultiplier);
+    SCALE_PARAM(mPlayer->mDeParams.mDashMax, factor * speedMultiplier);
     SCALE_PARAM(mPlayer->mDeParams.mShadowSize, scale);
     SCALE_PARAM(mPlayer->mDeParams.mHoldRadius, scale);
     SCALE_PARAM(mPlayer->mDeParams.mDamageRadius, scale);
@@ -502,10 +502,10 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     SCALE_PARAM(mPlayer->mJumpParams.mSpinJumpGravity, factor * gravityMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mJumpSpeedAccelControl, factor * speedMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mPopUpSpeedY, factor * jumpMultiplier);
-    SCALE_PARAM(mPlayer->mJumpParams.mJumpingMax, factor * jumpMultiplier * 2.25f);
+    SCALE_PARAM(mPlayer->mJumpParams.mJumpingMax, factor * jumpMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mFenceSpeed, factor * speedMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mFireBackVelocity, factor * jumpMultiplier);
-    SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForce, factor * 2.25f);
+    SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForce, factor);
     SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForceY, factor * jumpMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mRotateJumpForceY, factor * jumpMultiplier);
     SCALE_PARAM(mPlayer->mJumpParams.mBackJumpForce, factor);
@@ -822,7 +822,7 @@ static bool shadowMarioInitHandler() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x800397DC, 0x80039894, 0, 0), shadowMarioInitHandler);
 
-static void playerUpdateHandler(TMario *player) {
+static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     TDictS<Player::UpdateProcess>::ItemList playerUpdateCBs;
     sPlayerUpdaters.items(playerUpdateCBs);
 
@@ -830,11 +830,11 @@ static void playerUpdateHandler(TMario *player) {
         item.mValue(player, true);
     }
 
-    player->setPositions();
+    player->playerControl(graphics);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A8, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
-static void shadowMarioUpdateHandler(TMario *player) {
+static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     TDictS<Player::UpdateProcess>::ItemList playerUpdateCBs;
     sPlayerUpdaters.items(playerUpdateCBs);
 
@@ -842,9 +842,9 @@ static void shadowMarioUpdateHandler(TMario *player) {
         item.mValue(player, false);
     }
 
-    player->setPositions();
+    player->playerControl(graphics);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8003F8F0, 0x8003F740, 0, 0), shadowMarioUpdateHandler);  // EMario
+SMS_PATCH_BL(SMS_PORT_REGION(0x8003F8E8, 0x8003F740, 0, 0), shadowMarioUpdateHandler);  // EMario
 
 static bool stateMachineHandler(TMario *player) {
     auto currentState = player->mState;

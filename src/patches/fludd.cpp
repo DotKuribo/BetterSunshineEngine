@@ -11,6 +11,7 @@
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/macros.h>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/System/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
 
@@ -18,12 +19,28 @@
 #include "libs/geometry.hxx"
 #include "libs/constmath.hxx"
 #include "module.hxx"
+#include "player.hxx"
 #include "p_settings.hxx"
 
 #if BETTER_SMS_BUGFIXES
 
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
+
+// This patches delayed fludd usage
+static void snapNozzleToReady() {
+    TWaterGun *fludd;
+    SMS_FROM_GPR(30, fludd);
+
+    if (fludd->mCurrentNozzle == TWaterGun::TNozzleType::Hover) {
+        ((float *)(fludd))[0x1CEC / 4] = 0.0f;
+    } else {
+        ((float *)(fludd))[0x1CEC / 4] -= 0.1f;
+        if (((float *)(fludd))[0x1CEC / 4] < 0.0f)
+            ((float *)(fludd))[0x1CEC / 4] = 0.0f;
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802699CC, 0, 0, 0), snapNozzleToReady);
 
 // TODO: Make check for BetterSMS::areBugsPatched()
 static SMS_ASM_FUNC bool makeWaterHitCheckForDeath(TBGCheckData *col) {
@@ -90,137 +107,62 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802568F0, 0x8024E67C, 0, 0), normalizeHoverSlopeS
 
 #endif
 
-static f32 checkTurboSpecial() {
-    TNozzleTrigger *nozzle;
-    SMS_FROM_GPR(29, nozzle);
+static bool hasWaterCardOpen() {
+    TGCConsole2 *gcConsole;
+    SMS_FROM_GPR(31, gcConsole);
 
-    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Turbo) {
-        return 0.01f;
-    }
+    if (gpMarioAddress->mYoshi->mState != TYoshi::State::MOUNTED &&
+        !gpMarioAddress->mAttributes.mHasFludd && !gcConsole->mWaterCardFalling &&
+        gcConsole->mIsWaterCard)
+        startDisappearTank__11TGCConsole2Fv(gcConsole);
+    else if (gpMarioAddress->mYoshi->mState == TYoshi::State::MOUNTED)
+        gpMarioAddress->mAttributes.mHasFludd = true;
 
-    return nozzle->mEmitParams.mInsidePressureMax.get();
+    return gcConsole->mIsWaterCard;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8026C5BC, 0, 0, 0), checkTurboSpecial);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8014206C, 0x80136C80, 0, 0), hasWaterCardOpen);
+SMS_WRITE_32(SMS_PORT_REGION(0x80142070, 0x80136C84, 0, 0), 0x28030000);
 
-static void checkFillMax() {
-    TNozzleTrigger *nozzle;
-    SMS_FROM_GPR(29, nozzle);
+static bool canCollectFluddItem(TMario *player) {
+    const bool defaultEnabled = player->onYoshi();
 
-    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Turbo)
-        return;
+    auto *playerData = Player::getData(gpMarioAddress);
+    if (!playerData)
+        return defaultEnabled;
 
-    nozzle->mTriggerFill = nozzle->mEmitParams.mInsidePressureMax.get();
+    return defaultEnabled || !playerData->getCanUseFludd();
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8026C5C8, 0, 0, 0), checkFillMax);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80283058, 0x8027ADE4, 0, 0), canCollectFluddItem);
 
-static void turboNozzleConeCondition() { /* TMarioEffect * */
-    u32 *marioEffect;
-    SMS_FROM_GPR(29, marioEffect);
-
-    u32 state = 1;
-
-    TMario *player = reinterpret_cast<TMario *>(marioEffect[0x68 / 4]);
-    if (player->mFludd->mCurrentNozzle == TWaterGun::Spray)
-        state = 0;
-
-    marioEffect[0x7C / 4] = state;
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80271ACC, 0, 0, 0), turboNozzleConeCondition);
-
-// We return TMario to exploit registers
-static TMario *turboNozzleConeCondition2(TMario *player) { /* TMarioEffect * */
-    u32 *marioEffect;
-    SMS_FROM_GPR(29, marioEffect);
-
-    if (!player->mAttributes.mIsFluddEmitting)
-        return nullptr;
-
-    MActor *coneActor = reinterpret_cast<MActor *>(marioEffect[0x80 / 4]);
-    if (player->mFludd->mCurrentNozzle == TWaterGun::Turbo && player->mController) {
-        coneActor->mModel->mBaseScale.set(player->mController->mButtons.mAnalogR,
-                                          player->mController->mButtons.mAnalogR,
-                                          player->mController->mButtons.mAnalogR);
-    } else {
-        coneActor->mModel->mBaseScale.set(1.0f, 1.0f, 1.0f);
-    }
-
-    return player;
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80271AD8, 0, 0, 0), turboNozzleConeCondition2);
-SMS_WRITE_32(SMS_PORT_REGION(0x80271ADC, 0, 0, 0), 0x2C030000);
-
-static void lerpTurboNozzleSpeed(TMario *player, f32 velocity) {
-    auto *controller = player->mController;
-    if (!controller) {
-        player->setPlayerVelocity(velocity);
-        return;
-    }
-
-    auto analogR = controller->mButtons.mAnalogR;
-    velocity     = lerp<f32>(40.0f, velocity, analogR);
-    player->setPlayerVelocity(velocity);
-
-    player->mRunParams.mDashRotSp.set(lerp<s16>(180, 60, analogR));
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x8025B2B0, 0, 0, 0), lerpTurboNozzleSpeed);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80272D40, 0, 0, 0), lerpTurboNozzleSpeed);
-
-static void lerpTurboNozzleJumpSpeed() {
+static s32 sNozzleBuzzCounter = -1;
+static bool canCollectFluddItem_() {
     TMario *player;
     SMS_FROM_GPR(30, player);
 
-    auto *controller = player->mController;
-    if (!controller) {
-        player->mForwardSpeed = player->mJumpParams.mBroadJumpForce.get();
-        player->mSpeed.y      = player->mJumpParams.mBroadJumpForceY.get();
-        return;
+    const bool isOnYoshi = player->onYoshi();
+
+    auto *playerData = Player::getData(gpMarioAddress);
+    if (!playerData)
+        return isOnYoshi;
+
+    if (!playerData->getCanUseFludd()) {
+        if (gpMSound->gateCheck(0x483E) && sNozzleBuzzCounter < 0) {
+            MSoundSESystem::MSoundSE::startSoundSystemSE(0x483E, 0, nullptr, 0);
+            sNozzleBuzzCounter = 120;
+        } else {
+            sNozzleBuzzCounter -= 1;
+        }
     }
-
-    auto analogR          = controller->mButtons.mAnalogR;
-    player->mForwardSpeed = lerp<f32>(30.0f, player->mJumpParams.mBroadJumpForce.get(), analogR);
-    player->mSpeed.y      = lerp<f32>(player->mJumpParams.mBroadJumpForceY.get() * 0.5f,
-                                 player->mJumpParams.mBroadJumpForceY.get(), analogR);
+    return isOnYoshi || !playerData->getCanUseFludd();
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80254990, 0, 0, 0), lerpTurboNozzleJumpSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BBD48, 0x801B3C00, 0, 0), canCollectFluddItem_);
 
-#define SCALE_PARAM(param, scale) param.set(param.get() * scale)
-
-void initTurboMaxCapacity(TMario *player, bool isMario) {
-    if (!isMario)
-        return;
-
-    if (!player->mFludd)
-        return;
-
-    SCALE_PARAM(player->mFludd->mNozzleTurbo.mEmitParams.mAmountMax, 8);
-    SCALE_PARAM(player->mFludd->mNozzleTurbo.mEmitParams.mDamageLoss, 8);
-    SCALE_PARAM(player->mFludd->mNozzleTurbo.mEmitParams.mSuckRate, 8);
-    player->mDeParams.mDashStartTime.set(0.0f);
-}
-
-void updateTurboFrameEmit(TMario *player, bool isMario) {
-    if (!isMario)
-        return;
-
-    auto *fludd = player->mFludd;
-    if (!fludd || !player->mController)
-        return;
-
-    if (fludd->mCurrentNozzle != TWaterGun::Turbo)
-        return;
-
-    const auto analogR = player->mController->mButtons.mAnalogR;
-
-    fludd->mNozzleTurbo.mEmitParams.mNum.set(lerp<f32>(1.0f, 10.0f, analogR));
-    fludd->mNozzleTurbo.mEmitParams.mDirTremble.set(lerp<f32>(0.01f, 0.08f, analogR));
-
-    if (analogR < 0.1f || fludd->mNozzleTurbo.mSprayState == 2) {
-        fludd->mNozzleTurbo.mTriggerFill = 0.0f;
-        return;
+static void resetNozzleBuzzer(TMapObjGeneral *obj) {
+    if (obj->mNumObjs <= 0) {
+        sNozzleBuzzCounter = Max(sNozzleBuzzCounter - 1, -1);
     }
-
-    fludd->mNozzleTurbo.mTriggerFill = fludd->getPressureMax() * ((analogR - 0.15f) * 1.17647f);
-    player->mDeParams.mDashAcc.set(32.1f);  // 32.0f is max
+    control__14TMapObjGeneralFv(obj);
 }
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BBBF8, 0x801B3AB0, 0, 0), resetNozzleBuzzer);
 
 #undef SCALE_PARAM
