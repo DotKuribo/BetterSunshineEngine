@@ -128,13 +128,13 @@ void initAllSettings(TApplication *app) {
         CloseSavedSettings(*group.mValue, &finfo);
     }
 
-    /*for (auto &group : groups) {
+    for (auto &group : groups) {
         for (auto &setting : group.mValue->getSettings()) {
             if (setting->isUnlocked()) {
                 group.mValue->mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
             }
         }
-    }*/
+    }
 }
 
 //
@@ -743,16 +743,16 @@ void SettingsDirector::initializeErrorLayout() {
         mask->storeTIMG(GetResourceTextureHeader(gMaskBlack));
         mask->_50 = false;
 
-        J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 270});
+        J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 280});
         mSaveErrorPanel->mScreen->mChildrenList.append(&rootPane->mPtrLink);
 
-        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 270});
+        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 280});
         mSaveErrorPanel->mAnimatedPane->mPane = rootPane;
 
         J2DPicture *maskPanel    = new J2DPicture('mask', {0, 0, 0, 0});
         {
             maskPanel->insert(mask, 0, 1.0f);
-            maskPanel->mRect            = {0, 0, 400, 300};
+            maskPanel->mRect            = {0, 0, 400, 280};
             maskPanel->mAlpha           = 210;
             maskPanel->mColorOverlay    = {0, 0, 0, 255};
             maskPanel->mVertexColors[0] = {20, 0, 0, 255};
@@ -762,7 +762,7 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&maskPanel->mPtrLink);
 
-        mSaveErrorPanel->mErrorHandlerPane             = new J2DPane(19, 'err_', {0, 0, 400, 270});
+        mSaveErrorPanel->mErrorHandlerPane             = new J2DPane(19, 'err_', {0, 0, 400, 280});
         mSaveErrorPanel->mErrorHandlerPane->mIsVisible = false;
         {
             mSaveErrorPanel->mErrorTextBox =
@@ -779,7 +779,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mErrorTextBox->mPtrLink);
 
             J2DTextBox *description = new J2DTextBox(
-                'desc', {20, 50, 380, 220}, gpSystemFont->mFont,
+                'desc', {20, 50, 380, 230}, gpSystemFont->mFont,
                 "Something went wrong when saving the settings.\nWould you like to try again?",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
@@ -799,7 +799,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mChoiceBoxes[0]->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[1] =
-                new J2DTextBox('save', {250, 230, 392, 258}, gpSystemFont->mFont, "Retry",
+                new J2DTextBox('save', {250, 240, 392, 268}, gpSystemFont->mFont, "Retry",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[1]->mCharSizeX = 24;
@@ -810,11 +810,11 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&mSaveErrorPanel->mErrorHandlerPane->mPtrLink);
 
-        mSaveErrorPanel->mSaveTryingPane             = new J2DPane(19, 'save', {0, 0, 400, 270});
+        mSaveErrorPanel->mSaveTryingPane             = new J2DPane(19, 'save', {0, 0, 400, 280});
         mSaveErrorPanel->mSaveTryingPane->mIsVisible = true;
         {
             J2DTextBox *description = new J2DTextBox(
-                'desc', {20, 50, 380, 220}, gpSystemFont->mFont,
+                'desc', {20, 50, 380, 230}, gpSystemFont->mFont,
                 "Saving to the memory card...",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
