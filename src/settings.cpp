@@ -29,6 +29,7 @@
 #include <SMS/System/CardManager.hxx>
 #include <SMS/Manager/FlagManager.hxx>
 
+#include "libs/constmath.hxx"
 #include "libs/container.hxx"
 #include "settings.hxx"
 #include "module.hxx"
@@ -58,6 +59,8 @@ void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out) {
     sSettingsGroups.items(temp);
 
     for (auto &item : temp) {
+        /*OSReport("[ITEM] %s\n", item.mValue->getName());*/
+
         if (strcmp(item.mKey, "Super Mario Sunshine") == 0) {
             tempCore.insert(tempCore.begin(), item);
             continue;
@@ -114,7 +117,6 @@ void initAllSettings(TApplication *app) {
             continue;
         }
 
-
         size_t saveDataStartData = 0;
         int ret                  = OpenSavedSettings(*group.mValue, cardChannel, finfo);
         if (ret < CARD_ERROR_READY) {
@@ -125,6 +127,14 @@ void initAllSettings(TApplication *app) {
         ReadSavedSettings(*group.mValue, &finfo);
         CloseSavedSettings(*group.mValue, &finfo);
     }
+
+    /*for (auto &group : groups) {
+        for (auto &setting : group.mValue->getSettings()) {
+            if (setting->isUnlocked()) {
+                group.mValue->mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
+            }
+        }
+    }*/
 }
 
 //
@@ -140,8 +150,13 @@ bool BetterSMS::Settings::isGroupRegistered(const char *name) {
 }
 
 bool BetterSMS::Settings::registerGroup(const char *name, Settings::SettingsGroup *group) {
-    if (sSettingsGroups.hasKey(name))
+    if (sSettingsGroups.hasKey(name)) {
+        OSPanic(__FILE__, __LINE__,
+                "Settings group \"%s\" is trying to register under the key \"%s\", which is "
+                "already taken!",
+                group->getName(), name);
         return false;
+    }
     sSettingsGroups.set(name, group);
     return true;
 }
@@ -478,6 +493,7 @@ void SettingsDirector::initializeDramaHierarchy() {
         group2D->mViewObjList.insert(group2D->mViewObjList.end(), mSettingScreen);
 
         mSaveErrorPanel = new SaveErrorPanel(this, mController);
+        mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
         group2D->mViewObjList.insert(group2D->mViewObjList.end(), mSaveErrorPanel);
 
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), group2D);
@@ -727,10 +743,10 @@ void SettingsDirector::initializeErrorLayout() {
         mask->storeTIMG(GetResourceTextureHeader(gMaskBlack));
         mask->_50 = false;
 
-        J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 280});
+        J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 270});
         mSaveErrorPanel->mScreen->mChildrenList.append(&rootPane->mPtrLink);
 
-        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 280});
+        mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 270});
         mSaveErrorPanel->mAnimatedPane->mPane = rootPane;
 
         J2DPicture *maskPanel    = new J2DPicture('mask', {0, 0, 0, 0});
@@ -746,11 +762,11 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&maskPanel->mPtrLink);
 
-        mSaveErrorPanel->mErrorHandlerPane             = new J2DPane(19, 'err_', {0, 0, 400, 280});
+        mSaveErrorPanel->mErrorHandlerPane             = new J2DPane(19, 'err_', {0, 0, 400, 270});
         mSaveErrorPanel->mErrorHandlerPane->mIsVisible = false;
         {
             mSaveErrorPanel->mErrorTextBox =
-                new J2DTextBox('errl', {12, 16, 388, 40}, gpSystemFont->mFont, "UNKNOWN ERROR",
+                new J2DTextBox('errl', {12, 16, 388, 40}, gpSystemFont->mFont, "",
                                         J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Top);
             {
                 mSaveErrorPanel->mErrorTextBox->mStrPtr         = sErrorTag;
@@ -763,7 +779,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mErrorTextBox->mPtrLink);
 
             J2DTextBox *description = new J2DTextBox(
-                'desc', {20, 50, 380, 230}, gpSystemFont->mFont,
+                'desc', {20, 50, 380, 220}, gpSystemFont->mFont,
                 "Something went wrong when saving the settings.\nWould you like to try again?",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
@@ -773,7 +789,7 @@ void SettingsDirector::initializeErrorLayout() {
             mSaveErrorPanel->mErrorHandlerPane->mChildrenList.append(&description->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[0] =
-                new J2DTextBox('exit', {80, 240, 202, 268}, gpSystemFont->mFont, "Exit",
+                new J2DTextBox('exit', {80, 230, 202, 258}, gpSystemFont->mFont, "Exit",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[0]->mCharSizeX = 24;
@@ -783,7 +799,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mChoiceBoxes[0]->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[1] =
-                new J2DTextBox('save', {250, 240, 392, 268}, gpSystemFont->mFont, "Retry",
+                new J2DTextBox('save', {250, 230, 392, 258}, gpSystemFont->mFont, "Retry",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[1]->mCharSizeX = 24;
@@ -794,11 +810,11 @@ void SettingsDirector::initializeErrorLayout() {
         }
         rootPane->mChildrenList.append(&mSaveErrorPanel->mErrorHandlerPane->mPtrLink);
 
-        mSaveErrorPanel->mSaveTryingPane             = new J2DPane(19, 'save', {0, 0, 400, 280});
+        mSaveErrorPanel->mSaveTryingPane             = new J2DPane(19, 'save', {0, 0, 400, 270});
         mSaveErrorPanel->mSaveTryingPane->mIsVisible = true;
         {
             J2DTextBox *description = new J2DTextBox(
-                'desc', {20, 50, 380, 230}, gpSystemFont->mFont,
+                'desc', {20, 50, 380, 220}, gpSystemFont->mFont,
                 "Saving to the memory card...",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
@@ -919,17 +935,47 @@ static s32 checkForSettingsMenu(TMarDirector *director) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80299D0C, 0, 0, 0), checkForSettingsMenu);
 
-static JGadget::TList<J2DTextBox *> sUnlockedNotifications;
+static J2DPicture *sNotificationPicture;
+static J2DScreen *sNotificationScreen;
+static J2DTextBox *sNotificationBox;
+static JGadget::TList<char *> sUnlockedSettings;
 
 static OSTime sLastTime = 0;
-static TDictI<int> sVisualMap;
+static int sVisualState = 0;
+static int sOnScreenTime = 0;
+
+static char sNotifTextBuf[128];
 
 void initUnlockedSettings(TApplication *app) {
     sLastTime = 0;
-    sUnlockedNotifications.erase(sUnlockedNotifications.begin(), sUnlockedNotifications.end());
+    sUnlockedSettings.erase(sUnlockedSettings.begin(), sUnlockedSettings.end());
+
+    memset(sNotifTextBuf, 0, 128);
+
+    auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
+
+    sNotificationScreen = new J2DScreen(8, 'ROOT', {0, 0, 600, 480});
+    {
+        sNotificationBox = new J2DTextBox(gpSystemFont->mFont, "");
+        {
+            sNotificationBox->mRect.set(100, 100, 500, 170);
+            sNotificationBox->mAlpha          = 0;
+            sNotificationBox->mCharSizeX      = 14;
+            sNotificationBox->mCharSizeY      = 15;
+            sNotificationBox->mNewlineSize    = 15;
+            sNotificationBox->mHBinding       = J2DTextBoxHBinding::Center;
+            sNotificationBox->mVBinding       = J2DTextBoxVBinding::Center;
+            sNotificationBox->mStrPtr         = sNotifTextBuf;
+        }
+        sNotificationScreen->mChildrenList.append(&sNotificationBox->mPtrLink);
+    }
+
+    oldHeap->becomeCurrentHeap();
+
+    sVisualState = 0;
 }
 
-void updateUnlockedSettings(TMarDirector *app) {
+void updateUnlockedSettings(TApplication *app) {
     TDictS<Settings::SettingsGroup *>::ItemList groups;
     getSettingsGroups(groups);
 
@@ -938,67 +984,55 @@ void updateUnlockedSettings(TMarDirector *app) {
         group.mValue->checkForUnlockedSettings(unlockedSettings);
 
         for (auto &setting : unlockedSettings) {
-            char notifText[100];
-            snprintf(notifText, 100, "%s\nUnlocked the \"%s\" setting!", group.mValue->getName(), setting->getName());
+            char *notifText = new char[100];
+            snprintf(notifText, 100, "%s\n\nUnlocked the \"%s\" setting!", group.mValue->getName(), setting->getName());
 
-            auto *notificationText = new J2DTextBox(gpSystemFont->mFont, notifText);
-            {
-                notificationText->mRect.set(100, 180, 500, 240);
-                notificationText->mAlpha          = 1;
-                notificationText->mCharSizeX      = 11;
-                notificationText->mCharSizeY      = 12;
-                notificationText->mNewlineSize    = 12;
-                notificationText->mGradientTop    = {180, 230, 10, 255};
-                notificationText->mGradientBottom = {240, 170, 10, 255};
-                notificationText->mHBinding       = J2DTextBoxHBinding::Center;
-                notificationText->mVBinding       = J2DTextBoxVBinding::Center;
+            sUnlockedSettings.insert(sUnlockedSettings.end(), notifText);
+            if (sUnlockedSettings.size() == 1) {
+                strncpy(sNotificationBox->mStrPtr, notifText, 100);
             }
-
-            sUnlockedNotifications.insert(sUnlockedNotifications.end(), notificationText);
-            sVisualMap.set(reinterpret_cast<u32>(notificationText), 0);
         }
     }
 }
 
 void drawUnlockedSettings(TApplication *app, const J2DOrthoGraph *ortho) {
-    int yOfs = 0;
+    if (sUnlockedSettings.size() == 0)
+        return;
 
-    f32 diff = OSTicksToSeconds(f32(OSGetTime() - sLastTime));
-    s32 alphaInc = diff * 512;
+    auto notifKey = reinterpret_cast<u32>(*sUnlockedSettings.begin());
 
-    //for (auto iter = sUnlockedNotifications.begin(); iter != sUnlockedNotifications.end(); ++iter) {
-    //    auto &notif = *iter;
+    ReInitializeGX();
+    const_cast<J2DOrthoGraph *>(ortho)->setup2D();
 
-    //    OSReport("0x%X\n", (u32)notif);
+    J2DFillBox(sNotificationBox->mRect,
+               {30, 70, 230, lerp<u8>(0, 200, static_cast<f32>(sNotificationBox->mAlpha) / 255.0f)});
+    
+    sNotificationScreen->draw(0, 0, ortho);
 
-    //    J2DFillBox({100, 180 + yOfs, 500, 240 + yOfs}, {30, 30, 30, notif->mAlpha});
-    //    notif->draw(0, 0);
-    //    if (notif->mAlpha != 255)
-    //        notif->mAlpha += 1;
-
-    //    /*if (sVisualMap.get(reinterpret_cast<u32>(notif) == 0)) {
-    //        if (alphaInc != 0)
-    //            sLastTime = OSGetTime();
-    //        notif->mAlpha = Min(255, notif->mAlpha + alphaInc);
-    //        if (notif->mAlpha == 255)
-    //            sVisualMap.set(reinterpret_cast<u32>(notif), 1);
-    //    } else if (sVisualMap.get(reinterpret_cast<u32>(notif) == 1)) {
-    //        if (diff > 5.0f) {
-    //            sVisualMap.set(reinterpret_cast<u32>(notif), 2);
-    //            sLastTime = OSGetTime();
-    //        }
-    //    } else {
-    //        if (alphaInc != 0)
-    //            sLastTime = OSGetTime();
-    //        notif->mAlpha = Max(0, notif->mAlpha - alphaInc);
-    //        if (notif->mAlpha == 0) {
-    //            sVisualMap.pop(reinterpret_cast<u32>(notif));
-    //            iter = sUnlockedNotifications.erase(iter);
-    //        }
-    //    }*/
-
-    //    yOfs += 70;
-    //}
+    if (sVisualState == 0) {
+        if (sNotificationBox->mAlpha == 0) {
+            if (gpMSound->gateCheck(18497))
+                MSoundSESystem::MSoundSE::startSoundSystemSE(18497, 0, nullptr, 0);
+        }
+        sNotificationBox->mAlpha = Min(sNotificationBox->mAlpha + 10, 255);
+        if (sNotificationBox->mAlpha == 255)
+            sVisualState = 1;
+    } else if (sVisualState == 1) {
+        sOnScreenTime += 1;
+        if (sOnScreenTime > 240) {
+            sVisualState  = 2;
+            sOnScreenTime = 0;
+        }
+    } else {
+        sNotificationBox->mAlpha = Max(sNotificationBox->mAlpha - 10, 0);
+        if (sNotificationBox->mAlpha == 0) {
+            delete *sUnlockedSettings.begin();
+            sUnlockedSettings.erase(sUnlockedSettings.begin());
+            if (sUnlockedSettings.size() > 0)
+                strncpy(sNotificationBox->mStrPtr, *sUnlockedSettings.begin(), 100);
+            sVisualState = 0;
+        }
+    }
 }
 
 void checkForCompletionAwards(TApplication *app) {

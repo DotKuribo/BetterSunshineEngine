@@ -176,6 +176,7 @@ public:
 
         for (u32 i = 0; i < SurfaceSize; ++i) {
             for (auto &item : mItemBuffer[i]) {
+                OSReport("%s, 0x%X\n", item.mKey, item.mValue);
                 out.insert(out.end(), item);
             }
         }

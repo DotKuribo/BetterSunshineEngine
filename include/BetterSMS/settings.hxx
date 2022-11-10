@@ -298,8 +298,9 @@ namespace BetterSMS {
 
             void addSetting(SingleSetting *setting) {
                 mSettings.insert(mSettings.end(), setting);
-                mUnlockedMap.set(reinterpret_cast<u32>(setting), setting->isUnlocked()); 
+                mUnlockedMap.set(reinterpret_cast<u32>(setting), setting->isUnlocked());
             }
+
             void removeSetting(SingleSetting *setting) {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
                     if (*iter == setting) {
@@ -308,7 +309,8 @@ namespace BetterSMS {
                         return;
                     }
                 }
-            };
+            }
+
             void removeSetting(const char *name) {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
                     if (iter->getName() == name) {
@@ -333,9 +335,11 @@ namespace BetterSMS {
             const char *mName;
             u16 mVersion;
             SettingsList mSettings;
-            TDictI<bool> mUnlockedMap;
             SettingsSaveInfo mSaveInfo;
             Priority mOrderPriority;
+
+        public:
+            TDictI<bool> mUnlockedMap;
         };
 
 #pragma endregion

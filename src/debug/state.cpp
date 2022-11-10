@@ -99,11 +99,10 @@ void initStateMonitor(TApplication *app) {
 void updateStateMonitor(TApplication *app) {
     TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
 
-    if (!director || !gpMarioAddress || !sIsInitialized)
+    if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE || !gpMarioAddress || !sIsInitialized)
         return;
 
-    if (director->mCurState != TMarDirector::Status::STATE_NORMAL &&
-        director->mCurState != TMarDirector::Status::STATE_PAUSE_MENU)
+    if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
         return;
 
     u16 floorColType =
@@ -170,7 +169,12 @@ void updateStateMonitor(TApplication *app) {
 }
 
 void drawStateMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
-    if (!sIsInitialized)
+    TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
+
+    if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE || !gpMarioAddress || !sIsInitialized)
+        return;
+
+    if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
         return;
 
     {

@@ -9,6 +9,5 @@ namespace BetterSMS {
     extern Collision::TWarpCollisionList *sWarpColArray;
     extern Collision::TWarpCollisionList *sWarpColPreserveArray;
     extern bool sIsAudioStreaming;
-    extern bool sIsAudioStreamAllowed;
     extern bool sIsDebugMode;
 }  // namespace BetterSMS

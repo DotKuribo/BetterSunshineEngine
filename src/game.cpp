@@ -146,9 +146,6 @@ s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
 
     s32 ret = director->direct();
 
-    /*drawLoadingScreen(&gpApplication);
-    drawDebugCallbacks(&gpApplication);*/
-
     return ret;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), gameLoopCallbackHandler);

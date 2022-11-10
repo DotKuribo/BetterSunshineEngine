@@ -73,8 +73,9 @@ extern bool BetterAppContextDirectSettingsMenu(TApplication *app);
 // DEBUG
 extern void initDebugCallbacks(TApplication *);
 
-extern void initMarioXYZMode(TApplication *);
-extern void updateMarioXYZMode(TApplication *);
+extern u32 XYZState;
+extern void checkMarioXYZMode(TMario *, bool);
+extern bool updateMarioXYZMode(TMario *);
 extern void updateFluddNozzle(TApplication *);
 
 extern void drawMonitor(TApplication *, const J2DOrthoGraph *);
@@ -141,8 +142,8 @@ extern void initLoadingScreen();
 extern void initAllSettings(TApplication *);
 
 extern void initUnlockedSettings(TApplication *);
-extern void updateUnlockedSettings(TMarDirector *);
 extern void checkForCompletionAwards(TApplication *);
+extern void updateUnlockedSettings(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
 extern "C" void __cxa_pure_virtual();
@@ -266,8 +267,8 @@ static void initLib() {
     Player::registerUpdateProcess("__update_yoshi_riding", forceValidRidingAnimation);
 
     // DEBUG
-    Debug::registerInitCallback("__init_debug_xyz", initMarioXYZMode);
-    Debug::registerUpdateCallback("__update_debug_xyz", updateMarioXYZMode);
+    Player::registerUpdateProcess("__check_for_xyz", checkMarioXYZMode);
+    Player::registerStateMachine(XYZState, updateMarioXYZMode);
     Debug::registerUpdateCallback("__update_fludd_nozzle", updateFluddNozzle);
 
     Debug::registerDrawCallback("__draw_memory_usage", drawMonitor);
@@ -294,10 +295,10 @@ static void initLib() {
     Stage::registerUpdateCallback("__update_fps", updateFPS);
 
     // SETTINGS
-    Game::registerOnBootCallback("__load_settings", initAllSettings);
-    Game::registerOnBootCallback("__init_setting_notifs", initUnlockedSettings);
-    Stage::registerUpdateCallback("__update_setting_notifs", updateUnlockedSettings);
+    Game::registerOnInitCallback("__load_settings", initAllSettings);
     Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
+    Game::registerOnBootCallback("__init_setting_notifs", initUnlockedSettings);
+    Game::registerOnLoopCallback("__update_setting_notifs", updateUnlockedSettings);
     Game::registerOnPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
 }
 

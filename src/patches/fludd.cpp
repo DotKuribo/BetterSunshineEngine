@@ -32,7 +32,7 @@ static void snapNozzleToReady() {
     TWaterGun *fludd;
     SMS_FROM_GPR(30, fludd);
 
-    if (fludd->mCurrentNozzle == TWaterGun::TNozzleType::Hover) {
+    if (BetterSMS::areBugsPatched() && fludd->mCurrentNozzle == TWaterGun::TNozzleType::Hover) {
         ((float *)(fludd))[0x1CEC / 4] = 0.0f;
     } else {
         ((float *)(fludd))[0x1CEC / 4] -= 0.1f;

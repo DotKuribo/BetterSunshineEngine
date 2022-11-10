@@ -34,8 +34,7 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "cmakeToolchain": "./Targets/GCNKuriboClangReleaseDeb.cmake",
-      "inheritEnvironments": [],
-      "variables": []
+      "inheritEnvironments": []
     }
   ]
 }

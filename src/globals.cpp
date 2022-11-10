@@ -15,12 +15,11 @@ void *BetterSMS::sPRMFile                                                  = nul
 BetterSMS::Collision::TWarpCollisionList *BetterSMS::sWarpColArray         = nullptr;
 BetterSMS::Collision::TWarpCollisionList *BetterSMS::sWarpColPreserveArray = nullptr;
 bool BetterSMS::sIsAudioStreaming                                          = false;
-bool BetterSMS::sIsAudioStreamAllowed                                      = false;
 
-#ifdef NDEBUG
+#if SMS_DEBUG
 bool BetterSMS::sIsDebugMode = true;
 #else
-bool BetterSMS::sIsDebugMode = true;
+bool BetterSMS::sIsDebugMode = false;
 #endif
 
 extern void initDebugCallbacks(TApplication *app);

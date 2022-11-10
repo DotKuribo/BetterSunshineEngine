@@ -87,7 +87,7 @@ static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
     x1 -= translate;
     x2 += translate;
 
-    rect->set(x1, y1, x2, y2);
+    rect->set(-getScreenRatioAdjustX(), y1, getScreenRenderWidth(), y2);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80296078, 0x8028DF10, 0, 0), scaleNintendoIntro);
 

@@ -383,6 +383,14 @@ bool Music::AudioStreamer::play_() {
         }
     }
 
+    
+    if (!BetterSMS::isMusicStreamingAllowed()) {
+        OSPanic(__FILE__, __LINE__,
+                "A music stream attempted to play, but music streaming is disabled! Set byte 8 of "
+                "boot.bin to 0x01 to enable music streaming.");
+        return false;
+    }
+
     _mIsPlaying = getCurrentAudio().exec(mAudioHandle);
     if (_mIsPlaying) {
         OSReport("%s: Playing new audio!\n", SMS_FUNC_SIG);

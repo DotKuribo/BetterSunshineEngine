@@ -59,9 +59,9 @@ static void *handleDebugCheat(void *GCLogoDir) {
         gDebugHandler.setInputList(gDebugModeCheatCode);
         gDebugHandler.setSuccessCallBack(&debugModeNotify);
 
-        auto *currentHeap               = JKRHeap::sSystemHeap->becomeCurrentHeap();
-        gDebugTextBoxW                  = new (JKRHeap::sRootHeap, 4) J2DTextBox(gpSystemFont->mFont, "Debug Mode");
-        gDebugTextBoxB                  = new (JKRHeap::sRootHeap, 4) J2DTextBox(gpSystemFont->mFont, "Debug Mode");
+        auto *currentHeap               = JKRHeap::sRootHeap->becomeCurrentHeap();
+        gDebugTextBoxW                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
+        gDebugTextBoxB                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
         gDebugTextBoxW->mGradientTop    = {255, 50, 50, 255};
         gDebugTextBoxW->mGradientBottom = {255, 50, 255, 255};
         gDebugTextBoxB->mGradientTop    = {0, 0, 0, 255};
@@ -87,54 +87,64 @@ static void isLevelSelectAvailable() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A6794, 0x8029E6EC, 0, 0), isLevelSelectAvailable);
 
-bool gInXYZMode = false;
+u32 XYZState = 0xF000FFFF;
+static bool sJustStartedXYZ = false;
+static bool sJustExitedXYZ  = false;
 
-void initMarioXYZMode(TApplication *app) { gInXYZMode = false; }
+void checkMarioXYZMode(TMario *player, bool isMario) {
+    constexpr u32 enterButton = TMarioGamePad::EButtons::DPAD_UP;
 
-// extern -> debug update callback
-void updateMarioXYZMode(TApplication *app) {
-    constexpr f32 baseSpeed = 83.0f;
-    constexpr u32 buttons   = TMarioGamePad::EButtons::DPAD_UP;
-
-    TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
-
-    if (!director || !BetterSMS::isDebugMode() ||
-        director->mCurState != TMarDirector::Status::STATE_NORMAL)
+    if (player->mState == XYZState)
         return;
 
-    const JUTGamePad::CStick &mainStick = gpMarioAddress->mController->mControlStick;
-    const f32 speedMultiplier = lerp<f32>(1, 2, gpMarioAddress->mController->mButtons.mAnalogR);
-
-    if (gpMarioAddress->mController->mButtons.mFrameInput & buttons && !gInXYZMode) {
-        gInXYZMode = true;
-    } else if (gpMarioAddress->mController->mButtons.mFrameInput & buttons && gInXYZMode) {
-        gInXYZMode = false;
-    }
-
-    if (gInXYZMode) {
-        const f32 cameraRotY = (f32)(gpCamera->mHorizontalAngle) / 182.0f;
-
-        Vec playerPos;
-        gpMarioAddress->JSGGetTranslation(&playerPos);
-
-        playerPos.x +=
-            ((-sinf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
-        playerPos.z +=
-            ((-cosf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
-        playerPos.x -= ((-sinf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
-                       mainStick.mStickX;
-        playerPos.z -= ((-cosf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
-                       mainStick.mStickX;
-
-        if (gpMarioAddress->mController->mButtons.mInput & TMarioGamePad::EButtons::B) {
-            playerPos.y -= (baseSpeed * speedMultiplier);
-        } else if (gpMarioAddress->mController->mButtons.mInput & TMarioGamePad::EButtons::A) {
-            playerPos.y += (baseSpeed * speedMultiplier);
+    if ((player->mController->mButtons.mFrameInput & enterButton) && BetterSMS::isDebugMode()) {
+        if (!sJustExitedXYZ) {
+            player->changePlayerStatus(XYZState, 0, false);
+            sJustStartedXYZ = true;
         }
-
-        gpMarioAddress->JSGSetTranslation(playerPos);
+    } else {
+        sJustExitedXYZ = false;
     }
-    return;
+}
+
+// extern -> debug update callback
+bool updateMarioXYZMode(TMario *player) {
+    constexpr f32 baseSpeed = 21.0f;
+    constexpr u32 exitButton   = TMarioGamePad::EButtons::DPAD_UP;
+
+    player->mSpeed.set(0.0f, 0.0f, 0.0f);
+    player->mForwardSpeed = 0.0f;
+
+    if ((player->mController->mButtons.mFrameInput & exitButton)) {
+        if (!sJustStartedXYZ) {
+            player->mState = TMario::STATE_FALL;
+            sJustExitedXYZ = true;
+            return true;
+        }
+    } else {
+        sJustStartedXYZ = false;
+    }
+
+    const JUTGamePad::CStick &mainStick = player->mController->mControlStick;
+    const f32 speedMultiplier           = lerp<f32>(1, 2, player->mController->mButtons.mAnalogR);
+
+    const f32 cameraRotY = (f32)(gpCamera->mHorizontalAngle) / 182.0f;
+
+    player->mPosition.x +=
+        ((-sinf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
+    player->mPosition.z +=
+        ((-cosf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
+    player->mPosition.x -= ((-sinf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
+                    mainStick.mStickX;
+    player->mPosition.z -= ((-cosf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
+                    mainStick.mStickX;
+
+    if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::B) {
+        player->mPosition.y -= (baseSpeed * speedMultiplier);
+    } else if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::A) {
+        player->mPosition.y += (baseSpeed * speedMultiplier);
+    }
+    return false;
 }
 
 enum DebugNozzleKind {
@@ -255,14 +265,12 @@ void updateFluddNozzle(TApplication *app) {
 // SMS_PATCH_BL(SMS_PORT_REGION(0x802B8DC8, 0x802B0D98, 0, 0), setEmitPrm);
 
 static u32 preventDebuggingDeath(TMario *player) {
-    extern bool gInXYZMode;
-    return gInXYZMode ? 0x224E0 : player->mState;  // Spoof non dying value
+    return player->mState == XYZState ? 0x224E0 : player->mState;  // Spoof non dying value
 };
-SMS_PATCH_BL(SMS_PORT_REGION(0x80243110, 0x8023AE9C, 0, 0), preventDebuggingDeath);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80243110, 0x8023AE9C, 0, 0), preventDebuggingDeath);
 
 static void preventDebuggingInteraction(TMario *player, JDrama::TGraphics *graphics) {
-    extern bool gInXYZMode;
-    if (!gInXYZMode)
+    if (player->mState != XYZState)
         player->playerControl(graphics);
     else {
         player->mForwardSpeed = 0.0f;
@@ -270,4 +278,4 @@ static void preventDebuggingInteraction(TMario *player, JDrama::TGraphics *graph
         player->mState        = static_cast<u32>(TMario::STATE_IDLE);
     }
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x8024512C, 0, 0), preventDebuggingInteraction);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x8024512C, 0, 0), preventDebuggingInteraction);
