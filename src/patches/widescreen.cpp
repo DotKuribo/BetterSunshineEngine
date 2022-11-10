@@ -581,8 +581,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosi
 
 static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;
-    x *= camera->mProjectionFovy / 50.0f;
-    x *= getScreenToFullScreenRatio();
+    const f32 fovtangent = tan(angleToRadians(camera->mProjectionFovy * 0.5f)) * 2.0;
+    x *= fovtangent * getScreenToFullScreenRatio();
+    y *= fovtangent;
     PSMTXScale(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801ea96c, 0x801E2844, 0, 0), scaleUnderWaterMask);
