@@ -1,4 +1,6 @@
 #include <Dolphin/OS.h>
+#include <Dolphin/math.h>
+
 #include <SMS/macros.h>
 
 #include "libs/warp.hxx"
@@ -541,6 +543,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT(iscntrl);
         KURIBO_EXPORT(isalpha);
         KURIBO_EXPORT(isalnum);
+
+        /* MATH */
+        KURIBO_EXPORT(sqrtf);
 
         /* STRLIB */
         KURIBO_EXPORT(reverse);
