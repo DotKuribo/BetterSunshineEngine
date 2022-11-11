@@ -101,23 +101,23 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B88, 0x802B0B58, 0, 0), 0xC8010AE0);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B94, 0x802B0B64, 0, 0), 0xEC001028);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 
-static void scaleFOVYPerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ)
+static void scaleFOVYIncreasePerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ)
 {
     CPolarSubCamera *cam = gpCamera;
-    reinterpret_cast<f32 *>(cam)[0x48 / 4] = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
+    cam->mProjectionFovy = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
     C_MTXPerspective(mtx, fovY, aspect, nearZ, farZ);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C,0x8002320C,0,0), scaleFOVYPerspectiveMatrix);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80025A04,0x800259E8,0,0), scaleFOVYPerspectiveMatrix);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C,0x80032D78,0,0), scaleFOVYPerspectiveMatrix);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80033088,0x80033074,0,0), scaleFOVYPerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C,0x8002320C,0,0), scaleFOVYIncreasePerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80025A04,0x800259E8,0,0), scaleFOVYIncreasePerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C,0x80032D78,0,0), scaleFOVYIncreasePerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80033088,0x80033074,0,0), scaleFOVYIncreasePerspectiveMatrix);
 
-static void scaleFOVYFix(CPolarSubCamera *cam)
+static void scaleFOVYDecrease(CPolarSubCamera *cam)
 {
-    reinterpret_cast<f32 *>(cam)[0x48 / 4] = getRecalculatedFovyAngleDec(cam->mProjectionFovy);
-    ctrlGameCamera___15CPolarSubCameraFv(cam);
+    cam->mProjectionFovy = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
+    cam->ctrlGameCamera();
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80023148,0x80023120,0,0), scaleFOVYFix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80023148,0x80023120,0,0), scaleFOVYDecrease);
 
 static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
     const f32 translate = getScreenRatioAdjustX();
