@@ -1,6 +1,6 @@
 
 #include <Dolphin/types.h>
-
+#include <Dolphin/math.h>
 #include <JSystem/JUtility/JUTRect.hxx>
 #include <JSystem/JUtility/JUTTexture.hxx>
 #include <SMS/G2D/ExPane.hxx>
@@ -57,6 +57,8 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80177008, 0x8016D174, 0, 0), 0xD03B0038);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x801771AC, 0x8016CFD0, 0, 0), 0xD03B0038);
 
+extern AspectRatioSetting gAspectRatioSetting;
+
 static f32 getScreenXRatio2() {
     const f32 ratio = getScreenToFullScreenRatio();
     return ratio + (ratio - 1.0f);
@@ -65,6 +67,24 @@ static f32 getScreenXRatio2() {
 static f32 getShineSelectXRatio() { return getScreenXRatio2() * 1.33333337307; }
 
 static f32 getCameraXRatio() { return getScreenXRatio2() * 0.913461446762f; }
+
+static f32 getScreenScale() { return gAspectRatioSetting.getInt() == AspectRatioSetting::FULLOPENMATTE: ? 0.75f : 1.0f; }
+
+static f32 getRecalculatedFovyInc(f32 fov) { 
+    return 2.0f * atanf(tanf(fov * 0.5f) / getScreenScale()); 
+}
+
+static f32 getRecalculatedFovyDec(f32 fov) { 
+    return 2.0f * atanf(tanf(fov * 0.5f) * getScreenScale()); 
+}
+
+static f32 getRecalculatedFovyAngleInc(f32 fov) { 
+    return radiansToAngle(getRecalculatedFovyInc(angleToRadians(fov))); 
+}
+
+static f32 getRecalculatedFovyAngleDec(f32 fov) { 
+    return radiansToAngle(getRecalculatedFovyDec(angleToRadians(fov))); 
+}
 
 // Shine Select Model Rot Width
 SMS_PATCH_BL(SMS_PORT_REGION(0x80176E58, 0x8016CE20, 0, 0), getShineSelectXRatio);
@@ -80,6 +100,24 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B7C, 0x802B0B4C, 0, 0), 0x3C60803E);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B88, 0x802B0B58, 0, 0), 0xC8010AE0);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B94, 0x802B0B64, 0, 0), 0xEC001028);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
+
+static void scaleFOVYIncreasePerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ)
+{
+    CPolarSubCamera *cam = gpCamera;
+    cam->mProjectionFovy = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
+    C_MTXPerspective(mtx, fovY, aspect, nearZ, farZ);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C,0x8002320C,0,0), scaleFOVYIncreasePerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80025A04,0x800259E8,0,0), scaleFOVYIncreasePerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C,0x80032D78,0,0), scaleFOVYIncreasePerspectiveMatrix);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80033088,0x80033074,0,0), scaleFOVYIncreasePerspectiveMatrix);
+
+static void scaleFOVYDecrease(CPolarSubCamera *cam)
+{
+    cam->mProjectionFovy = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
+    cam->ctrlGameCamera();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80023148,0x80023120,0,0), scaleFOVYDecrease);
 
 static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
     const f32 translate = getScreenRatioAdjustX();
@@ -581,8 +619,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosi
 
 static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;
-    x *= camera->mProjectionFovy / 50.0f;
-    x *= getScreenToFullScreenRatio();
+    const f32 fovtangent = tanf(angleToRadians(camera->mProjectionFovy * 0.5f)) * 2.0;
+    x *= fovtangent * getScreenToFullScreenRatio();
+    y *= fovtangent;
     PSMTXScale(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801ea96c, 0x801E2844, 0, 0), scaleUnderWaterMask);

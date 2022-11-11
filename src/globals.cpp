@@ -43,6 +43,8 @@ extern FPSSetting gFPSSetting;
 int BetterSMS::getScreenRenderWidth() {
     switch (gAspectRatioSetting.getInt()) {
     default:
+    case AspectRatioSetting::FULLOPENMATTE:
+        return 600;
     case AspectRatioSetting::FULL:
         return 600;
     case AspectRatioSetting::WIDE:
@@ -54,6 +56,8 @@ int BetterSMS::getScreenRenderWidth() {
 int BetterSMS::getScreenOrthoWidth() {
     switch (gAspectRatioSetting.getInt()) {
     default:
+    case AspectRatioSetting::FULLOPENMATTE:
+        return 640;
     case AspectRatioSetting::FULL:
         return 640;
     case AspectRatioSetting::WIDE:
