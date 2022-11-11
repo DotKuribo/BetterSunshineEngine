@@ -825,7 +825,7 @@ public:
     enum Kind { FULLOPENMATTE, FULL, WIDE, ULTRAWIDE };
 
     AspectRatioSetting(const char *name) : IntSetting(name, &AspectRatioSetting::sAspectRatioValue) {
-        mValueRange     = {0, 2, 1, 1};
+        mValueRange     = {0, 3, 1};
     }
     ~AspectRatioSetting() override {}
 
