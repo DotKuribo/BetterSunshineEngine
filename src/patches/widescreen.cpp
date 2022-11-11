@@ -104,7 +104,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 static void scaleFOVYPerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ)
 {
     CPolarSubCamera *cam = gpCamera;
-    reinterpret_cast<f32 *>(cam)[0x48 / 4] = getRecalculatedFovyAngleInc(fovY);
+    reinterpret_cast<f32 *>(cam)[0x48 / 4] = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
     C_MTXPerspective(mtx, fovY, aspect, nearZ, farZ);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C,0x8002320C,0,0), scaleFOVYPerspectiveMatrix);
@@ -114,8 +114,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80033088,0x80033074,0,0), scaleFOVYPerspectiveMat
 
 static void scaleFOVYFix(CPolarSubCamera *cam)
 {
-    f32 fovY = reinterpret_cast<f32 *>(cam)[0x48 / 4];
-    reinterpret_cast<f32 *>(cam)[0x48 / 4] = getRecalculatedFovyAngleDec(fovY);
+    reinterpret_cast<f32 *>(cam)[0x48 / 4] = getRecalculatedFovyAngleDec(cam->mProjectionFovy);
     ctrlGameCamera___15CPolarSubCameraFv(cam);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80023148,0x80023120,0,0), scaleFOVYFix);
