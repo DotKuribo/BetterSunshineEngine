@@ -113,7 +113,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C, 0x80032D78, 0, 0), scaleFOVYIncreasePer
 SMS_PATCH_BL(SMS_PORT_REGION(0x80033088, 0x80033074, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
 
 static void scaleFOVYDecrease(CPolarSubCamera *cam) {
-    cam->mProjectionFovy = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
+    cam->mProjectionFovy = getRecalculatedFovyAngleDec(cam->mProjectionFovy);
     cam->ctrlGameCamera_();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80023148,0x80023120,0,0), scaleFOVYDecrease);
