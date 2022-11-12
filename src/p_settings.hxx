@@ -822,7 +822,7 @@ private:
 
 class AspectRatioSetting final : public Settings::IntSetting {
 public:
-    enum Kind { FULLOPENMATTE, FULL, WIDE, ULTRAWIDE };
+    enum Kind { FULL, FULLOPENMATTE, WIDE, ULTRAWIDE };
 
     AspectRatioSetting(const char *name) : IntSetting(name, &AspectRatioSetting::sAspectRatioValue) {
         mValueRange     = {0, 3, 1};
@@ -832,11 +832,11 @@ public:
     void getValueStr(char *dst) const override {
         switch (getInt()) {
         default:
-        case Kind::FULLOPENMATTE:
-            strncpy(dst, "4:3 (Open Matte)", 17);
-            break;
         case Kind::FULL:
             strncpy(dst, "4:3", 4);
+            break;
+        case Kind::FULLOPENMATTE:
+            strncpy(dst, "4:3 (Open Matte)", 17);
             break;
         case Kind::WIDE:
             strncpy(dst, "16:9", 5);
