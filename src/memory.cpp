@@ -57,11 +57,8 @@ SMS_NO_INLINE void BetterSMS::Memory::free(const void *ptr) { delete (u8 *)ptr; 
 SMS_NO_INLINE u32 *BetterSMS::PowerPC::getBranchDest(u32 *bAddr) {
     s32 offset;
     u32 instr = *bAddr;
-
-    if (instr & 0x2000000)
-        offset = (instr & 0x3FFFFFD) - 0x4000000;
-    else
-        offset = instr & 0x3FFFFFD;
+    
+    offset = (instr & 0x3FFFFFD) - ((instr & 0x2000000) << 1);
     return static_cast<u32 *>(bAddr + (offset / 4));
 }
 
