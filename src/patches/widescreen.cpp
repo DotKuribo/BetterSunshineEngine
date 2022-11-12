@@ -71,20 +71,8 @@ static f32 getCameraXRatio() { return getScreenXRatio2() * 0.913461446762f; }
 
 static f32 getScreenScale() { return gAspectRatioSetting.getInt() == AspectRatioSetting::FULLOPENMATTE ? 0.75f : 1.0f; }
 
-static f32 getRecalculatedFovyInc(f32 fov) { 
-    return 2.0f * atanf(tanf(fov * 0.5f) / getScreenScale()); 
-}
-
-static f32 getRecalculatedFovyDec(f32 fov) { 
-    return 2.0f * atanf(tanf(fov * 0.5f) * getScreenScale()); 
-}
-
-static f32 getRecalculatedFovyAngleInc(f32 fov) { 
-    return radiansToAngle(getRecalculatedFovyInc(angleToRadians(fov))); 
-}
-
-static f32 getRecalculatedFovyAngleDec(f32 fov) { 
-    return radiansToAngle(getRecalculatedFovyDec(angleToRadians(fov))); 
+static f32 getRecalculatedFovy(f32 fov, f32 zoom) { 
+    return radiansToAngle(2.0f * atanf(tanf(angleToRadians(fov * 0.5f)) / zoom)); 
 }
 
 // Shine Select Model Rot Width
@@ -104,7 +92,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 
 static void scaleFOVYIncreasePerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ) {
     CPolarSubCamera *cam = gpCamera;
-    cam->mProjectionFovy = getRecalculatedFovyAngleInc(cam->mProjectionFovy);
+    cam->mProjectionFovy = getRecalculatedFovy(cam->mProjectionFovy, getScreenScale());
     C_MTXPerspective(mtx, cam->mProjectionFovy, aspect, nearZ, farZ);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C, 0x8002320C, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
@@ -113,7 +101,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C, 0x80032D78, 0, 0), scaleFOVYIncreasePer
 SMS_PATCH_BL(SMS_PORT_REGION(0x80033088, 0x80033074, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
 
 static void scaleFOVYDecrease(CPolarSubCamera *cam) {
-    cam->mProjectionFovy = getRecalculatedFovyAngleDec(cam->mProjectionFovy);
+    cam->mProjectionFovy = getRecalculatedFovy(cam->mProjectionFovy, 1.0f / getScreenScale());
     cam->ctrlGameCamera_();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80023148,0x80023120,0,0), scaleFOVYDecrease);
