@@ -5,6 +5,10 @@
 
 constexpr f32 angleToRadians(f32 a) { return (static_cast<f32>(M_PI) / 180.0f) * a; }
 constexpr f64 angleToRadians(f64 a) { return (M_PI / 180.0) * a; }
+constexpr f32 halfAngleToRadians(f32 a) { return (static_cast<f32>(M_PI) / 360.0f) * a; }
+constexpr f64 halfAngleToRadians(f64 a) { return (M_PI / 360.0) * a; }
+constexpr f32 halfRadiansToAngle(f32 r) { return (360.0f / static_cast<f32>(M_PI)) * r; }
+constexpr f64 halfRadiansToAngle(f64 r) { return (360.0 / M_PI) * r; }
 constexpr f32 radiansToAngle(f32 r) { return (180.0f / static_cast<f32>(M_PI)) * r; }
 constexpr f64 radiansToAngle(f64 r) { return (180.0 / M_PI) * r; }
 
