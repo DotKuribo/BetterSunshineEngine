@@ -69,12 +69,6 @@ static f32 getShineSelectXRatio() { return getScreenXRatio2() * 1.33333337307; }
 
 static f32 getCameraXRatio() { return getScreenXRatio2() * 0.913461446762f; }
 
-static f32 getScreenScale() { return gAspectRatioSetting.getInt() == AspectRatioSetting::FULLOPENMATTE ? 0.75f : 1.0f; }
-
-static f32 getCalculatedFovy(f32 fov, f32 zoom) { 
-    return radiansToAngle(2.0f * atanf(tanf(angleToRadians(fov * 0.5f)) * zoom)); 
-}
-
 // Shine Select Model Rot Width
 SMS_PATCH_BL(SMS_PORT_REGION(0x80176E58, 0x8016CE20, 0, 0), getShineSelectXRatio);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176E5C, 0x8016CE24, 0, 0), 0xD03B004C);
