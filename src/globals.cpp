@@ -50,7 +50,7 @@ int BetterSMS::getScreenRenderWidth() {
     case AspectRatioSetting::WIDE:
         return 700;
     case AspectRatioSetting::ULTRAWIDE:
-        return 1050;
+        return 833;
     }
 }
 int BetterSMS::getScreenOrthoWidth() {
@@ -63,7 +63,7 @@ int BetterSMS::getScreenOrthoWidth() {
     case AspectRatioSetting::WIDE:
         return 853;
     case AspectRatioSetting::ULTRAWIDE:
-        return 1120;
+        return 1137;
     }
 }
 
