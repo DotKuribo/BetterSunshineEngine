@@ -69,6 +69,7 @@ int BetterSMS::getScreenOrthoWidth() {
 
 f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenRenderWidth()) / 600.0f; }
 f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
+f32 BetterSMS::getScreenScale() { return gAspectRatioSetting.getInt() == AspectRatioSetting::FULLOPENMATTE ? 0.75f : 1.0f; }
 f32 BetterSMS::getCalculatedFovy(f32 fov, f32 zoom) { return halfRadiansToAngle(atanf(tanf(angleToHalfRadians(fov)) * zoom)); }
 
 f32 BetterSMS::getFrameRate() {
