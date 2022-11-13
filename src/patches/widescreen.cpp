@@ -58,8 +58,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80177008, 0x8016D174, 0, 0), 0xD03B0038);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x801771AC, 0x8016CFD0, 0, 0), 0xD03B0038);
 
-extern AspectRatioSetting gAspectRatioSetting;
-
 static f32 getScreenXRatio2() {
     const f32 ratio = getScreenToFullScreenRatio();
     return ratio + (ratio - 1.0f);
