@@ -71,13 +71,8 @@ f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenR
 f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
 
 f32 BetterSMS::getFrameRate() {
-    switch (gFPSSetting.getInt()) {
-    default:
-    case FPSSetting::FPS_30:
-        return SMS_PORT_REGION(30.0f, 25.0f, 30.0f, 30.0f);
-    case FPSSetting::FPS_60:
-        return SMS_PORT_REGION(60.0f, 50.0f, 60.0f, 60.0f);
-    case FPSSetting::FPS_120:
-        return SMS_PORT_REGION(120.0f, 100.0f, 120.0f, 120.0f);
+    const f32 FPS = static_cast<f32>(30 << gFPSSetting.getInt());
+
+    return SMS_PORT_REGION(FPS, FPS / 1.2, FPS, FPS);
     }
 }
