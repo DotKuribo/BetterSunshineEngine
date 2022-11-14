@@ -44,10 +44,11 @@ namespace BetterSMS {
 
         #pragma region SettingImplementation
 
+        template <typename T>
         struct ValueRange {
-            f32 mStart;
-            f32 mStop;
-            f32 mStep;
+            T mStart;
+            T mStop;
+            T mStep;
         };
 
         class SingleSetting {
@@ -58,7 +59,7 @@ namespace BetterSMS {
         public:
             SingleSetting() = delete;
             SingleSetting(const char *name, void *valuePtr)
-                : mName(name), mValuePtr(valuePtr), mValueRange(), mIsUserEditable(true),
+                : mName(name), mValuePtr(valuePtr), mIsUserEditable(true),
                   mEditPriority(Priority::MODE) {
                 mValueChangedCB = nullptr;
             }
@@ -120,19 +121,13 @@ namespace BetterSMS {
                 *reinterpret_cast<float *>(mValuePtr) = lc;
             }
 
-            bool isRangeSingular() const {
-                return mValueRange.mStart == mValueRange.mStop && getKind() != ValueKind::BOOL;
-            }
-
-            const ValueRange &getValueRange() const { return mValueRange; }
-            void setValueRange(const ValueRange &range) { mValueRange = range; }
+            void setValueChangedCB(ValueChangedCallback cb) { mValueChangedCB = cb; }
 
         protected:
             const char *mName;
             void *mValuePtr;
             bool mIsUserEditable;
             Priority mEditPriority;
-            ValueRange mValueRange;
             ValueChangedCallback mValueChangedCB;
         };
 
@@ -179,7 +174,8 @@ namespace BetterSMS {
         class IntSetting : public SingleSetting {
         public:
             IntSetting() = delete;
-            IntSetting(const char *name, void *valuePtr) : SingleSetting(name, valuePtr) {}
+            IntSetting(const char *name, void *valuePtr)
+                : SingleSetting(name, valuePtr), mValueRange() {}
             ~IntSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::INT; }
@@ -200,6 +196,9 @@ namespace BetterSMS {
             }
             void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 4); }
 
+            const ValueRange<int> &getValueRange() const { return mValueRange; }
+            void setValueRange(const ValueRange<int> &range) { mValueRange = range; }
+
         private:
             int clampValueToRange(int x) const {
                 if (x > mValueRange.mStop) {
@@ -211,12 +210,15 @@ namespace BetterSMS {
                     x = mValueRange.mStart;
                 return x;
             }
+
+            ValueRange<int> mValueRange;
         };
 
         class FloatSetting : public SingleSetting {
         public:
             FloatSetting() = delete;
-            FloatSetting(const char *name, void *valuePtr) : SingleSetting(name, valuePtr) {}
+            FloatSetting(const char *name, void *valuePtr)
+                : SingleSetting(name, valuePtr), mValueRange() {}
             ~FloatSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::FLOAT; }
@@ -237,6 +239,9 @@ namespace BetterSMS {
             }
             void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 4); }
 
+            const ValueRange<f32> &getValueRange() const { return mValueRange; }
+            void setValueRange(const ValueRange<f32> &range) { mValueRange = range; }
+
         private:
             f32 clampValueToRange(f32 x) const {
                 if (x > mValueRange.mStop) {
@@ -248,6 +253,8 @@ namespace BetterSMS {
                     x = mValueRange.mStart;
                 return x;
             }
+
+            ValueRange<f32> mValueRange;
         };
 
         struct SettingsSaveInfo {
