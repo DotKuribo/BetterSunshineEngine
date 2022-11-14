@@ -199,6 +199,9 @@ namespace BetterSMS {
             const ValueRange<int> &getValueRange() const { return mValueRange; }
             void setValueRange(const ValueRange<int> &range) { mValueRange = range; }
 
+        protected:
+            ValueRange<int> mValueRange;
+
         private:
             int clampValueToRange(int x) const {
                 if (x > mValueRange.mStop) {
@@ -210,8 +213,6 @@ namespace BetterSMS {
                     x = mValueRange.mStart;
                 return x;
             }
-
-            ValueRange<int> mValueRange;
         };
 
         class FloatSetting : public SingleSetting {
@@ -242,19 +243,20 @@ namespace BetterSMS {
             const ValueRange<f32> &getValueRange() const { return mValueRange; }
             void setValueRange(const ValueRange<f32> &range) { mValueRange = range; }
 
+        protected:
+            ValueRange<f32> mValueRange;
+
         private:
-            f32 clampValueToRange(f32 x) const {
+            int clampValueToRange(int x) const {
                 if (x > mValueRange.mStop) {
-                    x = mValueRange.mStart + (x - mValueRange.mStop);
+                    x = mValueRange.mStart + (x - mValueRange.mStop - 1);
                 } else if (x < mValueRange.mStart) {
-                    x = mValueRange.mStop + (x - mValueRange.mStart);
+                    x = mValueRange.mStop + (x - mValueRange.mStart + 1);
                 }
                 if (x < mValueRange.mStart && x > mValueRange.mStop)
                     x = mValueRange.mStart;
                 return x;
             }
-
-            ValueRange<f32> mValueRange;
         };
 
         struct SettingsSaveInfo {

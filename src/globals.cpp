@@ -74,5 +74,4 @@ f32 BetterSMS::getFrameRate() {
     const f32 FPS = static_cast<f32>(30 << gFPSSetting.getInt());
 
     return SMS_PORT_REGION(FPS, FPS / 1.2, FPS, FPS);
-    }
 }

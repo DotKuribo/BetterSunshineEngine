@@ -881,9 +881,7 @@ private:
 
 class BugsSetting final : public Settings::SwitchSetting {
 public:
-    BugsSetting(const char *name) : SwitchSetting(name, &BugsSetting::sBugsValue) {
-        mValueRange = {0, 1, 1};
-    }
+    BugsSetting(const char *name) : SwitchSetting(name, &BugsSetting::sBugsValue) {}
     ~BugsSetting() override {}
 
     bool isUnlocked() const override { return sIsUnlocked; }
