@@ -4,6 +4,7 @@
 #include <SMS/System/Application.hxx>
 #include <SMS/macros.h>
 
+#include "libs/constmath.hxx"
 #include "libs/warp.hxx"
 #include "p_globals.hxx"
 #include "module.hxx"
