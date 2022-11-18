@@ -670,7 +670,7 @@ static void initSoundBank(u8 areaID, u8 episodeID) {
     setMSoundEnterStage__10MSMainProcFUcUc(areaID, episodeID);
     Console::debugLog("Initializing the sound bank... DONE!\n");
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
 
 constexpr f32 PauseFadeSpeed = 0.2f;
 
