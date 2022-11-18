@@ -596,21 +596,19 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosi
 //}
 //SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
 
-static void scaleShimmerBox(Mtx mtx, f32 x, f32 y, f32 z) {
+static void scale3DScreenPlane(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;
-    const f32 fovtangent = tanf(angleToRadians(camera->mProjectionFovy * 0.5f)) * 2.1445069205095586163562607910459;
-    x *= fovtangent * getScreenToFullScreenRatio();
-    y *= fovtangent;
-    PSMTXScale(mtx, x, y, z);
+    const f32 fovtangent = tanf(angleToRadians(camera->mProjectionFovy * 0.5f)) * (1.0f / tanf(25f));
+    PSMTXScale(mtx, x * fovtangent * getScreenToFullScreenRatio(), y * fovtangent, z);
+}
+
+static void scaleShimmerBox(Mtx mtx, f32 x, f32 y, f32 z) {
+    scale3DScreenPlane(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8019FA00, 0x801978D8, 0, 0), scaleShimmerBox);
 
 static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
-    CPolarSubCamera *camera = gpCamera;
-    const f32 fovtangent = tanf(angleToRadians(camera->mProjectionFovy * 0.5f)) * 2.1445069205095586163562607910459;
-    x *= fovtangent * getScreenToFullScreenRatio();
-    y *= fovtangent;
-    PSMTXScale(mtx, x, y, z);
+    scale3DScreenPlane(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801EA96C, 0x801E2844, 0, 0), scaleUnderWaterMask);
 
