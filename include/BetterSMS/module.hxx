@@ -166,6 +166,6 @@ namespace BetterSMS {
     f32 getScreenToFullScreenRatio();
     f32 getScreenRatioAdjustX();
     f32 getScreenScale();
-    f32 getCalculatedFovy(float, float);
+    f32 getCalculatedFovy(f32, f32);
     f32 getFrameRate();
 }  // namespace BetterSMS
