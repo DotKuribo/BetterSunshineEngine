@@ -35,6 +35,7 @@
 #include "module.hxx"
 #include "icons.hxx"
 
+#include "p_module.hxx"
 #include "p_settings.hxx"
 
 bool RumbleSetting::sRumbleFlag           = true;
@@ -47,37 +48,35 @@ bool BugsSetting::sBugsValue              = true;
 
 using namespace BetterSMS;
 
-static TDictS<Settings::SettingsGroup *> sSettingsGroups;
-
 // PRIVATE
 
-void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out) {
-    TDictS<Settings::SettingsGroup *>::ItemList temp;
-    TDictS<Settings::SettingsGroup *>::ItemList tempCore;
-    TDictS<Settings::SettingsGroup *>::ItemList tempGame;
-    TDictS<Settings::SettingsGroup *>::ItemList tempMode;
-    sSettingsGroups.items(temp);
+void getSettingsGroups(JGadget::TList<Settings::SettingsGroup *> &out) {
+    TDictS<const BetterSMS::ModuleInfo *>::ItemList temp;
+    gModuleInfos.items(temp);
+
+    JGadget::TList<Settings::SettingsGroup *> tempCore;
+    JGadget::TList<Settings::SettingsGroup *> tempGame;
+    JGadget::TList<Settings::SettingsGroup *> tempMode;
 
     for (auto &item : temp) {
-        /*OSReport("[ITEM] %s\n", item.mValue->getName());*/
-
+        Settings::SettingsGroup *group = item.mValue->mSettings;
         if (strcmp(item.mKey, "Super Mario Sunshine") == 0) {
-            tempCore.insert(tempCore.begin(), item);
+            tempCore.insert(tempCore.begin(), group);
             continue;
         } else if (strcmp(item.mKey, "Better Sunshine Engine") == 0) {
-            tempCore.insert(tempCore.begin(), item);
+            tempCore.insert(tempCore.begin(), group);
             continue;
         }
 
-        switch (item.mValue->getPriority()) {
+        switch (group->getPriority()) {
         case Settings::Priority::CORE:
-            tempCore.insert(tempCore.end(), item);
+            tempCore.insert(tempCore.end(), group);
             break;
         case Settings::Priority::GAME:
-            tempGame.insert(tempGame.end(), item);
+            tempGame.insert(tempGame.end(), group);
             break;
         case Settings::Priority::MODE:
-            tempMode.insert(tempMode.end(), item);
+            tempMode.insert(tempMode.end(), group);
             break;
         }
     }
@@ -108,30 +107,30 @@ void initAllSettings(TApplication *app) {
 
     CARDFileInfo finfo;
 
-    TDictS<Settings::SettingsGroup *>::ItemList groups;
+    JGadget::TList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        if (group.mValue->getPriority() == Settings::Priority::CORE &&
-            strcmp(group.mValue->getName(), "Super Mario Sunshine") == 0) {
+        if (group->getPriority() == Settings::Priority::CORE &&
+            strcmp(group->getName(), "Super Mario Sunshine") == 0) {
             continue;
         }
 
         size_t saveDataStartData = 0;
-        int ret                  = OpenSavedSettings(*group.mValue, cardChannel, finfo);
+        int ret                  = OpenSavedSettings(*group, cardChannel, finfo);
         if (ret < CARD_ERROR_READY) {
-            CloseSavedSettings(*group.mValue, &finfo);
+            CloseSavedSettings(*group, &finfo);
             return;
         }
 
-        ReadSavedSettings(*group.mValue, &finfo);
-        CloseSavedSettings(*group.mValue, &finfo);
+        ReadSavedSettings(*group, &finfo);
+        CloseSavedSettings(*group, &finfo);
     }
 
     for (auto &group : groups) {
-        for (auto &setting : group.mValue->getSettings()) {
+        for (auto &setting : group->getSettings()) {
             if (setting->isUnlocked()) {
-                group.mValue->mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
+                group->mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
             }
         }
     }
@@ -140,33 +139,6 @@ void initAllSettings(TApplication *app) {
 //
 
 // PUBLIC
-
-Settings::SettingsGroup *BetterSMS::Settings::getGroup(const char *name) {
-    return sSettingsGroups.get(name);
-}
-
-bool BetterSMS::Settings::isGroupRegistered(const char *name) {
-    return sSettingsGroups.hasKey(name);
-}
-
-bool BetterSMS::Settings::registerGroup(const char *name, Settings::SettingsGroup *group) {
-    if (sSettingsGroups.hasKey(name)) {
-        OSPanic(__FILE__, __LINE__,
-                "Settings group \"%s\" is trying to register under the key \"%s\", which is "
-                "already taken!",
-                group->getName(), name);
-        return false;
-    }
-    sSettingsGroups.set(name, group);
-    return true;
-}
-
-bool BetterSMS::Settings::deregisterGroup(const char *name) {
-    if (!sSettingsGroups.hasKey(name))
-        return false;
-    sSettingsGroups.pop(name);
-    return true;
-}
 
 /****************************************************************************
  * MountCard
@@ -621,11 +593,11 @@ void SettingsDirector::initializeSettingsLayout() {
     }
 
     int i = 0;
-    TDictS<Settings::SettingsGroup *>::ItemList settingsGroups;
+    JGadget::TList<Settings::SettingsGroup *> settingsGroups;
     getSettingsGroups(settingsGroups);
 
     for (auto &group : settingsGroups) {
-        auto *groupName = group.mValue->getName();
+        auto *groupName = group->getName();
 
         J2DPane *groupPane =
             new J2DPane(19, ('p' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
@@ -657,11 +629,11 @@ void SettingsDirector::initializeSettingsLayout() {
 
         auto *groupInfo          = new GroupInfo();
         groupInfo->mGroupPane    = groupPane;
-        groupInfo->mSettingGroup = group.mValue;
+        groupInfo->mSettingGroup = group;
 
         int n = 0;
         auto settingList = new JGadget::TList<SettingInfo *>();
-        for (auto &setting : group.mValue->getSettings()) {
+        for (auto &setting : group->getSettings()) {
             if (!setting->isUnlocked())
                 continue;
 
@@ -866,25 +838,25 @@ void SettingsDirector::saveSettings_() {
 
     CARDFileInfo finfo;
 
-    JGadget::TList<TDictS<BetterSMS::Settings::SettingsGroup *>::Item> groups;
+    JGadget::TList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        if (group.mValue->getPriority() == Settings::Priority::CORE &&
-            strcmp(group.mValue->getName(), "Super Mario Sunshine") == 0) {
+        if (group->getPriority() == Settings::Priority::CORE &&
+            strcmp(group->getName(), "Super Mario Sunshine") == 0) {
             continue;
         }
 
         size_t saveDataStartData = 0;
-        int ret = OpenSavedSettings(*group.mValue, cardChannel, finfo);
+        int ret = OpenSavedSettings(*group, cardChannel, finfo);
         if (ret < CARD_ERROR_READY) {
-            CloseSavedSettings(*group.mValue, &finfo);
+            CloseSavedSettings(*group, &finfo);
             failSave(ret);
             return;
         }
 
-        UpdateSavedSettings(*group.mValue, &finfo);
-        CloseSavedSettings(*group.mValue, &finfo);
+        UpdateSavedSettings(*group, &finfo);
+        CloseSavedSettings(*group, &finfo);
     }
 
     mState = State::SAVE_SUCCESS;
@@ -976,16 +948,16 @@ void initUnlockedSettings(TApplication *app) {
 }
 
 void updateUnlockedSettings(TApplication *app) {
-    TDictS<Settings::SettingsGroup *>::ItemList groups;
+    JGadget::TList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
         JGadget::TList<Settings::SingleSetting *> unlockedSettings;
-        group.mValue->checkForUnlockedSettings(unlockedSettings);
+        group->checkForUnlockedSettings(unlockedSettings);
 
         for (auto &setting : unlockedSettings) {
             char *notifText = new char[100];
-            snprintf(notifText, 100, "%s\n\nUnlocked the \"%s\" setting!", group.mValue->getName(), setting->getName());
+            snprintf(notifText, 100, "%s\n\nUnlocked the \"%s\" setting!", group->getName(), setting->getName());
 
             sUnlockedSettings.insert(sUnlockedSettings.end(), notifText);
             if (sUnlockedSettings.size() == 1) {

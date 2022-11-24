@@ -7,6 +7,8 @@
 #include <Dolphin/types.h>
 #include <sdk.h>
 
+#include "settings.hxx"
+
 #define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
 #define BETTER_SMS_AUTHOR_NAME "JoshuaMK"
 
@@ -154,12 +156,25 @@
 #endif
 
 namespace BetterSMS {
+    struct ModuleInfo {
+        const char *mName;
+        u16 mVersionMajor;
+        u16 mVersionMinor;
+        Settings::SettingsGroup *mSettings;
+    };
+
     bool isGameEmulated();
     bool isMusicBeingStreamed();
     bool isMusicStreamingAllowed();
 
     bool isDebugMode();
     void setDebugMode(bool);
+
+    const ModuleInfo *getModuleInfo(const char *key);
+
+    bool isModuleRegistered(const char *key);
+    bool registerModule(const char *key, const ModuleInfo *info);
+    bool deregisterModule(const char *key);
 
     int getScreenRenderWidth();
     int getScreenOrthoWidth();

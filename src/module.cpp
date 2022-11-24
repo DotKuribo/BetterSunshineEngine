@@ -20,10 +20,12 @@
 #include "object.hxx"
 #include "objects/generic.hxx"
 #include "player.hxx"
+#include "p_module.hxx"
 #include "p_settings.hxx"
 #include "settings.hxx"
 #include "stage.hxx"
 #include "time.hxx"
+
 
 // SETTINGS //
 
@@ -33,6 +35,8 @@ RumbleSetting gRumbleSetting("Controller Rumble");
 SoundSetting gSoundSetting("Sound Mode");
 SubtitleSetting gSubtitleSetting("Movie Subtitles");
 //
+
+static BetterSMS::ModuleInfo sSunshineInfo{"Super Mario Sunshine", 1, 0, &sBaseSettingsGroup};
 
 // BetterSMS settings
 static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine", 1, 0,
@@ -47,7 +51,32 @@ static bool sCameraInvertX;
 static bool sCameraInvertY;
 Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX);
 Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY);
+
+static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 0, &sSettingsGroup};
 //
+
+TDictS<const ModuleInfo *> gModuleInfos;
+
+const ModuleInfo *BetterSMS::getModuleInfo(const char *key) { return gModuleInfos.get(key); }
+
+bool BetterSMS::isModuleRegistered(const char *key) { return gModuleInfos.hasKey(key); }
+bool BetterSMS::registerModule(const char *key, const ModuleInfo *info) {
+    if (gModuleInfos.hasKey(key)) {
+        OSPanic(__FILE__, __LINE__,
+                "Module \"%s\" is trying to register under the key \"%s\", which is "
+                "already taken!",
+                info->mName, key);
+        return false;
+    }
+    gModuleInfos.set(key, info);
+    return true;
+}
+bool BetterSMS::deregisterModule(const char *key) {
+    if (!gModuleInfos.hasKey(key))
+        return false;
+    gModuleInfos.pop(key);
+    return true;
+}
 
 // mario.cpp
 extern "C" s16 mario_shadowCrashPatch();
@@ -190,7 +219,7 @@ static void initLib() {
     sBaseSettingsGroup.addSetting(&gRumbleSetting);
     sBaseSettingsGroup.addSetting(&gSoundSetting);
     sBaseSettingsGroup.addSetting(&gSubtitleSetting);
-    Settings::registerGroup("Super Mario Sunshine", &sBaseSettingsGroup);
+    BetterSMS::registerModule("Super Mario Sunshine", &sSunshineInfo);
 
     sSettingsGroup.addSetting(&gBugFixesSetting);
     sSettingsGroup.addSetting(&gAspectRatioSetting);
@@ -212,7 +241,7 @@ static void initLib() {
         saveInfo.mIconTable   = GetResourceTextureHeader(gSaveIcon);
         saveInfo.mSaveGlobal  = true;
     }
-    Settings::registerGroup("Better Sunshine Engine", &sSettingsGroup);
+    BetterSMS::registerModule("Better Sunshine Engine", &sBetterSMSInfo);
 
     //
 
@@ -428,12 +457,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::getAudioStreamer, "getAudioStreamer__Q29BetterSMS5MusicFv");
 
         /* SETTINGS */
-        KURIBO_EXPORT_AS(BetterSMS::Settings::getGroup, "getGroup__Q29BetterSMS8SettingsFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::isGroupRegistered,
-                         "isGroupRegistered__Q29BetterSMS8SettingsFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::registerGroup, "registerGroup__Q29BetterSMS8SettingsFPCcPQ39BetterSMS8Settings13SettingsGroup");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::deregisterGroup,
-                         "deregisterGroup__Q29BetterSMS8SettingsFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCcPQ29BetterSMS10ModuleInfo");
+        KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCc");
 
     /* OBJECTS */
     #if BETTER_SMS_EXTRA_OBJECTS

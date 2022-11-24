@@ -36,12 +36,6 @@ namespace BetterSMS {
 
         class SettingsGroup;
 
-        SettingsGroup *getGroup(const char *name);
-
-        bool isGroupRegistered(const char *name);
-        bool registerGroup(const char *name, SettingsGroup *group);
-        bool deregisterGroup(const char *name);
-
         #pragma region SettingImplementation
 
         template <typename T>
