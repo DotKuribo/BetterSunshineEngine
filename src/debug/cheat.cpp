@@ -99,7 +99,8 @@ void checkMarioXYZMode(TMario *player, bool isMario) {
 
     if ((player->mController->mButtons.mFrameInput & enterButton) && BetterSMS::isDebugMode()) {
         if (!sJustExitedXYZ) {
-            player->changePlayerStatus(XYZState, 0, false);
+            player->mPrevState = player->mState;
+            player->mState = XYZState;
             sJustStartedXYZ = true;
         }
     } else {
