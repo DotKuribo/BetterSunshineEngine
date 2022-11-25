@@ -456,10 +456,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFff");
         KURIBO_EXPORT_AS(BetterSMS::Music::getAudioStreamer, "getAudioStreamer__Q29BetterSMS5MusicFv");
 
-        /* SETTINGS */
+        /* MODULE */
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCcPQ29BetterSMS10ModuleInfo");
+        KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCcPCQ29BetterSMS10ModuleInfo");
         KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCc");
 
     /* OBJECTS */
