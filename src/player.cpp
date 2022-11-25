@@ -193,7 +193,7 @@ SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player,
     auto playerData = Player::getData(player);
 
     TVec3f triCenter;
-    TVectorTriangle vectorTri(colTriangle->mVertexA, colTriangle->mVertexB, colTriangle->mVertexC);
+    TVectorTriangle vectorTri(colTriangle->mVertices[0], colTriangle->mVertices[1], colTriangle->mVertices[2]);
     vectorTri.center(triCenter);
 
     TVec3f triFluidCenter = triCenter;
@@ -203,7 +203,7 @@ SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player,
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
     (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
 
-    const u16 type = colTriangle->mCollisionType & 0x7FFF;
+    const u16 type = colTriangle->mType & 0x7FFF;
     switch (type) {
     case EXPAND_WARP_SET(16040):
     case EXPAND_WARP_SET(17040): {
@@ -867,7 +867,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802500B8, 0, 0, 0), stateMachineHandler);
 static u32 collisionHandler(TMario *player) {
     auto *playerData = Player::getData(player);
 
-    const u16 colType = player->mFloorTriangle->mCollisionType & 0xFFF;
+    const u16 colType = player->mFloorTriangle->mType & 0xFFF;
     const u16 prevColType = playerData->mPrevCollisionType & 0xFFF;
 
     TDictI<Player::CollisionProcess>::ItemList playerCollisionCBs;

@@ -247,10 +247,10 @@ void updateFluddNozzle(TApplication *app) {
 //         if (sHomeTriangle == player->mFloorTriangle)
 //             return;
 
-//         sHomeTriangle->mCollisionType          = 16042;
-//         sHomeTriangle->mValue4                 = s16((sTargetID << 8) | (sHomeID - 1));
-//         player->mFloorTriangle->mCollisionType = 16042;
-//         player->mFloorTriangle->mValue4        = s16(((sHomeID - 1) << 8) | sTargetID);
+//         sHomeTriangle->mType          = 16042;
+//         sHomeTriangle->mValue                 = s16((sTargetID << 8) | (sHomeID - 1));
+//         player->mFloorTriangle->mType = 16042;
+//         player->mFloorTriangle->mValue        = s16(((sHomeID - 1) << 8) | sTargetID);
 //         TGlobals::sWarpColArray->addLink(sHomeTriangle, player->mFloorTriangle);
 //         TGlobals::sWarpColArray->addLink(player->mFloorTriangle, sHomeTriangle);
 //         sTargetID = sTargetID != 0 ? (sTargetID - 1) : 254;

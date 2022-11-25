@@ -34,10 +34,10 @@ void updateDebugCollision(TMario *player, bool isMario) {
 
         TBGCheckData *currentTri = const_cast<TBGCheckData *>(player->mFloorTriangle);
 
-        sHomeTriangle->mCollisionType = 3061;
-        sHomeTriangle->mValue4        = s16((sTargetID << 8) | (sHomeID - 1));
-        currentTri->mCollisionType    = 3061;
-        currentTri->mValue4           = s16(((sHomeID - 1) << 8) | sTargetID);
+        sHomeTriangle->mType = 3061;
+        sHomeTriangle->mValue        = s16((sTargetID << 8) | (sHomeID - 1));
+        currentTri->mType    = 3061;
+        currentTri->mValue           = s16(((sHomeID - 1) << 8) | sTargetID);
         BetterSMS::sWarpColArray->addLink(sHomeTriangle, player->mFloorTriangle);
         BetterSMS::sWarpColArray->addLink(player->mFloorTriangle, sHomeTriangle);
         sTargetID = sTargetID != 0 ? (sTargetID - 1) : 254;

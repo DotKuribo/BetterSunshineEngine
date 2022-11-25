@@ -19,7 +19,7 @@ void decHealth(TMario *player, const TBGCheckData *data, u32 flags) {
     auto *playerData = Player::getData(player);
     if (playerData->mCollisionTimer <= 0) {
         player->decHP(1);
-        playerData->mCollisionTimer = player->mFloorTriangle->mValue4;
+        playerData->mCollisionTimer = player->mFloorTriangle->mValue;
     } else
         playerData->mCollisionTimer -= 1;
 }
@@ -28,7 +28,7 @@ void incHealth(TMario *player, const TBGCheckData *data, u32 flags) {
     auto *playerData = Player::getData(player);
     if (playerData->mCollisionTimer <= 0) {
         player->incHP(1);
-        playerData->mCollisionTimer = player->mFloorTriangle->mValue4;
+        playerData->mCollisionTimer = player->mFloorTriangle->mValue;
     } else
         playerData->mCollisionTimer -= 1;
 }

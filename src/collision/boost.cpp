@@ -18,7 +18,7 @@ void boostPadCol(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!(flags & Player::InteractionFlags::GROUNDED))
         return;
 
-    const f32 newSpeed    = data->mValue4;
+    const f32 newSpeed    = data->mValue;
     const f32 scale       = newSpeed / player->mForwardSpeed;
     player->mForwardSpeed = newSpeed;
     player->mPrevSpeed.scale(scale);

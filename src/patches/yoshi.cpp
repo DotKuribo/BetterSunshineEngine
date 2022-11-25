@@ -118,7 +118,7 @@ static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 grou
     if (yoshi->mState != TYoshi::UNMOUNTED)
         return;
 
-    if (ground->mCollisionType != 1536 && ground->mCollisionType != 2048)
+    if (ground->mType != 1536 && ground->mType != 2048)
         return;
 
     if (yoshi->mPosition.y - groundY > 200)

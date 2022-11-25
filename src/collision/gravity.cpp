@@ -15,14 +15,14 @@
 
 void setGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
 
-    player->mJumpParams.mGravity.set(static_cast<f32>(data->mValue4) / 100.0f);
+    player->mJumpParams.mGravity.set(static_cast<f32>(data->mValue) / 100.0f);
 }
 
 void antiGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
     Vec position;
     player->JSGGetTranslation(&position);
 
-    if ((position.y - data->mMaxHeight) > data->mValue4 && data->mValue4 != 0)
+    if ((position.y - data->mMaxHeight) > data->mValue && data->mValue != 0)
         return;
 
     player->mSpeed.y = 10.0f;

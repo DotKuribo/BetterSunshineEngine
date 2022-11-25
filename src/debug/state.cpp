@@ -106,20 +106,20 @@ void updateStateMonitor(TApplication *app) {
         return;
 
     u16 floorColType =
-        gpMarioAddress->mFloorTriangle ? gpMarioAddress->mFloorTriangle->mCollisionType : 0xFFFF;
-    u16 floorColValue     = gpMarioAddress->mFloorTriangle ? gpMarioAddress->mFloorTriangle->mValue4
+        gpMarioAddress->mFloorTriangle ? gpMarioAddress->mFloorTriangle->mType : 0xFFFF;
+    u16 floorColValue     = gpMarioAddress->mFloorTriangle ? gpMarioAddress->mFloorTriangle->mValue
                                                            : 0xFFFF;
     TVec3f floorColNormal = gpMarioAddress->mFloorTriangle ? gpMarioAddress->mFloorTriangle->mNormal
                                                            : TVec3f(0.0f, 0.0f, 0.0f);
-    u16 wallColType  = gpMarioAddress->mWallTriangle ? gpMarioAddress->mWallTriangle->mCollisionType
+    u16 wallColType  = gpMarioAddress->mWallTriangle ? gpMarioAddress->mWallTriangle->mType
                                                      : 0xFFFF;
-    u16 wallColValue = gpMarioAddress->mWallTriangle ? gpMarioAddress->mWallTriangle->mValue4
+    u16 wallColValue = gpMarioAddress->mWallTriangle ? gpMarioAddress->mWallTriangle->mValue
                                                      : 0xFFFF;
     TVec3f wallColNormal = gpMarioAddress->mWallTriangle ? gpMarioAddress->mWallTriangle->mNormal
                                                          : TVec3f(0.0f, 0.0f, 0.0f);
-    u16 roofColType  = gpMarioAddress->mRoofTriangle ? gpMarioAddress->mRoofTriangle->mCollisionType
+    u16 roofColType  = gpMarioAddress->mRoofTriangle ? gpMarioAddress->mRoofTriangle->mType
                                                      : 0xFFFF;
-    u16 roofColValue = gpMarioAddress->mRoofTriangle ? gpMarioAddress->mRoofTriangle->mValue4
+    u16 roofColValue = gpMarioAddress->mRoofTriangle ? gpMarioAddress->mRoofTriangle->mValue
                                                      : 0xFFFF;
     TVec3f roofColNormal = gpMarioAddress->mRoofTriangle ? gpMarioAddress->mRoofTriangle->mNormal
                                                          : TVec3f(0.0f, 0.0f, 0.0f);

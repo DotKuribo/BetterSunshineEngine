@@ -45,10 +45,10 @@ static void updateClimbContext(TMario *player) {
         playerData->mClimbTiredTimer = 0;
     else if ((player->mState & 0x1C0) == 320) {
         if ((player->mState & 0x200000) != 0 && player->mRoofTriangle &&
-            player->mRoofTriangle->mCollisionType != 266)
+            player->mRoofTriangle->mType != 266)
             checkClimbContext = player->mState != static_cast<u32>(TMario::STATE_HANG);
         else if ((player->mState & 0x200000) == 0 && player->mWallTriangle &&
-                 player->mWallTriangle->mCollisionType != 266)
+                 player->mWallTriangle->mType != 266)
             checkClimbContext = player->mState != static_cast<u32>(TMario::STATE_HANG);
 
         if (checkClimbContext) {
@@ -443,12 +443,12 @@ static TBGCheckData *canClimbUnderwater(TBGCheckData *wall) {
 
   if (playerData->isMario())
     canCling =
-        wall->mCollisionType == 266 ||
+        wall->mType == 266 ||
         (playerData->mParams->Attributes.mCanClimbWalls &&
          player->mController->mButtons.mInput & TMarioGamePad::EButtons::Z &&
-         wall->mCollisionType != 5);
+         wall->mType != 5);
   else
-    canCling = wall->mCollisionType == 266;
+    canCling = wall->mType == 266;
 
   SMS_ASM_BLOCK {mr r4, canCling};
 

@@ -69,14 +69,14 @@ static void resetValuesOnCollisionChange(TMario *player) {
     if (!player->mFloorTriangle || (player->mFloorTriangle == playerData->mPrevCollisionFloor))
         return;
 
-    if (player->mFloorTriangle->mCollisionType != playerData->mPrevCollisionType) {
-        playerData->mPrevCollisionType          = player->mFloorTriangle->mCollisionType;
+    if (player->mFloorTriangle->mType != playerData->mPrevCollisionType) {
+        playerData->mPrevCollisionType          = player->mFloorTriangle->mType;
         playerData->mPrevCollisionFloor         = player->mFloorTriangle;
         playerData->mCollisionFlags.mIsFaceUsed = false;
         playerData->mCollisionTimer             = 0;
     }
 
-    switch (player->mFloorTriangle->mCollisionType) {
+    switch (player->mFloorTriangle->mType) {
     case EXPAND_WARP_SET(16042):
     case EXPAND_WARP_SET(17042):
         playerData->setColliding(false);
@@ -84,7 +84,7 @@ static void resetValuesOnCollisionChange(TMario *player) {
     // Callback collision
     case 16081:
     case 17081: {
-        u8 index = playerData->mPrevCollisionFloor->mValue4 >> 8;
+        u8 index = playerData->mPrevCollisionFloor->mValue >> 8;
         if (index == 2) {
             player->mDirtyParams = playerData->mDefaultDirtyParams;
         }
@@ -104,8 +104,8 @@ using namespace BetterSMS;
 //    TMario *player;
 //    SMS_FROM_GPR(31, player);
 //
-//    if (player->mFloorTriangle->mCollisionType == 16081 ||
-//        player->mFloorTriangle->mCollisionType == 17081)
+//    if (player->mFloorTriangle->mType == 16081 ||
+//        player->mFloorTriangle->mType == 17081)
 //        sound = 4105;
 //
 //    MSoundSE::startSoundActor(sound, pos, unk_1, out, unk_2, unk_3);

@@ -32,7 +32,7 @@ static void patchWaterDownWarp(f32 y) {
     }
 
     if (player->mFloorTriangleWater == player->mFloorTriangle &&
-        !isColTypeWater(player->mFloorTriangle->mCollisionType))
+        !isColTypeWater(player->mFloorTriangle->mType))
         player->changePlayerStatus(TMario::STATE_FALL, 0, false);
     else
         player->mPosition.y = y;
@@ -64,9 +64,9 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     if (BetterSMS::areBugsPatched()) {
         if (!(player->mState & TMario::STATE_WATERBORN)) {
             f32 yPos = mapCol->checkGround(x, player->mCeilingAbove - 10.0f, z, 0, tri);
-            if (*tri && isColTypeWater((*tri)->mCollisionType)) {
+            if (*tri && isColTypeWater((*tri)->mType)) {
                 // if (!(player->mState & TMario::STATE_AIRBORN) &&
-                //     isColTypeWater(player->mFloorTriangle->mCollisionType)) {
+                //     isColTypeWater(player->mFloorTriangle->mType)) {
                 //     player->mFloorBelow = gpMapCollisionData->checkGround(
                 //         player->mPosition.x, player->mPosition.y, player->mPosition.z, 1,
                 //         &player->mFloorTriangle);
@@ -108,7 +108,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024F12C, 0x80246EB8, 0, 0), enhanceWaterCheck);
 //     TMario *player;
 //     SMS_FROM_GPR(29, player);
 
-//     const u16 colType   = data->mCollisionType;
+//     const u16 colType   = data->mType;
 //     const u16 waterType = colType - 256;
 //     if ((waterType >= 0 && waterType < 5) || colType == 16644) {
 //         if (!(player->mState & TMario::STATE_AIRBORN) &&

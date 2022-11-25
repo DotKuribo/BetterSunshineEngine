@@ -22,8 +22,8 @@ using namespace BetterSMS::Collision;
     (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
 
 static f32 GetSqrDistBetweenColTriangles(const TBGCheckData *a, const TBGCheckData *b) {
-    TVectorTriangle triA(a->mVertexA, a->mVertexB, a->mVertexC);
-    TVectorTriangle triB(b->mVertexA, b->mVertexB, b->mVertexC);
+    TVectorTriangle triA(a->mVertices[0], a->mVertices[1], a->mVertices[2]);
+    TVectorTriangle triB(b->mVertices[0], b->mVertices[1], b->mVertices[2]);
 
     TVec3f thisCenter;
     TVec3f targetCenter;
@@ -36,7 +36,7 @@ static f32 GetSqrDistBetweenColTriangles(const TBGCheckData *a, const TBGCheckDa
 }
 
 TCollisionLink::SearchMode TCollisionLink::getSearchModeFrom(const TBGCheckData *colTriangle) {
-    switch (colTriangle->mCollisionType & 0xFFF) {
+    switch (colTriangle->mType & 0xFFF) {
     case EXPAND_WARP_CATEGORY(3060): {
         return SearchMode::BOTH;
     }
@@ -52,7 +52,7 @@ TCollisionLink::SearchMode TCollisionLink::getSearchModeFrom(const TBGCheckData 
 }
 
 TCollisionLink::WarpType TCollisionLink::getWarpTypeFrom(const TBGCheckData *colTriangle) {
-    switch (colTriangle->mCollisionType & 0xFFF) {
+    switch (colTriangle->mType & 0xFFF) {
     case EXPAND_WARP_SET(3060): {
         return WarpType::INSTANT;
     }
@@ -74,19 +74,19 @@ TCollisionLink::WarpType TCollisionLink::getWarpTypeFrom(const TBGCheckData *col
 }
 
 u8 TCollisionLink::getTargetIDFrom(const TBGCheckData *colTriangle) {
-    return static_cast<u8>(colTriangle->mValue4 >> 8);
+    return static_cast<u8>(colTriangle->mValue >> 8);
 }
 
 u8 TCollisionLink::getHomeIDFrom(const TBGCheckData *colTriangle) {
-    return static_cast<u8>(colTriangle->mValue4);
+    return static_cast<u8>(colTriangle->mValue);
 }
 
 f32 TCollisionLink::getMinTargetDistanceFrom(const TBGCheckData *colTriangle) {
-    return static_cast<f32>(colTriangle->mValue4);
+    return static_cast<f32>(colTriangle->mValue);
 }
 
 bool TCollisionLink::isValidWarpCol(const TBGCheckData *colTriangle) {
-    switch (colTriangle->mCollisionType & 0xFFF) {
+    switch (colTriangle->mType & 0xFFF) {
     case EXPAND_WARP_SET(3060):
     case EXPAND_WARP_SET(3061):
     case EXPAND_WARP_SET(3062):
@@ -114,7 +114,7 @@ bool TCollisionLink::isTargetOf(const TBGCheckData *other) const {
         return (targetID != NullID) && (targetID == mTargetID);
     } else if (getSearchModeFrom(other) == SearchMode::DISTANCE &&
                getSearchMode() == SearchMode::DISTANCE) {
-        const f32 minDist = static_cast<f32>(other->mValue4);
+        const f32 minDist = static_cast<f32>(other->mValue);
         return (minDist * minDist) < GetSqrDistBetweenColTriangles(other, getThisColTriangle());
     }
 
@@ -133,7 +133,7 @@ bool TCollisionLink::isTargeting(const TBGCheckData *other) const {
         return (getHomeIDFrom(other) == mTargetID) && (mTargetID != NullID);
     } else if (getSearchMode() == SearchMode::DISTANCE &&
                getSearchModeFrom(other) == SearchMode::DISTANCE) {
-        const f32 minDist = static_cast<f32>(getThisColTriangle()->mValue4);
+        const f32 minDist = static_cast<f32>(getThisColTriangle()->mValue);
         return (minDist * minDist) < GetSqrDistBetweenColTriangles(getThisColTriangle(), other);
     }
 
@@ -151,11 +151,11 @@ bool TCollisionLink::isValidSrc() const {
 }
 
 f32 TCollisionLink::getMinTargetDistance() const {
-    return static_cast<f32>(getThisColTriangle()->mValue4);
+    return static_cast<f32>(getThisColTriangle()->mValue);
 }
 
 void TWarpCollisionList::addLink(const TBGCheckData *a, const TBGCheckData *b) {
-    TCollisionLink link(a, static_cast<u8>(b->mValue4), static_cast<u8>(a->mValue4),
+    TCollisionLink link(a, static_cast<u8>(b->mValue), static_cast<u8>(a->mValue),
                         TCollisionLink::getSearchModeFrom(a));
     addLink(link);
 }
@@ -166,7 +166,7 @@ void TWarpCollisionList::addLink(TCollisionLink &link) {
         return;
     }
     Console::debugLog("TWarpCollision::addLink(): (%d) Added link of type %d at 0x%X\n",
-                      link.getThisColTriangle()->mCollisionType, link.getSearchMode(),
+                      link.getThisColTriangle()->mType, link.getSearchMode(),
                       &mColList[mUsedSize]);
     mColList[mUsedSize++] = link;
 }
@@ -209,7 +209,7 @@ const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *col
     if (!TCollisionLink::isValidWarpCol(colTriangle))
         return nullptr;
 
-    TVectorTriangle colVector(colTriangle->mVertexA, colTriangle->mVertexB, colTriangle->mVertexC);
+    TVectorTriangle colVector(colTriangle->mVertices[0], colTriangle->mVertices[1], colTriangle->mVertices[2]);
     TVectorTriangle targetVector;
 
     u16 matchedIndices[mMaxSize];
@@ -248,9 +248,9 @@ const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *col
         s32 index = -1;
 
         for (u32 i = 0; i < numLinked; ++i) {
-            targetVector.a = mColList[matchedIndices[i]].mColTriangle->mVertexA;
-            targetVector.b = mColList[matchedIndices[i]].mColTriangle->mVertexB;
-            targetVector.c = mColList[matchedIndices[i]].mColTriangle->mVertexC;
+            targetVector.a = mColList[matchedIndices[i]].mColTriangle->mVertices[0];
+            targetVector.b = mColList[matchedIndices[i]].mColTriangle->mVertices[1];
+            targetVector.c = mColList[matchedIndices[i]].mColTriangle->mVertices[2];
 
             TVec3f thisCenter;
             TVec3f targetCenter;
@@ -286,9 +286,9 @@ const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *col
         s32 index = -1;
 
         for (u32 i = 0; i < numLinked; ++i) {
-            targetVector.a = mColList[matchedIndices[i]].mColTriangle->mVertexA;
-            targetVector.b = mColList[matchedIndices[i]].mColTriangle->mVertexB;
-            targetVector.c = mColList[matchedIndices[i]].mColTriangle->mVertexC;
+            targetVector.a = mColList[matchedIndices[i]].mColTriangle->mVertices[0];
+            targetVector.b = mColList[matchedIndices[i]].mColTriangle->mVertices[1];
+            targetVector.c = mColList[matchedIndices[i]].mColTriangle->mVertices[2];
 
             TVec3f thisCenter;
             TVec3f targetCenter;
@@ -365,7 +365,7 @@ void instantWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!linkedCol)
         return;
 
-    TVectorTriangle triangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
+    TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
 
     TVec3f center;
     triangle.center(center);
@@ -406,7 +406,7 @@ void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
+        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
         triangle.center(center);
     }
 
@@ -485,7 +485,7 @@ void effectWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
+        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
         triangle.center(center);
     }
 
@@ -552,7 +552,7 @@ void portalWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
+        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
         triangle.center(center);
     }
 
@@ -575,7 +575,7 @@ void portalFreeWarpHandler(TMario *player, const TBGCheckData *data,
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertexA, linkedCol->mVertexB, linkedCol->mVertexC);
+        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
         triangle.center(center);
     }
 

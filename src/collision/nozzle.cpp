@@ -45,7 +45,7 @@ void changeNozzleSpray(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue4 == 1;
+    player->mAttributes.mHasFludd = data->mValue == 1;
 
     changeNozzle(player, TWaterGun::Spray);
 
@@ -65,7 +65,7 @@ void changeNozzleHover(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue4 == 1;
+    player->mAttributes.mHasFludd = data->mValue == 1;
 
     changeNozzle(player, TWaterGun::Hover);
 
@@ -85,7 +85,7 @@ void changeNozzleTurbo(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue4 == 1;
+    player->mAttributes.mHasFludd = data->mValue == 1;
 
     changeNozzle(player, TWaterGun::Turbo);
 
@@ -105,7 +105,7 @@ void changeNozzleRocket(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue4 == 1;
+    player->mAttributes.mHasFludd = data->mValue == 1;
 
     changeNozzle(player, TWaterGun::Rocket);
 

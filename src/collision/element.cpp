@@ -23,7 +23,7 @@ void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
         return;
 
     if (!player->isInvincible()) {
-        player->decHP(data->mValue4);
+        player->decHP(data->mValue);
         player->changePlayerStatus(0x20338, 0, false);
         player->mInvincibilityFrames = 256;
 
@@ -42,7 +42,7 @@ void burnPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
 
     if (!player->isInvincible()) {
         player->changePlayerDropping(0x20464, 0);
-        player->decHP(data->mValue4);
+        player->decHP(data->mValue);
         player->dropObject();
         player->changePlayerStatus(0x208B7, 1, false);
         player->mInvincibilityFrames = 256;
