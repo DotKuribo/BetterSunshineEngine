@@ -28,12 +28,12 @@ static void parseWarpLinks(TMapCollisionData *col, TWarpCollisionList *links, u3
                            u32 idGroupSize = 0) {
     u32 curDataIndex = 0;
 
-    for (u32 i = 0; i < col->mFloorArraySize; ++i) {
-        if (TCollisionLink::isValidWarpCol(&col->mColTable[i])) {
+    for (u32 i = 0; i < col->mCheckDataCount; ++i) {
+        if (TCollisionLink::isValidWarpCol(&col->mCollisionTris[i])) {
 
-            TCollisionLink link(&col->mColTable[i], (u8)(col->mColTable[i].mValue4 >> 8),
-                                (u8)col->mColTable[i].mValue4,
-                                TCollisionLink::getSearchModeFrom(&col->mColTable[i]));
+            TCollisionLink link(&col->mCollisionTris[i], (u8)(col->mCollisionTris[i].mValue4 >> 8),
+                                (u8)col->mCollisionTris[i].mValue4,
+                                TCollisionLink::getSearchModeFrom(&col->mCollisionTris[i]));
 
             links->addLink(link);
             if (curDataIndex > 0xFF)
