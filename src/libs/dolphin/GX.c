@@ -16,53 +16,6 @@
 #define LARGE_NUMBER (-(__FLT_MAX__))
 #endif
 
-#define GX_LOAD_BP_REG(x)                                                                          \
-    do {                                                                                           \
-        wgPipe->U8 = 0x61;                                                                         \
-        asm volatile("" ::: "memory");                                                             \
-        wgPipe->U32 = (u32)(x);                                                                    \
-        asm volatile("" ::: "memory");                                                             \
-    } while (0)
-
-#define GX_LOAD_CP_REG(x, y)                                                                       \
-    do {                                                                                           \
-        wgPipe->U8 = 0x08;                                                                         \
-        asm volatile("" ::: "memory");                                                             \
-        wgPipe->U8 = (u8)(x);                                                                      \
-        asm volatile("" ::: "memory");                                                             \
-        wgPipe->U32 = (u32)(y);                                                                    \
-        asm volatile("" ::: "memory");                                                             \
-    } while (0)
-
-#define GX_LOAD_XF_REG(x, y)                                                                       \
-    do {                                                                                           \
-        wgPipe->U8 = 0x10;                                                                         \
-        asm volatile("" ::: "memory");                                                             \
-        wgPipe->U32 = (u32)((x)&0xffff);                                                           \
-        asm volatile("" ::: "memory");                                                             \
-        wgPipe->U32 = (u32)(y);                                                                    \
-        asm volatile("" ::: "memory");                                                             \
-    } while (0)
-
-#define GX_LOAD_XF_REGS(x, n)                                                                      \
-    do {                                                                                           \
-        wgPipe->U8 = 0x10;                                                                         \
-        asm volatile("" ::: "memory");                                                             \
-        wgPipe->U32 = (u32)(((((n)&0xffff) - 1) << 16) | ((x)&0xffff));                            \
-        asm volatile("" ::: "memory");                                                             \
-    } while (0)
-
-#define XY(x, y) (((y) << 10) | (x))
-
-#define GX_DEFAULT_BG                                                                              \
-    { 64, 64, 64, 255 }
-#define BLACK                                                                                      \
-    { 0, 0, 0, 0 }
-#define WHITE                                                                                      \
-    { 255, 255, 255, 255 }
-
-WGPipe *const wgPipe = (WGPipe *)0xCC008000;
-
 static GXFifoObj _gpfifo;
 static GXFifoObj _cpufifo;
 static GXFifoObj _gxfifoobj;
