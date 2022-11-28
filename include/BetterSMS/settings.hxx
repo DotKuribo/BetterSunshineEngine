@@ -9,7 +9,7 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <JSystem/JGadget/List.hxx>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JStage/JSGObject.hxx>
 
 #include <SMS/Player/Yoshi.hxx>

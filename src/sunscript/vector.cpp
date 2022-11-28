@@ -1,5 +1,5 @@
 #include <Dolphin/MTX.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 
 #include "sunscript.hxx"
 

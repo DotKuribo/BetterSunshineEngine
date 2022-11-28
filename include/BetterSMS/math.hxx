@@ -2,7 +2,7 @@
 
 #include <Dolphin/math.h>
 #include <Dolphin/types.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 #include <SMS/macros.h>
 
 namespace BetterSMS {

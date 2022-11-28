@@ -2,7 +2,7 @@
 
 #include <Dolphin/MTX.h>
 #include <Dolphin/types.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 
 #include "constmath.hxx"
 #include "geometry.hxx"

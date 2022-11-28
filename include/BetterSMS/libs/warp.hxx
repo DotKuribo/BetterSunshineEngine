@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Dolphin/types.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <SMS/Map/BGCheck.hxx>
 

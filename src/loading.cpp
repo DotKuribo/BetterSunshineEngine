@@ -1,7 +1,7 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 #include <Dolphin/types.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JUtility/JUTTexture.hxx>
 
 #include <SMS/System/Application.hxx>

@@ -1,5 +1,5 @@
 #include <Dolphin/MTX.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSound.hxx>

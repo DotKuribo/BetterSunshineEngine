@@ -1,5 +1,5 @@
 #include <JSystem/JDrama/JDRActor.hxx>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 
 #include "sunscript.hxx"
 

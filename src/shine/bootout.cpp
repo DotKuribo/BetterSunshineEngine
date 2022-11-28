@@ -1,5 +1,5 @@
 #include <Dolphin/string.h>
-#include <JSystem/JGeometry.hxx>
+#include <JSystem/JGeometry/JGMVec.hxx>
 
 #include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/System/GameSequence.hxx>
