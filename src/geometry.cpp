@@ -9,7 +9,8 @@
 #include "math.hxx"
 #include "module.hxx"
 
-namespace BetterSMS::Geometry {
+namespace BetterSMS {
+    namespace Geometry {
     f32 Vector3::magnitude(const TVec3f &vec) {
 #if BETTER_SMS_USE_PS_MATH
         return PSVECMag(reinterpret_cast<const Vec *>(&vec));
@@ -120,4 +121,5 @@ namespace BetterSMS::Geometry {
     f32 Vector3::angleBetween(const Vec &a, const Vec &b) {
         return dot(a, b) / (magnitude(a) * magnitude(b));
     }
+}
 }  // namespace BetterSMS::Geometry
