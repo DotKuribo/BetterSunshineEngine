@@ -16,10 +16,12 @@ using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 using namespace BetterSMS::Collision;
 
-static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind) {
+static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd) {
     TWaterGun *fludd = player->mFludd;
     if (!fludd)
         return;
+
+    player->mAttributes.mHasFludd = hasFludd;
 
     TNozzleBase *nozzle = fludd->mNozzleList[kind];
     if (fludd->mCurrentNozzle != kind) {
@@ -32,23 +34,68 @@ static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind) {
     fludd->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 }
 
+void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+    auto *playerData = Player::getData(player);
+
+    if (!(flags & Player::InteractionFlags::GROUNDED))
+        return;
+
+    if (!playerData->getCanUseFludd())
+        return;
+
+    changeNozzle(player, TWaterGun::Spray, data->mValue == 1);
+    playerData->mCollisionFlags.mIsFaceUsed = true;
+}
+
+void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+    auto *playerData = Player::getData(player);
+
+    if (!(flags & Player::InteractionFlags::GROUNDED))
+        return;
+
+    if (!playerData->getCanUseFludd())
+        return;
+
+    changeNozzle(player, TWaterGun::Hover, data->mValue == 1);
+    playerData->mCollisionFlags.mIsFaceUsed = true;
+}
+
+void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+    auto *playerData = Player::getData(player);
+
+    if (!(flags & Player::InteractionFlags::GROUNDED))
+        return;
+
+    if (!playerData->getCanUseFludd())
+        return;
+
+    changeNozzle(player, TWaterGun::Turbo, data->mValue == 1);
+    playerData->mCollisionFlags.mIsFaceUsed = true;
+}
+
+void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+    auto *playerData = Player::getData(player);
+
+    if (!(flags & Player::InteractionFlags::GROUNDED))
+        return;
+
+    if (!playerData->getCanUseFludd())
+        return;
+
+    changeNozzle(player, TWaterGun::Rocket, data->mValue == 1);
+    playerData->mCollisionFlags.mIsFaceUsed = true;
+}
+
 void changeNozzleSpray(TMario *player, const TBGCheckData *data, u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
         return;
 
-    TWaterGun *fludd = player->mFludd;
-    if (!fludd)
-        return;
-
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue == 1;
-
-    changeNozzle(player, TWaterGun::Spray);
-
+    changeNozzle(player, TWaterGun::Spray, data->mValue == 1);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
@@ -58,17 +105,10 @@ void changeNozzleHover(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!(flags & Player::InteractionFlags::ON_ENTER))
         return;
 
-    TWaterGun *fludd = player->mFludd;
-    if (!fludd)
-        return;
-
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue == 1;
-
-    changeNozzle(player, TWaterGun::Hover);
-
+    changeNozzle(player, TWaterGun::Hover, data->mValue == 1);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
@@ -78,17 +118,10 @@ void changeNozzleTurbo(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!(flags & Player::InteractionFlags::ON_ENTER))
         return;
 
-    TWaterGun *fludd = player->mFludd;
-    if (!fludd)
-        return;
-
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue == 1;
-
-    changeNozzle(player, TWaterGun::Turbo);
-
+    changeNozzle(player, TWaterGun::Turbo, data->mValue == 1);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
@@ -98,16 +131,9 @@ void changeNozzleRocket(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!(flags & Player::InteractionFlags::ON_ENTER))
         return;
 
-    TWaterGun *fludd = player->mFludd;
-    if (!fludd)
-        return;
-
     if (!playerData->getCanUseFludd())
         return;
 
-    player->mAttributes.mHasFludd = data->mValue == 1;
-
-    changeNozzle(player, TWaterGun::Rocket);
-
+    changeNozzle(player, TWaterGun::Rocket, data->mValue == 1);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
