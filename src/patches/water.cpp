@@ -61,17 +61,13 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     const TBGCheckData **tri = const_cast<const TBGCheckData **>(&player->mFloorTriangleWater);
     const TMapCollisionData *mapCol = gpMapCollisionData;
 
+    const TBGCheckData *waterAbove;
+    const f32 waterAboveHeight = mapCol->checkRoof(x, player->mPosition.y, z, 0, &waterAbove);
+
     if (BetterSMS::areBugsPatched()) {
         if (!(player->mState & TMario::STATE_WATERBORN)) {
-            f32 yPos = mapCol->checkGround(x, player->mCeilingAbove - 10.0f, z, 0, tri);
+            f32 yPos = mapCol->checkGround(x, waterAboveHeight - 10.0f, z, 0, tri);
             if (*tri && isColTypeWater((*tri)->mType)) {
-                // if (!(player->mState & TMario::STATE_AIRBORN) &&
-                //     isColTypeWater(player->mFloorTriangle->mType)) {
-                //     player->mFloorBelow = gpMapCollisionData->checkGround(
-                //         player->mPosition.x, player->mPosition.y, player->mPosition.z, 1,
-                //         &player->mFloorTriangle);
-                //     player->mPosition.y = player->mFloorBelow;
-                // }
                 return yPos;
             }
         }
