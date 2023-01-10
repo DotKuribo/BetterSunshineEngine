@@ -4,6 +4,7 @@
 
 #include <JSystem/bits/c++config.h>
 #include <JSystem/type_traits.hxx>
+#include <JSystem/memory.hxx>
 #include <JSystem/utility.hxx>
 
 #include <JSystem/JKernel/JKRHeap.hxx>
