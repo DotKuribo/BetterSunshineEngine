@@ -133,7 +133,7 @@ void updateStateMonitor(TApplication *app) {
              "  Status:     0x%lX\n"
              "  State:      0x%lX\n"
              "  Flags:      0x%lX",
-             gpMarioAddress->mPosition.x, gpMarioAddress->mPosition.y, gpMarioAddress->mPosition.z,
+             gpMarioAddress->mTranslation.x, gpMarioAddress->mTranslation.y, gpMarioAddress->mTranslation.z,
              gpMarioAddress->mRotation.x, gpMarioAddress->mRotation.y, gpMarioAddress->mRotation.z,
              gpMarioAddress->mSpeed.x, gpMarioAddress->mSpeed.y, gpMarioAddress->mSpeed.z,
              gpMarioAddress->mForwardSpeed, gpMarioAddress->mState, gpMarioAddress->mActionState,

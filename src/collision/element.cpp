@@ -28,10 +28,10 @@ void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
         player->mInvincibilityFrames = 256;
 
         if (gpMSound->gateCheck(0x1814)) {
-            MSoundSE::startSoundActor(0x1814, player->mPosition, 0, nullptr, 0, 4);
+            MSoundSE::startSoundActor(0x1814, player->mTranslation, 0, nullptr, 0, 4);
         }
         if (gpMSound->gateCheck(0x3806)) {
-            MSoundSE::startSoundActor(0x3806, player->mPosition, 0, nullptr, 0, 4);
+            MSoundSE::startSoundActor(0x3806, player->mTranslation, 0, nullptr, 0, 4);
         }
     }
 }
@@ -48,9 +48,9 @@ void burnPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
         player->mInvincibilityFrames = 256;
         player->mSpeed.y += 20.0f;
 
-        gpMarioParticleManager->emitAndBindToPosPtr(6, &player->mPosition, 0, nullptr);
+        gpMarioParticleManager->emitAndBindToPosPtr(6, &player->mTranslation, 0, nullptr);
         if (gpMSound->gateCheck(0x1813)) {
-            MSoundSE::startSoundActor(0x1813, player->mPosition, 0, nullptr, 0, 4);
+            MSoundSE::startSoundActor(0x1813, player->mTranslation, 0, nullptr, 0, 4);
         }
     }
 }

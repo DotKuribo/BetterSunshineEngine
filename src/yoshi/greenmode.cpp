@@ -50,7 +50,7 @@ static bool canMountYoshi() {
     auto playerData = Player::getData(player);
     auto *params    = playerData->getParams();
 
-    if (params->mSizeMultiplier.get() *
+    if (params->mScaleMultiplier.get() *
             Stage::getStageConfiguration()->mPlayerSizeMultiplier.get() >
         1.5f)
         return false;
@@ -71,7 +71,7 @@ static f32 getYoshiYPos(TYoshi *yoshi) {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    return player->mYoshi->mPosition.y;
+    return player->mYoshi->mTranslation.y;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80281148, 0x80278ED4, 0, 0), getYoshiYPos);
 

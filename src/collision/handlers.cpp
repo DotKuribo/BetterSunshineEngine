@@ -133,7 +133,7 @@ void updateCollisionContext(TMario *player) {
     }
 
     const f32 marioCollisionHeight = *(f32 *)SMS_PORT_REGION(0x80415CC4, 0x8040D21C, 0, 0) *
-                                     playerData->getParams()->mSizeMultiplier.get();
+                                     playerData->getParams()->mScaleMultiplier.get();
 
     Vec playerPos;
     player->JSGGetTranslation(&playerPos);

@@ -453,7 +453,7 @@ void Music::AudioStreamer::next_() {
 bool Music::AudioStreamer::seek_() {
     AudioPacket &packet = getCurrentAudio();
 
-    const u32 streamSize = mAudioHandle->mLen;
+    const u32 streamScale = mAudioHandle->mLen;
 
     s32 streamPos = 0;
     switch (_mWhence) {
@@ -464,11 +464,11 @@ bool Music::AudioStreamer::seek_() {
         streamPos = (mCurrentPlayAddress - mAudioHandle->mStart) + _mWhere;
         break;
     case JSUStreamSeekFrom::END:
-        streamPos = streamSize - _mWhere;
+        streamPos = streamScale - _mWhere;
         break;
     }
 
-    if (streamPos > streamSize) {
+    if (streamPos > streamScale) {
         skip_();
     } else if (streamPos < 0) {
         streamPos = 0;

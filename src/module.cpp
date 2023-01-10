@@ -4,6 +4,8 @@
 #include <SMS/macros.h>
 
 #include "libs/warp.hxx"
+#include "libs/global_unordered_map.hxx"
+#include "libs/string.hxx"
 
 // BetterSMS API
 #include "application.hxx"
@@ -46,7 +48,6 @@ BugsSetting gBugFixesSetting("Bug & Exploit Fixes");
 
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 FPSSetting gFPSSetting("Frame Rate");
-
 static bool sCameraInvertX;
 static bool sCameraInvertY;
 Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX);
@@ -55,26 +56,26 @@ Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY
 static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 0, &sSettingsGroup};
 //
 
-TDictS<const ModuleInfo *> gModuleInfos;
+BetterSMS::TGlobalUnorderedMap<TGlobalString, const BetterSMS::ModuleInfo *> gModuleInfos(16);
 
-const ModuleInfo *BetterSMS::getModuleInfo(const char *key) { return gModuleInfos.get(key); }
+const ModuleInfo *BetterSMS::getModuleInfo(const char *key) { return gModuleInfos.at(key); }
 
-bool BetterSMS::isModuleRegistered(const char *key) { return gModuleInfos.hasKey(key); }
+bool BetterSMS::isModuleRegistered(const char *key) { return gModuleInfos.contains(key); }
 bool BetterSMS::registerModule(const char *key, const ModuleInfo *info) {
-    if (gModuleInfos.hasKey(key)) {
+    if (isModuleRegistered(key)) {
         OSPanic(__FILE__, __LINE__,
                 "Module \"%s\" is trying to register under the key \"%s\", which is "
                 "already taken!",
                 info->mName, key);
         return false;
     }
-    gModuleInfos.set(key, info);
+    gModuleInfos[key] = info;
     return true;
 }
 bool BetterSMS::deregisterModule(const char *key) {
-    if (!gModuleInfos.hasKey(key))
+    if (!isModuleRegistered(key))
         return false;
-    gModuleInfos.pop(key);
+    gModuleInfos.erase(key);
     return true;
 }
 
@@ -266,11 +267,11 @@ static void initLib() {
                                          BetterAppContextDirectLevelSelect);
     Application::registerContextCallback(10, BetterAppContextDirectSettingsMenu);
 
-    // Set up stage config handlers
+    //// Set up stage config handlers
     Stage::registerInitCallback("__init_config", loadStageConfig);
     Stage::registerExitCallback("__reset_globals", resetGlobalValues);
 
-    // Set up player params
+    //// Set up player params
     Player::registerInitProcess("__init_mario", initMario);
     Stage::registerExitCallback("__destroy_mario", resetPlayerDatas);
 
@@ -301,11 +302,11 @@ static void initLib() {
     Player::registerCollisionHandler(3063, portalWarpHandler);
     Player::registerCollisionHandler(3064, portalFreeWarpHandler);
 
-    // YOSHI
+    //// YOSHI
     Player::registerUpdateProcess("__update_yoshi_swim", checkForYoshiDeath);
     Player::registerUpdateProcess("__update_yoshi_riding", forceValidRidingAnimation);
 
-    // DEBUG
+    //// DEBUG
     Player::registerUpdateProcess("__check_for_xyz", checkMarioXYZMode);
     Player::registerStateMachine(XYZState, updateMarioXYZMode);
     Debug::registerUpdateCallback("__update_fludd_nozzle", updateFluddNozzle);
@@ -329,11 +330,11 @@ static void initLib() {
 
     Game::registerOnBootCallback("__init_debug_handles", initDebugCallbacks);
 
-    //Game::registerOnBootCallback("__init_fps", updateFPSBoot);
+    ////Game::registerOnBootCallback("__init_fps", updateFPSBoot);
     Stage::registerInitCallback("__init_fps", updateFPS);
     Stage::registerUpdateCallback("__update_fps", updateFPS);
 
-    // SETTINGS
+    //// SETTINGS
     Game::registerOnInitCallback("__load_settings", initAllSettings);
     Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
     Game::registerOnBootCallback("__init_setting_notifs", initUnlockedSettings);
@@ -527,13 +528,14 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     //    /* STAGE */
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageConfiguration,
                          "getStageConfiguration__Q29BetterSMS5StageFv");
-        KURIBO_EXPORT_AS(BetterSMS::Stage::getStageName, "getStageName__Q29BetterSMS5StageFP12TApplication");
-        KURIBO_EXPORT_AS(BetterSMS::Stage::isStageInitRegistered,
-                         "isStageInitRegistered__Q29BetterSMS5StageFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::Stage::isStageUpdateRegistered,
-                         "isStageUpdateRegistered__Q29BetterSMS5StageFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::isInitRegistered,
+                         "isInitRegistered__Q29BetterSMS5StageFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::isUpdateRegistered,
+                         "isUpdateRegistered__Q29BetterSMS5StageFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::isDraw2DRegistered,
                          "isDraw2DRegistered__Q29BetterSMS5StageFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::isExitRegistered,
+                         "isExitRegistered__Q29BetterSMS5StageFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerInitCallback,
                          "registerInitCallback__Q29BetterSMS5StageFPCcPFP12TMarDirector_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerUpdateCallback,
@@ -546,6 +548,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "deregisterUpdateCallback__Q29BetterSMS5StageFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterDraw2DCallback,
                          "deregisterDraw2DCallback__Q29BetterSMS5StageFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::getStageName, "getStageName__Q29BetterSMS5StageFUcUc");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::isExStage, "isExStage__Q29BetterSMS5StageFUcUc");
 
         /* TIME */
         KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS4TimeFv");

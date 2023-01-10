@@ -131,19 +131,19 @@ bool updateMarioXYZMode(TMario *player) {
 
     const f32 cameraRotY = (f32)(gpCamera->mHorizontalAngle) / 182.0f;
 
-    player->mPosition.x +=
+    player->mTranslation.x +=
         ((-sinf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
-    player->mPosition.z +=
+    player->mTranslation.z +=
         ((-cosf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
-    player->mPosition.x -= ((-sinf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
+    player->mTranslation.x -= ((-sinf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
                     mainStick.mStickX;
-    player->mPosition.z -= ((-cosf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
+    player->mTranslation.z -= ((-cosf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
                     mainStick.mStickX;
 
     if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::B) {
-        player->mPosition.y -= (baseSpeed * speedMultiplier);
+        player->mTranslation.y -= (baseSpeed * speedMultiplier);
     } else if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::A) {
-        player->mPosition.y += (baseSpeed * speedMultiplier);
+        player->mTranslation.y += (baseSpeed * speedMultiplier);
     }
     return false;
 }

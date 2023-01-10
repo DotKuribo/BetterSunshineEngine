@@ -83,10 +83,10 @@ static void updateClimbContext(TMario *player) {
 
 // static void overrideTreeClimbFromFloor(TMario *player) {
 //     const TBGCheckData *data;
-//     f32 groundHeight = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
-//                                                        player->mPosition.z, 1, &data);
+//     f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
+//                                                        player->mTranslation.z, 1, &data);
 
-//     player->mHolderHeightDiff = Min(player->mHolderHeightDiff, player->mPosition.y -
+//     player->mHolderHeightDiff = Min(player->mHolderHeightDiff, player->mTranslation.y -
 //     groundHeight);
 
 //     player->treeSlipEffect();
@@ -100,10 +100,10 @@ static f32 getTreeWaitParameters() {
     SMS_FROM_GPR(31, player);
 
     const TBGCheckData *data;
-    f32 groundHeight = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
-                                                       player->mPosition.z, 1, &data);
+    f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
+                                                       player->mTranslation.z, 1, &data);
 
-    const f32 padding = Max(player->mHolderHeightDiff - (player->mPosition.y - groundHeight), 0);
+    const f32 padding = Max(player->mHolderHeightDiff - (player->mTranslation.y - groundHeight), 0);
 
     Vec size;
     player->JSGGetScaling(&size);
@@ -119,13 +119,13 @@ static bool getTreeClimbParameters(TMapObjTree *tree) {
     SMS_FROM_GPR(31, player);
 
     const TBGCheckData *data;
-    f32 groundHeight = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
-                                                       player->mPosition.z, 1, &data);
+    f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
+                                                       player->mTranslation.z, 1, &data);
 
     const f32 receiveHeight = tree->mReceiveHeight;
-    const f32 treeScaleY    = scaleLinearAtAnchor(tree->mSize.y, 0.2f, 0.0f);
+    const f32 treeScaleY    = scaleLinearAtAnchor(tree->mScale.y, 0.2f, 0.0f);
 
-    return player->mPosition.y > tree->mPosition.y + (receiveHeight + treeScaleY);
+    return player->mTranslation.y > tree->mTranslation.y + (receiveHeight + treeScaleY);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802619CC, 0, 0, 0), getTreeClimbParameters);
 SMS_WRITE_32(SMS_PORT_REGION(0x802619D0, 0, 0, 0), 0x2C030000);
@@ -299,7 +299,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8025E21C, 0, 0, 0), 0x7FC3F378);
 static TBGCheckData *checkClimbingWallPlane(TMario *player,
                                             TVec3f pos, f32 w,
                                             f32 h) {
-  return player->checkWallPlane(pos, w * player->mSize.z, h * player->mSize.y);
+  return player->checkWallPlane(pos, w * player->mScale.z, h * player->mScale.y);
 }
 kmCall(0x8025DD84, &checkClimbingWallPlane);
 kmCall(0x8025DEB8, &checkClimbingWallPlane);

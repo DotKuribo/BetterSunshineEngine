@@ -1,6 +1,9 @@
 #pragma once
 
-#include "libs/container.hxx"
+#include "libs/global_unordered_map.hxx"
+#include "libs/string.hxx"
+
 #include "module.hxx"
 
-extern TDictS<const BetterSMS::ModuleInfo *> gModuleInfos;
+extern BetterSMS::TGlobalUnorderedMap<BetterSMS::TGlobalString, const BetterSMS::ModuleInfo *>
+    gModuleInfos;

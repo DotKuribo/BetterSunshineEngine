@@ -27,7 +27,7 @@ static void patchWaterDownWarp(f32 y) {
     SMS_FROM_GPR(31, player);
 
     if (!BetterSMS::areBugsPatched()) {
-        player->mPosition.y = y;
+        player->mTranslation.y = y;
         return;
     }
 
@@ -35,7 +35,7 @@ static void patchWaterDownWarp(f32 y) {
         !isColTypeWater(player->mFloorTriangle->mType))
         player->changePlayerStatus(TMario::STATE_FALL, 0, false);
     else
-        player->mPosition.y = y;
+        player->mTranslation.y = y;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80272710, 0x8026A49C, 0, 0), patchWaterDownWarp);
 
@@ -62,7 +62,7 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     const TMapCollisionData *mapCol = gpMapCollisionData;
 
     const TBGCheckData *waterAbove;
-    const f32 waterAboveHeight = mapCol->checkRoof(x, player->mPosition.y, z, 0, &waterAbove);
+    const f32 waterAboveHeight = mapCol->checkRoof(x, player->mTranslation.y, z, 0, &waterAbove);
 
     if (BetterSMS::areBugsPatched()) {
         if (!(player->mState & TMario::STATE_WATERBORN)) {
@@ -84,14 +84,14 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024F12C, 0x80246EB8, 0, 0), enhanceWaterCheck);
 //     if (player->mFloorTriangle == player->mFloorTriangleWater) {
 //         const TBGCheckData *floor;
 
-//         f32 height = gpMapCollisionData->checkGround(player->mPosition.x, player->mPosition.y,
-//                                                      player->mPosition.z, 1, &floor);
+//         f32 height = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
+//                                                      player->mTranslation.z, 1, &floor);
 
 //         if (floor != &gpMapCollisionData->mIllegalCheckData) {
 //             groundHeight = height;
 //         }
 
-//         player->mPosition.y = Min(player->mPosition.y, player->mWaterHeight);
+//         player->mTranslation.y = Min(player->mTranslation.y, player->mWaterHeight);
 //     }
 
 //     return adjust + groundHeight;

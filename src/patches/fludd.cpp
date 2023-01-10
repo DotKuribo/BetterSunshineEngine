@@ -75,7 +75,7 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
     TMario *player;
     SMS_FROM_GPR(22, player);
 
-    player->mPosition.y = floorPos;
+    player->mTranslation.y = floorPos;
 
     if (!BetterSMS::areBugsPatched())
         return;

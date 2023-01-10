@@ -31,6 +31,7 @@
 
 #include "libs/constmath.hxx"
 #include "libs/container.hxx"
+#include "libs/global_list.hxx"
 #include "settings.hxx"
 #include "module.hxx"
 #include "icons.hxx"
@@ -50,20 +51,17 @@ using namespace BetterSMS;
 
 // PRIVATE
 
-void getSettingsGroups(JGadget::TList<Settings::SettingsGroup *> &out) {
-    TDictS<const BetterSMS::ModuleInfo *>::ItemList temp;
-    gModuleInfos.items(temp);
+void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out) {
+    TGlobalList<Settings::SettingsGroup *> tempCore;
+    TGlobalList<Settings::SettingsGroup *> tempGame;
+    TGlobalList<Settings::SettingsGroup *> tempMode;
 
-    JGadget::TList<Settings::SettingsGroup *> tempCore;
-    JGadget::TList<Settings::SettingsGroup *> tempGame;
-    JGadget::TList<Settings::SettingsGroup *> tempMode;
-
-    for (auto &item : temp) {
-        Settings::SettingsGroup *group = item.mValue->mSettings;
-        if (strcmp(item.mKey, "Super Mario Sunshine") == 0) {
+    for (auto &item : gModuleInfos) {
+        Settings::SettingsGroup *group = item.second->mSettings;
+        if (strcmp(item.first.data(), "Super Mario Sunshine") == 0) {
             tempCore.insert(tempCore.begin(), group);
             continue;
-        } else if (strcmp(item.mKey, "Better Sunshine Engine") == 0) {
+        } else if (strcmp(item.first.data(), "Better Sunshine Engine") == 0) {
             tempCore.insert(tempCore.begin(), group);
             continue;
         }
@@ -107,7 +105,7 @@ void initAllSettings(TApplication *app) {
 
     CARDFileInfo finfo;
 
-    JGadget::TList<Settings::SettingsGroup *> groups;
+    TGlobalList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
@@ -127,13 +125,13 @@ void initAllSettings(TApplication *app) {
         CloseSavedSettings(*group, &finfo);
     }
 
-    for (auto &group : groups) {
+    /*for (auto &group : groups) {
         for (auto &setting : group->getSettings()) {
             if (setting->isUnlocked()) {
                 group->mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
             }
         }
-    }
+    }*/
 }
 
 //
@@ -156,7 +154,7 @@ s32 MountCard(s32 channel) {
     int tries = 0;
     int isMounted;
 
-    s32 memsize, sectsize;
+    s32 memScale, sectsize;
 
     // Mount the card, try several times as they are tricky
     while ((tries < 10) && (ret < 0)) {
@@ -175,8 +173,8 @@ s32 MountCard(s32 channel) {
     }
 
     /*** Make sure the card is really mounted ***/
-    isMounted = CARDProbeEx(channel, &memsize, &sectsize);
-    if (memsize > 0 && sectsize > 0)  // then we really mounted de card
+    isMounted = CARDProbeEx(channel, &memScale, &sectsize);
+    if (memScale > 0 && sectsize > 0)  // then we really mounted de card
     {
         return isMounted;
     }
@@ -593,7 +591,7 @@ void SettingsDirector::initializeSettingsLayout() {
     }
 
     int i = 0;
-    JGadget::TList<Settings::SettingsGroup *> settingsGroups;
+    TGlobalList<Settings::SettingsGroup *> settingsGroups;
     getSettingsGroups(settingsGroups);
 
     for (auto &group : settingsGroups) {
@@ -607,12 +605,12 @@ void SettingsDirector::initializeSettingsLayout() {
             char *groupTextBuf = new char[70];
             memset(groupTextBuf, 0, 70);
 
-            if (settingsGroups.mSize == 1) {
+            if (settingsGroups.size() == 1) {
                 snprintf(groupTextBuf, 70, "    %s    ", groupName);
             } else {
                 if (i == 0)
                     snprintf(groupTextBuf, 70, "    %s   >", groupName);
-                else if (i == settingsGroups.mSize - 1)
+                else if (i == settingsGroups.size() - 1)
                     snprintf(groupTextBuf, 70, "<   %s    ", groupName);
                 else
                     snprintf(groupTextBuf, 70, "<   %s   >", groupName);
@@ -632,7 +630,7 @@ void SettingsDirector::initializeSettingsLayout() {
         groupInfo->mSettingGroup = group;
 
         int n = 0;
-        auto settingList = new JGadget::TList<SettingInfo *>();
+        auto settingList = new TGlobalList<SettingInfo *>();
         for (auto &setting : group->getSettings()) {
             if (!setting->isUnlocked())
                 continue;
@@ -838,7 +836,7 @@ void SettingsDirector::saveSettings_() {
 
     CARDFileInfo finfo;
 
-    JGadget::TList<Settings::SettingsGroup *> groups;
+    TGlobalList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
@@ -910,7 +908,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80299D0C, 0, 0, 0), checkForSettingsMenu);
 static J2DPicture *sNotificationPicture;
 static J2DScreen *sNotificationScreen;
 static J2DTextBox *sNotificationBox;
-static JGadget::TList<char *> sUnlockedSettings;
+static TGlobalList<char *> sUnlockedSettings;
 
 static OSTime sLastTime = 0;
 static int sVisualState = 0;
@@ -918,9 +916,34 @@ static int sOnScreenTime = 0;
 
 static char sNotifTextBuf[128];
 
+// Settings template specialization for UnorderedMap
+using setting_hash = JSystem::hash<BetterSMS::Settings::SingleSetting *>;
+
+struct setting_equal_to : JSystem::binary_function<BetterSMS::Settings::SingleSetting *,
+                                                   BetterSMS::Settings::SingleSetting *, bool> {
+    inline constexpr auto operator()(BetterSMS::Settings::SingleSetting *a,
+                                     BetterSMS::Settings::SingleSetting *b) -> decltype(auto) {
+        return a == b;
+    }
+};
+
+template <>
+inline size_t setting_hash::operator()(BetterSMS::Settings::SingleSetting *v) const noexcept {
+    auto uv = reinterpret_cast<u32>(v);
+    uv      = ((uv >> 16) ^ uv) * 0x45d9f3b;
+    uv      = ((uv >> 16) ^ uv) * 0x45d9f3b;
+    uv      = (uv >> 16) ^ uv;
+    return uv;
+}
+//
+
+static TGlobalUnorderedMap<Settings::SingleSetting *, bool> sNewUnlockMap(256);
+
 void initUnlockedSettings(TApplication *app) {
     sLastTime = 0;
-    sUnlockedSettings.erase(sUnlockedSettings.begin(), sUnlockedSettings.end());
+
+    sUnlockedSettings.clear();
+    sNewUnlockMap.clear();
 
     memset(sNotifTextBuf, 0, 128);
 
@@ -947,13 +970,26 @@ void initUnlockedSettings(TApplication *app) {
     sVisualState = 0;
 }
 
+void checkForUnlockedSettings(const Settings::SettingsGroup &group, TGlobalList<Settings::SingleSetting *> &out) {
+    for (auto &setting : group.getSettings()) {
+        if (!sNewUnlockMap.contains(setting)) {
+            sNewUnlockMap[setting] = setting->isUnlocked();
+        }
+        bool &unlocked = sNewUnlockMap[setting];
+        if (setting->isUnlocked() && !unlocked) {  // This means the setting was just unlocked
+            out.insert(out.begin(), setting);
+            unlocked = true;
+        }
+    }
+}
+
 void updateUnlockedSettings(TApplication *app) {
-    JGadget::TList<Settings::SettingsGroup *> groups;
+    TGlobalList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        JGadget::TList<Settings::SingleSetting *> unlockedSettings;
-        group->checkForUnlockedSettings(unlockedSettings);
+        TGlobalList<Settings::SingleSetting *> unlockedSettings;
+        checkForUnlockedSettings(*group, unlockedSettings);
 
         for (auto &setting : unlockedSettings) {
             char *notifText = new char[100];

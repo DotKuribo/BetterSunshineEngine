@@ -1,7 +1,6 @@
 #include <Dolphin/DVD.h>
 #include <Dolphin/types.h>
 
-
 #include <SMS/GC2D/SelectDir.hxx>
 #include <SMS/Player/MarioGamePad.hxx>
 #include <SMS/System/GCLogoDir.hxx>
@@ -14,32 +13,32 @@
 #include <SMS/Manager/RumbleManager.hxx>
 #include <SMS/System/CardManager.hxx>
 
-
 #include "application.hxx"
 #include "libs/container.hxx"
+#include "libs/global_unordered_map.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"
 
 
 using namespace BetterSMS;
 
-static TDictI<Application::ContextCallback> sContextCBs;
+static TGlobalUnorderedMap<u8, Application::ContextCallback> sContextCBs(16);
 
 SMS_NO_INLINE bool BetterSMS::Application::isContextRegistered(u8 context) {
-    return sContextCBs.hasKey(context);
+    return sContextCBs.contains(context);
 }
 
 SMS_NO_INLINE bool BetterSMS::Application::registerContextCallback(u8 context, ContextCallback cb) {
-    if (sContextCBs.hasKey(context))
+    if (isContextRegistered(context))
         return false;
-    sContextCBs.set(context, cb);
+    sContextCBs[context] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Application::deregisterContextCallback(u8 context) {
-    if (sContextCBs.hasKey(context))
+    if (!isContextRegistered(context))
         return false;
-    sContextCBs.pop(context);
+    sContextCBs.erase(context);
     return true;
 }
 
@@ -153,8 +152,8 @@ void BetterApplicationProcess(TApplication *app) {
     bool exitLoop   = false;
     u8 delayContext = 1;
     do {
-        auto *cb = sContextCBs.get(app->mContext);
-        SMS_ASSERT(cb, "Application attempted to fetch a context handler but it wasn't found!");
+        Application::ContextCallback cb = sContextCBs[app->mContext];
+        SMS_ASSERT(cb, "Application attempted to fetch context handler %u but it wasn't found!", app->mContext);
 
         exitLoop = (*cb)(app);
         if (!exitLoop) {

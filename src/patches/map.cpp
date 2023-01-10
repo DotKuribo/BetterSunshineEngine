@@ -99,6 +99,6 @@ static bool clipActorsScaled(JDrama::TGraphics *graphics, const Vec *point, f32 
     SMS_FROM_GPR(31, actor);
 
     return ViewFrustumClipCheck__FPQ26JDrama9TGraphicsP3Vecf(
-        graphics, point, radius * Max(Max(actor->mSize.x, actor->mSize.y), actor->mSize.z));
+        graphics, point, radius * Max(Max(actor->mScale.x, actor->mScale.y), actor->mScale.z));
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8021B144, 0, 0, 0), clipActorsScaled);

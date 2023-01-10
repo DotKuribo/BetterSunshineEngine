@@ -57,7 +57,7 @@ void TGenericRailObj::load(JSUMemoryInputStream &in) {
 
     mSoundCounter = mSoundSpeed;
 
-    mInitialPosition = mPosition;
+    mInitialPosition = mTranslation;
     mInitialRotation = mRotation;
 
     {
@@ -134,19 +134,19 @@ void TGenericRailObj::control() {
     if (++mSoundCounter >= mSoundSpeed) {
         if (mSoundID != 0xFFFFFFFF && gpMSound->gateCheck(mSoundID))
             mCurrentSound =
-                MSoundSESystem::MSoundSE::startSoundActor(mSoundID, mPosition, 0, nullptr, 0, 4);
+                MSoundSESystem::MSoundSE::startSoundActor(mSoundID, mTranslation, 0, nullptr, 0, 4);
         mSoundCounter = 0;
     }
 
     if (mCurrentSound) {
         // TODO: add when exp2f is resolved
         //
-        // mCurrentSound->setVolume(powf(0.01f, PSVECDistance(mPosition, gpCamera->mPosition) /
+        // mCurrentSound->setVolume(powf(0.01f, PSVECDistance(mTranslation, gpCamera->mTranslation) /
         //                                          (8000.0f * mSoundStrength)),
         //                          0, 0);
 
         mCurrentSound->setVolume(lerp<f32>(1.0f, 0.0f,
-                                           clamp(PSVECDistance(mPosition, gpCamera->mPosition) /
+                                           clamp(PSVECDistance(mTranslation, gpCamera->mTranslation) /
                                                      (8000.0f * mSoundStrength),
                                                  0.0f, 1.0f)),
                                  0, 0);
@@ -172,14 +172,14 @@ void TGenericRailObj::control() {
             mTravelSpeed = static_cast<f32>(node->mValues[0]) / 100.0f;
 
         nodePos         = graph->indexToPoint(mGraphTracer->mCurrentNode);
-        mDistanceToNext = PSVECDistance(nodePos, mPosition) / mTravelSpeed;
+        mDistanceToNext = PSVECDistance(nodePos, mTranslation) / mTravelSpeed;
         mPathDistance   = mDistanceToNext;
     } else {
         nodePos = graph->indexToPoint(mGraphTracer->mCurrentNode);
     }
 
     f32 distanceLerp =
-        static_cast<f32>(mDistanceToNext) / (PSVECDistance(nodePos, mPosition) / mTravelSpeed);
+        static_cast<f32>(mDistanceToNext) / (PSVECDistance(nodePos, mTranslation) / mTravelSpeed);
     mRotation = {
         lerp<f32>(mCurrentNodeRotation.x, mTargetNodeRotation.x,
                   1.0f - (static_cast<f32>(mDistanceToNext) / static_cast<f32>(mPathDistance))),
@@ -230,9 +230,9 @@ void TGenericRailObj::readRailFlag() {
 }
 
 void TGenericRailObj::resetPosition() {
-    mPosition = mInitialPosition;
+    mTranslation = mInitialPosition;
     mRotation = mInitialRotation;
-    mGraphTracer->setTo(mGraphTracer->mGraph->findNearestNodeIndex(mPosition, -1));
+    mGraphTracer->setTo(mGraphTracer->mGraph->findNearestNodeIndex(mTranslation, -1));
     readRailFlag();
 }
 

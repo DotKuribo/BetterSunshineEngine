@@ -75,7 +75,7 @@ namespace BetterSMS {
                   SMS_TPARAM_INIT(mPlayerHasHelmet, false),
                   SMS_TPARAM_INIT(mPlayerHasGlasses, false),
                   SMS_TPARAM_INIT(mPlayerHasShirt, false),
-                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f), SMS_TPARAM_INIT(mSizeMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f), SMS_TPARAM_INIT(mScaleMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mSpeedMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mBaseJumpMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mMultiJumpMultiplier, 0.875f),
@@ -97,7 +97,7 @@ namespace BetterSMS {
             TParamRT<bool> mPlayerHasGlasses;
             TParamRT<bool> mPlayerHasShirt;
             TParamRT<f32> mGravityMultiplier;
-            TParamRT<f32> mSizeMultiplier;
+            TParamRT<f32> mScaleMultiplier;
             TParamRT<f32> mSpeedMultiplier;
             TParamRT<f32> mBaseJumpMultiplier;
             TParamRT<f32> mMultiJumpMultiplier;

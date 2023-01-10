@@ -1,45 +1,45 @@
 #pragma once
 
-#include <Dolphin/types.h>
-#include <Dolphin/string.h>
 #include <Dolphin/printf.h>
+#include <Dolphin/string.h>
+#include <Dolphin/types.h>
 
+#include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRActor.hxx>
 #include <JSystem/JDrama/JDRDirector.hxx>
-#include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <JSystem/JGadget/List.hxx>
+#include <JSystem/JGadget/UnorderedMap.hxx>
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JStage/JSGObject.hxx>
 
-#include <SMS/Player/Yoshi.hxx>
+#include <SMS/GC2D/GCConsole2.hxx>
+#include <SMS/GC2D/Guide.hxx>
+#include <SMS/GC2D/ShineFader.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
 #include <SMS/MoveBG/Coin.hxx>
+#include <SMS/MoveBG/DemoCannon.hxx>
 #include <SMS/MoveBG/Shine.hxx>
-#include <SMS/GC2D/GCConsole2.hxx>
-#include <SMS/GC2D/GCConsole2.hxx>
-#include <SMS/System/PerformList.hxx>
+#include <SMS/NPC/NpcBase.hxx>
+#include <SMS/Player/Yoshi.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/System/MarDirector.hxx>
-#include <SMS/GC2D/Guide.hxx>
-#include <SMS/MapObj/MapObjInit.hxx>
-#include <SMS/NPC/NpcBase.hxx>
-#include <SMS/MoveBG/DemoCannon.hxx>
 #include <SMS/System/Params.hxx>
-#include <SMS/GC2D/ShineFader.hxx>
+#include <SMS/System/PerformList.hxx>
 #include <SMS/assert.h>
 
-#include "libs/container.hxx"
+#include "libs/global_list.hxx"
 
 namespace BetterSMS {
+
     namespace Settings {
         enum class Priority { CORE, GAME, MODE };
 
         class SettingsGroup;
 
-        #pragma region SettingImplementation
+#pragma region SettingImplementation
 
-        template <typename T>
-        struct ValueRange {
+        template <typename T> struct ValueRange {
             T mStart;
             T mStop;
             T mStep;
@@ -138,20 +138,14 @@ namespace BetterSMS {
             void setValue(const void *val) const override {
                 *reinterpret_cast<bool *>(mValuePtr) = *reinterpret_cast<const bool *>(val);
             }
-            void prevValue() override {
-                setBool(getBool() ^ true);
-            }
-            void nextValue() override {
-                setBool(getBool() ^ true);
-            }
+            void prevValue() override { setBool(getBool() ^ true); }
+            void nextValue() override { setBool(getBool() ^ true); }
             void load(JSUMemoryInputStream &in) override {
                 u8 b;
                 in.read(&b, 1);
                 setBool(b > 0 ? true : false);
             }
-            void save(JSUMemoryOutputStream &out) override {
-                out.write(mValuePtr, 1);
-            }
+            void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 1); }
         };
 
         class SwitchSetting : public BoolSetting {
@@ -177,12 +171,8 @@ namespace BetterSMS {
             void setValue(const void *val) const override {
                 *reinterpret_cast<int *>(mValuePtr) = *reinterpret_cast<const int *>(val);
             }
-            void prevValue() override {
-                setInt(clampValueToRange(getInt() - mValueRange.mStep));
-            }
-            void nextValue() override {
-                setInt(clampValueToRange(getInt() + mValueRange.mStep));
-            }
+            void prevValue() override { setInt(clampValueToRange(getInt() - mValueRange.mStep)); }
+            void nextValue() override { setInt(clampValueToRange(getInt() + mValueRange.mStep)); }
             void load(JSUMemoryInputStream &in) override {
                 int x;
                 in.read(&x, 4);
@@ -263,17 +253,18 @@ namespace BetterSMS {
             u16 mIconFmt;
             u16 mIconSpeed;
             size_t mIconCount;
-            const ResTIMG *mIconTable; // Should be one BTI image vertically stacked for each icon
+            const ResTIMG *mIconTable;  // Should be one BTI image vertically stacked for each icon
             bool mSaveGlobal;
         };
 
         class SettingsGroup {
         public:
-            using SettingsList = JGadget::TList<SingleSetting *>;
+            using SettingsList = TGlobalList<SingleSetting *>;
 
         public:
             SettingsGroup() = delete;
-            SettingsGroup(const char *name, u8 major, u8 minor, Priority prio) : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
+            SettingsGroup(const char *name, u8 major, u8 minor, Priority prio)
+                : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
             SettingsGroup(const char *name, u8 major, u8 minor, const SettingsList &settings,
                           Priority prio)
                 : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio),
@@ -291,24 +282,26 @@ namespace BetterSMS {
                 }
                 return nullptr;
             }
+
             SettingsList &getSettings() { return mSettings; }
+            const SettingsList &getSettings() const { return mSettings; }
+
             SettingsSaveInfo &getSaveInfo() { return mSaveInfo; }
             const SettingsSaveInfo &getSaveInfo() const { return mSaveInfo; }
-            Priority getPriority() { return mOrderPriority; }
+
+            Priority getPriority() const { return mOrderPriority; }
 
             void setName(const char *name) { mName = name; }
             void setSettings(const SettingsList &settings) { mSettings = settings; }
 
             void addSetting(SingleSetting *setting) {
                 mSettings.insert(mSettings.end(), setting);
-                mUnlockedMap.set(reinterpret_cast<u32>(setting), setting->isUnlocked());
             }
 
             void removeSetting(SingleSetting *setting) {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
                     if (*iter == setting) {
                         mSettings.erase(iter);
-                        mUnlockedMap.pop(reinterpret_cast<u32>(setting)); 
                         return;
                     }
                 }
@@ -316,20 +309,9 @@ namespace BetterSMS {
 
             void removeSetting(const char *name) {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
-                    if (iter->getName() == name) {
+                    if (strcmp((*iter)->getName(), name) == 0) {
                         mSettings.erase(iter);
-                        mUnlockedMap.pop(reinterpret_cast<u32>(*iter)); 
                         return;
-                    }
-                }
-            }
-
-            void checkForUnlockedSettings(JGadget::TList<SingleSetting *> &out) {
-                for (auto &setting : mSettings) {
-                    bool *unlocked = mUnlockedMap.get(reinterpret_cast<u32>(setting));
-                    if (setting->isUnlocked() && (!unlocked || !*unlocked)) {
-                        mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
-                        out.insert(out.begin(), setting);
                     }
                 }
             }
@@ -340,11 +322,8 @@ namespace BetterSMS {
             SettingsList mSettings;
             SettingsSaveInfo mSaveInfo;
             Priority mOrderPriority;
-
-        public:
-            TDictI<bool> mUnlockedMap;
         };
 
 #pragma endregion
-    }
-}
+    }  // namespace Settings
+}  // namespace BetterSMS

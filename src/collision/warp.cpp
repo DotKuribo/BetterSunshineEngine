@@ -315,19 +315,12 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
     if (!player)
         return;
 
-    TVec3f cameraPos;
-    gpCamera->JSGGetViewPosition(reinterpret_cast<Vec *>(&cameraPos));
+    player->mTranslation = point;
 
-    {
-        f32 x = lerp<f32>(cameraPos.x, point.x, 0.9375f);
-        f32 y = point.y + 300.0f;
-        f32 z = lerp<f32>(cameraPos.z, point.z, 0.9375f);
-        cameraPos.set(x, y, z);
-    }
-
-    player->JSGSetTranslation(reinterpret_cast<const Vec &>(point));
-    gpCamera->JSGSetViewPosition(reinterpret_cast<Vec &>(cameraPos));
-    gpCamera->JSGSetViewTargetPosition(reinterpret_cast<const Vec &>(point));
+    gpCamera->mTranslation.x = lerp<f32>(gpCamera->mTranslation.x, point.x, 0.9375f);
+    gpCamera->mTranslation.y = point.y + 300.0f;
+    gpCamera->mTranslation.z = lerp<f32>(gpCamera->mTranslation.z, point.z, 0.9375f);
+    gpCamera->mTargetPos = point;
 }
 
 static void redirectPlayerWithNormal(TMario *player, const TVec3f &normal, f32 minVelocity) {
@@ -337,7 +330,7 @@ static void redirectPlayerWithNormal(TMario *player, const TVec3f &normal, f32 m
     player->setPlayerVelocity(magnitude * normal.x + magnitude * normal.z);
     player->mSpeed.y = magnitude * normal.y;
 
-    player->mPosition.add(TVec3f{50.0f * normal.x, 50.0f * normal.y, 50.0f * normal.z});
+    player->mTranslation.add(TVec3f{50.0f * normal.x, 50.0f * normal.y, 50.0f * normal.z});
 
     if (!(player->mState & TMario::STATE_AIRBORN))
         player->changePlayerStatus(TMario::STATE_FALL, 0, false);

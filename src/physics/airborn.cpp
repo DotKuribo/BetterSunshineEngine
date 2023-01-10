@@ -126,7 +126,7 @@ static f32 getTrueFloorContactSpeed(TMario *player) {
 static void dynamicFallDamage(TMario *player, int dmg, int type, int emitcount, int tremble) {
     auto playerData = Player::getData(player);
 
-    dmg *= static_cast<int>((player->mLastGroundedPos.y - player->mPosition.y) /
+    dmg *= static_cast<int>((player->mLastGroundedPos.y - player->mTranslation.y) /
                             (player->mDeParams.mDamageFallHeight.get() / 1.5f));
 
     const f32 terminalVelocity = -75.0f * player->mJumpParams.mGravity.get();

@@ -1,28 +1,28 @@
 #include <SMS/macros.h>
 
+#include "libs/global_unordered_map.hxx"
 #include "bmg.hxx"
-#include "libs/container.hxx"
 
 using namespace BetterSMS;
 
-static TDictI<BMG::BMGCommandCallback> sBMGCommandCBs;
+static BetterSMS::TGlobalUnorderedMap<u8, BMG::BMGCommandCallback> sBMGCommandCBs(64);
 
 SMS_NO_INLINE bool BetterSMS::BMG::isBMGCommandRegistered(u8 identifier) {
-    return sBMGCommandCBs.hasKey(identifier);
+    return sBMGCommandCBs.contains(identifier);
 }
 
 SMS_NO_INLINE bool BetterSMS::BMG::registerBMGCommandCallback(u8 identifier,
                                                               BMGCommandCallback cb) {
-    if (sBMGCommandCBs.hasKey(identifier))
+    if (isBMGCommandRegistered(identifier))
         return false;
-    sBMGCommandCBs.set(identifier, cb);
+    sBMGCommandCBs[identifier] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::BMG::deregisterBMGCommandCallback(u8 identifier) {
-    if (!sBMGCommandCBs.hasKey(identifier))
+    if (!isBMGCommandRegistered(identifier))
         return false;
-    sBMGCommandCBs.pop(identifier);
+    sBMGCommandCBs.erase(identifier);
     return true;
 }
 

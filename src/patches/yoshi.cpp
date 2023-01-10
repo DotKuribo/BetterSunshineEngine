@@ -80,13 +80,13 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
         return;
 
     const TBGCheckData *roof;
-    f32 roofHeight = gpMapCollisionData->checkRoof(yoshi->mPosition.x, yoshi->mPosition.y,
-                                                   yoshi->mPosition.z, 0, &roof);
+    f32 roofHeight = gpMapCollisionData->checkRoof(yoshi->mTranslation.x, yoshi->mTranslation.y,
+                                                   yoshi->mTranslation.z, 0, &roof);
     const TBGCheckData *water;
-    f32 waterY = gpMapCollisionData->checkGround(yoshi->mPosition.x, roofHeight - 10.0f, yoshi->mPosition.z, 0,
+    f32 waterY = gpMapCollisionData->checkGround(yoshi->mTranslation.x, roofHeight - 10.0f, yoshi->mTranslation.z, 0,
                                                  &water);
 
-    if (waterY - yoshi->mPosition.y < 100)
+    if (waterY - yoshi->mTranslation.y < 100)
         return;
 
     if (!water->isWaterSurface() ||
@@ -94,7 +94,7 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
         return;
 
     if (gpMSound->gateCheck(31000))
-        MSoundSE::startSoundActor(31000, yoshi->mPosition, 0, nullptr, 0, 4);
+        MSoundSE::startSoundActor(31000, yoshi->mTranslation, 0, nullptr, 0, 4);
 
     if (yoshi->mState == TYoshi::MOUNTED)
         yoshi->mMario->getOffYoshi(true);
@@ -121,11 +121,11 @@ static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 grou
     if (ground->mType != 1536 && ground->mType != 2048)
         return;
 
-    if (yoshi->mPosition.y - groundY > 200)
+    if (yoshi->mTranslation.y - groundY > 200)
         return;
 
     if (gpMSound->gateCheck(31000))
-        MSoundSE::startSoundActor(31000, yoshi->mPosition, 0, nullptr, 0, 4);
+        MSoundSE::startSoundActor(31000, yoshi->mTranslation, 0, nullptr, 0, 4);
 
     yoshi->mState = TYoshi::DROWNING;
 
@@ -148,8 +148,8 @@ void checkForYoshiDeath(TMario *player, bool isMario) {
 
     // Check for water death
     const TBGCheckData *ground;
-    f32 groundY = gpMapCollisionData->checkGround(player->mYoshi->mPosition.x, player->mYoshi->mPosition.y,
-                                    player->mYoshi->mPosition.z, 0,
+    f32 groundY = gpMapCollisionData->checkGround(player->mYoshi->mTranslation.x, player->mYoshi->mTranslation.y,
+                                    player->mYoshi->mTranslation.z, 0,
                                     &ground);
 
     checkForWaterDeath(player->mYoshi, ground, groundY);
@@ -182,7 +182,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80281140, 0x80278ECC, 0, 0), 0x2C030000);
 SMS_WRITE_32(SMS_PORT_REGION(0x80281144, 0x80278ED0, 0, 0), 0x41820134);
 
 static void keepDistanceIsolated(TMario *player, f32 x, f32 y) {
-    player->keepDistance(player->mYoshi->mPosition, x, y);
+    player->keepDistance(player->mYoshi->mTranslation, x, y);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80281284, 0, 0, 0), keepDistanceIsolated);
 

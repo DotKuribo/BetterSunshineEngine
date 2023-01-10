@@ -20,9 +20,11 @@
 #include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "libs/warp.hxx"
-
 #include "libs/constmath.hxx"
+#include "libs/global_unordered_map.hxx"
 #include "libs/triangle.hxx"
+#include "libs/string.hxx"
+
 #include "logging.hxx"
 #include "math.hxx"
 #include "module.hxx"
@@ -33,75 +35,66 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
-static TDictI<TDictS<void *>> sPlayerDict;
-static TDictS<Player::InitProcess> sPlayerInitializers;
-static TDictS<Player::UpdateProcess> sPlayerUpdaters;
-static TDictI<Player::MachineProcess> sPlayerStateMachines;
-static TDictI<Player::CollisionProcess> sPlayerCollisionHandlers;
+static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
+static TGlobalUnorderedMap<TGlobalString, Player::InitProcess> sPlayerInitializers(32);
+static TGlobalUnorderedMap<TGlobalString, Player::UpdateProcess> sPlayerUpdaters(32);
+static TGlobalUnorderedMap<u32, Player::MachineProcess> sPlayerStateMachines(32);
+static TGlobalUnorderedMap<u16, Player::CollisionProcess> sPlayerCollisionHandlers(32);
 
 SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
-    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    if (!dataDict) {
-        Console::debugLog(
-            "Trying to access BetterSMS player data that is not registered! (No Dictionary)\n");
-        return nullptr;
-    }
-    if (!dataDict->hasKey("__better_sms")) {
+    auto &dataDict = sPlayerDict[player];
+    OSReport("Big booty bitches\n");
+    auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict["__better_sms"]);
+
+    if (!data) {
         Console::debugLog(
             "Trying to access BetterSMS player data that is not registered! (No Data)\n");
-        return nullptr;
     }
-    return reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict->get("__better_sms"));
+
+    return data;
 }
 
 SMS_NO_INLINE void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
-    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    if (!dataDict) {
-        Console::debugLog(
-            "Trying to access player data (%s) that is not registered! (No Dictionary)\n", key);
-        return nullptr;
-    }
-    auto v = dataDict->get(key);
-    if (!v) {
-        Console::debugLog("Trying to access player data (%s) that is not registered! (No Data)\n",
+
+    auto &dataDict = sPlayerDict[player];
+    auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict[key]);
+
+    if (!data) {
+        Console::debugLog("Trying to access player data (%s) that is not registered!\n",
                           key);
-        return nullptr;
     }
-    return v;
+
+    return data;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
-    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    if (!dataDict) {
-        sPlayerDict.set(reinterpret_cast<u32>(player), {});
-        dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    }
-    if (dataDict->hasKey(key))
+    auto &dataDict = sPlayerDict[player];
+    if (dataDict.contains(key))
         return false;
-    dataDict->set(key, data);
+    dataDict[key] = data;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterData(TMario *player, const char *key) {
-    auto dataDict = sPlayerDict.get(reinterpret_cast<u32>(player));
-    if (!dataDict || !dataDict->hasKey(key))
+    auto &dataDict = sPlayerDict[player];
+    if (!dataDict.contains(key))
         return false;
-    dataDict->pop(key);
+    dataDict.erase(key);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::registerInitProcess(const char *key, InitProcess process) {
-    if (sPlayerInitializers.hasKey(key))
+    if (sPlayerInitializers.contains(key))
         return false;
-    sPlayerInitializers.set(key, process);
+    sPlayerInitializers[key] = process;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::registerUpdateProcess(const char *key,
                                                             UpdateProcess process) {
-    if (sPlayerUpdaters.hasKey(key))
+    if (sPlayerUpdaters.contains(key))
         return false;
-    sPlayerUpdaters.set(key, process);
+    sPlayerUpdaters[key] = process;
     return true;
 }
 
@@ -110,9 +103,9 @@ SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachinePro
         Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
                      "engine collisions)!\n");
     }
-    if (sPlayerStateMachines.hasKey(state))
+    if (sPlayerStateMachines.contains(state))
         return false;
-    sPlayerStateMachines.set(state, process);
+    sPlayerStateMachines[state] = process;
     return true;
 }
 
@@ -122,37 +115,37 @@ SMS_NO_INLINE bool BetterSMS::Player::registerCollisionHandler(u16 colType,
         Console::log("[WARNING] Collision type registered has camera clip and shadow flags set "
                      "(0x4000 || 0x8000)! This may cause unwanted behaviour!\n");
     }
-    if (sPlayerCollisionHandlers.hasKey(colType))
+    if (sPlayerCollisionHandlers.contains(colType))
         return false;
-    sPlayerCollisionHandlers.set(colType, process);
+    sPlayerCollisionHandlers[colType] = process;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterInitProcess(const char *key) {
-    if (!sPlayerInitializers.hasKey(key))
+    if (!sPlayerInitializers.contains(key))
         return false;
-    sPlayerInitializers.pop(key);
+    sPlayerInitializers.erase(key);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterUpdateProcess(const char *key) {
-    if (!sPlayerUpdaters.hasKey(key))
+    if (!sPlayerUpdaters.contains(key))
         return false;
-    sPlayerUpdaters.pop(key);
+    sPlayerUpdaters.erase(key);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterStateMachine(u32 state) {
-    if (!sPlayerStateMachines.hasKey(state))
+    if (!sPlayerStateMachines.contains(state))
         return false;
-    sPlayerStateMachines.pop(state);
+    sPlayerStateMachines.erase(state);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
-    if (!sPlayerCollisionHandlers.hasKey(colType))
+    if (!sPlayerCollisionHandlers.contains(colType))
         return false;
-    sPlayerCollisionHandlers.pop(colType);
+    sPlayerCollisionHandlers.erase(colType);
     return true;
 }
 
@@ -291,7 +284,7 @@ SMS_NO_INLINE void BetterSMS::Player::extinguishFire(TMario *player, bool expire
     auto playerData = Player::getData(player);
 
     if (playerData->mIsOnFire && !expired)
-        MSoundSE::startSoundActor(0x28C5, reinterpret_cast<Vec *>(&player->mPosition), 0, nullptr,
+        MSoundSE::startSoundActor(0x28C5, reinterpret_cast<Vec *>(&player->mTranslation), 0, nullptr,
                                   0, 0);
 
     playerData->mIsOnFire  = false;
@@ -305,19 +298,19 @@ void blazePlayer(TMario *player) {
     const f32 fireScale = 3.0f - (static_cast<f32>(playerData->mFireTimer) / MaxFireTime) * 2.0f;
 
     JPABaseEmitter *emitterFire =
-        gpMarioParticleManager->emitAndBindToPosPtr(0x135, &player->mPosition, 1, player);
-    emitterFire->mSize2.set(player->mSize.x * fireScale, player->mSize.y * fireScale,
-                            player->mSize.z * fireScale);
+        gpMarioParticleManager->emitAndBindToPosPtr(0x135, &player->mTranslation, 1, player);
+    emitterFire->mSize2.set(player->mScale.x * fireScale, player->mScale.y * fireScale,
+                            player->mScale.z * fireScale);
 
     JPABaseEmitter *emitterSmoke =
-        gpMarioParticleManager->emitAndBindToPosPtr(0x136, &player->mPosition, 1, player);
-    emitterSmoke->mSize2.set(player->mSize.x * fireScale, player->mSize.y * fireScale,
-                             player->mSize.z * fireScale);
+        gpMarioParticleManager->emitAndBindToPosPtr(0x136, &player->mTranslation, 1, player);
+    emitterSmoke->mSize2.set(player->mScale.x * fireScale, player->mScale.y * fireScale,
+                             player->mScale.z * fireScale);
 
     JPABaseEmitter *emitterEmber =
-        gpMarioParticleManager->emitAndBindToPosPtr(0x137, &player->mPosition, 1, player);
-    emitterEmber->mSize2.set(player->mSize.x * fireScale, player->mSize.y * fireScale,
-                             player->mSize.z * fireScale);
+        gpMarioParticleManager->emitAndBindToPosPtr(0x137, &player->mTranslation, 1, player);
+    emitterEmber->mSize2.set(player->mScale.x * fireScale, player->mScale.y * fireScale,
+                             player->mScale.z * fireScale);
 
     const s32 fireFrame = playerData->mFireTimer % MaxFireDamageTime;
     playerData->mFireTimer += 1;
@@ -338,7 +331,7 @@ void blazePlayer(TMario *player) {
         case TMario::STATE_IDLE:
             player->changePlayerStatus(TMario::STATE_RUNNING, 0, false);
         default:
-            player->setPlayerVelocity(50.0f * player->mSize.z);
+            player->setPlayerVelocity(50.0f * player->mScale.z);
             player->mActionState = 1;
         }
     }
@@ -442,7 +435,7 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
     if (mParams->mPlayerHasGlasses.get() && player->mCap)
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 
-    scalePlayerAttrs(mParams->mSizeMultiplier.get());
+    scalePlayerAttrs(mParams->mScaleMultiplier.get());
 }
 
 void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
@@ -750,6 +743,7 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
 
 // Extern to Player Init CB
 void initMario(TMario *player, bool isMario) {
+    OSReport("Init mario!\n");
     Stage::TStageParams *config = Stage::getStageConfiguration();
 
     Player::TPlayerData *params = new Player::TPlayerData(player, nullptr, isMario);
@@ -794,11 +788,8 @@ void resetPlayerDatas(TApplication *application) {
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
 
-    TDictS<Player::InitProcess>::ItemList playerInitCBs;
-    sPlayerInitializers.items(playerInitCBs);
-
-    for (auto &item : playerInitCBs) {
-        item.mValue(player, true);
+    for (auto &item : sPlayerInitializers) {
+        item.second(player, true);
     }
 
     return player;
@@ -811,11 +802,8 @@ static bool shadowMarioInitHandler() {
     TMario *player;
     SMS_ASM_BLOCK("lwz %0, 0x150 (31)" : "=r"(player));
 
-    TDictS<Player::InitProcess>::ItemList playerInitCBs;
-    sPlayerInitializers.items(playerInitCBs);
-
-    for (auto &item : playerInitCBs) {
-        item.mValue(player, false);
+    for (auto &item : sPlayerInitializers) {
+        item.second(player, false);
     }
 
     return SMS_isMultiPlayerMap__Fv();
@@ -823,11 +811,8 @@ static bool shadowMarioInitHandler() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x800397DC, 0x80039894, 0, 0), shadowMarioInitHandler);
 
 static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
-    TDictS<Player::UpdateProcess>::ItemList playerUpdateCBs;
-    sPlayerUpdaters.items(playerUpdateCBs);
-
-    for (auto &item : playerUpdateCBs) {
-        item.mValue(player, true);
+    for (auto &item : sPlayerUpdaters) {
+        item.second(player, true);
     }
 
     player->playerControl(graphics);
@@ -835,11 +820,8 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
-    TDictS<Player::UpdateProcess>::ItemList playerUpdateCBs;
-    sPlayerUpdaters.items(playerUpdateCBs);
-
-    for (auto &item : playerUpdateCBs) {
-        item.mValue(player, false);
+    for (auto &item : sPlayerUpdaters) {
+        item.second(player, false);
     }
 
     player->playerControl(graphics);
@@ -849,13 +831,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8003F8E8, 0x8003F740, 0, 0), shadowMarioUpdateHan
 static bool stateMachineHandler(TMario *player) {
     auto currentState = player->mState;
 
-    TDictI<Player::MachineProcess>::ItemList playerStateMachineCBs;
-    sPlayerStateMachines.items(playerStateMachineCBs);
-
     bool shouldProgressState = true;
-    for (auto &item : playerStateMachineCBs) {
-        if (item.mKey == currentState) {
-            shouldProgressState = item.mValue(player);
+    for (auto &item : sPlayerStateMachines) {
+        if (item.first == currentState) {
+            shouldProgressState = item.second(player);
             break;
         }
     }
@@ -869,9 +848,6 @@ static u32 collisionHandler(TMario *player) {
 
     const u16 colType = player->mFloorTriangle->mType & 0xFFF;
     const u16 prevColType = playerData->mPrevCollisionType & 0xFFF;
-
-    TDictI<Player::CollisionProcess>::ItemList playerCollisionCBs;
-    sPlayerCollisionHandlers.items(playerCollisionCBs);
 
     u32 marioFlags = 0;
     if ((player->mState & TMario::STATE_AIRBORN)) {
@@ -887,25 +863,25 @@ static u32 collisionHandler(TMario *player) {
     }
 
     if (colType != prevColType) {
-        for (auto &item : playerCollisionCBs) {
-            if (item.mKey == prevColType)
-                item.mValue(player,
-                                  const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
-                                  marioFlags | Player::InteractionFlags::ON_EXIT);
+        // Here we keep the loops apart as to force exit callbacks before enter callbacks
+        for (auto &item : sPlayerCollisionHandlers) {
+            if (item.first == prevColType)
+                item.second(player, const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
+                            marioFlags | Player::InteractionFlags::ON_EXIT);
         }
-        for (auto &item : playerCollisionCBs) {
-            if (item.mKey == colType)
-                item.mValue(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
-                                  marioFlags | Player::InteractionFlags::ON_ENTER);
+        for (auto &item : sPlayerCollisionHandlers) {
+            if (item.first == colType)
+                item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
+                            marioFlags | Player::InteractionFlags::ON_ENTER);
         }
         playerData->mPrevCollisionType          = colType;
         playerData->mPrevCollisionFloor         = player->mFloorTriangle;
         playerData->mCollisionFlags.mIsFaceUsed = false;
         playerData->mCollisionTimer             = 0;
-    } else if (colType >= 3000) {
-        for (auto &item : playerCollisionCBs) {
-            if (item.mKey == colType)
-                item.mValue(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
+    } else if (colType >= 3000) {  // Custom collision is routinely updated
+        for (auto &item : sPlayerCollisionHandlers) {
+            if (item.first == colType)
+                item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                                   marioFlags);
         }
     } else {

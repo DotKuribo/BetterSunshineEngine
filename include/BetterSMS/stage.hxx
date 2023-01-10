@@ -17,10 +17,10 @@ namespace BetterSMS {
         struct TStageParams;
         TStageParams *getStageConfiguration();
 
-        const char *getStageName(TApplication *application);
-        bool isStageInitRegistered(const char *name);
-        bool isStageUpdateRegistered(const char *name);
+        bool isInitRegistered(const char *name);
+        bool isUpdateRegistered(const char *name);
         bool isDraw2DRegistered(const char *name);
+        bool isExitRegistered(const char *name);
         bool registerInitCallback(const char *name, InitCallback cb);
         bool registerUpdateCallback(const char *name, UpdateCallback cb);
         bool registerDraw2DCallback(const char *name, Draw2DCallback cb);
@@ -30,10 +30,14 @@ namespace BetterSMS {
         bool deregisterDraw2DCallback(const char *name);
         bool deregisterExitCallback(const char *name);
 
+        const char *getStageName(u8 area, u8 episode);
+        bool isDivingStage(u8 area, u8 episode);
+        bool isExStage(u8 area, u8 episode);
+
 #pragma region ConfigImplementation
         struct TStageParams : public TParams {
 
-            TStageParams(const char *prm)
+            TStageParams()
                 : TParams(), SMS_TPARAM_INIT(mIsExStage, false),
                   SMS_TPARAM_INIT(mIsDivingStage, false), SMS_TPARAM_INIT(mIsOptionStage, false),
                   SMS_TPARAM_INIT(mIsMultiplayerStage, false), SMS_TPARAM_INIT(mIsEggFree, true),
@@ -50,10 +54,9 @@ namespace BetterSMS {
                   SMS_TPARAM_INIT(mMusicPitch, 1.0f), SMS_TPARAM_INIT(mMusicID, 1),
                   SMS_TPARAM_INIT(mMusicAreaID, 1), SMS_TPARAM_INIT(mMusicEpisodeID, 0),
                   SMS_TPARAM_INIT(mMusicEnabled, true), SMS_TPARAM_INIT(mMusicSetCustom, false),
-                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f) {
-                delete sStageConfig;
-                sStageConfig = this;
+                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f) {}
 
+            TStageParams(const char *prm) : TStageParams() {
                 if (prm)
                     load(prm);
             }
@@ -66,7 +69,7 @@ namespace BetterSMS {
             static TStageParams *sStageConfig;
 
             static char *stageNameToParamPath(char *dst, const char *stage,
-                                              bool generalize = false);
+                                              bool global = false);
 
             bool isCustomConfig() const { return mIsCustomConfigLoaded; }
             void load(const char *stageName);

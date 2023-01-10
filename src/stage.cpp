@@ -10,6 +10,9 @@
 #include <SMS/MapObj/MapObjInit.hxx>
 
 #include "libs/container.hxx"
+#include "libs/global_unordered_map.hxx"
+#include "libs/string.hxx"
+
 #include "loading.hxx"
 #include "logging.hxx"
 #include "stage.hxx"
@@ -17,10 +20,10 @@
 
 using namespace BetterSMS;
 
-static TDictS<Stage::InitCallback> sStageInitCBs;
-static TDictS<Stage::UpdateCallback> sStageUpdateCBs;
-static TDictS<Stage::Draw2DCallback> sStageDrawCBs;
-static TDictS<Stage::ExitCallback> sStageExitCBs;
+static TGlobalUnorderedMap<TGlobalString, Stage::InitCallback> sStageInitCBs(64);
+static TGlobalUnorderedMap<TGlobalString, Stage::UpdateCallback> sStageUpdateCBs(64);
+static TGlobalUnorderedMap<TGlobalString, Stage::Draw2DCallback> sStageDrawCBs(64);
+static TGlobalUnorderedMap<TGlobalString, Stage::ExitCallback> sStageExitCBs(64);
 
 Stage::TStageParams *Stage::TStageParams::sStageConfig = nullptr;
 
@@ -28,93 +31,100 @@ SMS_NO_INLINE Stage::TStageParams *BetterSMS::Stage::getStageConfiguration() {
     return TStageParams::sStageConfig;
 }
 
-SMS_NO_INLINE const char *BetterSMS::Stage::getStageName(TApplication *application) {
-    AreaEpisodeArray *AreaPathArray = application->mStringPaths;
-
-    if (!AreaPathArray)
-        return nullptr;
-
-    u32 *AreaArrayStart = AreaPathArray->startArray;
-
-    if (!AreaArrayStart || (((u32)AreaPathArray->endArray - (u32)AreaArrayStart) >> 2) <
-                               (u8)application->mCurrentScene.mAreaID)
-        return nullptr;
-
-    AreaEpisodeArray *StagePathArray =
-        (AreaEpisodeArray *)AreaArrayStart[(u8)application->mCurrentScene.mAreaID];
-    u32 *StageArrayStart = (u32 *)StagePathArray->startArray;
-
-    if (!StageArrayStart || (((u32)StagePathArray->endArray - (u32)StageArrayStart) >> 4) <
-                                application->mCurrentScene.mEpisodeID)
-        return nullptr;
-
-    return (char *)(StageArrayStart[(application->mCurrentScene.mEpisodeID << 2) + (0xC / 4)]);
+SMS_NO_INLINE bool BetterSMS::Stage::isInitRegistered(const char *name) {
+    return sStageInitCBs.contains(name);
 }
-
-SMS_NO_INLINE bool BetterSMS::Stage::isStageInitRegistered(const char *name) {
-    return sStageInitCBs.hasKey(name);
-}
-SMS_NO_INLINE bool BetterSMS::Stage::isStageUpdateRegistered(const char *name) {
-    return sStageUpdateCBs.hasKey(name);
+SMS_NO_INLINE bool BetterSMS::Stage::isUpdateRegistered(const char *name) {
+    return sStageUpdateCBs.contains(name);
 }
 SMS_NO_INLINE bool BetterSMS::Stage::isDraw2DRegistered(const char *name) {
-    return sStageDrawCBs.hasKey(name);
+    return sStageDrawCBs.contains(name);
+}
+SMS_NO_INLINE bool BetterSMS::Stage::isExitRegistered(const char *name) {
+    return sStageExitCBs.contains(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerInitCallback(const char *name, InitCallback cb) {
-    if (sStageInitCBs.hasKey(name))
+    if (isInitRegistered(name))
         return false;
-    sStageInitCBs.set(name, cb);
+    sStageInitCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerUpdateCallback(const char *name, UpdateCallback cb) {
-    if (sStageUpdateCBs.hasKey(name))
+    if (isUpdateRegistered(name))
         return false;
-    sStageUpdateCBs.set(name, cb);
+    sStageUpdateCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerDraw2DCallback(const char *name, Draw2DCallback cb) {
-    if (sStageDrawCBs.hasKey(name))
+    if (isDraw2DRegistered(name))
         return false;
-    sStageDrawCBs.set(name, cb);
+    sStageDrawCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerExitCallback(const char *name, ExitCallback cb) {
-    if (sStageExitCBs.hasKey(name))
+    if (isExitRegistered(name))
         return false;
-    sStageExitCBs.set(name, cb);
+    sStageExitCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::deregisterInitCallback(const char *name) {
-    if (!sStageDrawCBs.hasKey(name))
+    if (!isInitRegistered(name))
         return false;
-    sStageDrawCBs.pop(name);
+    sStageDrawCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::deregisterUpdateCallback(const char *name) {
-    if (!sStageDrawCBs.hasKey(name))
+    if (!isUpdateRegistered(name))
         return false;
-    sStageDrawCBs.pop(name);
+    sStageDrawCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::deregisterDraw2DCallback(const char *name) {
-    if (!sStageDrawCBs.hasKey(name))
+    if (!isDraw2DRegistered(name))
         return false;
-    sStageDrawCBs.pop(name);
+    sStageDrawCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::deregisterExitCallback(const char *name) {
-    if (!sStageExitCBs.hasKey(name))
+    if (!isExitRegistered(name))
         return false;
-    sStageExitCBs.pop(name);
+    sStageExitCBs.erase(name);
     return true;
+}
+
+SMS_NO_INLINE const char *BetterSMS::Stage::getStageName(u8 area, u8 episode) {
+    const auto *areaAry = gpApplication.mStageArchiveAry;
+    if (!areaAry || area >= areaAry->mChildren.size())
+        return nullptr;
+
+    auto *episodeAry =
+        reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(areaAry->mChildren[area]);
+
+    if (!episodeAry || episode >= episodeAry->mChildren.size())
+        return nullptr;
+
+    TScenarioArchiveName &stageName = episodeAry->mChildren[episode];
+    return stageName.mArchiveName;
+}
+
+SMS_NO_INLINE bool BetterSMS::Stage::isDivingStage(u8 area, u8 episode) {
+    Stage::TStageParams params;
+    params.load(Stage::getStageName(area, episode));
+    return params.mIsDivingStage.get();
+}
+
+SMS_NO_INLINE bool BetterSMS::Stage::isExStage(u8 area, u8 episode) {
+    Stage::TStageParams params;
+    params.load(Stage::getStageName(area, episode));
+    return params.mIsExStage.get();
 }
 
 void BetterSMS::Stage::TStageParams::reset() {
@@ -239,11 +249,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80296DE0, 0x80291750, 0, 0), initStageLoading);
 static bool sIsStageInitialized = false;
 
 void initStageCallbacks(TMarDirector *director) {
-    TDictS<Stage::InitCallback>::ItemList stageInitCBs;
-    sStageInitCBs.items(stageInitCBs);
-
-    for (auto &item : stageInitCBs) {
-        item.mValue(director);
+    for (auto &item : sStageInitCBs) {
+        item.second(director);
     }
 
     director->setupObjects();
@@ -261,11 +268,8 @@ void updateStageCallbacks(TApplication *app) {
         return;
 
     if (gpMarDirector && app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
-        TDictS<Stage::UpdateCallback>::ItemList stageUpdateCBs;
-        sStageUpdateCBs.items(stageUpdateCBs);
-
-        for (auto &item : stageUpdateCBs) {
-            item.mValue(gpMarDirector);
+        for (auto &item : sStageUpdateCBs) {
+            item.second(gpMarDirector);
         }
     }
 }
@@ -273,11 +277,8 @@ void updateStageCallbacks(TApplication *app) {
 void drawStageCallbacks(J2DOrthoGraph *ortho) {
     ortho->setup2D();
 
-    TDictS<Stage::Draw2DCallback>::ItemList stageDrawCBs;
-    sStageDrawCBs.items(stageDrawCBs);
-
-    for (auto &item : stageDrawCBs) {
-        item.mValue(gpMarDirector, ortho);
+    for (auto &item : sStageDrawCBs) {
+        item.second(gpMarDirector, ortho);
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
@@ -286,11 +287,8 @@ void exitStageCallbacks(TApplication *app) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
         return;
 
-    TDictS<Stage::ExitCallback>::ItemList stageExitCBs;
-    sStageExitCBs.items(stageExitCBs);
-
-    for (auto &item : stageExitCBs) {
-        item.mValue(app);
+    for (auto &item : sStageExitCBs) {
+        item.second(app);
     }
 
     delete Stage::getStageConfiguration();
@@ -305,8 +303,8 @@ static bool isExMap() {
     if (config && config->isCustomConfig())
         return config->mIsExStage.get();
     else
-        return (gpApplication.mCurrentScene.mAreaID >= TGameSequence::DOLPICEX0 &&
-                gpApplication.mCurrentScene.mAreaID <= TGameSequence::COROEX6);
+        return (gpApplication.mCurrentScene.mAreaID >= TGameSequence::AREA_DOLPICEX0 &&
+                gpApplication.mCurrentScene.mAreaID <= TGameSequence::AREA_COROEX6);
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x802A8B58, 0x802A0C00, 0, 0), isExMap);
 
@@ -315,7 +313,8 @@ static bool isMultiplayerMap() {
     if (config && config->isCustomConfig())
         return config->mIsMultiplayerStage.get();
     else
-        return (gpMarDirector->mAreaID == TGameSequence::TEST10 && gpMarDirector->mEpisodeID == 0);
+        return (gpMarDirector->mAreaID == TGameSequence::AREA_TEST10 &&
+                gpMarDirector->mEpisodeID == 0);
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x802A8B30, 0x802A0BD8, 0, 0), isMultiplayerMap);
 
@@ -324,9 +323,9 @@ static bool isDivingMap() {
     if (config && config->isCustomConfig())
         return config->mIsDivingStage.get();
     else
-        return (gpMarDirector->mAreaID == TGameSequence::MAREBOSS ||
-                gpMarDirector->mAreaID == TGameSequence::MAREEX0 ||
-                gpMarDirector->mAreaID == TGameSequence::MAREUNDERSEA);
+        return (gpMarDirector->mAreaID == TGameSequence::AREA_MAREBOSS ||
+                gpMarDirector->mAreaID == TGameSequence::AREA_MAREEX0 ||
+                gpMarDirector->mAreaID == TGameSequence::AREA_MAREUNDERSEA);
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x802A8AFC, 0x802A0BA4, 0, 0), isDivingMap);
 
@@ -345,13 +344,14 @@ SMS_PATCH_B(SMS_PORT_REGION(0x802A8AE0, 0x802A0B88, 0, 0), isOptionMap);
 void loadStageConfig(TMarDirector *) {
     Console::debugLog("Reseting stage params...\n");
 
-    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams(nullptr);
+    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
 
     Stage::TStageParams *config = Stage::getStageConfiguration();
     config->reset();
 
     Console::debugLog("Loading stage specific params...\n");
-    config->load(Stage::getStageName(&gpApplication));
+    config->load(Stage::getStageName(
+        gpApplication.mCurrentScene.mAreaID, gpApplication.mCurrentScene.mEpisodeID));
 }
 
 // Extern to stage init

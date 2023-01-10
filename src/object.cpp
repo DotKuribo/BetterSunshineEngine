@@ -8,6 +8,9 @@
 
 
 #include "libs/container.hxx"
+#include "libs/global_unordered_map.hxx"
+#include "libs/string.hxx"
+
 #include "memory.hxx"
 #include "module.hxx"
 #include "object.hxx"
@@ -34,11 +37,11 @@ static u16 *sObjLoadAddrTable[sLoadAddrTableSize][2]{
 
 static ObjData *sObjDataTableNew[ObjDataTableSize + sObjMaxCount];
 
-static TDictS<Objects::NameRefInitializer> sCustomMapObjList;
-static TDictS<Objects::NameRefInitializer> sCustomEnemyObjList;
-static TDictS<Objects::NameRefInitializer> sCustomMiscObjList;
-static TDictI<Objects::ObjectInteractor> sCustomObjInteractionList;
-static TDictI<Objects::ObjectInteractor> sCustomObjGrabList;
+static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomMapObjList(64);
+static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomEnemyObjList(64);
+static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomMiscObjList(64);
+static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjInteractionList(64);
+static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjGrabList(64);
 
 SMS_NO_INLINE size_t BetterSMS::Objects::getRegisteredObjectCount() {
     return ObjDataTableSize + sOBJNewCount;
@@ -55,9 +58,9 @@ SMS_NO_INLINE size_t BetterSMS::Objects::getRemainingCapacity() {
 // Map objects (coins, blocks, etc)
 SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
                                                               Objects::NameRefInitializer initFn) {
-    if (sCustomMapObjList.hasKey(name))
+    if (sCustomMapObjList.contains(name))
         return false;
-    sCustomMapObjList.set(name, initFn);
+    sCustomMapObjList[name] = initFn;
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
         sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
                          1];  // Copy the default end to the next position
@@ -69,9 +72,9 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, 
 // Enemys (Strollin' Stus, Electrokoopas, etc)
 SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
                                                              Objects::NameRefInitializer initFn) {
-    if (sCustomEnemyObjList.hasKey(name))
+    if (sCustomEnemyObjList.contains(name))
         return false;
-    sCustomEnemyObjList.set(name, initFn);
+    sCustomEnemyObjList[name] = initFn;
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
         sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
                          1];  // Copy the default end to the next position
@@ -83,9 +86,9 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, O
 // Misc (Managers, tables, etc)
 SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name, ObjData *data,
                                                             Objects::NameRefInitializer initFn) {
-    if (sCustomMiscObjList.hasKey(name))
+    if (sCustomMiscObjList.contains(name))
         return false;
-    sCustomMiscObjList.set(name, initFn);
+    sCustomMiscObjList[name] = initFn;
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
         sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
                          1];  // Copy the default end to the next position
@@ -97,31 +100,31 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name, Ob
 SMS_NO_INLINE bool
 BetterSMS::Objects::registerObjectCollideInteractor(u32 objectID,
                                                     Objects::ObjectInteractor interactor) {
-    if (sCustomObjInteractionList.hasKey(objectID))
+    if (sCustomObjInteractionList.contains(objectID))
         return false;
-    sCustomObjInteractionList.set(objectID, interactor);
+    sCustomObjInteractionList[objectID] = interactor;
     return true;
 }
 
 SMS_NO_INLINE bool
 BetterSMS::Objects::registerObjectGrabInteractor(u32 objectID,
                                                  Objects::ObjectInteractor interactor) {
-    if (sCustomObjGrabList.hasKey(objectID))
+    if (sCustomObjGrabList.contains(objectID))
         return false;
-    sCustomObjGrabList.set(objectID, interactor);
+    sCustomObjGrabList[objectID] = interactor;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Objects::deregisterObject(const char *name) {
-    if (sCustomMapObjList.pop(name)) {
+    if (sCustomMapObjList.erase(name)) {
         sOBJNewCount -= 1;
         return true;
     }
-    if (sCustomEnemyObjList.pop(name)) {
+    if (sCustomEnemyObjList.erase(name)) {
         sOBJNewCount -= 1;
         return true;
     }
-    if (sCustomMiscObjList.pop(name)) {
+    if (sCustomMiscObjList.erase(name)) {
         sOBJNewCount -= 1;
         return true;
     }
@@ -129,11 +132,11 @@ SMS_NO_INLINE bool BetterSMS::Objects::deregisterObject(const char *name) {
 }
 
 SMS_NO_INLINE bool BetterSMS::Objects::isObjectRegistered(const char *name) {
-    if (sCustomMapObjList.hasKey(name))
+    if (sCustomMapObjList.contains(name))
         return true;
-    if (sCustomEnemyObjList.hasKey(name))
+    if (sCustomEnemyObjList.contains(name))
         return true;
-    if (sCustomMiscObjList.hasKey(name))
+    if (sCustomMiscObjList.contains(name))
         return true;
     return false;
 }
@@ -160,15 +163,12 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
     if (obj)
         return obj;
 
-    TDictS<Objects::NameRefInitializer>::ItemList objMapObjCBs;
-    sCustomMapObjList.items(objMapObjCBs);
-
-    for (auto &item : objMapObjCBs) {
+    for (auto &item : sCustomMapObjList) {
         auto &dictItem = item;
         OSReport("Name: %s\n", name);
-        if (strcmp(dictItem.mKey, name) == 0) {
+        if (strcmp(dictItem.first.data(), name) == 0) {
             OSReport("Detected custom extended map obj!\n");
-            return dictItem.mValue();
+            return dictItem.second();
         }
     }
 
@@ -181,14 +181,11 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
     if (obj)
         return obj;
 
-    TDictS<Objects::NameRefInitializer>::ItemList objBossCBs;
-    sCustomMiscObjList.items(objBossCBs);
-
-    for (auto &item : objBossCBs) {
+    for (auto &item : sCustomMiscObjList) {
         auto &dictItem = item;
-        if (strcmp(dictItem.mKey, name) == 0) {
+        if (strcmp(dictItem.first.data(), name) == 0) {
             OSReport("Detected custom extended boss obj!\n");
-            return dictItem.mValue();
+            return dictItem.second();
         }
     }
 
@@ -203,14 +200,11 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
     if (obj)
         return obj;
 
-    TDictS<Objects::NameRefInitializer>::ItemList objEnemyCBs;
-    sCustomEnemyObjList.items(objEnemyCBs);
-
-    for (auto &item : objEnemyCBs) {
+    for (auto &item : sCustomEnemyObjList) {
         auto &dictItem = item;
-        if (strcmp(dictItem.mKey, name) == 0) {
+        if (strcmp(dictItem.first.data(), name) == 0) {
             OSReport("Detected custom extended generic obj!\n");
-            return dictItem.mValue();
+            return dictItem.second();
         }
     }
 
@@ -226,13 +220,10 @@ static THitActor **objectInteractionHandler() {
 
     THitActor *obj = player->mCollidingObjs[objIndex >> 2];
 
-    TDictI<Objects::ObjectInteractor>::ItemList objInteractionCBs;
-    sCustomObjInteractionList.items(objInteractionCBs);
-
-    for (auto &item : objInteractionCBs) {
+    for (auto &item : sCustomObjInteractionList) {
         auto &dictItem = item;
-        if (dictItem.mKey == obj->mObjectID) {
-            dictItem.mValue(obj, player);
+        if (dictItem.first == obj->mObjectID) {
+            dictItem.second(obj, player);
             break;
         }
     }
@@ -248,13 +239,10 @@ static THitActor *objGrabHandler() {
     if (!obj)
         return obj;
 
-    TDictI<Objects::ObjectInteractor>::ItemList objGrabCBs;
-    sCustomObjGrabList.items(objGrabCBs);
-
-    for (auto &item : objGrabCBs) {
+    for (auto &item : sCustomObjGrabList) {
         auto &dictItem = item;
-        if (dictItem.mKey == obj->mObjectID) {
-            dictItem.mValue(obj, player);
+        if (dictItem.first == obj->mObjectID) {
+            dictItem.second(obj, player);
             break;
         }
     }

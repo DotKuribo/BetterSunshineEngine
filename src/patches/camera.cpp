@@ -60,7 +60,7 @@ static void modifyCameraRangeToSize(f32 *cameraParams, f32 *saveParams) {
     cameraParams[0xA8 / 4] = saveParams[0x3B0 / 4];
 
     // Custom code here
-    auto data = Player::getRegisteredData(gpMarioAddress, "__better_sms");
+    auto data = Player::getData(gpMarioAddress);
     if (!data)
         return;
 
@@ -72,7 +72,7 @@ static void modifyCameraRangeToSize(f32 *cameraParams, f32 *saveParams) {
     if (!params)
         return;
 
-    const f32 scale = playerData->getParams()->mSizeMultiplier.get();
+    const f32 scale = playerData->getParams()->mScaleMultiplier.get();
 
     if (!gpMarioAddress->mYoshi || gpMarioAddress->mYoshi->mState != TYoshi::MOUNTED ||
         scale > 1.0f) {

@@ -38,8 +38,8 @@ using namespace BetterSMS;
 //    TResetFruit *fruit;
 //    SMS_FROM_GPR(30, fruit);
 //
-//    fruit->mGroundY = gpMapCollisionData->checkGround(fruit->mPosition.x, fruit->mPosition.y,
-//                                                      fruit->mPosition.z, 1, &fruit->mFloorBelow);
+//    fruit->mGroundY = gpMapCollisionData->checkGround(fruit->mTranslation.x, fruit->mTranslation.y,
+//                                                      fruit->mTranslation.z, 1, &fruit->mFloorBelow);
 //    return fruit->mFloorBelow;
 //}
 //SMS_PATCH_BL(SMS_PORT_REGION(0x801E53E0, 0, 0, 0), getFruitSolidGroundCollision);

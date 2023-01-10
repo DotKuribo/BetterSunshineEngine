@@ -6,124 +6,121 @@
 #include <SMS/raw_fn.hxx>
 
 #include "libs/container.hxx"
+#include "libs/global_unordered_map.hxx"
+#include "libs/string.hxx"
+
 #include "game.hxx"
 #include "module.hxx"
 
 using namespace BetterSMS;
 
-static TDictS<Game::InitCallback> sGameInitCBs;
-static TDictS<Game::BootCallback> sGameBootCBs;
-static TDictS<Game::LoopCallback> sGameLoopCBs;
-static TDictS<Game::DrawCallback> sGameDrawCBs;
-static TDictS<Game::ChangeCallback> sGameChangeCBs;
+static TGlobalUnorderedMap<TGlobalString, Game::InitCallback> sGameInitCBs(32);
+static TGlobalUnorderedMap<TGlobalString, Game::BootCallback> sGameBootCBs(32);
+static TGlobalUnorderedMap<TGlobalString, Game::LoopCallback> sGameLoopCBs(32);
+static TGlobalUnorderedMap<TGlobalString, Game::DrawCallback> sGameDrawCBs(32);
+static TGlobalUnorderedMap<TGlobalString, Game::ChangeCallback> sGameChangeCBs(32);
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnInitRegistered(const char *name) {
-    return sGameInitCBs.hasKey(name);
+    return sGameInitCBs.contains(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnBootRegistered(const char *name) {
-    return sGameBootCBs.hasKey(name);
+    return sGameBootCBs.contains(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnLoopRegistered(const char *name) {
-    return sGameLoopCBs.hasKey(name);
+    return sGameLoopCBs.contains(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnPostDrawRegistered(const char *name) {
-    return sGameDrawCBs.hasKey(name);
+    return sGameDrawCBs.contains(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::isOnChangeRegistered(const char *name) {
-    return sGameChangeCBs.hasKey(name);
+    return sGameChangeCBs.contains(name);
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::registerOnInitCallback(const char *name, InitCallback cb) {
-    if (sGameInitCBs.hasKey(name))
+    if (isOnInitRegistered(name))
         return false;
-    sGameInitCBs.set(name, cb);
+    sGameInitCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::registerOnBootCallback(const char *name, BootCallback cb) {
-    if (sGameBootCBs.hasKey(name))
+    if (isOnBootRegistered(name))
         return false;
-    sGameBootCBs.set(name, cb);
+    sGameBootCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::registerOnLoopCallback(const char *name, LoopCallback cb) {
-    if (sGameLoopCBs.hasKey(name))
+    if (isOnLoopRegistered(name))
         return false;
-    sGameLoopCBs.set(name, cb);
+    sGameLoopCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::registerOnPostDrawCallback(const char *name, DrawCallback cb) {
-    if (sGameDrawCBs.hasKey(name))
+    if (isOnPostDrawRegistered(name))
         return false;
-    sGameDrawCBs.set(name, cb);
+    sGameDrawCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::registerOnChangeCallback(const char *name, ChangeCallback cb) {
-    if (sGameChangeCBs.hasKey(name))
+    if (isOnChangeRegistered(name))
         return false;
-    sGameChangeCBs.set(name, cb);
+    sGameChangeCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::deregisterOnInitCallback(const char *name) {
-    if (!sGameInitCBs.hasKey(name))
+    if (!isOnInitRegistered(name))
         return false;
-    sGameInitCBs.pop(name);
+    sGameInitCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::deregisterOnBootCallback(const char *name) {
-    if (!sGameBootCBs.hasKey(name))
+    if (!isOnBootRegistered(name))
         return false;
-    sGameBootCBs.pop(name);
+    sGameBootCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::deregisterOnLoopCallback(const char *name) {
-    if (!sGameLoopCBs.hasKey(name))
+    if (!isOnLoopRegistered(name))
         return false;
-    sGameLoopCBs.pop(name);
+    sGameLoopCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::deregisterOnPostDrawCallback(const char *name) {
-    if (!sGameDrawCBs.hasKey(name))
+    if (!isOnPostDrawRegistered(name))
         return false;
-    sGameDrawCBs.pop(name);
+    sGameDrawCBs.erase(name);
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Game::deregisterOnChangeCallback(const char *name) {
-    if (!sGameChangeCBs.hasKey(name))
+    if (!isOnChangeRegistered(name))
         return false;
-    sGameChangeCBs.pop(name);
+    sGameChangeCBs.erase(name);
     return true;
 }
 
 // extern -> custom app proc
 void gameInitCallbackHandler(TApplication *app) {
-    TDictS<Game::InitCallback>::ItemList initCBs;
-    sGameInitCBs.items(initCBs);
-
-    for (auto &item : initCBs) {
-        item.mValue(&gpApplication);
+    for (auto &item : sGameInitCBs) {
+        item.second(&gpApplication);
     }
 }
 
 // extern -> custom app proc
 void gameBootCallbackHandler(TApplication *app) {
-    TDictS<Game::BootCallback>::ItemList bootCBs;
-    sGameBootCBs.items(bootCBs);
-
-    for (auto &item : bootCBs) {
-        item.mValue(&gpApplication);
+    for (auto &item : sGameBootCBs) {
+        item.second(&gpApplication);
     }
 }
 
@@ -134,11 +131,8 @@ extern void drawDebugCallbacks(TApplication *, const J2DOrthoGraph *);
 
 // extern -> custom app proc
 s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
-    TDictS<Game::LoopCallback>::ItemList loopCBs;
-    sGameLoopCBs.items(loopCBs);
-
-    for (auto &item : loopCBs) {
-        item.mValue(&gpApplication);
+    for (auto &item : sGameLoopCBs) {
+        item.second(&gpApplication);
     }
 
     updateStageCallbacks(&gpApplication);
@@ -165,11 +159,8 @@ void gameDrawCallbackHandler() {
     }
 
     {
-        TDictS<Game::DrawCallback>::ItemList drawCBs;
-        sGameDrawCBs.items(drawCBs);
-
-        for (auto &item : drawCBs) {
-            item.mValue(&gpApplication, &ortho);
+        for (auto &item : sGameDrawCBs) {
+            item.second(&gpApplication, &ortho);
         }
     }
 
@@ -184,11 +175,8 @@ extern void exitStageCallbacks(TApplication *);
 
 // extern -> custom app proc
 void gameChangeCallbackHandler(TApplication *app) {
-    TDictS<Game::ChangeCallback>::ItemList changeCBs;
-    sGameChangeCBs.items(changeCBs);
-
-    for (auto &item : changeCBs) {
-        item.mValue(&gpApplication);
+    for (auto &item : sGameChangeCBs) {
+        item.second(&gpApplication);
     }
 
     exitStageCallbacks(app);

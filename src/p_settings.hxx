@@ -16,6 +16,7 @@
 
 #include "libs/anim2d.hxx"
 #include "libs/container.hxx"
+#include "libs/global_list.hxx"
 #include "icons.hxx"
 #include "settings.hxx"
 #include "module.hxx"
@@ -398,7 +399,7 @@ static const u8 *sLoadingIconTIMGs[] = {
     gShineSpriteIconFrame16
 };
 
-void getSettingsGroups(TDictS<Settings::SettingsGroup *>::ItemList &out);
+void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out);
 
 inline int getTextWidth(J2DTextBox *textbox) {
     const size_t textLength = strlen(textbox->mStrPtr);
@@ -429,7 +430,7 @@ struct SettingInfo {
 struct GroupInfo {
     J2DPane *mGroupPane;
     Settings::SettingsGroup *mSettingGroup;
-    JGadget::TList<SettingInfo *> mSettingInfos;
+    TGlobalList<SettingInfo *> mSettingInfos;
 };
 
 class SettingsScreen;
@@ -643,7 +644,7 @@ private:
     GroupInfo *mCurrentGroupInfo;
     SettingInfo *mCurrentSettingInfo;
     SimpleTexAnimator mShineAnimator;
-    JGadget::TList<GroupInfo *> mGroups;
+    TGlobalList<GroupInfo *> mGroups;
 };
 
 class SaveErrorPanel : public JDrama::TViewObj {
