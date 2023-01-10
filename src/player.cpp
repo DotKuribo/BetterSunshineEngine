@@ -43,7 +43,6 @@ static TGlobalUnorderedMap<u16, Player::CollisionProcess> sPlayerCollisionHandle
 
 SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto &dataDict = sPlayerDict[player];
-    OSReport("Big booty bitches\n");
     auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict["__better_sms"]);
 
     if (!data) {
@@ -409,7 +408,6 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
       mWarpTimer(-1), mWarpState(0xFF), mIsOnFire(false), mFireTimer(0), mFireTimerMax(0) {
 
     mParams = new TPlayerParams();
-    OSReport("CREATED NEW PLAYER PARAMS AT 0x%X\n", mParams);
 
     mFluddHistory.mHadFludd     = false;
     mFluddHistory.mMainNozzle   = TWaterGun::Spray;
@@ -743,7 +741,6 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
 
 // Extern to Player Init CB
 void initMario(TMario *player, bool isMario) {
-    OSReport("Init mario!\n");
     Stage::TStageParams *config = Stage::getStageConfiguration();
 
     Player::TPlayerData *params = new Player::TPlayerData(player, nullptr, isMario);

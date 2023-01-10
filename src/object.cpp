@@ -165,9 +165,7 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
 
     for (auto &item : sCustomMapObjList) {
         auto &dictItem = item;
-        OSReport("Name: %s\n", name);
         if (strcmp(dictItem.first.data(), name) == 0) {
-            OSReport("Detected custom extended map obj!\n");
             return dictItem.second();
         }
     }
@@ -184,7 +182,6 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
     for (auto &item : sCustomMiscObjList) {
         auto &dictItem = item;
         if (strcmp(dictItem.first.data(), name) == 0) {
-            OSReport("Detected custom extended boss obj!\n");
             return dictItem.second();
         }
     }
@@ -203,7 +200,6 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
     for (auto &item : sCustomEnemyObjList) {
         auto &dictItem = item;
         if (strcmp(dictItem.first.data(), name) == 0) {
-            OSReport("Detected custom extended generic obj!\n");
             return dictItem.second();
         }
     }
