@@ -1,7 +1,7 @@
 #pragma once
 
+#include "global_allocator.hxx"
 #include <JSystem/JGadget/Vector.hxx>
-#include "libs/global_allocator.hxx"
 
 namespace BetterSMS {
     template <class _T> 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "libs/global_allocator.hxx"
+#include "global_allocator.hxx"
 #include <JSystem/JGadget/List.hxx>
 
 namespace BetterSMS {
