@@ -47,13 +47,14 @@ static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine", 1, 0,
 BugsSetting gBugFixesSetting("Bug & Exploit Fixes");
 
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
+ViewportSetting gViewportSetting("Viewport");
 FPSSetting gFPSSetting("Frame Rate");
 static bool sCameraInvertX;
 static bool sCameraInvertY;
 Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX);
 Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY);
 
-static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 0, &sSettingsGroup};
+static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 1, &sSettingsGroup};
 //
 
 BetterSMS::TGlobalUnorderedMap<TGlobalString, const BetterSMS::ModuleInfo *> gModuleInfos(16);
@@ -227,6 +228,7 @@ static void initLib() {
     BetterSMS::registerModule("Super Mario Sunshine", &sSunshineInfo);
 
     sSettingsGroup.addSetting(&gBugFixesSetting);
+    sSettingsGroup.addSetting(&gViewportSetting);
     sSettingsGroup.addSetting(&gAspectRatioSetting);
     sSettingsGroup.addSetting(&gFPSSetting);
     sSettingsGroup.addSetting(&gCameraInvertXSetting);
@@ -341,7 +343,7 @@ static void initLib() {
     Game::registerOnLoopCallback("__update_setting_notifs", updateUnlockedSettings);
     Game::registerOnPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
 
-    PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600010);
+    PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600004); // Make system memory more expansive (takes away from stage heap)
 }
 
 static void destroyLib() {

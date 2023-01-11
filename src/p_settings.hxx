@@ -837,7 +837,7 @@ public:
             strncpy(dst, "4:3", 4);
             break;
         case Kind::FULLOPENMATTE:
-            strncpy(dst, "4:3 (Open Matte)", 17);
+            strncpy(dst, "4:3 (OPEN MATTE)", 17);
             break;
         case Kind::WIDE:
             strncpy(dst, "16:9", 5);
@@ -850,6 +850,35 @@ public:
 
 private:
     static int sAspectRatioValue;
+};
+
+class ViewportSetting final : public Settings::IntSetting {
+public:
+    enum Kind { SMS, SM64, SMG };
+
+    ViewportSetting(const char *name)
+        : IntSetting(name, &ViewportSetting::sViewportValue) {
+        mValueRange = {0, 2, 1};
+    }
+    ~ViewportSetting() override {}
+
+    void getValueStr(char *dst) const override {
+        switch (getInt()) {
+        default:
+        case Kind::SMS:
+            strncpy(dst, "SMS", 4);
+            break;
+        case Kind::SM64:
+            strncpy(dst, "SM64", 5);
+            break;
+        case Kind::SMG:
+            strncpy(dst, "SMG", 4);
+            break;
+        }
+    }
+
+private:
+    static int sViewportValue;
 };
 
 class FPSSetting final : public Settings::IntSetting {

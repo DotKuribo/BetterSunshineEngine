@@ -7,8 +7,6 @@
 
 #include "module.hxx"
 
-
-
 using namespace BetterSMS;
 
 #if BETTER_SMS_EXTRA_SHINES

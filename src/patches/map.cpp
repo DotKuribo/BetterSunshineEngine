@@ -21,11 +21,15 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8018A06C, 0, 0, 0), 0x418201BC);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A070, 0, 0, 0), 0x48000038);
 
 static f32 considerDryGround(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **data) {
-    return map->mCollisionData->checkGround(x, y, z, 1, data);
+    return map->mCollisionData->checkGround(x, y, z, 5, data);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x800458F8, 0, 0, 0), considerDryGround);
+
+static f32 considerShadowGround(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **data) {
+    return map->mCollisionData->checkGround(x, y, z, 4, data);
+}
 SMS_PATCH_BL(SMS_PORT_REGION(0x80231878, 0, 0, 0),
-             considerDryGround);  // Optimize shadow binding
+             considerShadowGround);  // Optimize shadow binding
 SMS_WRITE_32(SMS_PORT_REGION(0x80231884, 0, 0, 0), 0x48000030);
 
 static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckList *list,

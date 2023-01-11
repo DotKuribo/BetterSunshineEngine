@@ -43,6 +43,7 @@ bool RumbleSetting::sRumbleFlag           = true;
 int SoundSetting::sSoundValue             = SoundSetting::MONO;
 bool SubtitleSetting::sSubtitleFlag       = true;
 int AspectRatioSetting::sAspectRatioValue = AspectRatioSetting::FULL;
+int ViewportSetting::sViewportValue       = ViewportSetting::SMS;
 int FPSSetting::sFPSValue                 = FPSSetting::FPS_30;
 bool BugsSetting::sIsUnlocked             = false;
 bool BugsSetting::sBugsValue              = true;

@@ -69,9 +69,6 @@ void drawMonitor(TApplication *app, const J2DOrthoGraph *graph) {
                    {0, 0, 0, 170});
     }
 
-    OSReport("Root Heap Size: 0x%X; System Heap Size: 0x%X\n", rootHeap->getTotalFreeSize(),
-             systemHeap->getTotalFreeSize());
-
     drawHeapUsage(systemHeap, gSystemHeapMaxUsage, {220, 50, 30, 255}, gMonitorY + 2);
     drawHeapUsage(currentHeap, gCurrentHeapMaxUsage, {30, 230, 30, 255}, gMonitorY + 7);
     drawHeapUsage(rootHeap, gRootHeapMaxUsage, {40, 30, 230, 255}, gMonitorY + 12);
