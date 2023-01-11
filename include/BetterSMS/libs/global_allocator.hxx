@@ -37,7 +37,7 @@ public:
         if (_n > max_size())
             return nullptr;
         return static_cast<_T *>(
-            ::operator new(_n * sizeof(value_type), JKRHeap::sRootHeap, 4));
+            ::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
     }
 #elif __cplusplus >= 201703L
 #if __cplusplus == 201703L
@@ -45,13 +45,13 @@ public:
         if (_n > max_size())
             return nullptr;
         return static_cast<_T *>(
-            ::operator new(_n * sizeof(value_type), JKRHeap::sRootHeap, 4));
+            ::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
     }
 #endif
 
     _GLIBCXX_NODISCARD _GLIBCXX20_CONSTEXPR pointer allocate(size_t _n) {
         return static_cast<_T *>(
-            ::operator new(_n * sizeof(value_type), JKRHeap::sRootHeap, 4));
+            ::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
     }
 #endif
 

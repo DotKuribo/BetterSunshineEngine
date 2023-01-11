@@ -340,6 +340,8 @@ static void initLib() {
     Game::registerOnBootCallback("__init_setting_notifs", initUnlockedSettings);
     Game::registerOnLoopCallback("__update_setting_notifs", updateUnlockedSettings);
     Game::registerOnPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
+
+    PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600010);
 }
 
 static void destroyLib() {
@@ -360,6 +362,8 @@ static void destroyLib() {
     // Remove loading screen
     Stage::deregisterInitCallback("__init_load_screen");
     Stage::deregisterUpdateCallback("__update_load_screen");
+
+    PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600002);
 }
 
 KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG)
