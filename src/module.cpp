@@ -383,6 +383,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::getScreenOrthoWidth, "getScreenOrthoWidth__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio, "getScreenToFullScreenRatio__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getScreenRatioAdjustX, "getScreenRatioAdjustX__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getScreenScale, "getScreenScale__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getCalculatedFovy, "getCalculatedFovy__9BetterSMSFff");
         KURIBO_EXPORT_AS(BetterSMS::getFrameRate, "getFrameRate__9BetterSMSFv");
 
         /* BMG */

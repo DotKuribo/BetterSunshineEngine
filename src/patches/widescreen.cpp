@@ -58,8 +58,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80177008, 0x8016D174, 0, 0), 0xD03B0038);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenWidthf);
 SMS_WRITE_32(SMS_PORT_REGION(0x801771AC, 0x8016CFD0, 0, 0), 0xD03B0038);
 
-extern AspectRatioSetting gAspectRatioSetting;
-
 static f32 getScreenXRatio2() {
     const f32 ratio = getScreenToFullScreenRatio();
     return ratio + (ratio - 1.0f);
@@ -68,12 +66,6 @@ static f32 getScreenXRatio2() {
 static f32 getShineSelectXRatio() { return getScreenXRatio2() * 1.33333337307; }
 
 static f32 getCameraXRatio() { return getScreenXRatio2() * 0.913461446762f; }
-
-static f32 getScreenScale() { return gAspectRatioSetting.getInt() == AspectRatioSetting::FULLOPENMATTE ? 0.75f : 1.0f; }
-
-static f32 getCalculatedFovy(f32 fov, f32 zoom) { 
-    return radiansToAngle(2.0f * atanf(tanf(angleToRadians(fov * 0.5f)) * zoom)); 
-}
 
 // Shine Select Model Rot Width
 SMS_PATCH_BL(SMS_PORT_REGION(0x80176E58, 0x8016CE20, 0, 0), getShineSelectXRatio);
@@ -604,13 +596,20 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosi
 //}
 //SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
 
-static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
+static void scale3DScreenPlane(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;
-    const f32 fovtangent = tanf(angleToRadians(camera->mProjectionFovy * 0.5f)) * 2.0;
-    x *= fovtangent * getScreenToFullScreenRatio();
-    y *= fovtangent;
-    PSMTXScale(mtx, x, y, z);
+    const f32 fovtangent = tanf(angleToRadians(camera->mProjectionFovy * 0.5f)) * (1.0f / tanf(25f));
+    PSMTXScale(mtx, x * fovtangent * getScreenToFullScreenRatio(), y * fovtangent, z);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x801ea96c, 0x801E2844, 0, 0), scaleUnderWaterMask);
+
+static void scaleShimmerBox(Mtx mtx, f32 x, f32 y, f32 z) {
+    scale3DScreenPlane(mtx, x, y, z);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8019FA00, 0x801978D8, 0, 0), scaleShimmerBox);
+
+static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
+    scale3DScreenPlane(mtx, x, y, z);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801EA96C, 0x801E2844, 0, 0), scaleUnderWaterMask);
 
 #endif
