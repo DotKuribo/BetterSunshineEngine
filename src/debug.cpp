@@ -96,8 +96,12 @@ void updateDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
         return;
 
-    if ((app->mGamePad1->mButtons.mFrameInput & TMarioGamePad::Z))
+    if ((app->mGamePad1->mButtons.mInput & TMarioGamePad::L) &&
+        (app->mGamePad1->mButtons.mFrameInput & TMarioGamePad::DPAD_UP))
         sIsActive ^= true;
+
+    if (!sIsActive)
+        return;
 
     for (auto &item : sDebugUpdateCBs) {
         item.second(app);

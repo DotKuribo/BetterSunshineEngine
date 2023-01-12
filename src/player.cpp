@@ -22,6 +22,7 @@
 #include "libs/warp.hxx"
 #include "libs/constmath.hxx"
 #include "libs/global_unordered_map.hxx"
+#include "libs/profiler.hxx"
 #include "libs/triangle.hxx"
 #include "libs/string.hxx"
 

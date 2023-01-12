@@ -26,3 +26,49 @@ static f32 getRoofNoWater(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **o
 SMS_PATCH_BL(SMS_PORT_REGION(0x802573C8, 0, 0, 0), getRoofNoWater);
 
 #endif
+
+static size_t checkWallsExotic(TMapCollisionData* collision, TBGWallCheckRecord* record) {
+    record->mNumWalls = 0;
+
+    const f32 gridFraction = 1.0f / 1024.0f;
+
+    const f32 boundsX = collision->mAreaSizeX;
+    const f32 boundsZ = collision->mAreaSizeZ;
+
+    const int cellMinX =
+        Max(-boundsX, gridFraction * (record->mPosition.x - record->mRadius + boundsX));
+    const int cellMaxX =
+        Min(boundsX - 1, gridFraction * (record->mPosition.x + record->mRadius + boundsX));
+
+    const int cellMinZ =
+        Max(-boundsZ, gridFraction * (record->mPosition.z - record->mRadius + boundsZ));
+    const int cellMaxZ =
+        Min(boundsZ - 1, gridFraction * (record->mPosition.z + record->mRadius + boundsZ));
+
+    size_t wallsFound = 0;
+
+    for (int cellX = cellMinX; cellX <= cellMaxX; ++cellX) {
+        for (int cellZ = cellMinZ; cellZ <= cellMaxZ; ++cellZ) {
+            wallsFound += collision->checkWallList(
+                collision->mMoveCollisionRoot[cellX + (cellZ * collision->mBlockXCount)]
+                     .mCheckList[TBGCheckListRoot::WALL]
+                     .mNextTriangle,
+                record);
+
+            if (wallsFound >= record->mCollideMax)
+                return wallsFound;
+
+            wallsFound += collision->checkWallList(
+                collision->mStaticCollisionRoot[cellX + (cellZ * collision->mBlockXCount)]
+                     .mCheckList[TBGCheckListRoot::WALL]
+                     .mNextTriangle,
+                record);
+
+            if (wallsFound >= record->mCollideMax)
+                return wallsFound;
+        }
+    }
+
+    return wallsFound;
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8018C770, 0, 0, 0), checkWallsExotic);

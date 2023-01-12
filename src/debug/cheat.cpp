@@ -94,6 +94,9 @@ static bool sJustExitedXYZ  = false;
 void checkMarioXYZMode(TMario *player, bool isMario) {
     constexpr u32 enterButton = TMarioGamePad::EButtons::DPAD_UP;
 
+    if ((player->mController->mButtons.mInput & TMarioGamePad::L))
+        return;
+
     if (player->mState == XYZState)
         return;
 
@@ -111,13 +114,13 @@ void checkMarioXYZMode(TMario *player, bool isMario) {
 // extern -> debug update callback
 bool updateMarioXYZMode(TMario *player) {
     constexpr f32 baseSpeed = 21.0f;
-    constexpr u32 exitButton   = TMarioGamePad::EButtons::DPAD_UP;
+    constexpr u32 exitButton = TMarioGamePad::EButtons::DPAD_UP;
 
     player->mSpeed.set(0.0f, 0.0f, 0.0f);
     player->mForwardSpeed = 0.0f;
 
     if ((player->mController->mButtons.mFrameInput & exitButton)) {
-        if (!sJustStartedXYZ) {
+        if (!sJustStartedXYZ && !(player->mController->mButtons.mInput & TMarioGamePad::L)) {
             player->mState = TMario::STATE_FALL;
             sJustExitedXYZ = true;
             return true;

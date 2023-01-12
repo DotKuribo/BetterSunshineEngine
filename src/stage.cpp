@@ -11,6 +11,7 @@
 
 #include "libs/container.hxx"
 #include "libs/global_unordered_map.hxx"
+#include "libs/profiler.hxx"
 #include "libs/string.hxx"
 
 #include "loading.hxx"

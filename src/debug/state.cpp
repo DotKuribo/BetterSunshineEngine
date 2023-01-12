@@ -17,14 +17,15 @@
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
+#include "libs/profiler.hxx"
 #include "logging.hxx"
 #include "module.hxx"
 
 using namespace BetterSMS;
 
-static s16 gPlayerMonitorX = 10, gPlayerMonitorY = 190;
-static s16 gWorldMonitorX = 10, gWorldMonitorY = 310;
-static s16 gCollisionMonitorX = 350, gCollisionMonitorY = 190;
+static u8 sDebugUIPane = 0;
+
+static s16 gMonitorX = 10, gMonitorY = 190;
 static s16 gFontWidth = 11;
 
 static J2DTextBox *gpPlayerStateStringW    = nullptr;
@@ -48,6 +49,8 @@ void addToHitActorCount(JDrama::TViewObj *obj, u32 flags, JDrama::TGraphics *gra
 SMS_PATCH_BL(SMS_PORT_REGION(0x802a0450, 0, 0, 0), addToHitActorCount);
 
 void initStateMonitor(TApplication *app) {
+    sDebugUIPane = 0;
+
     gpPlayerStateStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpPlayerStateStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpPlayerStateStringW->mStrPtr         = sPlayerStringBuffer;
@@ -104,6 +107,9 @@ void updateStateMonitor(TApplication *app) {
 
     if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
         return;
+
+    if (app->mGamePad1->mButtons.mFrameInput == TMarioGamePad::Z)
+        sDebugUIPane = (sDebugUIPane + 1) % 3;
 
     u16 floorColType =
         gpMarioAddress->mFloorTriangle ? gpMarioAddress->mFloorTriangle->mType : 0xFFFF;
@@ -179,11 +185,20 @@ void drawStateMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
 
     {
         s16 adjust = getScreenRatioAdjustX();
-        gpPlayerStateStringB->draw(gPlayerMonitorX - adjust + 1, gPlayerMonitorY + 1);
-        gpPlayerStateStringW->draw(gPlayerMonitorX - adjust, gPlayerMonitorY);
-        gpWorldStateStringB->draw(gWorldMonitorX - adjust + 1, gWorldMonitorY + 1);
-        gpWorldStateStringW->draw(gWorldMonitorX - adjust, gWorldMonitorY);
-        gpCollisionStateStringB->draw(gCollisionMonitorX + adjust + 1, gCollisionMonitorY + 1);
-        gpCollisionStateStringW->draw(gCollisionMonitorX + adjust, gCollisionMonitorY);
+        switch (sDebugUIPane) {
+        default:
+        case 0:
+            gpPlayerStateStringB->draw(gMonitorX - adjust + 1, gMonitorY + 1);
+            gpPlayerStateStringW->draw(gMonitorX - adjust, gMonitorY);
+            break;
+        case 1:
+            gpWorldStateStringB->draw(gMonitorX - adjust + 1, gMonitorY + 1);
+            gpWorldStateStringW->draw(gMonitorX - adjust, gMonitorY);
+            break;
+        case 2:
+            gpCollisionStateStringB->draw(gMonitorX - adjust + 1, gMonitorY + 1);
+            gpCollisionStateStringW->draw(gMonitorX - adjust, gMonitorY);
+            break;
+        }
     }
 }
