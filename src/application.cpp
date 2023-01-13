@@ -201,7 +201,7 @@ void BetterApplicationProcess(TApplication *app) {
                     #if 1
                     delayContext = BetterSMS::isDebugMode()
                                         ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
-                                        : TApplication::CONTEXT_DIRECT_MOVIE;
+                                        : TApplication::CONTEXT_GAME_INTRO;
                     #else
                     delayContext = TApplication::CONTEXT_GAME_INTRO;
                     #endif
