@@ -156,7 +156,10 @@ void updateStateMonitor(TApplication *app) {
 
     snprintf(sCollisionStringBuffer, 300,
              "Collision Stats:\n"
-             "  Collision Tris:   %lu\n"
+             "  Triangles:       %lu\n"
+             "  Static Lists:    %lu\n"
+             "  Move Lists:     %lu\n"
+             "  Warp Lists:     %d\n"
              "  Floor Normal:   %.02f, %.02f, %.02f\n"
              "  Floor Type:     0x%hX\n"
              "  Floor Value:    0x%hX\n"
@@ -166,7 +169,9 @@ void updateStateMonitor(TApplication *app) {
              "  Roof Normal:   %.02f, %.02f, %.02f\n"
              "  Roof Type:     0x%hX\n"
              "  Roof Value:    0x%hX\n",
-             gpMapCollisionData->mCheckDataLength, floorColNormal.x, floorColNormal.y,
+             gpMapCollisionData->mCheckDataCount, gpMapCollisionData->mCheckListStaticCount,
+             gpMapCollisionData->mCheckListMax - gpMapCollisionData->mCheckListMoveRemaining,
+             gpMapCollisionData->mCheckListWarpCount, floorColNormal.x, floorColNormal.y,
              floorColNormal.z, floorColType, floorColValue, wallColNormal.x, wallColNormal.y,
              wallColNormal.z, wallColType, wallColValue, roofColNormal.x, roofColNormal.y,
              roofColNormal.z, roofColType, roofColValue);

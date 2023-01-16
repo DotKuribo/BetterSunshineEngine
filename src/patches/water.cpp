@@ -59,21 +59,51 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     SMS_FROM_GPR(29, player);
 
     const TBGCheckData **tri = const_cast<const TBGCheckData **>(&player->mFloorTriangleWater);
-    const TMapCollisionData *mapCol = gpMapCollisionData;
+    const TMapCollisionData *collision = gpMapCollisionData;
+
+    const f32 gridFraction = 1.0f / 1024.0f;
+
+    const f32 boundsX = collision->mAreaSizeX;
+    const f32 boundsZ = collision->mAreaSizeZ;
+
+    if (x < -boundsX || x >= boundsX)
+        return 0;
+
+    if (z < -boundsZ || z >= boundsZ)
+        return 0;
+
+    const int cellX = gridFraction * (x + boundsX);
+    const int cellZ = gridFraction * (z + boundsZ);
 
     const TBGCheckData *waterAbove;
-    const f32 waterAboveHeight = mapCol->checkRoof(x, player->mTranslation.y, z, 0, &waterAbove);
+
+    f32 waterAboveHeight = collision->checkRoofList(
+        x, player->mTranslation.y, z, 0,
+        gpMapCollisionData->mStaticCollisionRoot[cellX + (cellZ * gpMapCollisionData->mBlockXCount)]
+            .mCheckList[TBGCheckListRoot::ROOF]
+            .mNextTriangle,
+        &waterAbove);
+
+    if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+        waterAboveHeight = collision->checkRoofList(
+            x, player->mTranslation.y, z, 0,
+            gpMapCollisionData
+                ->mStaticCollisionRoot[cellX + (cellZ * gpMapCollisionData->mBlockXCount)]
+                .mCheckList[TBGCheckListRoot::WALL]
+                .mNextTriangle,
+            &waterAbove);
+    }
 
     if (BetterSMS::areBugsPatched()) {
         if (!(player->mState & TMario::STATE_WATERBORN)) {
-            f32 yPos = mapCol->checkGround(x, waterAboveHeight - 10.0f, z, 0, tri);
+            f32 yPos = collision->checkGround(x, waterAboveHeight - 10.0f, z, 0, tri);
             if (*tri && isColTypeWater((*tri)->mType)) {
                 return yPos;
             }
         }
     }
 
-    return mapCol->checkGround(x, y, z, 0, tri);
+    return collision->checkGround(x, y, z, 0, tri);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024F12C, 0x80246EB8, 0, 0), enhanceWaterCheck);
 

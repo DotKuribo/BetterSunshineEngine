@@ -143,7 +143,7 @@ namespace BetterSMS {
             void load(JSUMemoryInputStream &in) override {
                 u8 b;
                 in.read(&b, 1);
-                setBool(b > 0 ? true : false);
+                setBool(b > 1 ? false : b);  // Reset value if corrupt
             }
             void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 1); }
         };
@@ -176,7 +176,11 @@ namespace BetterSMS {
             void load(JSUMemoryInputStream &in) override {
                 int x;
                 in.read(&x, 4);
-                setInt(clampValueToRange(x));
+
+                if (x < mValueRange.mStart || x > mValueRange.mStop)
+                    x = mValueRange.mStart;
+
+                setInt(x);  // Reset value if corrupt
             }
             void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 4); }
 
@@ -220,7 +224,11 @@ namespace BetterSMS {
             void load(JSUMemoryInputStream &in) override {
                 float f;
                 in.read(&f, 4);
-                setFloat(clampValueToRange(f));
+
+                if (f < mValueRange.mStart || f > mValueRange.mStop)
+                    f = mValueRange.mStart;
+
+                setFloat(f);  // Reset value if corrupt
             }
             void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 4); }
 

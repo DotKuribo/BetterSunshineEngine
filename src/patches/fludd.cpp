@@ -27,21 +27,6 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
-// This patches delayed fludd usage
-static void snapNozzleToReady() {
-    TWaterGun *fludd;
-    SMS_FROM_GPR(30, fludd);
-
-    if (BetterSMS::areBugsPatched() && fludd->mCurrentNozzle == TWaterGun::TNozzleType::Hover) {
-        ((float *)(fludd))[0x1CEC / 4] = 0.0f;
-    } else {
-        ((float *)(fludd))[0x1CEC / 4] -= 0.1f;
-        if (((float *)(fludd))[0x1CEC / 4] < 0.0f)
-            ((float *)(fludd))[0x1CEC / 4] = 0.0f;
-    }
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x802699CC, 0, 0, 0), snapNozzleToReady);
-
 // TODO: Make check for BetterSMS::areBugsPatched()
 static SMS_ASM_FUNC bool makeWaterHitCheckForDeath(TBGCheckData *col) {
     // clang-format off
@@ -77,7 +62,7 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
 
     player->mTranslation.y = floorPos;
 
-    if (!BetterSMS::areBugsPatched())
+    if (!BetterSMS::areExploitsPatched())
         return;
 
     if (!(player->mState == static_cast<u32>(TMario::STATE_HOVER)))

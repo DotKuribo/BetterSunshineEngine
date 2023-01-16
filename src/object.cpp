@@ -84,16 +84,11 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, O
 }
 
 // Misc (Managers, tables, etc)
-SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name, ObjData *data,
+SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
                                                             Objects::NameRefInitializer initFn) {
     if (sCustomMiscObjList.contains(name))
         return false;
     sCustomMiscObjList[name] = initFn;
-    sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
-        sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
-                         1];  // Copy the default end to the next position
-    sObjDataTableNew[ObjDataTableSize + sOBJNewCount - 1] = data;
-    sOBJNewCount += 1;
     return true;
 }
 

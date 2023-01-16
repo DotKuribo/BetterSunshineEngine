@@ -18,7 +18,7 @@ namespace BetterSMS {
         // Enemys (Strollin' Stus, Electrokoopas, etc)
         bool registerObjectAsEnemy(const char *name, ObjData *data, NameRefInitializer initFn);
         // Misc (Managers, tables, etc)
-        bool registerObjectAsMisc(const char *name, ObjData *data, NameRefInitializer initFn);
+        bool registerObjectAsMisc(const char *name, NameRefInitializer initFn);
         // Player touching
         bool registerObjectCollideInteractor(u32 objectID, ObjectInteractor colHandler);
         // Player holding

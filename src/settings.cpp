@@ -47,6 +47,7 @@ int ViewportSetting::sViewportValue       = ViewportSetting::SMS;
 int FPSSetting::sFPSValue                 = FPSSetting::FPS_30;
 bool BugsSetting::sIsUnlocked             = false;
 bool BugsSetting::sBugsValue              = true;
+int PromptsSetting::sPromptsValue         = PromptsSetting::ALL;
 
 using namespace BetterSMS;
 
@@ -312,8 +313,8 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     }
 
     if (saveBuffer[0] != group.getMajorVersion()) {
-        OSReport("Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n",
-                 group.getName());
+        OSPanic(__FILE__, __LINE__, "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\nConsider deleting "
+                "the saved settings on the memory card.", group.getName());
         return CARD_ERROR_READY;
     }
 
@@ -431,9 +432,13 @@ extern SoundSetting gSoundSetting;
 extern SubtitleSetting gSubtitleSetting;
 
 extern BugsSetting gBugFixesSetting;
-bool BetterSMS::areBugsPatched() {
-    return gBugFixesSetting.getBool();
-}
+bool BetterSMS::areBugsPatched() { return gBugFixesSetting.getBool(); }
+
+extern BugsSetting gExploitFixesSetting;
+bool BetterSMS::areExploitsPatched() { return gExploitFixesSetting.getBool(); }
+
+extern BugsSetting gCollisionFixesSetting;
+bool BetterSMS::isCollisionRepaired() { return gCollisionFixesSetting.getBool(); }
 
 extern Settings::SwitchSetting gCameraInvertXSetting;
 bool BetterSMS::isCameraInvertedX() { return gCameraInvertXSetting.getBool(); }

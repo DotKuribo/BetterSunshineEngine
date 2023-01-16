@@ -937,8 +937,38 @@ private:
     static bool sBugsValue;
 };
 
+class PromptsSetting final : public Settings::IntSetting {
+public:
+    enum Kind { ALL, NO_BLUE, NONE };
+
+    PromptsSetting(const char *name) : IntSetting(name, &PromptsSetting::sPromptsValue) {
+        mValueRange = {0, 2, 1};
+    }
+    ~PromptsSetting() override {}
+
+    void getValueStr(char *dst) const override {
+        switch (getInt()) {
+        default:
+        case Kind::ALL:
+            strncpy(dst, "ALL", 4);
+            break;
+        case Kind::NO_BLUE:
+            strncpy(dst, "NO BLUE", 8);
+            break;
+        case Kind::NONE:
+            strncpy(dst, "NONE", 5);
+            break;
+        }
+    }
+
+private:
+    static int sPromptsValue;
+};
+
 namespace BetterSMS {
     bool areBugsPatched();
+    bool areExploitsPatched();
+    bool isCollisionRepaired();
     bool isCameraInvertedX();
     bool isCameraInvertedY();
 }

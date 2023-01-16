@@ -151,6 +151,7 @@ void drawLoadingScreen(TApplication *app, const J2DOrthoGraph *ortho) {
 
     J2DScreen *screen;
     switch (gAspectRatioSetting.getInt()) {
+    default:
     case AspectRatioSetting::FULLOPENMATTE:
     case AspectRatioSetting::FULL:
         screen = sLoadingScreenFull;

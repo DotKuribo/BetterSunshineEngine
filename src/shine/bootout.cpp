@@ -13,6 +13,7 @@
 #include "music.hxx"
 
 #include "module.hxx"
+#include "p_settings.hxx"
 
 using namespace BetterSMS;
 
@@ -78,40 +79,68 @@ static void isKillEnemiesShine(TConductor *gpConductor, TVec3f *playerCoordinate
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802413E0, 0x8023916C, 0, 0), isKillEnemiesShine);
 
-static void restoreMario(TMarDirector *marDirector, u32 curState) {
-    TShine *shine = marDirector->mCollectedShine;
+static void exitShineDemo(TMarDirector *director, TMario *mario, CPolarSubCamera *camera) {
+    if (SMS_isDivingMap__Fv() || (mario->mPrevState & 0x20D0) == 0x20D0)
+        mario->mState = mario->mPrevState;
+    else
+        mario->mState = static_cast<u32>(TMario::STATE_IDLE);
 
-    if (!shine || !(shine->mType & 0x10) || !marDirector->mpNextState)
-        return;
+    camera->endDemoCamera();
+    director->mCollectedShine = nullptr;
 
-    u8 *curSaveCard = reinterpret_cast<u8 *>(marDirector->mpNextState[0x118 / 4]);
-
-    if (curState != TMarDirector::Status::STATE_NORMAL ||
-        marDirector->mCurState != TMarDirector::Status::STATE_SAVE_CARD ||
-        gpMarioAddress->mState != static_cast<u32>(TMario::STATE_SHINE_C))
-        return;
-
-    if (curSaveCard[0x2E9] != 1) {
-        if (SMS_isDivingMap__Fv() || (gpMarioAddress->mPrevState & 0x20D0) == 0x20D0)
-            gpMarioAddress->mState = gpMarioAddress->mPrevState;
-        else
-            gpMarioAddress->mState = static_cast<u32>(TMario::STATE_IDLE);
-
-        gpCamera->endDemoCamera();
-        marDirector->mCollectedShine = nullptr;
-
-        Music::AudioStreamer *streamer = Music::getAudioStreamer();
-        if (streamer->isPaused())
-            streamer->play();
-    } else
-        marDirector->mGameState |= TMarDirector::State::WARP_OUT;
+    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    if (streamer->isPaused())
+        streamer->play();
 }
 
-static void checkBootOut(TMarDirector *marDirector, u8 curState) {
-    restoreMario(marDirector, curState);
-    marDirector->currentStateFinalize(curState);
+extern PromptsSetting gSavePromptSetting;
+static void restoreMario(TMarDirector *director, u32 nextState) {
+    TShine *shine = director->mCollectedShine;
+
+    if (!shine || !(shine->mType & 0x10))
+        return;
+
+    if (gSavePromptSetting.getInt() == PromptsSetting::NONE) {
+        if (gpCamera->getRestDemoFrames() != 0) {
+            return;
+        }
+        exitShineDemo(director, gpMarioAddress, gpCamera);
+    } else {
+        if (!director->mpNextState)
+            return;
+
+        u8 *curSaveCard = reinterpret_cast<u8 *>(director->mpNextState[0x118 / 4]);
+
+        if (nextState != TMarDirector::Status::STATE_NORMAL ||
+            director->mCurState != TMarDirector::Status::STATE_SAVE_CARD ||
+            gpMarioAddress->mState != static_cast<u32>(TMario::STATE_SHINE_C))
+            return;
+
+        if (curSaveCard[0x2E9] != 1) {
+            exitShineDemo(director, gpMarioAddress, gpCamera);
+        } else
+            director->mGameState |= TMarDirector::State::WARP_OUT;
+    }
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802995BC, 0x80291454, 0, 0), checkBootOut);
+
+extern bool conditionalSavePrompt(TMarDirector *, u8);
+
+static bool checkBootOut() {
+    u8 nextState;
+    SMS_FROM_GPR(28, nextState);
+
+    restoreMario(gpMarDirector, nextState);
+
+    if (nextState == gpMarDirector->mCurState)
+        return false;
+
+    if (!conditionalSavePrompt(gpMarDirector, nextState))
+        return false;
+
+    return true;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802995A8, 0, 0, 0), checkBootOut);
+SMS_WRITE_32(SMS_PORT_REGION(0x802995AC, 0, 0, 0), 0x2C030000);
 
 static void shineObjectStringMod(JSUInputStream *stream, u8 *dst, u32 size) {
     TShine *shine;

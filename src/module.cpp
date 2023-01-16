@@ -20,6 +20,7 @@
 #include "module.hxx"
 #include "music.hxx"
 #include "object.hxx"
+#include "objects/fog.hxx"
 #include "objects/generic.hxx"
 #include "player.hxx"
 #include "p_module.hxx"
@@ -41,18 +42,20 @@ SubtitleSetting gSubtitleSetting("Movie Subtitles");
 static BetterSMS::ModuleInfo sSunshineInfo{"Super Mario Sunshine", 1, 0, &sBaseSettingsGroup};
 
 // BetterSMS settings
-static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine", 1, 0,
+static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine", 2, 0,
                                               Settings::Priority::CORE);
 
-BugsSetting gBugFixesSetting("Bug & Exploit Fixes");
-
+BugsSetting gExploitFixesSetting("Exploit Fixes");
+BugsSetting gBugFixesSetting("Bug Fixes");
+BugsSetting gCollisionFixesSetting("Collision Fixes");
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 ViewportSetting gViewportSetting("Viewport");
 FPSSetting gFPSSetting("Frame Rate");
-static bool sCameraInvertX;
-static bool sCameraInvertY;
+static bool sCameraInvertX = false;
+static bool sCameraInvertY = false;
 Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX);
 Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY);
+PromptsSetting gSavePromptSetting("Save Prompts");
 
 static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 1, &sSettingsGroup};
 //
@@ -227,12 +230,15 @@ static void initLib() {
     sBaseSettingsGroup.addSetting(&gSubtitleSetting);
     BetterSMS::registerModule("Super Mario Sunshine", &sSunshineInfo);
 
+    sSettingsGroup.addSetting(&gExploitFixesSetting);
     sSettingsGroup.addSetting(&gBugFixesSetting);
+    sSettingsGroup.addSetting(&gCollisionFixesSetting);
     sSettingsGroup.addSetting(&gViewportSetting);
     sSettingsGroup.addSetting(&gAspectRatioSetting);
     sSettingsGroup.addSetting(&gFPSSetting);
     sSettingsGroup.addSetting(&gCameraInvertXSetting);
     sSettingsGroup.addSetting(&gCameraInvertYSetting);
+    sSettingsGroup.addSetting(&gSavePromptSetting);
     {
         auto &saveInfo        = sSettingsGroup.getSaveInfo();
         saveInfo.mSaveName    = sSettingsGroup.getName();
@@ -329,6 +335,7 @@ static void initLib() {
 
     Objects::registerObjectAsMapObj("GenericRailObj", &generic_railobj_data,
                                     TGenericRailObj::instantiate);
+    Objects::registerObjectAsMisc("SimpleFog", TSimpleFog::instantiate);
 
     Game::registerOnBootCallback("__init_debug_handles", initDebugCallbacks);
 
@@ -486,7 +493,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsEnemy,
                          "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMisc,
-                         "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
+                         "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::deregisterObject,
                          "deregisterObject__Q29BetterSMS7ObjectsFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Objects::getRegisteredObjectCount,

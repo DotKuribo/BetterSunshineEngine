@@ -380,7 +380,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpW
 
 static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
     const TBGCheckData *roof = player->mRoofTriangle;
-    if (!roof) {
+    if (!roof || !BetterSMS::isCollisionRepaired()) {
         player->setPlayerVelocity(_speed);
         return;
     }
@@ -393,7 +393,7 @@ static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
     const f32 ratio = Vector3::angleBetween(nroofvec, down);
     player->setPlayerVelocity(lerp(_speed, player->mForwardSpeed, ratio));
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802569bc, 0x8024E748, 0, 0), patchRoofCollisionSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802569BC, 0x8024E748, 0, 0), patchRoofCollisionSpeed);
 
 #endif
 

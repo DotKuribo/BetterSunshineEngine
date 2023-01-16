@@ -108,7 +108,6 @@ void updateDebugCallbacks(TApplication *app) {
     }
 }
 
-
 void drawDebugCallbacks(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!BetterSMS::isDebugMode())
         return;

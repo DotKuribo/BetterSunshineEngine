@@ -8,6 +8,8 @@
 #include "player.hxx"
 #include "stage.hxx"
 
+#include "p_settings.hxx"
+
 using namespace BetterSMS;
 
 #if BETTER_SMS_YOSHI_SAVE_NOZZLES
@@ -169,7 +171,16 @@ void forceValidRidingAnimation(TMario *player, bool isMario) {
 SMS_WRITE_32(SMS_PORT_REGION(0x8026E9DC, 0, 0, 0), 0x60000000);  // Fix shallow water flashing
 SMS_WRITE_32(SMS_PORT_REGION(0x8026F14C, 0, 0, 0), 0x60000000);
 
-SMS_WRITE_32(SMS_PORT_REGION(0x802703C8, 0, 0, 0), 0x38000003);  // Fix fruit storage
+static void checkYoshiFruitFix() {
+    TYoshi *yoshi;
+    SMS_FROM_GPR(30, yoshi);
+
+    if (BetterSMS::areExploitsPatched())
+        ((u16 **)(yoshi))[0x38 / 4][0x7C / 2] = 3;
+    else
+        ((u16 **)(yoshi))[0x38 / 4][0x7C / 2] = 0;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802703CC, 0, 0, 0), checkYoshiFruitFix);  // Fix fruit storage
 
 static bool checkShouldMount() {
     TMario *player;

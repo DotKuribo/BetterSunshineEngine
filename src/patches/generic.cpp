@@ -14,8 +14,8 @@
 #include <SMS/System/CardManager.hxx>
 #include <SMS/raw_fn.hxx>
 
-
 #include "module.hxx"
+#include "p_settings.hxx"
 
 #if BETTER_SMS_EXTRA_OBJECTS
 static void *loadFromGlobalAndScene(const char *mdl, u32 unk_0, const char *path) {
@@ -35,6 +35,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8021CD34, 0x80214C88, 0, 0), loadFromGlobalAndSce
 SMS_WRITE_32(SMS_PORT_REGION(0x80171C30, 0x80167A40, 0, 0), 0x2C000005);
 SMS_WRITE_32(SMS_PORT_REGION(0x80171C38, 0x80167A48, 0, 0), 0x38000005);
 
+
+// TODO: Move this to Eclipse Module
 #if BETTER_SMS_NO_TITLE_THP
 // Title Screen Never Fades to THP
 SMS_WRITE_32(SMS_PORT_REGION(0x8016D53C, 0x801628AC, 0, 0), 0x48000344);
@@ -90,14 +92,9 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802A6788, 0x8029e6e0, 0, 0), 0x3BC00009);
 // Remove Dive While Wall Sliding
 SMS_WRITE_32(SMS_PORT_REGION(0x8024BC10, 0x8024399c, 0, 0), 0x48000068);
 
+// TODO: Move to Eclipse Module
 // Flood Till Corona Beat
 SMS_WRITE_32(SMS_PORT_REGION(0x8029961C, 0x802914b4, 0, 0), 0x38840077);
-
-#if BETTER_SMS_LONG_JUMP
-// Map on D Pad down
-SMS_WRITE_32(SMS_PORT_REGION(0x8017A830, 0x801706f4, 0, 0), 0x5400077B);
-SMS_WRITE_32(SMS_PORT_REGION(0x80297A60, 0x8028f8f8, 0, 0), 0x5400077B);
-#endif
 
 #if BETTER_SMS_EXTRA_OBJECTS
 // Global surfing bloopies
@@ -114,8 +111,27 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801B7518, 0x801AF3D0, 0, 0), 0x28030000);
 SMS_WRITE_32(SMS_PORT_REGION(0x801B751C, 0x801AF3D4, 0, 0), 0x418200A4);
 #endif
 
-// Remove blue coin prompts
-SMS_WRITE_32(SMS_PORT_REGION(0x8029A73C, 0x80292618, 0, 0), 0x60000000);
+// Remove save prompts
+extern PromptsSetting gSavePromptSetting;
+bool conditionalSavePrompt(TMarDirector *director, u8 nextState) {
+    switch (gSavePromptSetting.getInt()) {
+    default:
+    case PromptsSetting::ALL:
+        return true;
+    case PromptsSetting::NO_BLUE:
+        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] == 1) {
+            return false;
+        } else {
+            return true;
+        }
+    case PromptsSetting::NONE:
+        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
 
 #if BETTER_SMS_UNDERWATER_FRUIT
 // Fruit don't time out
