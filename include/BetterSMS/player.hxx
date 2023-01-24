@@ -171,6 +171,7 @@ namespace BetterSMS {
             TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario);
 
             CPolarSubCamera *getCamera() const { return mCamera; }
+            bool getCanSprayFludd() const { return mCanSprayFludd; }
             bool getCanUseFludd() const { return mCanUseFludd; }
             u8 getMaxJumps() const { return mParams->mMaxJumps.get(); }
             const TPlayerParams *getParams() const {
@@ -185,6 +186,7 @@ namespace BetterSMS {
             bool isMario() const { return !mIsEMario; }
 
             void setCamera(CPolarSubCamera *camera);
+            void setCanSprayFludd(bool enable) { mCanSprayFludd = enable; }
             void setCanUseFludd(bool enable) { mCanUseFludd = enable; }
             void setPlayer(TMario *player);
             void setPlayerID(u32 id) { mPlayerID = id; }
@@ -201,6 +203,7 @@ namespace BetterSMS {
             TPlayerParams *mParams;
             bool mIsEMario;
             bool mCanUseFludd;
+            bool mCanSprayFludd;
             u32 mPlayerID;
 
         public:

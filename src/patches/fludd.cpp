@@ -150,4 +150,62 @@ static void resetNozzleBuzzer(TMapObjGeneral *obj) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801BBBF8, 0x801B3AB0, 0, 0), resetNozzleBuzzer);
 
+// Patch rocket rollouts and other spray exploits //
+
+static void checkExecWaterGun(TWaterGun *fludd) {
+    if (fludd->mCurrentNozzle != TWaterGun::Hover && fludd->mCurrentNozzle != TWaterGun::Rocket) {
+        fludd->emit();
+        return;
+    }
+
+    auto *playerData = Player::getData(fludd->mMario);
+    if (playerData->getCanSprayFludd()) {
+        fludd->emit();
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024E548, 0x802462D4, 0, 0), checkExecWaterGun);
+
+static void killTriggerNozzle() {
+    TNozzleTrigger *nozzle;
+    SMS_FROM_GPR(29, nozzle);
+
+    nozzle->mSprayState = TNozzleTrigger::DEAD;
+    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Hover || nozzle->mFludd->mCurrentNozzle == TWaterGun::Rocket) {
+        auto *playerData     = Player::getData(nozzle->mFludd->mMario);
+        playerData->setCanSprayFludd(false);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8026C370, 0x802640FC, 0, 0), killTriggerNozzle);
+
+// 0x80262580
+// extern -> SME.cpp
+static bool checkAirNozzle() {
+    TMario *player;
+    SMS_FROM_GPR(31, player);
+
+    if (player->mFludd->mCurrentNozzle != TWaterGun::Hover && player->mFludd->mCurrentNozzle != TWaterGun::Rocket)
+        return player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
+
+    auto *playerData = Player::getData(player);
+    return (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) || playerData->getCanSprayFludd()) &&
+           player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80262580, 0x8025A30C, 0, 0), checkAirNozzle);
+SMS_WRITE_32(SMS_PORT_REGION(0x80262584, 0x8025A310, 0, 0), 0x2C030000);
+
+void updateDeadTriggerState(TMario *player, bool isMario) {
+    if (!isMario)
+        return;
+
+    auto *playerData = Player::getData(player);
+    bool isAlive     = playerData->getCanSprayFludd();
+    isAlive |= SMS_IsMarioTouchGround4cm__Fv();
+    isAlive |= (player->mState & TMario::STATE_WATERBORN);
+    isAlive |= (player->mState == TMario::STATE_NPC_BOUNCE);
+    isAlive |= (player->mState == 0x350 || player->mState == 0x10000357 ||
+                player->mState == 0x10000358);  // Ropes
+    isAlive |= (player->mState == 0x10100341);  // Pole Climb
+    playerData->setCanSprayFludd(isAlive);
+}
+
 #undef SCALE_PARAM

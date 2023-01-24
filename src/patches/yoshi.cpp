@@ -168,8 +168,13 @@ void forceValidRidingAnimation(TMario *player, bool isMario) {
         player->setAnimation(TMario::ANIMATION_IDLE, 1.0f);
 }
 
-SMS_WRITE_32(SMS_PORT_REGION(0x8026E9DC, 0, 0, 0), 0x60000000);  // Fix shallow water flashing
-SMS_WRITE_32(SMS_PORT_REGION(0x8026F14C, 0, 0, 0), 0x60000000);
+
+static bool isFixShallowWaterBug(TBGCheckData *data) {
+    return data->isWaterSurface() && !BetterSMS::areBugsPatched();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8026E9D4, 0, 0, 0),
+             isFixShallowWaterBug);  // Fix shallow water flashing
+SMS_PATCH_BL(SMS_PORT_REGION(0x8026F144, 0, 0, 0), isFixShallowWaterBug);
 
 static void checkYoshiFruitFix() {
     TYoshi *yoshi;
@@ -186,7 +191,7 @@ static bool checkShouldMount() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    return player->mSpeed.y < -1.0f;
+    return player->mSpeed.y < (BetterSMS::areExploitsPatched() ? -1.0f : 0.0f);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8028113C, 0x80278EC8, 0, 0), checkShouldMount);
 SMS_WRITE_32(SMS_PORT_REGION(0x80281140, 0x80278ECC, 0, 0), 0x2C030000);

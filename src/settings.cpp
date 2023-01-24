@@ -39,17 +39,9 @@
 #include "p_module.hxx"
 #include "p_settings.hxx"
 
-bool RumbleSetting::sRumbleFlag           = true;
-int SoundSetting::sSoundValue             = SoundSetting::MONO;
-bool SubtitleSetting::sSubtitleFlag       = true;
-int AspectRatioSetting::sAspectRatioValue = AspectRatioSetting::FULL;
-int ViewportSetting::sViewportValue       = ViewportSetting::SMS;
-int FPSSetting::sFPSValue                 = FPSSetting::FPS_30;
-bool BugsSetting::sIsUnlocked             = false;
-bool BugsSetting::sBugsValue              = true;
-int PromptsSetting::sPromptsValue         = PromptsSetting::ALL;
-
 using namespace BetterSMS;
+
+bool BugsSetting::sIsUnlocked = false;
 
 // PRIVATE
 

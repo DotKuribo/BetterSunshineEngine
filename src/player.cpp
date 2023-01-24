@@ -402,7 +402,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802569BC, 0x8024E748, 0, 0), patchRoofCollisionSp
 #pragma region TPlayerDataImplementation
 
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
-    : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCurJump(0),
+    : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCanSprayFludd(true), mCurJump(0),
       mIsLongJumping(false), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
       mPrevCollisionType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
       mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),

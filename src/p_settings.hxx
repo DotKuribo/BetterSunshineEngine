@@ -755,7 +755,7 @@ private:
 
 class RumbleSetting final : public Settings::SwitchSetting {
 public:
-    RumbleSetting(const char *name) : SwitchSetting(name, &RumbleSetting::sRumbleFlag) {
+    RumbleSetting(const char *name) : SwitchSetting(name, &mRumbleFlag), mRumbleFlag(true) {
         mValueChangedCB = RumbleSetting::valueChanged;
     }
 
@@ -766,12 +766,12 @@ private:
         TFlagManager::smInstance->setBool(flag, 0x90000);
     }
 
-    static bool sRumbleFlag;
+    bool mRumbleFlag;
 };
 
 class SubtitleSetting final : public Settings::SwitchSetting {
 public:
-    SubtitleSetting(const char *name) : SwitchSetting(name, &SubtitleSetting::sSubtitleFlag) {
+    SubtitleSetting(const char *name) : SwitchSetting(name, &mSubtitleFlag), mSubtitleFlag(true) {
         mValueChangedCB = SubtitleSetting::valueChanged;
     }
 
@@ -782,14 +782,14 @@ private:
         TFlagManager::smInstance->setBool(flag, 0x90001);
     }
 
-    static bool sSubtitleFlag;
+    bool mSubtitleFlag;
 };
 
 class SoundSetting final : public Settings::IntSetting {
 public:
     enum Kind { MONO, STEREO, SURROUND };
 
-    SoundSetting(const char *name) : IntSetting(name, &SoundSetting::sSoundValue) {
+    SoundSetting(const char *name) : IntSetting(name, &mSoundValue), mSoundValue(MONO) {
         mValueRange = {0, 2, 1};
         mValueChangedCB = SoundSetting::valueChanged;
     }
@@ -818,14 +818,15 @@ private:
         TFlagManager::smInstance->setBool(soundMode == Kind::SURROUND, 0x70001);
     }
 
-    static int sSoundValue;
+    int mSoundValue;
 };
 
 class AspectRatioSetting final : public Settings::IntSetting {
 public:
     enum Kind { FULL, FULLOPENMATTE, WIDE, ULTRAWIDE };
 
-    AspectRatioSetting(const char *name) : IntSetting(name, &AspectRatioSetting::sAspectRatioValue) {
+    AspectRatioSetting(const char *name)
+        : IntSetting(name, &mAspectRatioValue), mAspectRatioValue(FULL) {
         mValueRange     = {0, 3, 1};
     }
     ~AspectRatioSetting() override {}
@@ -849,15 +850,14 @@ public:
     }
 
 private:
-    static int sAspectRatioValue;
+    int mAspectRatioValue;
 };
 
 class ViewportSetting final : public Settings::IntSetting {
 public:
     enum Kind { SMS, SM64, SMG };
 
-    ViewportSetting(const char *name)
-        : IntSetting(name, &ViewportSetting::sViewportValue) {
+    ViewportSetting(const char *name) : IntSetting(name, &mViewportValue), mViewportValue(SMS) {
         mValueRange = {0, 2, 1};
     }
     ~ViewportSetting() override {}
@@ -878,14 +878,14 @@ public:
     }
 
 private:
-    static int sViewportValue;
+    int mViewportValue;
 };
 
 class FPSSetting final : public Settings::IntSetting {
 public:
     enum Kind { FPS_30, FPS_60, FPS_120 };
 
-    FPSSetting(const char *name) : IntSetting(name, &FPSSetting::sFPSValue) {
+    FPSSetting(const char *name) : IntSetting(name, &mFPSValue), mFPSValue(FPS_30) {
         mValueRange = {0, 1, 1};
     }
     ~FPSSetting() override {}
@@ -906,12 +906,12 @@ public:
     }
 
 private:
-    static int sFPSValue;
+    int mFPSValue;
 };
 
 class BugsSetting final : public Settings::SwitchSetting {
 public:
-    BugsSetting(const char *name) : SwitchSetting(name, &BugsSetting::sBugsValue) {}
+    BugsSetting(const char *name) : SwitchSetting(name, &mBugsValue), mBugsValue(true) {}
     ~BugsSetting() override {}
 
     bool isUnlocked() const override { return sIsUnlocked; }
@@ -934,14 +934,14 @@ public:
 
 private:
     static bool sIsUnlocked;
-    static bool sBugsValue;
+    bool mBugsValue;
 };
 
 class PromptsSetting final : public Settings::IntSetting {
 public:
     enum Kind { ALL, NO_BLUE, NONE };
 
-    PromptsSetting(const char *name) : IntSetting(name, &PromptsSetting::sPromptsValue) {
+    PromptsSetting(const char *name) : IntSetting(name, &mPromptsValue), mPromptsValue(ALL) {
         mValueRange = {0, 2, 1};
     }
     ~PromptsSetting() override {}
@@ -956,13 +956,13 @@ public:
             strncpy(dst, "NO BLUE", 8);
             break;
         case Kind::NONE:
-            strncpy(dst, "NONE", 5);
+            strncpy(dst, "NONE", 10);
             break;
         }
     }
 
 private:
-    static int sPromptsValue;
+    int mPromptsValue;
 };
 
 namespace BetterSMS {

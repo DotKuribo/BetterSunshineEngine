@@ -45,8 +45,8 @@ static BetterSMS::ModuleInfo sSunshineInfo{"Super Mario Sunshine", 1, 0, &sBaseS
 static Settings::SettingsGroup sSettingsGroup("Better Sunshine Engine", 2, 0,
                                               Settings::Priority::CORE);
 
-BugsSetting gExploitFixesSetting("Exploit Fixes");
 BugsSetting gBugFixesSetting("Bug Fixes");
+BugsSetting gExploitFixesSetting("Exploit Fixes");
 BugsSetting gCollisionFixesSetting("Collision Fixes");
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 ViewportSetting gViewportSetting("Viewport");
@@ -141,6 +141,7 @@ extern void updateDebugCollision(TMario *, bool);
 extern u32 MultiJumpState;
 extern void checkForMultiJump(TMario *, bool);
 extern bool processMultiJump(TMario *);
+extern void updateDeadTriggerState(TMario *player, bool isMario);
 
 // PLAYER COLLISION
 extern void decHealth(TMario *player, const TBGCheckData *data, u32 flags);
@@ -230,8 +231,8 @@ static void initLib() {
     sBaseSettingsGroup.addSetting(&gSubtitleSetting);
     BetterSMS::registerModule("Super Mario Sunshine", &sSunshineInfo);
 
-    sSettingsGroup.addSetting(&gExploitFixesSetting);
     sSettingsGroup.addSetting(&gBugFixesSetting);
+    sSettingsGroup.addSetting(&gExploitFixesSetting);
     sSettingsGroup.addSetting(&gCollisionFixesSetting);
     sSettingsGroup.addSetting(&gViewportSetting);
     sSettingsGroup.addSetting(&gAspectRatioSetting);
@@ -316,6 +317,7 @@ static void initLib() {
 
     //// DEBUG
     Player::registerUpdateProcess("__check_for_xyz", checkMarioXYZMode);
+    Player::registerUpdateProcess("__update_dead_trigger", updateDeadTriggerState);
     Player::registerStateMachine(XYZState, updateMarioXYZMode);
     Debug::registerUpdateCallback("__update_fludd_nozzle", updateFluddNozzle);
 
