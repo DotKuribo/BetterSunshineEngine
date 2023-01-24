@@ -153,6 +153,11 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801BBBF8, 0x801B3AB0, 0, 0), resetNozzleBuzzer);
 // Patch rocket rollouts and other spray exploits //
 
 static void checkExecWaterGun(TWaterGun *fludd) {
+    if (!BetterSMS::areExploitsPatched()) {
+        fludd->emit();
+        return;
+    }
+
     if (fludd->mCurrentNozzle != TWaterGun::Hover && fludd->mCurrentNozzle != TWaterGun::Rocket) {
         fludd->emit();
         return;
@@ -170,6 +175,10 @@ static void killTriggerNozzle() {
     SMS_FROM_GPR(29, nozzle);
 
     nozzle->mSprayState = TNozzleTrigger::DEAD;
+
+    if (!BetterSMS::areExploitsPatched())
+        return;
+
     if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Hover || nozzle->mFludd->mCurrentNozzle == TWaterGun::Rocket) {
         auto *playerData     = Player::getData(nozzle->mFludd->mMario);
         playerData->setCanSprayFludd(false);
@@ -183,6 +192,9 @@ static bool checkAirNozzle() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
+    if (!BetterSMS::areExploitsPatched())
+        return player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
+
     if (player->mFludd->mCurrentNozzle != TWaterGun::Hover && player->mFludd->mCurrentNozzle != TWaterGun::Rocket)
         return player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
 
@@ -195,6 +207,9 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80262584, 0x8025A310, 0, 0), 0x2C030000);
 
 void updateDeadTriggerState(TMario *player, bool isMario) {
     if (!isMario)
+        return;
+
+    if (!BetterSMS::areExploitsPatched())
         return;
 
     auto *playerData = Player::getData(player);
