@@ -26,6 +26,7 @@ namespace BetterSMS {
 
         void setVolume(u8 left, u8 right);
         void setVolumeFade(u8 dstVolume, f32 seconds);
+        void setMaxVolume(u8 max);
 
         void setLoopPoint(f32 start, f32 length);
 

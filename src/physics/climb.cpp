@@ -13,6 +13,7 @@
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "player.hxx"
+#include "p_settings.hxx"
 
 using namespace BetterSMS;
 
@@ -29,52 +30,15 @@ static void climbSometimes(TMario *player) {
 }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
 
-static void updateClimbContext(TMario *player) {
-    auto playerData = Player::getData(player);
-
-    if (!playerData->isMario()) {
-        playerData->mIsClimbTired = false;
+void updateClimbContext(TMario *player, bool isMario) {
+    if (!BetterSMS::areBugsPatched()) {
         return;
     }
 
-#if SMS_BUGFIXES
-    bool checkClimbContext = false;
-
-    if ((player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) == 0 &&
-        (player->mState & 0x1C0) != 320)
-        playerData->mClimbTiredTimer = 0;
-    else if ((player->mState & 0x1C0) == 320) {
-        if ((player->mState & 0x200000) != 0 && player->mRoofTriangle &&
-            player->mRoofTriangle->mType != 266)
-            checkClimbContext = player->mState != static_cast<u32>(TMario::STATE_HANG);
-        else if ((player->mState & 0x200000) == 0 && player->mWallTriangle &&
-                 player->mWallTriangle->mType != 266)
-            checkClimbContext = player->mState != static_cast<u32>(TMario::STATE_HANG);
-
-        if (checkClimbContext) {
-            if (playerData->mClimbTiredTimer == player->mDeParams.mNoFreezeTime.get() / 5) {
-                player->mActionState |= 0x8000;
-                playerData->mClimbTiredTimer = 0;
-                playerData->mIsClimbTired    = false;
-            } else {
-                if (Util::Math::lerp<f32>(0.0f, 1.0f,
-                                          static_cast<f32>(playerData->mClimbTiredTimer) /
-                                              player->mDeParams.mNoFreezeTime.get()) > 0.9f) {
-                    if (!playerData->mIsClimbTired)
-                        player->startVoice(TMario::VOICE_FALL_LEDGE_GRAB);
-
-                    playerData->mIsClimbTired = true;
-                } else
-                    playerData->mIsClimbTired = false;
-
-                playerData->mClimbTiredTimer += 1;
-            }
-        }
-
+    if ((player->mState & 0x1C0) == 320) {
         if (player->mCeilingAbove >= 9999990.0f && (player->mState & 0x200000) != 0)
             player->mActionState |= 0x8000;  // patch upwarps
     }
-#endif
 }
 
 /* PATCHES */

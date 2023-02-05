@@ -61,6 +61,11 @@ SMS_NO_INLINE void BetterSMS::Music::setVolumeFade(u8 dstVolume, f32 seconds) {
     streamer->setVolumeFadeTo(dstVolume, seconds);
 }
 
+SMS_NO_INLINE void BetterSMS::Music::setMaxVolume(u8 max) {
+    AudioStreamer *streamer = getAudioStreamer();
+    streamer->setFullVolumeLR(max, max);
+}
+
 SMS_NO_INLINE void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
     AudioStreamer *streamer            = getAudioStreamer();
     AudioStreamer::AudioPacket &packet = streamer->getCurrentAudio();

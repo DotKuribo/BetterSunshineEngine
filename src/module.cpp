@@ -143,6 +143,9 @@ extern void checkForMultiJump(TMario *, bool);
 extern bool processMultiJump(TMario *);
 extern void updateDeadTriggerState(TMario *player, bool isMario);
 
+// PLAYER STATE
+extern void updateClimbContext(TMario *, bool);
+
 // PLAYER COLLISION
 extern void decHealth(TMario *player, const TBGCheckData *data, u32 flags);
 extern void incHealth(TMario *player, const TBGCheckData *data, u32 flags);
@@ -311,6 +314,9 @@ static void initLib() {
     Player::registerCollisionHandler(3063, portalWarpHandler);
     Player::registerCollisionHandler(3064, portalFreeWarpHandler);
 
+    //// PLAYER STATE
+    Player::registerUpdateProcess("__check_upwarp_climb", updateClimbContext);
+
     //// YOSHI
     Player::registerUpdateProcess("__update_yoshi_swim", checkForYoshiDeath);
     Player::registerUpdateProcess("__update_yoshi_riding", forceValidRidingAnimation);
@@ -385,6 +391,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         // Generate exports
 
         /* MODULE */
+        KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCcPCQ29BetterSMS10ModuleInfo");
+        KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed, "isMusicStreamingAllowed__9BetterSMSFv");
@@ -395,6 +405,11 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio, "getScreenToFullScreenRatio__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getScreenRatioAdjustX, "getScreenRatioAdjustX__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getFrameRate, "getFrameRate__9BetterSMSFv");
+
+        /* APPLICATION */
+        KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered, "isContextRegistered__Q29BetterSMS11ApplicationFUc");
+        KURIBO_EXPORT_AS(BetterSMS::Application::registerContextCallback, "registerContextCallback__Q29BetterSMS11ApplicationFUcPFP12TApplication_b");
+        KURIBO_EXPORT_AS(BetterSMS::Application::deregisterContextCallback, "deregisterContextCallback__Q29BetterSMS11ApplicationFUc");
 
         /* BMG */
         KURIBO_EXPORT_AS(BetterSMS::BMG::isBMGCommandRegistered, "getFrameRate__Q29BetterSMS3BMGFUc");
@@ -477,14 +492,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::skipSong, "skipSong__Q29BetterSMS5MusicFf");
         KURIBO_EXPORT_AS(BetterSMS::Music::setVolume, "setVolume__Q29BetterSMS5MusicFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Music::setVolumeFade, "setVolumeFade__Q29BetterSMS5MusicFUcf");
+        KURIBO_EXPORT_AS(BetterSMS::Music::setVolume, "setMaxVolume__Q29BetterSMS5MusicFUc");
         KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFff");
         KURIBO_EXPORT_AS(BetterSMS::Music::getAudioStreamer, "getAudioStreamer__Q29BetterSMS5MusicFv");
-
-        /* MODULE */
-        KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCcPCQ29BetterSMS10ModuleInfo");
-        KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCc");
 
     /* OBJECTS */
     #if BETTER_SMS_EXTRA_OBJECTS
