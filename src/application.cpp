@@ -17,6 +17,7 @@
 #include "libs/container.hxx"
 #include "libs/global_unordered_map.hxx"
 #include "module.hxx"
+#include "music.hxx"
 #include "p_settings.hxx"
 
 
@@ -161,6 +162,11 @@ void BetterApplicationProcess(TApplication *app) {
             gameChangeCallbackHandler(app);
         }
 
+        if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
+            Music::AudioStreamer *streamer = Music::getAudioStreamer();
+            streamer->next(0.2f);
+        }
+
         if (app->mDirector)
             delete app->mDirector;
         app->mDirector = nullptr;
@@ -215,3 +221,5 @@ void BetterApplicationProcess(TApplication *app) {
     } while (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80005624, 0, 0, 0), BetterApplicationProcess);
+
+#undef SMS_CHECK_RESET_FLAG

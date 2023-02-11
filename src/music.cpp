@@ -486,20 +486,22 @@ bool Music::AudioStreamer::seek_() {
 }
 
 void Music::AudioStreamer::update_() {
-    if (!gpMarDirector) {
+    /*if (!gpMarDirector) {
         if (isPlaying() || isPaused())
             stop(0.0f);
         return;
-    }
+    }*/
 
-    if (!_startPaused && gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU) {
-        if (isPlaying())
-            pause(0.7f);
-        _startPaused = true;
-    } else if (_startPaused && gpMarDirector->mCurState != TMarDirector::STATE_PAUSE_MENU) {
-        if (isPaused())
-            play();
-        _startPaused = false;
+    if (gpMarDirector) {
+        if (!_startPaused && gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU) {
+            if (isPlaying())
+                pause(0.7f);
+            _startPaused = true;
+        } else if (_startPaused && gpMarDirector->mCurState != TMarDirector::STATE_PAUSE_MENU) {
+            if (isPaused())
+                play();
+            _startPaused = false;
+        }
     }
 
     const u8 vol = (_mVolLeft + _mVolRight) / 2;
@@ -780,16 +782,6 @@ static void initStageMusic() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802983F0, 0x80290288, 0, 0), initStageMusic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80298420, 0x802902B8, 0, 0), initStageMusic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x802984D0, 0x80290368, 0, 0), initStageMusic);
-
-
-// 0x802A670C
-static void stopMusicOnStageExit(TMarioGamePad *gamepad) {
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
-    streamer->next(PauseFadeSpeed);
-
-    reset__9RumbleMgrFv(gamepad);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x802A670C, 0x8029E664, 0, 0), stopMusicOnStageExit);
 
 // 0x80297B7C
 static void stopMusicOnShineGet(u32 musicID) {

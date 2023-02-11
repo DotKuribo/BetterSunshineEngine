@@ -175,7 +175,7 @@ static int findExtension(const char *string, size_t max) {
 
 char *BetterSMS::Stage::TStageParams::stageNameToParamPath(char *dst, const char *stage,
                                                            bool generalize) {
-    strncpy(dst, "/data/scene/System/", 20);
+    strncpy(dst, "/data/scene/params/", 20);
 
     const int numIDPos = findNumber(stage, 60);
     if (generalize && numIDPos != -1) {
