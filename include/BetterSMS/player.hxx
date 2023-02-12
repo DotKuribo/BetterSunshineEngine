@@ -11,24 +11,27 @@
 #include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/raw_fn.hxx>
 
-#include "libs/warp.hxx"
 #include "libs/container.hxx"
 #include "logging.hxx"
 #include "module.hxx"
+#include "p_warp.hxx"
 
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 
 namespace BetterSMS {
     namespace Player {
+        struct TPlayerData;
+        
+        // Get the specialized BetterSMS info of a player
         void *getRegisteredData(TMario *, const char *);
 
-        struct TPlayerData;
+        // Get arbitrary module data for a player
         TPlayerData *getData(TMario *);
 
-        // Use this to have extended params by inheriting TPlayerData
+        // Use this to have extended params by potentially inheriting TPlayerData
         bool registerData(TMario *, const char *, void *);
-        bool deregisterData(TMario *, const char *);
+        void deregisterData(TMario *, const char *);
 
         enum InteractionFlags {
             ON_ENTER       = 1 << 0,
@@ -40,30 +43,38 @@ namespace BetterSMS {
             AIRBORN        = 1 << 6
         };
 
-        typedef void (*InitProcess)(TMario *, bool);
-        typedef void (*UpdateProcess)(TMario *, bool);
-        typedef bool (*MachineProcess)(TMario *);
-        typedef void (*CollisionProcess)(TMario *, const TBGCheckData *, u32 /*InteractionFlags*/);
+        typedef void (*InitCallback)(TMario *, bool);
+        typedef void (*UpdateCallback)(TMario *, bool);
+        typedef bool (*MachineCallback)(TMario *);
+        typedef void (*CollisionCallback)(TMario *, const TBGCheckData *, u32 /*InteractionFlags*/);
 
-        // Player init hook
-        bool registerInitProcess(const char *, InitProcess);
-        // Player update hook
-        bool registerUpdateProcess(const char *, UpdateProcess);
-        // Player state handlers (Custom movesets)
-        bool registerStateMachine(u32, MachineProcess);
-        // Player collision handlers (Custom collision types)
-        bool registerCollisionHandler(u16, CollisionProcess);
-        bool deregisterInitProcess(const char *);
-        bool deregisterUpdateProcess(const char *);
-        bool deregisterStateMachine(u32);
-        bool deregisterCollisionHandler(u16);
+        // Register a function to call on player init
+        bool registerInitCallback(const char *, InitCallback);
+        // Register a function to call on player update
+        bool registerUpdateCallback(const char *, UpdateCallback);
+        // Register a function to call for a specific player state
+        bool registerStateMachine(u32, MachineCallback);
+        // Register a function to call for a specific collision type
+        bool registerCollisionHandler(u16, CollisionCallback);
+        void deregisterInitCallback(const char *);
+        void deregisterUpdateCallback(const char *);
+        void deregisterStateMachine(u32);
+        void deregisterCollisionHandler(u16);
 
         // Warps the player to a collision face
         void warpToCollisionFace(TMario *player, const TBGCheckData *face, bool isFluid);
+
+        // Warps the player to a specific coordinate
         void warpToPoint(TMario *player, const TVec3f &destPoint, WarpKind kind, s32 framesToWarp,
                          bool isWarpFluid);
+
+        // Apply a rotation to a player, which is relative to the camera
         void rotateRelativeToCamera(TMario *, CPolarSubCamera *, Vec2, f32);
+
+        // Set a player on fire
         void setFire(TMario *);
+
+        // Extinguish the player if on fire
         void extinguishFire(TMario *, bool);
 
 #pragma region ParamHandler
@@ -174,11 +185,7 @@ namespace BetterSMS {
             bool getCanSprayFludd() const { return mCanSprayFludd; }
             bool getCanUseFludd() const { return mCanUseFludd; }
             u8 getMaxJumps() const { return mParams->mMaxJumps.get(); }
-            const TPlayerParams *getParams() const {
-                if (!mParams)
-                    Console::debugLog("Trying to access player params that don't exist!\n");
-                return mParams;
-            }
+            const TPlayerParams *getParams() const { return mParams; }
             TMario *getPlayer() const { return mPlayer; }
             u32 getPlayerID() const { return mPlayerID; }
 
@@ -188,7 +195,6 @@ namespace BetterSMS {
             void setCamera(CPolarSubCamera *camera);
             void setCanSprayFludd(bool enable) { mCanSprayFludd = enable; }
             void setCanUseFludd(bool enable) { mCanUseFludd = enable; }
-            void setPlayer(TMario *player);
             void setPlayerID(u32 id) { mPlayerID = id; }
             void setColliding(bool colliding) { mCollisionFlags.mIsColliding = colliding; }
 

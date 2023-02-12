@@ -6,15 +6,14 @@
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "libs/warp.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"
 #include "player.hxx"
 
 #include "p_globals.hxx"
+#include "p_warp.hxx"
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
 using namespace BetterSMS::Collision;
 
 #define EXPAND_WARP_SET(base) (base) : case ((base) + 10) : case ((base) + 20) : case ((base) + 30)
@@ -205,7 +204,7 @@ const TBGCheckData *TWarpCollisionList::resolveCollisionWarp(const TBGCheckData 
     return getNearestTarget(colTriangle);
 }
 
-const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *colTriangle) {
+const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *colTriangle) const {
     if (!TCollisionLink::isValidWarpCol(colTriangle))
         return nullptr;
 

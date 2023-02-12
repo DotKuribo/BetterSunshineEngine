@@ -1,6 +1,6 @@
 #include <Dolphin/mem.h>
 
-#include "sunscript.hxx"
+#include "p_sunscript.hxx"
 
 void Spc::read8(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);

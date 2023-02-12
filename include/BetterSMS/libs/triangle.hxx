@@ -5,7 +5,7 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 
 #include "constmath.hxx"
-#include "geometry.hxx"
+#include "p_geometry.hxx"
 
 using namespace BetterSMS::Geometry;
 

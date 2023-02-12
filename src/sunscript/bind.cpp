@@ -1,6 +1,6 @@
 #include <SMS/SPC/SpcBinary.hxx>
 
-#include "sunscript.hxx"
+#include "p_sunscript.hxx"
 #include "module.hxx"
 
 #define BIND_SYMBOL(binary, symbol, func)                                                          \

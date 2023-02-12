@@ -1,7 +1,6 @@
-
-
 #include "music.hxx"
-#include "sunscript.hxx"
+
+#include "p_sunscript.hxx"
 
 using namespace BetterSMS::Music;
 

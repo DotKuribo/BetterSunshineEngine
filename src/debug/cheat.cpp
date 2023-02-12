@@ -55,7 +55,7 @@ void drawCheatText(TApplication *app, const J2DOrthoGraph *graph) {
 
 static void *handleDebugCheat(void *GCLogoDir) {
     if (!gDebugHandler.isInitialized()) {
-        gDebugHandler.setGamePad(gpApplication.mGamePad1);
+        gDebugHandler.setGamePad(gpApplication.mGamePads[0]);
         gDebugHandler.setInputList(gDebugModeCheatCode);
         gDebugHandler.setSuccessCallBack(&debugModeNotify);
 

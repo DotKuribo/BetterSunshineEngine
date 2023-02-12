@@ -15,3 +15,11 @@ template <typename T> constexpr T scaleLinearAtAnchor(T value, T scale, T anchor
 template <typename T> constexpr T lerp(T a, T b, f32 f) { return a + f * (b - a); }
 
 template <typename T> constexpr T clamp(T value, T min, T max) { return Clamp(value, min, max); }
+
+constexpr f32 sigmoid(f32 x, f32 f, f32 r, f32 c, f32 b) {
+    return f + ((r - f) / (1.0f + expf((b * -1.0f) * (x - c))));
+}
+
+constexpr f64 sigmoid(f64 x, f64 f, f64 r, f64 c, f64 b) {
+    return f + ((r - f) / (1.0f + expf((b * -1.0f) * (x - c))));
+}

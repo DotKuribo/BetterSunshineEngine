@@ -5,7 +5,6 @@
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "libs/geometry.hxx"
 #include "player.hxx"
 #include "module.hxx"
 

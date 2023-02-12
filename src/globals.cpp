@@ -4,10 +4,10 @@
 #include <SMS/System/Application.hxx>
 #include <SMS/macros.h>
 
-#include "libs/warp.hxx"
-#include "p_globals.hxx"
 #include "module.hxx"
+#include "p_globals.hxx"
 #include "p_settings.hxx"
+#include "p_warp.hxx"
 
 SMS_EXTERN_C OSBootInfo BootInfo;
 

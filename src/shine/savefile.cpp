@@ -1,4 +1,7 @@
+#include <Dolphin/mem.h>
+
 #include <SMS/Manager/FlagManager.hxx>
+#include <SMS/macros.h>
 
 #include "module.hxx"
 

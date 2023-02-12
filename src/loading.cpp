@@ -9,9 +9,9 @@
 #include <SMS/raw_fn.hxx>
 
 #include "libs/anim2d.hxx"
-#include "icons.hxx"
 #include "loading.hxx"
 #include "module.hxx"
+#include "p_icons.hxx"
 #include "p_settings.hxx"
 
 // clang-format off
@@ -67,10 +67,7 @@ void Loading::setLoading(bool isLoading) {
     sIsLoading = isLoading;
 }
 
-void Loading::setLoadingIconB(const ResTIMG **textures, size_t texCount) {
-    sLoadingIconAnimator.setTextures(textures, texCount);
-}
-void Loading::setLoadingIconW(const ResTIMG **textures, size_t texCount) {
+void Loading::setLoadingIcon(const ResTIMG **textures, size_t texCount) {
     sLoadingIconAnimator.setTextures(textures, texCount);
 }
 void Loading::setFullScreenLayout(J2DScreen *screen) { sLoadingScreenFull = screen; }

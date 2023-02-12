@@ -16,11 +16,11 @@
 #include <SMS/raw_fn.hxx>
 
 
-#include "libs/geometry.hxx"
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "player.hxx"
 #include "p_settings.hxx"
+#include "p_geometry.hxx"
 
 #if BETTER_SMS_BUGFIXES
 

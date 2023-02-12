@@ -5,8 +5,6 @@
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <SMS/Map/BGCheck.hxx>
 
-#include "geometry.hxx"
-
 namespace BetterSMS {
     namespace Collision {
 
@@ -90,7 +88,7 @@ namespace BetterSMS {
             TCollisionLink *getLinks() const { return mColList; }
 
             const TBGCheckData *resolveCollisionWarp(const TBGCheckData *colTriangle);
-            const TBGCheckData *getNearestTarget(const TBGCheckData *colTriangle);
+            const TBGCheckData *getNearestTarget(const TBGCheckData *colTriangle) const;
 
         private:
             size_t mUsedSize;

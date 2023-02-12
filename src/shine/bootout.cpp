@@ -88,7 +88,7 @@ static void exitShineDemo(TMarDirector *director, TMario *mario, CPolarSubCamera
     camera->endDemoCamera();
     director->mCollectedShine = nullptr;
 
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
     if (streamer->isPaused())
         streamer->play();
 }

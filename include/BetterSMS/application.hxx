@@ -10,6 +10,6 @@ namespace BetterSMS {
 
         bool isContextRegistered(u8 context);
         bool registerContextCallback(u8 context, ContextCallback cb);
-        bool deregisterContextCallback(u8 context);
+        void deregisterContextCallback(u8 context);
     }  // namespace Game
 };     // namespace BetterSMS

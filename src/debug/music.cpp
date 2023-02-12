@@ -56,7 +56,7 @@ void printStreamInfo(TApplication *app, J2DOrthoGraph *graph) {
         director->mCurState != TMarDirector::STATE_NORMAL)
         return;
 
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
     if (!streamer)
         return;
 

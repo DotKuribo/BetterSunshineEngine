@@ -1,7 +1,7 @@
 #include <Dolphin/MTX.h>
 #include <JSystem/JGeometry/JGMVec.hxx>
 
-#include "sunscript.hxx"
+#include "p_sunscript.hxx"
 
 void Spc::vectorTranslate(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(2, &argc);

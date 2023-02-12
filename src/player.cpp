@@ -19,7 +19,6 @@
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "libs/warp.hxx"
 #include "libs/constmath.hxx"
 #include "libs/global_unordered_map.hxx"
 #include "libs/profiler.hxx"
@@ -27,7 +26,6 @@
 #include "libs/string.hxx"
 
 #include "logging.hxx"
-#include "math.hxx"
 #include "module.hxx"
 #include "player.hxx"
 #include "p_settings.hxx"
@@ -37,10 +35,10 @@ using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
 static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
-static TGlobalUnorderedMap<TGlobalString, Player::InitProcess> sPlayerInitializers(32);
-static TGlobalUnorderedMap<TGlobalString, Player::UpdateProcess> sPlayerUpdaters(32);
-static TGlobalUnorderedMap<u32, Player::MachineProcess> sPlayerStateMachines(32);
-static TGlobalUnorderedMap<u16, Player::CollisionProcess> sPlayerCollisionHandlers(32);
+static TGlobalUnorderedMap<TGlobalString, Player::InitCallback> sPlayerInitializers(32);
+static TGlobalUnorderedMap<TGlobalString, Player::UpdateCallback> sPlayerUpdaters(32);
+static TGlobalUnorderedMap<u32, Player::MachineCallback> sPlayerStateMachines(32);
+static TGlobalUnorderedMap<u16, Player::CollisionCallback> sPlayerCollisionHandlers(32);
 
 SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto &dataDict = sPlayerDict[player];
@@ -67,86 +65,72 @@ SMS_NO_INLINE void *BetterSMS::Player::getRegisteredData(TMario *player, const c
     return data;
 }
 
+// Register arbitrary module data for a player
 SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
     auto &dataDict = sPlayerDict[player];
-    if (dataDict.contains(key))
+    if (dataDict.find(key) != dataDict.end())
         return false;
     dataDict[key] = data;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::deregisterData(TMario *player, const char *key) {
+SMS_NO_INLINE void BetterSMS::Player::deregisterData(TMario *player, const char *key) {
     auto &dataDict = sPlayerDict[player];
-    if (!dataDict.contains(key))
-        return false;
     dataDict.erase(key);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerInitProcess(const char *key, InitProcess process) {
-    if (sPlayerInitializers.contains(key))
+SMS_NO_INLINE bool BetterSMS::Player::registerInitCallback(const char *key, InitCallback process) {
+    if (sPlayerInitializers.find(key) != sPlayerInitializers.end())
         return false;
     sPlayerInitializers[key] = process;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerUpdateProcess(const char *key,
-                                                            UpdateProcess process) {
-    if (sPlayerUpdaters.contains(key))
+SMS_NO_INLINE bool BetterSMS::Player::registerUpdateCallback(const char *key,
+                                                            UpdateCallback process) {
+    if (sPlayerUpdaters.find(key) != sPlayerUpdaters.end())
         return false;
     sPlayerUpdaters[key] = process;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachineProcess process) {
+SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachineCallback process) {
     if ((state & 0x1C0) != 0x1C0) {
         Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
                      "engine collisions)!\n");
     }
-    if (sPlayerStateMachines.contains(state))
+    if (sPlayerStateMachines.find(state) != sPlayerStateMachines.end())
         return false;
     sPlayerStateMachines[state] = process;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Player::registerCollisionHandler(u16 colType,
-                                                               CollisionProcess process) {
+                                                               CollisionCallback process) {
     if ((colType & 0xC000) != 0) {
         Console::log("[WARNING] Collision type registered has camera clip and shadow flags set "
                      "(0x4000 || 0x8000)! This may cause unwanted behaviour!\n");
     }
-    if (sPlayerCollisionHandlers.contains(colType))
+    if (sPlayerCollisionHandlers.find(colType) != sPlayerCollisionHandlers.end())
         return false;
     sPlayerCollisionHandlers[colType] = process;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::deregisterInitProcess(const char *key) {
-    if (!sPlayerInitializers.contains(key))
-        return false;
+SMS_NO_INLINE void BetterSMS::Player::deregisterInitCallback(const char *key) {
     sPlayerInitializers.erase(key);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::deregisterUpdateProcess(const char *key) {
-    if (!sPlayerUpdaters.contains(key))
-        return false;
+SMS_NO_INLINE void BetterSMS::Player::deregisterUpdateCallback(const char *key) {
     sPlayerUpdaters.erase(key);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::deregisterStateMachine(u32 state) {
-    if (!sPlayerStateMachines.contains(state))
-        return false;
+SMS_NO_INLINE void BetterSMS::Player::deregisterStateMachine(u32 state) {
     sPlayerStateMachines.erase(state);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
-    if (!sPlayerCollisionHandlers.contains(colType))
-        return false;
+SMS_NO_INLINE void BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
     sPlayerCollisionHandlers.erase(colType);
-    return true;
 }
 
 static bool sIsWiping = false;
@@ -453,7 +437,7 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
 
     const TPlayerParams *params = getParams();
 
-    const f32 yoshiAgility = Math::sigmoidCurve(size.y, 0.0f, 1.2f, 1.321887582486f, -5.0f);
+    const f32 yoshiAgility = sigmoid(size.y, 0.0f, 1.2f, 1.321887582486f, -5.0f);
 
     f32 factor            = scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
     f32 speedMultiplier   = params->mSpeedMultiplier.get();
@@ -585,11 +569,6 @@ void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
     SCALE_PARAM(mPlayer->mDirtyParams.mSlipCatchSp, factor * speedMultiplier);
 
 #undef SCALE_PARAM
-}
-
-void Player::TPlayerData::setPlayer(TMario *player) {
-    mPlayer = player;
-    mDefaultAttrs.recordFrom(player);
 }
 
 bool Player::TPlayerData::loadPrm(const char *prm = "/sme.prm") {

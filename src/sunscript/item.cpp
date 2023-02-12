@@ -3,7 +3,7 @@
 #include <SMS/MoveBG/Shine.hxx>
 #include <SMS/Manager/ItemManager.hxx>
 
-#include "sunscript.hxx"
+#include "p_sunscript.hxx"
 
 void Spc::spawnObjByID(TSpcInterp *interp, u32 argc) {
     const u32 id     = Stack::popItem(interp).mValue;

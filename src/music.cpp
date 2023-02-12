@@ -14,7 +14,6 @@
 
 #include "libs/constmath.hxx"
 #include "logging.hxx"
-#include "math.hxx"
 #include "module.hxx"
 #include "music.hxx"
 #include "stage.hxx"
@@ -23,7 +22,7 @@ using namespace BetterSMS;
 
 // Name of the song to play, e.g. "BeachTheme"
 SMS_NO_INLINE bool BetterSMS::Music::queueSong(const char *name) {
-    AudioStreamer *streamer           = getAudioStreamer();
+    auto *streamer           = AudioStreamer::getInstance();
     AudioStreamer::AudioPacket packet = AudioStreamer::AudioPacket(name);
 
     return streamer->queueAudio(packet);
@@ -31,51 +30,47 @@ SMS_NO_INLINE bool BetterSMS::Music::queueSong(const char *name) {
 
 // Play a paused/queued song
 SMS_NO_INLINE void BetterSMS::Music::playSong() {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     streamer->play();
 }
 
 // Pause song, fading out by `fadeTime` seconds
 SMS_NO_INLINE void BetterSMS::Music::pauseSong(f32 fadeTime) {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     return streamer->pause(fadeTime);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::stopSong(f32 fadeTime) {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     return streamer->stop(fadeTime);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::skipSong(f32 fadeTime) {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     return streamer->skip(fadeTime);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::setVolume(u8 left, u8 right) {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     streamer->setVolumeLR(left, right);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::setVolumeFade(u8 dstVolume, f32 seconds) {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     streamer->setVolumeFadeTo(dstVolume, seconds);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::setMaxVolume(u8 max) {
-    AudioStreamer *streamer = getAudioStreamer();
+    auto *streamer = AudioStreamer::getInstance();
     streamer->setFullVolumeLR(max, max);
 }
 
 SMS_NO_INLINE void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
-    AudioStreamer *streamer            = getAudioStreamer();
+    auto *streamer            = AudioStreamer::getInstance();
     AudioStreamer::AudioPacket &packet = streamer->getCurrentAudio();
 
     packet.setLoopPoint(start, length);
     streamer->mEndPlayAddress = streamer->getStreamEnd();
-}
-
-SMS_NO_INLINE Music::AudioStreamer *BetterSMS::Music::getAudioStreamer() {
-    return AudioStreamer::getInstance();
 }
 
 #pragma region Implementation
@@ -89,13 +84,13 @@ static bool _mIsLooping  = false;
 static void updaterLoop() {
     main__Q28JASystem10HardStreamFv();
 
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     streamer->update_();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80316034, 0x8030E1C4, 0, 0), updaterLoop);
 
 static void *mainLoop(void *param) {
-    Music::AudioStreamer *streamer = reinterpret_cast<Music::AudioStreamer *>(param);
+    auto *streamer = reinterpret_cast<Music::AudioStreamer *>(param);
     Music::AudioStreamer::AudioCommand command;
     OSMessage msg;
 
@@ -128,7 +123,7 @@ static void *mainLoop(void *param) {
 }
 #else
 static void *mainLoop(void *param) {
-    Music::AudioStreamer *streamer = reinterpret_cast<Music::AudioStreamer *>(param);
+    auto *streamer = reinterpret_cast<Music::AudioStreamer *>(param);
     Music::AudioStreamer::AudioCommand command;
     OSMessage msg;
 
@@ -141,12 +136,12 @@ static void *mainLoop(void *param) {
 #pragma region CallbackImplementation
 
 static void volumeAlarm(OSAlarm *alarm, OSContext *context) {
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     streamer->fadeAudio_();
 }
 
 static void cbForGetStreamErrorStatusAsync_(u32 result, DVDCommandBlock *cmdBlock) {
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     streamer->mErrorStatus         = result;
     if (streamer->mErrorStatus != 1) {
         streamer->stop_();
@@ -154,20 +149,20 @@ static void cbForGetStreamErrorStatusAsync_(u32 result, DVDCommandBlock *cmdBloc
 }
 
 static void cbForGetStreamPlayAddrAsync_(u32 result, DVDCommandBlock *cmdBlock) {
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     streamer->mCurrentPlayAddress  = result;
     DVDGetStreamErrorStatusAsync(&streamer->mStatusCmd, cbForGetStreamErrorStatusAsync_);
 }
 
 static void cbForAIInterrupt(u32 trigger) {
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     AISetStreamTrigger(trigger + Music::AudioStreamRate);
     DVDGetStreamPlayAddrAsync(&streamer->mGetAddrCmd, cbForGetStreamPlayAddrAsync_);
     streamer->mErrorStatus = 2;
 }
 
 static void cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo) {
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     u16 volLR                      = streamer->getVolumeLR();
 
     // Set up AI
@@ -186,13 +181,13 @@ static void cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo) {
 }
 
 static void cbForCancelStreamAsync_(u32 result, DVDCommandBlock *callback) {
-    Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+    auto *streamer = Music::AudioStreamer::getInstance();
     DVDClose(streamer->mAudioHandle);
 }
 
 static void cbForStopStreamAtEndAsync_(u32 result, DVDCommandBlock *cmdblock) {
 #if 0
-  Music::AudioStreamer *streamer = Music::AudioStreamer::getInstance();
+  auto *streamer = Music::AudioStreamer::getInstance();
 
   if (streamer->isLooping()) {
     DVDPrepareStreamAsync(fileinfo, 0, 0, cbForPrepareStreamAsync_);
@@ -701,7 +696,7 @@ static void initExMusic(MSStageInfo bgm) {
         return;
     }
 
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
     Music::AudioStreamer::AudioPacket packet(gStageBGM & 0x3FF);
 
     streamer->queueAudio(packet);
@@ -748,7 +743,7 @@ static void initStageMusic() {
         return;
 
 #if 1
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
     Music::AudioStreamer::AudioPacket packet(gStageBGM & 0x3FF);
 
     streamer->queueAudio(packet);
@@ -785,7 +780,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802984D0, 0x80290368, 0, 0), initStageMusic);
 
 // 0x80297B7C
 static void stopMusicOnShineGet(u32 musicID) {
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
 
     if ((gpMarDirector->mCollectedShine->mType & 0x10) == 0 && streamer->isPlaying()) {
         streamer->stop(PauseFadeSpeed);
@@ -797,7 +792,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80297B7C, 0x8028FA14, 0, 0), stopMusicOnShineGet)
 
 // 0x8024FAB8
 static void stopMusicOnManholeEnter(u32 musicID) {
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
 
     if (streamer->isPlaying())
         streamer->pause(PauseFadeSpeed);
@@ -808,7 +803,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024FAB8, 0x80247844, 0, 0), stopMusicOnManholeEn
 
 // 0x8024FB0C
 static void stopMusicOnManholeExit(u32 musicID, u32 unk_0) {
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
 
     if (streamer->isPaused())
         streamer->play();
@@ -822,7 +817,7 @@ static void stopMusicBeforeShineCamera(CPolarSubCamera *cam, const char *demo, c
                                        s32 unk_0, f32 unk_1, bool unk_2) {
     cam->startDemoCamera(demo, pos, unk_0, unk_1, unk_2);
 
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
     if (streamer->isPlaying())
         streamer->pause(PauseFadeSpeed);
 }
@@ -832,14 +827,14 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802981A8, 0x80290040, 0, 0), stopMusicBeforeShine
 static void startMusicAfterShineCamera(CPolarSubCamera *cam) {
     cam->endDemoCamera();
 
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
     if (streamer->isPaused())
         streamer->play();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80297FD4, 0x8028FE6C, 0, 0), startMusicAfterShineCamera);
 
 static void stopMusicOnDeathExec(u32 musicID) {
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
 
     if (streamer->isPlaying())
         streamer->stop(PauseFadeSpeed);
@@ -849,7 +844,7 @@ static void stopMusicOnDeathExec(u32 musicID) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80298868, 0x80290700, 0, 0), stopMusicOnDeathExec);
 
 static void stopMusicOnGameOver(u32 musicID) {
-    Music::AudioStreamer *streamer = Music::getAudioStreamer();
+    auto *streamer = Music::AudioStreamer::getInstance();
 
     if (streamer->isPlaying())
         streamer->stop(PauseFadeSpeed);
@@ -857,5 +852,12 @@ static void stopMusicOnGameOver(u32 musicID) {
     MSBgm::startBGM(musicID);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802988B0, 0x80290748, 0, 0), stopMusicOnGameOver);
+
+void stopMusicOnExitStage(TApplication *app) {
+    if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
+        auto *streamer = Music::AudioStreamer::getInstance();
+        streamer->next(0.2f);
+    }
+}
 
 #pragma endregion

@@ -26,21 +26,18 @@ using namespace BetterSMS;
 static TGlobalUnorderedMap<u8, Application::ContextCallback> sContextCBs(16);
 
 SMS_NO_INLINE bool BetterSMS::Application::isContextRegistered(u8 context) {
-    return sContextCBs.contains(context);
+    return sContextCBs.find(context) != sContextCBs.end();
 }
 
 SMS_NO_INLINE bool BetterSMS::Application::registerContextCallback(u8 context, ContextCallback cb) {
-    if (isContextRegistered(context))
+    if (sContextCBs.find(context) != sContextCBs.end())
         return false;
     sContextCBs[context] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Application::deregisterContextCallback(u8 context) {
-    if (!isContextRegistered(context))
-        return false;
+SMS_NO_INLINE void BetterSMS::Application::deregisterContextCallback(u8 context) {
     sContextCBs.erase(context);
-    return true;
 }
 
 bool BetterAppContextGameBoot(TApplication *app) {
@@ -54,7 +51,7 @@ bool BetterAppContextGameBootLogo(TApplication *app) {
     auto *director = new TGCLogoDir();
     app->mDirector = director;
 
-    director->setup(app->mDisplay, app->mGamePad1);
+    director->setup(app->mDisplay, app->mGamePads[0]);
     return false;
 }
 
@@ -66,7 +63,7 @@ bool BetterAppContextDirectMovie(TApplication *app) {
     auto *director = new TMovieDirector();
     app->mDirector = director;
 
-    director->setup(app->mDisplay, app->mGamePad1);
+    director->setup(app->mDisplay, app->mGamePads[0]);
     return false;
 }
 
@@ -88,7 +85,7 @@ bool BetterAppContextDirectStage(TApplication *app) {
         auto *director = new TMarDirector();
         app->mDirector = director;
 
-        bool skipLoop = director->setup(app->mDisplay, &app->mGamePad1, app->mCurrentScene.mAreaID,
+        bool skipLoop = director->setup(app->mDisplay, &app->mGamePads[0], app->mCurrentScene.mAreaID,
                                         app->mCurrentScene.mEpisodeID) != 0;
 
         if (skipLoop)
@@ -108,7 +105,7 @@ bool BetterAppContextDirectShineSelect(TApplication *app) {
     auto *director = new TSelectDir();
     app->mDirector = director;
 
-    director->setup(app->mDisplay, app->mGamePad1, app->mCurrentScene.mAreaID);
+    director->setup(app->mDisplay, app->mGamePads[0], app->mCurrentScene.mAreaID);
     return false;
 }
 
@@ -120,7 +117,7 @@ bool BetterAppContextDirectLevelSelect(TApplication *app) {
     auto *director = new TMenuDirector();
     app->mDirector = director;
 
-    director->setup(app->mDisplay, app->mGamePad1);
+    director->setup(app->mDisplay, app->mGamePads[0]);
 
     TFlagManager::smInstance->setFlag(0x20001, 3);
 
@@ -136,7 +133,7 @@ bool BetterAppContextDirectSettingsMenu(TApplication *app) {
     auto *director = new SettingsDirector();
     app->mDirector = director;
 
-    director->setup(app->mDisplay, app->mGamePad1);
+    director->setup(app->mDisplay, app->mGamePads[0]);
 
     app->mCurrentScene.set(15, 0, 0);
     app->mNextScene.set(15, 0, 0);
@@ -162,17 +159,12 @@ void BetterApplicationProcess(TApplication *app) {
             gameChangeCallbackHandler(app);
         }
 
-        if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
-            Music::AudioStreamer *streamer = Music::getAudioStreamer();
-            streamer->next(0.2f);
-        }
-
         if (app->mDirector)
             delete app->mDirector;
         app->mDirector = nullptr;
 
         if (app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
-            if (!SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
+            if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
                 app->initialize_nlogoAfter();
                 #if 1
                 if (BetterSMS::isDebugMode())
@@ -180,7 +172,7 @@ void BetterApplicationProcess(TApplication *app) {
                 #endif
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
-            if (!SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
+            if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
                 gameInitCallbackHandler(app);
                 app->initialize_bootAfter();
                 gameBootCallbackHandler(app);
@@ -191,7 +183,7 @@ void BetterApplicationProcess(TApplication *app) {
 
         SMSRumbleMgr->reset();
 
-        if (SMS_CHECK_RESET_FLAG(app->mGamePad1)) {
+        if (SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
             TMarioGamePad::mResetFlag = 0;
             JUTGamePad::recalibrate(0xF0000000);
 

@@ -108,7 +108,7 @@ void updateStateMonitor(TApplication *app) {
     if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
         return;
 
-    if (app->mGamePad1->mButtons.mFrameInput == TMarioGamePad::Z)
+    if (app->mGamePads[0]->mButtons.mFrameInput == TMarioGamePad::Z)
         sDebugUIPane = (sDebugUIPane + 1) % 3;
 
     u16 floorColType =

@@ -17,9 +17,9 @@
 #include "libs/anim2d.hxx"
 #include "libs/container.hxx"
 #include "libs/global_list.hxx"
-#include "icons.hxx"
 #include "settings.hxx"
 #include "module.hxx"
+#include "p_icons.hxx"
 
 using namespace BetterSMS;
 

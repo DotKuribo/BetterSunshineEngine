@@ -20,94 +20,64 @@ static TGlobalUnorderedMap<TGlobalString, Game::LoopCallback> sGameLoopCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::DrawCallback> sGameDrawCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::ChangeCallback> sGameChangeCBs(32);
 
-SMS_NO_INLINE bool BetterSMS::Game::isOnInitRegistered(const char *name) {
-    return sGameInitCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Game::isOnBootRegistered(const char *name) {
-    return sGameBootCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Game::isOnLoopRegistered(const char *name) {
-    return sGameLoopCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Game::isOnPostDrawRegistered(const char *name) {
-    return sGameDrawCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Game::isOnChangeRegistered(const char *name) {
-    return sGameChangeCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Game::registerOnInitCallback(const char *name, InitCallback cb) {
-    if (isOnInitRegistered(name))
+// Register a function to be called on game init
+SMS_NO_INLINE bool BetterSMS::Game::registerInitCallback(const char *name, InitCallback cb) {
+    if (sGameInitCBs.find(name) != sGameInitCBs.end())
         return false;
     sGameInitCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::registerOnBootCallback(const char *name, BootCallback cb) {
-    if (isOnBootRegistered(name))
+// Register a function to be called on game boot
+SMS_NO_INLINE bool BetterSMS::Game::registerBootCallback(const char *name, BootCallback cb) {
+    if (sGameBootCBs.find(name) != sGameBootCBs.end())
         return false;
     sGameBootCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::registerOnLoopCallback(const char *name, LoopCallback cb) {
-    if (isOnLoopRegistered(name))
+// Register a function to be called every game loop
+SMS_NO_INLINE bool BetterSMS::Game::registerLoopCallback(const char *name, LoopCallback cb) {
+    if (sGameLoopCBs.find(name) != sGameLoopCBs.end())
         return false;
     sGameLoopCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::registerOnPostDrawCallback(const char *name, DrawCallback cb) {
-    if (isOnPostDrawRegistered(name))
+// Register a function to be called after the game draws graphics
+SMS_NO_INLINE bool BetterSMS::Game::registerPostDrawCallback(const char *name, DrawCallback cb) {
+    if (sGameDrawCBs.find(name) != sGameDrawCBs.end())
         return false;
     sGameDrawCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::registerOnChangeCallback(const char *name, ChangeCallback cb) {
-    if (isOnChangeRegistered(name))
+// Register a function to be called on game context change
+SMS_NO_INLINE bool BetterSMS::Game::registerChangeCallback(const char *name, ChangeCallback cb) {
+    if (sGameChangeCBs.find(name) != sGameChangeCBs.end())
         return false;
     sGameChangeCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::deregisterOnInitCallback(const char *name) {
-    if (!isOnInitRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Game::deregisterInitCallback(const char *name) {
     sGameInitCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::deregisterOnBootCallback(const char *name) {
-    if (!isOnBootRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Game::deregisterBootCallback(const char *name) {
     sGameBootCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::deregisterOnLoopCallback(const char *name) {
-    if (!isOnLoopRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Game::deregisterLoopCallback(const char *name) {
     sGameLoopCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::deregisterOnPostDrawCallback(const char *name) {
-    if (!isOnPostDrawRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Game::deregisterPostDrawCallback(const char *name) {
     sGameDrawCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Game::deregisterOnChangeCallback(const char *name) {
-    if (!isOnChangeRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Game::deregisterChangeCallback(const char *name) {
     sGameChangeCBs.erase(name);
-    return true;
 }
 
 // extern -> custom app proc

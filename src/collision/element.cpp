@@ -7,13 +7,12 @@
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
-#include "libs/warp.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"
 #include "player.hxx"
+#include "p_warp.hxx"
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
 using namespace BetterSMS::Collision;
 
 // types start at 3000

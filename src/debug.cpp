@@ -21,58 +21,37 @@ static TGlobalUnorderedMap<TGlobalString, Debug::InitCallback> sDebugInitCBs(32)
 static TGlobalUnorderedMap<TGlobalString, Debug::UpdateCallback> sDebugUpdateCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Debug::DrawCallback> sDebugDrawCBs(32);
 
-SMS_NO_INLINE bool BetterSMS::Debug::isInitRegistered(const char *name) {
-    return sDebugInitCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Debug::isUpdateRegistered(const char *name) {
-    return sDebugUpdateCBs.contains(name);
-}
-
-SMS_NO_INLINE bool BetterSMS::Debug::isDrawRegistered(const char *name) {
-    return sDebugDrawCBs.contains(name);
-}
-
 SMS_NO_INLINE bool BetterSMS::Debug::registerInitCallback(const char *name, InitCallback cb) {
-    if (isInitRegistered(name))
+    if (sDebugInitCBs.find(name) != sDebugInitCBs.end())
         return false;
     sDebugInitCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Debug::registerUpdateCallback(const char *name, UpdateCallback cb) {
-    if (isUpdateRegistered(name))
+    if (sDebugUpdateCBs.find(name) != sDebugUpdateCBs.end())
         return false;
     sDebugUpdateCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Debug::registerDrawCallback(const char *name, DrawCallback cb) {
-    if (isDrawRegistered(name))
+    if (sDebugDrawCBs.find(name) != sDebugDrawCBs.end())
         return false;
     sDebugDrawCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Debug::deregisterInitCallback(const char *name) {
-    if (!isInitRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Debug::deregisterInitCallback(const char *name) {
     sDebugInitCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Debug::deregisterUpdateCallback(const char *name) {
-    if (!isUpdateRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Debug::deregisterUpdateCallback(const char *name) {
     sDebugUpdateCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Debug::deregisterDrawCallback(const char *name) {
-    if (!isDrawRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Debug::deregisterDrawCallback(const char *name) {
     sDebugDrawCBs.erase(name);
-    return true;
 }
 
 #pragma region CallbackHandlers
@@ -96,8 +75,8 @@ void updateDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
         return;
 
-    if ((app->mGamePad1->mButtons.mInput & TMarioGamePad::L) &&
-        (app->mGamePad1->mButtons.mFrameInput & TMarioGamePad::DPAD_UP))
+    if ((app->mGamePads[0]->mButtons.mInput & TMarioGamePad::L) &&
+        (app->mGamePads[0]->mButtons.mFrameInput & TMarioGamePad::DPAD_UP))
         sIsActive ^= true;
 
     if (!sIsActive)

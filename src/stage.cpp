@@ -32,73 +32,48 @@ SMS_NO_INLINE Stage::TStageParams *BetterSMS::Stage::getStageConfiguration() {
     return TStageParams::sStageConfig;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::isInitRegistered(const char *name) {
-    return sStageInitCBs.contains(name);
-}
-SMS_NO_INLINE bool BetterSMS::Stage::isUpdateRegistered(const char *name) {
-    return sStageUpdateCBs.contains(name);
-}
-SMS_NO_INLINE bool BetterSMS::Stage::isDraw2DRegistered(const char *name) {
-    return sStageDrawCBs.contains(name);
-}
-SMS_NO_INLINE bool BetterSMS::Stage::isExitRegistered(const char *name) {
-    return sStageExitCBs.contains(name);
-}
-
 SMS_NO_INLINE bool BetterSMS::Stage::registerInitCallback(const char *name, InitCallback cb) {
-    if (isInitRegistered(name))
+    if (sStageInitCBs.find(name) != sStageInitCBs.end())
         return false;
     sStageInitCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerUpdateCallback(const char *name, UpdateCallback cb) {
-    if (isUpdateRegistered(name))
+    if (sStageUpdateCBs.find(name) != sStageUpdateCBs.end())
         return false;
     sStageUpdateCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerDraw2DCallback(const char *name, Draw2DCallback cb) {
-    if (isDraw2DRegistered(name))
+    if (sStageDrawCBs.find(name) != sStageDrawCBs.end())
         return false;
     sStageDrawCBs[name] = cb;
     return true;
 }
 
 SMS_NO_INLINE bool BetterSMS::Stage::registerExitCallback(const char *name, ExitCallback cb) {
-    if (isExitRegistered(name))
+    if (sStageExitCBs.find(name) != sStageExitCBs.end())
         return false;
     sStageExitCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::deregisterInitCallback(const char *name) {
-    if (!isInitRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Stage::deregisterInitCallback(const char *name) {
     sStageDrawCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::deregisterUpdateCallback(const char *name) {
-    if (!isUpdateRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Stage::deregisterUpdateCallback(const char *name) {
     sStageDrawCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::deregisterDraw2DCallback(const char *name) {
-    if (!isDraw2DRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Stage::deregisterDraw2DCallback(const char *name) {
     sStageDrawCBs.erase(name);
-    return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::deregisterExitCallback(const char *name) {
-    if (!isExitRegistered(name))
-        return false;
+SMS_NO_INLINE void BetterSMS::Stage::deregisterExitCallback(const char *name) {
     sStageExitCBs.erase(name);
-    return true;
 }
 
 SMS_NO_INLINE const char *BetterSMS::Stage::getStageName(u8 area, u8 episode) {

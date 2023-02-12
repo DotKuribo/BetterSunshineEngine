@@ -5,9 +5,8 @@
 #endif
 
 #include <Dolphin/types.h>
+#include <SMS/macros.h>
 #include <sdk.h>
-
-#include "settings.hxx"
 
 #define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
 #define BETTER_SMS_AUTHOR_NAME "JoshuaMK"
@@ -156,6 +155,11 @@
 #endif
 
 namespace BetterSMS {
+
+    namespace Settings {
+        class SettingsGroup;
+    }
+
     struct ModuleInfo {
         const char *mName;
         u16 mVersionMajor;
@@ -173,7 +177,7 @@ namespace BetterSMS {
     const ModuleInfo *getModuleInfo(const char *key);
 
     bool isModuleRegistered(const char *key);
-    bool registerModule(const char *key, const ModuleInfo *info);
+    bool registerModule(const ModuleInfo *info);
     bool deregisterModule(const char *key);
 
     int getScreenRenderWidth();

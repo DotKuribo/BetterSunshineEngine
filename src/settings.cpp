@@ -34,14 +34,21 @@
 #include "libs/global_list.hxx"
 #include "settings.hxx"
 #include "module.hxx"
-#include "icons.hxx"
 
+#include "p_icons.hxx"
 #include "p_module.hxx"
 #include "p_settings.hxx"
+
+#define DISK_GAME_ID (void *)0x80000000
 
 using namespace BetterSMS;
 
 bool BugsSetting::sIsUnlocked = false;
+
+static Settings::SettingsGroup sSunshineSettingsGroup = {1, 0, Settings::Priority::CORE};
+static RumbleSetting sRumbleSetting("Controller Rumble");
+static SoundSetting sSoundSetting("Sound Mode");
+static SubtitleSetting sSubtitleSetting("Movie Subtitles");
 
 // PRIVATE
 
@@ -52,10 +59,7 @@ void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out) {
 
     for (auto &item : gModuleInfos) {
         Settings::SettingsGroup *group = item.second->mSettings;
-        if (strcmp(item.first.data(), "Super Mario Sunshine") == 0) {
-            tempCore.insert(tempCore.begin(), group);
-            continue;
-        } else if (strcmp(item.first.data(), "Better Sunshine Engine") == 0) {
+        if (strcmp(item.first.data(), "Better Sunshine Engine") == 0) {
             tempCore.insert(tempCore.begin(), group);
             continue;
         }
@@ -78,7 +82,7 @@ void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out) {
     }
 
     for (auto &item : tempGame) {
-        out.insert(out.begin(), item);
+        out.insert(out.end(), item);
     }
 
     for (auto &item : tempMode) {
@@ -87,11 +91,15 @@ void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out) {
 }
 
 void initAllSettings(TApplication *app) {
+    sSunshineSettingsGroup.addSetting(&sRumbleSetting);
+    sSunshineSettingsGroup.addSetting(&sSoundSetting);
+    sSunshineSettingsGroup.addSetting(&sSubtitleSetting);
+
     s32 cardChannel = CARD_SLOTA;
     s32 cardStatus  = MountCard(cardChannel);
     if (cardStatus < CARD_ERROR_READY) {
-        cardChannel    = CARD_SLOTB;
-        cardStatus = MountCard(cardChannel);
+        cardChannel = CARD_SLOTB;
+        cardStatus  = MountCard(cardChannel);
         if (cardStatus < CARD_ERROR_READY) {
             return;
         }
@@ -99,24 +107,19 @@ void initAllSettings(TApplication *app) {
 
     CARDFileInfo finfo;
 
-    TGlobalList<Settings::SettingsGroup *> groups;
-    getSettingsGroups(groups);
-
-    for (auto &group : groups) {
-        if (group->getPriority() == Settings::Priority::CORE &&
-            strcmp(group->getName(), "Super Mario Sunshine") == 0) {
+    for (auto &module : gModuleInfos) {
+        auto settingsGroup = module.second->mSettings;
+        if (!settingsGroup)  // No settings registered
             continue;
-        }
 
-        size_t saveDataStartData = 0;
-        int ret                  = OpenSavedSettings(*group, cardChannel, finfo);
+        int ret = OpenSavedSettings(*settingsGroup, cardChannel, finfo);
         if (ret < CARD_ERROR_READY) {
-            CloseSavedSettings(*group, &finfo);
+            CloseSavedSettings(*settingsGroup, &finfo);
             return;
         }
 
-        ReadSavedSettings(*group, &finfo);
-        CloseSavedSettings(*group, &finfo);
+        ReadSavedSettings(*settingsGroup, &finfo);
+        CloseSavedSettings(*settingsGroup, &finfo);
     }
 
     /*for (auto &group : groups) {
@@ -203,13 +206,13 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFil
             CARDCreate(channel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
         if (cret < CARD_ERROR_READY) {
             if (info.mSaveGlobal)
-                __CARDSetDiskID((void *)0x80000000);
+                __CARDSetDiskID(DISK_GAME_ID);
             return cret;
         }
         UpdateSavedSettings(group, &infoOut);
     } else if (ret < CARD_ERROR_READY) {
         if (info.mSaveGlobal)
-            __CARDSetDiskID((void *)0x80000000);
+            __CARDSetDiskID(DISK_GAME_ID);
         return ret;
     }
 
@@ -218,7 +221,7 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFil
 }
 
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
-    auto &info                = group.getSaveInfo();
+    auto &info = group.getSaveInfo();
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
     char *saveBuffer          = new (32) char[saveDataSize];
@@ -231,8 +234,8 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         if (statusRet < CARD_ERROR_READY)
             return statusRet;
 
-        fstatus.mGameCode = 'GMSB';
-        fstatus.mCompany  = 0x3031;
+        fstatus.mGameCode = info.mGameCode;
+        fstatus.mCompany  = info.mCompany;
         CARDSetBannerFmt(&fstatus, info.mBannerFmt);
         CARDSetIconAddr(&fstatus, CARD_DIRENTRY_SIZE);
         CARDSetCommentAddr(&fstatus, 4);
@@ -305,8 +308,10 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     }
 
     if (saveBuffer[0] != group.getMajorVersion()) {
-        OSPanic(__FILE__, __LINE__, "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\nConsider deleting "
-                "the saved settings on the memory card.", group.getName());
+        OSPanic(__FILE__, __LINE__,
+                "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\nConsider deleting "
+                "the saved settings on the memory card.",
+                group.getName());
         return CARD_ERROR_READY;
     }
 
@@ -327,7 +332,7 @@ s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo
         __CARDSetDiskID(&info.mGameCode);
     s32 ret = CARDClose(finfo);
     if (info.mSaveGlobal)
-        __CARDSetDiskID((void *)0x80000000);
+        __CARDSetDiskID(DISK_GAME_ID);
     return ret;
 }
 
@@ -349,8 +354,7 @@ s32 SettingsDirector::direct() {
         if (!OSIsThreadTerminated(&gSetupThread))
             return 0;
         OSJoinThread(&gSetupThread, (void **)joinBuf);
-        /*if (joinBuf[0] == nullptr)
-            return 5;*/
+
         fader->startFadeinT(0.3f);
 
         gpMSound->initSound();
@@ -419,9 +423,9 @@ s32 SettingsDirector::exit() {
     return fader->mFadeStatus == TSMSFader::FADE_ON ? 5 : 1;
 }
 
-extern RumbleSetting gRumbleSetting;
-extern SoundSetting gSoundSetting;
-extern SubtitleSetting gSubtitleSetting;
+extern RumbleSetting sRumbleSetting;
+extern SoundSetting sSoundSetting;
+extern SubtitleSetting sSubtitleSetting;
 
 extern BugsSetting gBugFixesSetting;
 bool BetterSMS::areBugsPatched() { return gBugFixesSetting.getBool(); }
@@ -439,9 +443,9 @@ extern Settings::SwitchSetting gCameraInvertYSetting;
 bool BetterSMS::isCameraInvertedY() { return gCameraInvertYSetting.getBool(); }
 
 void SettingsDirector::initialize() {
-    gRumbleSetting.setBool(TFlagManager::smInstance->getBool(0x90000));
-    gSoundSetting.setInt(TFlagManager::smInstance->getFlag(0xA0000));
-    gSubtitleSetting.setBool(TFlagManager::smInstance->getBool(0x90001));
+    sRumbleSetting.setBool(TFlagManager::smInstance->getBool(0x90000));
+    sSoundSetting.setInt(TFlagManager::smInstance->getFlag(0xA0000));
+    sSubtitleSetting.setBool(TFlagManager::smInstance->getBool(0x90001));
 
     initializeDramaHierarchy();
     initializeSettingsLayout();
@@ -591,6 +595,8 @@ void SettingsDirector::initializeSettingsLayout() {
     int i = 0;
     TGlobalList<Settings::SettingsGroup *> settingsGroups;
     getSettingsGroups(settingsGroups);
+
+    settingsGroups.insert(settingsGroups.begin(), &sSunshineSettingsGroup);
 
     for (auto &group : settingsGroups) {
         auto *groupName = group->getName();
@@ -814,9 +820,6 @@ void SettingsDirector::saveSettings_() {
     char statusBuf[40];
     char messageBuf[100];
 
-    // TODO: Handle progress so we don't attempt saving every frame, and can have dialogs for
-    // errors...
-
     s32 cardChannel = gpCardManager->mChannel;
     s32 cardStatus  = MountCard(cardChannel);
     if (cardStatus < CARD_ERROR_READY) {
@@ -824,12 +827,21 @@ void SettingsDirector::saveSettings_() {
         return;
     }
 
-    // Save default flags (Rumble, Sound, Subtitles)
+    // Save base game settings (language, etc)
+    sRumbleSetting.emit();
+    sSubtitleSetting.emit();
+    sSoundSetting.emit();
+
     {
         JSUMemoryOutputStream out(nullptr, 0);
         gpCardManager->getOptionWriteStream(&out);
         TFlagManager::smInstance->saveOption(out);
-        gpCardManager->writeOptionBlock();
+        int ret = gpCardManager->writeOptionBlock_();
+        if (ret < CARD_ERROR_READY) {
+            gpCardManager->unmount();
+            failSave(ret);
+            return;
+        }
     }
 
     CARDFileInfo finfo;
@@ -838,11 +850,6 @@ void SettingsDirector::saveSettings_() {
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        if (group->getPriority() == Settings::Priority::CORE &&
-            strcmp(group->getName(), "Super Mario Sunshine") == 0) {
-            continue;
-        }
-
         size_t saveDataStartData = 0;
         int ret = OpenSavedSettings(*group, cardChannel, finfo);
         if (ret < CARD_ERROR_READY) {
@@ -891,11 +898,8 @@ static s32 checkForSettingsMenu(TMarDirector *director) {
             TSMSFader *fader = gpApplication.mFader;
             if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
                 fader->startFadeoutT(0.4f);
-                //gpMSound->fadeOutAllSound(0.4f * SMSGetVSyncTimesPerSec());
-            }
-            if (fader->mFadeStatus == TSMSFader::FADE_ON) {
+            } else if (fader->mFadeStatus == TSMSFader::FADE_ON) {
                 ret = 10;
-                //gpMSound->exitStage();
             }
         }
     }
@@ -1050,3 +1054,5 @@ void checkForCompletionAwards(TApplication *app) {
         gBugFixesSetting.unlock();
     }
 }
+
+#undef DISK_GAME_ID

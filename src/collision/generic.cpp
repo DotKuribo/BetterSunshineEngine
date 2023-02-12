@@ -6,11 +6,11 @@
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
 
-#include "libs/warp.hxx"
-#include "p_globals.hxx"
+#include "libs/constmath.hxx"
 #include "logging.hxx"
-#include "math.hxx"
 #include "module.hxx"
+#include "p_globals.hxx"
+#include "p_warp.hxx"
 
 /*This works by taking the target id and matching it to the
 / ID of the first entry to have the same home ID as the target.

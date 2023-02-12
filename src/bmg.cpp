@@ -5,25 +5,18 @@
 
 using namespace BetterSMS;
 
-static BetterSMS::TGlobalUnorderedMap<u8, BMG::BMGCommandCallback> sBMGCommandCBs(64);
-
-SMS_NO_INLINE bool BetterSMS::BMG::isBMGCommandRegistered(u8 identifier) {
-    return sBMGCommandCBs.contains(identifier);
-}
+static BetterSMS::TGlobalUnorderedMap<u8, BMG::BMGCommandCallback> sBMGCommandCBs(32);
 
 SMS_NO_INLINE bool BetterSMS::BMG::registerBMGCommandCallback(u8 identifier,
                                                               BMGCommandCallback cb) {
-    if (isBMGCommandRegistered(identifier))
+    if (sBMGCommandCBs.find(identifier) != sBMGCommandCBs.end())
         return false;
     sBMGCommandCBs[identifier] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::BMG::deregisterBMGCommandCallback(u8 identifier) {
-    if (!isBMGCommandRegistered(identifier))
-        return false;
+SMS_NO_INLINE void BetterSMS::BMG::deregisterBMGCommandCallback(u8 identifier) {
     sBMGCommandCBs.erase(identifier);
-    return true;
 }
 
 static void formatCustomBMGCommands() {}

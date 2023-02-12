@@ -30,6 +30,8 @@
 
 #include "libs/global_list.hxx"
 
+#include "module.hxx"
+
 namespace BetterSMS {
 
     namespace Settings {
@@ -87,8 +89,9 @@ namespace BetterSMS {
 
             void setBool(bool active) const {
                 auto kind = getKind();
-                SMS_ASSERT(kind == ValueKind::BOOL,
-                           "Mismatching setting types found, setting a non BOOL to BOOL value!");
+                SMS_DEBUG_ASSERT(
+                    kind == ValueKind::BOOL,
+                    "Mismatching setting types found, setting a non BOOL to BOOL value!");
                 bool lc = active;
                 if (*reinterpret_cast<bool *>(mValuePtr) != lc && mValueChangedCB)
                     mValueChangedCB(mValuePtr, &lc, getKind());
@@ -97,8 +100,9 @@ namespace BetterSMS {
 
             void setInt(int x) const {
                 auto kind = getKind();
-                SMS_ASSERT(kind == ValueKind::INT,
-                           "Mismatching setting types found, setting a non INT to INT value!");
+                SMS_DEBUG_ASSERT(
+                    kind == ValueKind::INT,
+                    "Mismatching setting types found, setting a non INT to INT value!");
                 int lc = x;
                 if (*reinterpret_cast<int *>(mValuePtr) != lc && mValueChangedCB)
                     mValueChangedCB(mValuePtr, &lc, getKind());
@@ -107,15 +111,17 @@ namespace BetterSMS {
 
             void setFloat(float f) const {
                 auto kind = getKind();
-                SMS_ASSERT(kind == ValueKind::FLOAT,
-                           "Mismatching setting types found, setting a non FLOAT to FLOAT value!");
+                SMS_DEBUG_ASSERT(
+                    kind == ValueKind::FLOAT,
+                    "Mismatching setting types found, setting a non FLOAT to FLOAT value!");
                 float lc = f;
                 if (*reinterpret_cast<float *>(mValuePtr) != lc && mValueChangedCB)
                     mValueChangedCB(mValuePtr, &lc, getKind());
                 *reinterpret_cast<float *>(mValuePtr) = lc;
             }
-
-            void setValueChangedCB(ValueChangedCallback cb) { mValueChangedCB = cb; }
+            
+            // Signals the changed callback which can update arbitrary memory
+            void emit() { mValueChangedCB(&mValuePtr, &mValuePtr, getKind()); }
 
         protected:
             const char *mName;
@@ -271,16 +277,21 @@ namespace BetterSMS {
 
         public:
             SettingsGroup() = delete;
-            SettingsGroup(const char *name, u8 major, u8 minor, Priority prio)
-                : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
-            SettingsGroup(const char *name, u8 major, u8 minor, const SettingsList &settings,
+            SettingsGroup(u8 major, u8 minor, Priority prio)
+                : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
+            SettingsGroup(u8 major, u8 minor, const SettingsList &settings,
                           Priority prio)
-                : mName(name), mVersion((major << 8) | minor), mOrderPriority(prio),
+                : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio),
                   mSettings(settings) {}
 
-            const char *getName() const { return mName; }
             u8 getMajorVersion() const { return (mVersion >> 8) & 0xFF; }
             u8 getMinorVersion() const { return mVersion & 0xFF; }
+
+            const char *getName() const {
+                if (!mModule)
+                    return "Super Mario Sunshine";
+                return mModule->mName;
+            }
 
             SingleSetting *getSetting(const char *name) {
                 for (auto &setting : mSettings) {
@@ -299,7 +310,6 @@ namespace BetterSMS {
 
             Priority getPriority() const { return mOrderPriority; }
 
-            void setName(const char *name) { mName = name; }
             void setSettings(const SettingsList &settings) { mSettings = settings; }
 
             void addSetting(SingleSetting *setting) {
@@ -325,7 +335,7 @@ namespace BetterSMS {
             }
 
         private:
-            const char *mName;
+            ModuleInfo *mModule;
             u16 mVersion;
             SettingsList mSettings;
             SettingsSaveInfo mSaveInfo;

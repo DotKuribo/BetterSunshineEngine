@@ -43,14 +43,6 @@ static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomMi
 static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjInteractionList(64);
 static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjGrabList(64);
 
-SMS_NO_INLINE size_t BetterSMS::Objects::getRegisteredObjectCount() {
-    return ObjDataTableSize + sOBJNewCount;
-}
-
-SMS_NO_INLINE size_t BetterSMS::Objects::getRegisteredCustomObjectCount() {
-    return ObjDataTableSize + sOBJNewCount;
-}
-
 SMS_NO_INLINE size_t BetterSMS::Objects::getRemainingCapacity() {
     return sObjExpansionSize - sOBJNewCount;
 }
@@ -58,7 +50,7 @@ SMS_NO_INLINE size_t BetterSMS::Objects::getRemainingCapacity() {
 // Map objects (coins, blocks, etc)
 SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
                                                               Objects::NameRefInitializer initFn) {
-    if (sCustomMapObjList.contains(name))
+    if (sCustomMapObjList.find(name) != sCustomMapObjList.end())
         return false;
     sCustomMapObjList[name] = initFn;
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
@@ -72,7 +64,7 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, 
 // Enemys (Strollin' Stus, Electrokoopas, etc)
 SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
                                                              Objects::NameRefInitializer initFn) {
-    if (sCustomEnemyObjList.contains(name))
+    if (sCustomEnemyObjList.find(name) != sCustomEnemyObjList.end())
         return false;
     sCustomEnemyObjList[name] = initFn;
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
@@ -86,7 +78,7 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, O
 // Misc (Managers, tables, etc)
 SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
                                                             Objects::NameRefInitializer initFn) {
-    if (sCustomMiscObjList.contains(name))
+    if (sCustomMiscObjList.find(name) != sCustomMiscObjList.end())
         return false;
     sCustomMiscObjList[name] = initFn;
     return true;
@@ -95,7 +87,7 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
 SMS_NO_INLINE bool
 BetterSMS::Objects::registerObjectCollideInteractor(u32 objectID,
                                                     Objects::ObjectInteractor interactor) {
-    if (sCustomObjInteractionList.contains(objectID))
+    if (sCustomObjInteractionList.find(objectID) != sCustomObjInteractionList.end())
         return false;
     sCustomObjInteractionList[objectID] = interactor;
     return true;
@@ -104,7 +96,7 @@ BetterSMS::Objects::registerObjectCollideInteractor(u32 objectID,
 SMS_NO_INLINE bool
 BetterSMS::Objects::registerObjectGrabInteractor(u32 objectID,
                                                  Objects::ObjectInteractor interactor) {
-    if (sCustomObjGrabList.contains(objectID))
+    if (sCustomObjGrabList.find(objectID) != sCustomObjGrabList.end())
         return false;
     sCustomObjGrabList[objectID] = interactor;
     return true;
@@ -123,16 +115,6 @@ SMS_NO_INLINE bool BetterSMS::Objects::deregisterObject(const char *name) {
         sOBJNewCount -= 1;
         return true;
     }
-    return false;
-}
-
-SMS_NO_INLINE bool BetterSMS::Objects::isObjectRegistered(const char *name) {
-    if (sCustomMapObjList.contains(name))
-        return true;
-    if (sCustomEnemyObjList.contains(name))
-        return true;
-    if (sCustomMiscObjList.contains(name))
-        return true;
     return false;
 }
 

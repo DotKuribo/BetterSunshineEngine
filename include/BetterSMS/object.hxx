@@ -8,20 +8,18 @@ namespace BetterSMS {
         typedef JDrama::TNameRef *(*NameRefInitializer)();
         typedef void (*ObjectInteractor)(THitActor *object, TMario *player);
 
-        size_t getRegisteredObjectCount();
-        size_t getRegisteredCustomObjectCount();
+        // Get how many more objects can be registered
         size_t getRemainingCapacity();
 
-        bool isObjectRegistered(const char *name);
-        // Map objects (coins, blocks, etc)
+        // Register a map object initializer (coins, blocks, etc)
         bool registerObjectAsMapObj(const char *name, ObjData *data, NameRefInitializer initFn);
-        // Enemys (Strollin' Stus, Electrokoopas, etc)
+        // Register an enemy initializer (Strollin' Stus, Electrokoopas, etc)
         bool registerObjectAsEnemy(const char *name, ObjData *data, NameRefInitializer initFn);
-        // Misc (Managers, tables, etc)
+        // Register a miscellaneous object initializer (Managers, tables, etc)
         bool registerObjectAsMisc(const char *name, NameRefInitializer initFn);
-        // Player touching
+        // Register a function to be called when an object collides with the player
         bool registerObjectCollideInteractor(u32 objectID, ObjectInteractor colHandler);
-        // Player holding
+        // Register a function to be called when an object is being grabbed by the player
         bool registerObjectGrabInteractor(u32 objectID, ObjectInteractor grabHandler);
 
         bool deregisterObject(const char *name);

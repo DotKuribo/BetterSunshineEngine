@@ -1,6 +1,7 @@
 #include <Dolphin/types.h>
 #include "module.hxx"
-#include "sunscript.hxx"
+
+#include "p_sunscript.hxx"
 
 void Spc::isDebugMode(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(0, &argc);

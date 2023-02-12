@@ -13,20 +13,15 @@ namespace BetterSMS {
         typedef void (*DrawCallback)(TApplication *, const J2DOrthoGraph *);
         typedef void (*ChangeCallback)(TApplication *);
 
-        bool isOnInitRegistered(const char *name);
-        bool isOnBootRegistered(const char *name);
-        bool isOnLoopRegistered(const char *name);
-        bool isOnPostDrawRegistered(const char *name);
-        bool isOnChangeRegistered(const char *name);
-        bool registerOnInitCallback(const char *name, InitCallback cb);
-        bool registerOnBootCallback(const char *name, BootCallback cb);
-        bool registerOnLoopCallback(const char *name, LoopCallback cb);
-        bool registerOnPostDrawCallback(const char *name, DrawCallback cb);
-        bool registerOnChangeCallback(const char *name, ChangeCallback cb);
-        bool deregisterOnInitCallback(const char *name);
-        bool deregisterOnBootCallback(const char *name);
-        bool deregisterOnLoopCallback(const char *name);
-        bool deregisterOnPostDrawCallback(const char *name);
-        bool deregisterOnChangeCallback(const char *name);
+        bool registerInitCallback(const char *name, InitCallback cb);
+        bool registerBootCallback(const char *name, BootCallback cb);
+        bool registerLoopCallback(const char *name, LoopCallback cb);
+        bool registerPostDrawCallback(const char *name, DrawCallback cb);
+        bool registerChangeCallback(const char *name, ChangeCallback cb);
+        void deregisterInitCallback(const char *name);
+        void deregisterBootCallback(const char *name);
+        void deregisterLoopCallback(const char *name);
+        void deregisterPostDrawCallback(const char *name);
+        void deregisterChangeCallback(const char *name);
     }  // namespace Debug
 };     // namespace BetterSMS

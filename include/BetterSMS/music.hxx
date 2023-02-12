@@ -30,9 +30,6 @@ namespace BetterSMS {
 
         void setLoopPoint(f32 start, f32 length);
 
-        class AudioStreamer;
-        AudioStreamer *getAudioStreamer();
-
         /*
         / Audio streamer
         */

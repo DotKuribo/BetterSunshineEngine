@@ -9,8 +9,7 @@
 namespace BetterSMS {
     namespace Loading {
         void setLoading(bool isLoading);
-        void setLoadingIconB(const ResTIMG **textures, size_t texCount);
-        void setLoadingIconW(const ResTIMG **textures, size_t texCount);
+        void setLoadingIcon(const ResTIMG **textures, size_t texCount);
         void setFullScreenLayout(J2DScreen *screen);
         void setWideScreenLayout(J2DScreen *screen);
         void setUltraWideScreenLayout(J2DScreen *screen);
