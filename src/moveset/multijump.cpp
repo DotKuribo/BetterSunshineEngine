@@ -42,19 +42,15 @@ void checkForMultiJump(TMario *player, bool isMario) {
 
 bool processMultiJump(TMario *player) {
     auto *playerData = Player::getData(player);
-    if (!playerData) {
-        player->changePlayerStatus(player->mPrevState, 0, false);
-        return true;
-    }
-
-    const s32 jumpsLeft = (5 - playerData->mCurJump);
+    
+    const s32 jumpsLeft = (playerData->getParams()->mMaxJumps.get() - playerData->mCurJump);
 
     u32 state   = player->mState;
-    u32 voiceID = 0;
-    u32 animID  = 0;
+    int voiceID = 0;
+    int animID  = 0;
 
     if (jumpsLeft == 1) {
-        state   = static_cast<u32>(TMario::STATE_TRIPLE_J);
+        state   = static_cast<u32>(TMario::STATE_D_JUMP);
         voiceID = 0x78B6;
         animID  = 0x6F;
     } else if (jumpsLeft % 2) {
@@ -79,13 +75,25 @@ bool processMultiJump(TMario *player) {
             {controller->mControlStick.mStickX, controller->mControlStick.mStickY}, 1.0f);
     }
 
-    player->mForwardSpeed *= stickMagnitude;
-    player->changePlayerJumping(state, 0);
-
     playerData->mIsLongJumping = false;
     playerData->mCurJump += 1;
 
+    player->mForwardSpeed *= stickMagnitude;
+    player->changePlayerJumping(state, 0);
+
     return true;
 }
+
+static void playDoubleOrTripleAnim(TMario *player, int state, int anim, int unk_0) {
+    auto *playerData = Player::getData(player);
+    if (playerData->getParams()->mMaxJumps.get() - playerData->mCurJump == 0 &&
+        player->mState == MultiJumpState) {
+        player->jumpingBasic(state, 0x6F, unk_0);
+        player->startVoice(0x78B6);
+    }
+    else
+        player->jumpingBasic(state, anim, unk_0);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80249618, 0, 0, 0), playDoubleOrTripleAnim);
 
 #endif
