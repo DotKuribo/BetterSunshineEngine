@@ -378,7 +378,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         /* MODULE */
         // Hack for circular reference
         KURIBO_EXPORT_AS(BetterSMS::Settings::getGroupName,
-                         "getGroupName__Q29BetterSMS8SettingsFRC13SettingsGroup");
+                         "getGroupName__Q29BetterSMS8SettingsFRCQ39BetterSMS8Settings13SettingsGroup");
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
