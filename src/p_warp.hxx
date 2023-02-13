@@ -5,10 +5,10 @@
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <SMS/Map/BGCheck.hxx>
 
+#include "warp.hxx"
+
 namespace BetterSMS {
     namespace Collision {
-
-        enum class WarpKind : u8 { SPARKLES, WIPE, INSTANT };
 
         class TCollisionLink {
         public:
