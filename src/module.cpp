@@ -28,7 +28,6 @@
 #include "stage.hxx"
 #include "time.hxx"
 
-
 // SETTINGS //
 
 // BetterSMS settings
@@ -230,7 +229,7 @@ static void initLib() {
     sSettingsGroup.addSetting(&gSavePromptSetting);
     {
         auto &saveInfo        = sSettingsGroup.getSaveInfo();
-        saveInfo.mSaveName    = sSettingsGroup.getName();
+        saveInfo.mSaveName    = Settings::getGroupName(sSettingsGroup);
         saveInfo.mBlocks      = 1;
         saveInfo.mGameCode    = 'GMSB';
         saveInfo.mCompany     = 0x3031;
@@ -377,6 +376,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         // Generate exports
 
         /* MODULE */
+        // Hack for circular reference
+        KURIBO_EXPORT_AS(BetterSMS::Settings::getGroupName,
+                         "getGroupName__Q29BetterSMS8SettingsFRC13SettingsGroup");
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");

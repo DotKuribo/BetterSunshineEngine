@@ -39,6 +39,12 @@
 #include "p_module.hxx"
 #include "p_settings.hxx"
 
+SMS_NO_INLINE const char *Settings::getGroupName(const Settings::SettingsGroup &group) {
+    if (!group.mModule)
+        return "Super Mario Sunshine";
+    return group.mModule->mName;
+}
+
 #define DISK_GAME_ID (void *)0x80000000
 
 using namespace BetterSMS;
@@ -311,7 +317,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         OSPanic(__FILE__, __LINE__,
                 "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\nConsider deleting "
                 "the saved settings on the memory card.",
-                group.getName());
+                Settings::getGroupName(group));
         return CARD_ERROR_READY;
     }
 
@@ -599,7 +605,7 @@ void SettingsDirector::initializeSettingsLayout() {
     settingsGroups.insert(settingsGroups.begin(), &sSunshineSettingsGroup);
 
     for (auto &group : settingsGroups) {
-        auto *groupName = group->getName();
+        auto *groupName = Settings::getGroupName(*group);
 
         J2DPane *groupPane =
             new J2DPane(19, ('p' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
@@ -974,7 +980,7 @@ void initUnlockedSettings(TApplication *app) {
 
 void checkForUnlockedSettings(const Settings::SettingsGroup &group, TGlobalList<Settings::SingleSetting *> &out) {
     for (auto &setting : group.getSettings()) {
-        if (!sNewUnlockMap.contains(setting)) {
+        if (sNewUnlockMap.find(setting) == sNewUnlockMap.end()) {
             sNewUnlockMap[setting] = setting->isUnlocked();
         }
         bool &unlocked = sNewUnlockMap[setting];
@@ -995,7 +1001,7 @@ void updateUnlockedSettings(TApplication *app) {
 
         for (auto &setting : unlockedSettings) {
             char *notifText = new char[100];
-            snprintf(notifText, 100, "%s\n\nUnlocked the \"%s\" setting!", group->getName(), setting->getName());
+            snprintf(notifText, 100, "%s\n\nUnlocked the \"%s\" setting!", Settings::getGroupName(*group), setting->getName());
 
             sUnlockedSettings.insert(sUnlockedSettings.end(), notifText);
             if (sUnlockedSettings.size() == 1) {

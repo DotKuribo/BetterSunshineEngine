@@ -8,6 +8,8 @@
 #include <SMS/macros.h>
 #include <sdk.h>
 
+#include "settings.hxx"
+
 #define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
 #define BETTER_SMS_AUTHOR_NAME "JoshuaMK"
 
@@ -156,11 +158,13 @@
 
 namespace BetterSMS {
 
-    namespace Settings {
-        class SettingsGroup;
-    }
-
     struct ModuleInfo {
+        ModuleInfo() = delete;
+        ModuleInfo(const char *name, u16 major, u16 minor, Settings::SettingsGroup *settings)
+            : mName(name), mVersionMajor(major), mVersionMinor(minor), mSettings(settings) {
+            settings->mModule = this;
+        }
+
         const char *mName;
         u16 mVersionMajor;
         u16 mVersionMinor;

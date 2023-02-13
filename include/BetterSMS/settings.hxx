@@ -30,9 +30,9 @@
 
 #include "libs/global_list.hxx"
 
-#include "module.hxx"
-
 namespace BetterSMS {
+
+    struct ModuleInfo;
 
     namespace Settings {
         enum class Priority { CORE, GAME, MODE };
@@ -271,8 +271,11 @@ namespace BetterSMS {
             bool mSaveGlobal;
         };
 
+        const char *getGroupName(const SettingsGroup &);
+
         class SettingsGroup {
         public:
+            friend struct ::BetterSMS::ModuleInfo;
             using SettingsList = TGlobalList<SingleSetting *>;
 
         public:
@@ -284,14 +287,10 @@ namespace BetterSMS {
                 : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio),
                   mSettings(settings) {}
 
+            friend const char *Settings::getGroupName(const SettingsGroup &group);
+
             u8 getMajorVersion() const { return (mVersion >> 8) & 0xFF; }
             u8 getMinorVersion() const { return mVersion & 0xFF; }
-
-            const char *getName() const {
-                if (!mModule)
-                    return "Super Mario Sunshine";
-                return mModule->mName;
-            }
 
             SingleSetting *getSetting(const char *name) {
                 for (auto &setting : mSettings) {
