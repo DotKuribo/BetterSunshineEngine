@@ -485,11 +485,11 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
     /* OBJECTS */
     #if BETTER_SMS_EXTRA_OBJECTS
         KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMapObj,
-                         "registerObjectAsMapObj__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
+                         "registerObjectAsMapObj__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsEnemy,
-                         "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataP7ObjDataPFv_PQ26JDrama8TNameRef");
+                         "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMisc,
-                         "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
+                         "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::deregisterObject,
                          "deregisterObject__Q29BetterSMS7ObjectsFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Objects::getRemainingCapacity,
