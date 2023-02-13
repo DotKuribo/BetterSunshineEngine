@@ -724,6 +724,7 @@ void initMario(TMario *player, bool isMario) {
     Stage::TStageParams *config = Stage::getStageConfiguration();
 
     Player::TPlayerData *params = new Player::TPlayerData(player, nullptr, isMario);
+    Player::deregisterData(player, "__better_sms");
     Player::registerData(player, "__better_sms", params);
 
     params->scalePlayerAttrs(config->mPlayerSizeMultiplier.get());
