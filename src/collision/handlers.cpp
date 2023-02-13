@@ -8,6 +8,7 @@
 #include "logging.hxx"
 #include "module.hxx"
 #include "player.hxx"
+#include "p_warp.hxx"
 
 using namespace BetterSMS;
 
