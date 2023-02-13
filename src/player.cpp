@@ -36,6 +36,7 @@ using namespace BetterSMS::Geometry;
 
 static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
 static TGlobalUnorderedMap<TGlobalString, Player::InitCallback> sPlayerInitializers(32);
+static TGlobalUnorderedMap<TGlobalString, Player::LoadAfterCallback> sPlayerLoadAfterCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Player::UpdateCallback> sPlayerUpdaters(32);
 static TGlobalUnorderedMap<u32, Player::MachineCallback> sPlayerStateMachines(32);
 static TGlobalUnorderedMap<u16, Player::CollisionCallback> sPlayerCollisionHandlers(32);
@@ -86,6 +87,13 @@ SMS_NO_INLINE bool BetterSMS::Player::registerInitCallback(const char *key, Init
     return true;
 }
 
+SMS_NO_INLINE bool BetterSMS::Player::registerLoadAfterCallback(const char *key, LoadAfterCallback process) {
+    if (sPlayerLoadAfterCBs.find(key) != sPlayerLoadAfterCBs.end())
+        return false;
+    sPlayerLoadAfterCBs[key] = process;
+    return true;
+}
+
 SMS_NO_INLINE bool BetterSMS::Player::registerUpdateCallback(const char *key,
                                                             UpdateCallback process) {
     if (sPlayerUpdaters.find(key) != sPlayerUpdaters.end())
@@ -119,6 +127,10 @@ SMS_NO_INLINE bool BetterSMS::Player::registerCollisionHandler(u16 colType,
 
 SMS_NO_INLINE void BetterSMS::Player::deregisterInitCallback(const char *key) {
     sPlayerInitializers.erase(key);
+}
+
+SMS_NO_INLINE void BetterSMS::Player::deregisterLoadAfterCallback(const char *key) {
+    sPlayerLoadAfterCBs.erase(key);
 }
 
 SMS_NO_INLINE void BetterSMS::Player::deregisterUpdateCallback(const char *key) {
@@ -787,6 +799,15 @@ static bool shadowMarioInitHandler() {
     return SMS_isMultiPlayerMap__Fv();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x800397DC, 0x80039894, 0, 0), shadowMarioInitHandler);
+
+static void playerLoadAfterHandler(TMario *player) {
+    player->initMirrorModel();
+
+    for (auto &item : sPlayerLoadAfterCBs) {
+        item.second(player);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80276BB8, 0, 0, 0), playerLoadAfterHandler);
 
 static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {

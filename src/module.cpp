@@ -449,6 +449,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterData, "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerInitCallback,
                          "registerInitCallback__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
+        KURIBO_EXPORT_AS(BetterSMS::Player::registerLoadAfterCallback,
+                         "registerLoadAfterCallback__Q29BetterSMS6PlayerFPCcPFP6TMario_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerUpdateCallback,
                          "registerUpdateCallback__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerStateMachine,
@@ -457,6 +459,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "registerCollisionHandler__Q29BetterSMS6PlayerFUsPFP6TMarioPC12TBGCheckDataUl_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterInitCallback,
                          "deregisterInitCallback__Q29BetterSMS6PlayerFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterLoadAfterCallback,
+                         "deregisterLoadAfterCallback__Q29BetterSMS6PlayerFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterUpdateCallback,
                          "deregisterUpdateCallback__Q29BetterSMS6PlayerFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterStateMachine,
