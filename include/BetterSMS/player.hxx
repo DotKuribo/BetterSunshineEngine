@@ -15,7 +15,6 @@
 #include "logging.hxx"
 #include "module.hxx"
 #include "warp.hxx"
-#include "p_warp.hxx"
 
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
