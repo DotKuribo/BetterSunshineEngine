@@ -80,13 +80,21 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
     if (slopeStrength > 0.7f)
         return;
 
-    const f32 lookAtRatio = Vector3::lookAtRatio(playerForward, floorNormal);
+    const f32 lookAtRatio = 2 * (Vector3::lookAtRatio(playerForward, floorNormal) - 0.5f);
+    OSReport("Ratio = %.02f\n", lookAtRatio);
+
     if (isnan(lookAtRatio))
         return;
 
-    player->mForwardSpeed =
-        Min(player->mForwardSpeed,
-            10.0f * clamp(scaleLinearAtAnchor(slopeStrength, lookAtRatio, 1.0f), 0.0f, 1.0f));
+    if (lookAtRatio < 0.0f) {
+        player->mForwardSpeed =
+            Max(player->mForwardSpeed,
+                -10.0f * clamp(scaleLinearAtAnchor(slopeStrength, fabsf(lookAtRatio), 1.0f), 0.0f, 1.0f));
+    } else {
+        player->mForwardSpeed =
+            Min(player->mForwardSpeed,
+                10.0f * clamp(scaleLinearAtAnchor(slopeStrength, lookAtRatio, 1.0f), 0.0f, 1.0f));
+    }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802568F0, 0x8024E67C, 0, 0), normalizeHoverSlopeSpeed);
 
