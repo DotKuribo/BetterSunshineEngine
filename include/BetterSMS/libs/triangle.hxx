@@ -4,7 +4,7 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry/JGMVec.hxx>
 
-#include "libs/constmath.hxx"
+#include "constmath.hxx"
 
 class TVectorTriangle {
 public:
