@@ -85,7 +85,7 @@ namespace BetterSMS {
 
     bool isModuleRegistered(const char *key);
     bool registerModule(const ModuleInfo *info);
-    bool deregisterModule(const char *key);
+    void deregisterModule(const ModuleInfo *key);
 
     int getScreenRenderWidth();
     int getScreenOrthoWidth();

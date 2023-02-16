@@ -64,11 +64,8 @@ bool BetterSMS::registerModule(const ModuleInfo *info) {
     gModuleInfos[info->mName] = info;
     return true;
 }
-bool BetterSMS::deregisterModule(const char *key) {
-    if (!isModuleRegistered(key))
-        return false;
-    gModuleInfos.erase(key);
-    return true;
+void BetterSMS::deregisterModule(const ModuleInfo *info) {
+    gModuleInfos.erase(info->mName);
 }
 
 // mario.cpp
@@ -353,24 +350,6 @@ static void initLib() {
 }
 
 static void destroyLib() {
-    Console::log("-- Destroying Module --\n");
-
-    // Remove debug handlers
-    Stage::deregisterInitCallback("__init_debug");
-    Stage::deregisterUpdateCallback("__update_debug");
-    Stage::deregisterDraw2DCallback("__draw_debug");
-
-    // Remove config handlers
-    Stage::deregisterInitCallback("__init_globals");
-    Stage::deregisterInitCallback("__init_config");
-
-    // Set up player params
-    Player::deregisterInitCallback("__init_mario");
-
-    // Remove loading screen
-    Stage::deregisterInitCallback("__init_load_screen");
-    Stage::deregisterUpdateCallback("__update_load_screen");
-
     PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600002);
 }
 
@@ -388,7 +367,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
-        KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
         KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed, "isMusicStreamingAllowed__9BetterSMSFv");
