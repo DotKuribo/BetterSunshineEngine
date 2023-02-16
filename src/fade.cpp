@@ -2,7 +2,7 @@
 #include "module.hxx"
 
 float Hx_MotionUpdate(float* hxMotionStruct) {
-	float scaleFactor = 1.0f / (60.0f / BetterSMS::getFrameRate());
+	float scaleFactor = 1.0f / (BetterSMS::getFrameRate() / 30.0f);
 
 	if(hxMotionStruct[0] <= hxMotionStruct[7]) {
 	    if(hxMotionStruct[1] < hxMotionStruct[7]) {
