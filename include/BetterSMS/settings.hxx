@@ -121,7 +121,7 @@ namespace BetterSMS {
             }
             
             // Signals the changed callback which can update arbitrary memory
-            void emit() { mValueChangedCB(&mValuePtr, &mValuePtr, getKind()); }
+            void emit() { mValueChangedCB(mValuePtr, mValuePtr, getKind()); }
 
         protected:
             const char *mName;

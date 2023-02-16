@@ -429,10 +429,6 @@ s32 SettingsDirector::exit() {
     return fader->mFadeStatus == TSMSFader::FADE_ON ? 5 : 1;
 }
 
-extern RumbleSetting sRumbleSetting;
-extern SoundSetting sSoundSetting;
-extern SubtitleSetting sSubtitleSetting;
-
 extern BugsSetting gBugFixesSetting;
 bool BetterSMS::areBugsPatched() { return gBugFixesSetting.getBool(); }
 
