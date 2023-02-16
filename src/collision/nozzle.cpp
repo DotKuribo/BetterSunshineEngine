@@ -12,7 +12,6 @@
 #include "player.hxx"
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
 using namespace BetterSMS::Collision;
 
 static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd) {

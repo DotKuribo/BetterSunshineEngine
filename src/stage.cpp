@@ -224,7 +224,36 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80296DE0, 0x80291750, 0, 0), initStageLoading);
 
 static bool sIsStageInitialized = false;
 
+// Extern to stage init
+BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
+    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
+
+    Stage::TStageParams *config = Stage::getStageConfiguration();
+    config->reset();
+    config->load(Stage::getStageName(gpApplication.mCurrentScene.mAreaID,
+                                     gpApplication.mCurrentScene.mEpisodeID));
+}
+
+// Extern to stage init
+BETTER_SMS_FOR_CALLBACK void resetStageConfig(TApplication *) {
+    delete Stage::TStageParams::sStageConfig;
+
+    waterColor[0].set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
+    waterColor[1].set(0xFE, 0xA8, 0x02, 0x6E);  // Yoshi Juice rgba
+    waterColor[2].set(0x9B, 0x01, 0xFD, 0x6E);
+    waterColor[3].set(0xFD, 0x62, 0xA7, 0x6E);
+    bodyColor[0].set(0x40, 0xA1, 0x24, 0xFF);  // Yoshi rgba
+    bodyColor[1].set(0xFF, 0x8C, 0x1C, 0xFF);
+    bodyColor[2].set(0xAA, 0x4C, 0xFF, 0xFF);
+    bodyColor[3].set(0xFF, 0xA0, 0xBE, 0xFF);
+    gAudioVolume = 0.75f;
+    gAudioPitch  = 1.0f;
+    gAudioSpeed  = 1.0f;
+}
+
 void initStageCallbacks(TMarDirector *director) {
+    loadStageConfig(director);
+
     for (auto &item : sStageInitCBs) {
         item.second(director);
     }
@@ -259,6 +288,8 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
+extern void resetPlayerDatas(TApplication *);
+
 void exitStageCallbacks(TApplication *app) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
         return;
@@ -267,8 +298,8 @@ void exitStageCallbacks(TApplication *app) {
         item.second(app);
     }
 
-    delete Stage::getStageConfiguration();
-
+    resetPlayerDatas(app);
+    resetStageConfig(app);
     sIsStageInitialized = false;
 }
 
@@ -315,33 +346,3 @@ static bool isOptionMap() {
 SMS_PATCH_B(SMS_PORT_REGION(0x802A8AE0, 0x802A0B88, 0, 0), isOptionMap);
 
 #pragma endregion
-
-// Extern to stage init
-BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
-    Console::debugLog("Reseting stage params...\n");
-
-    delete Stage::TStageParams::sStageConfig;
-    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
-
-    Stage::TStageParams *config = Stage::getStageConfiguration();
-    config->reset();
-
-    Console::debugLog("Loading stage specific params...\n");
-    config->load(Stage::getStageName(
-        gpApplication.mCurrentScene.mAreaID, gpApplication.mCurrentScene.mEpisodeID));
-}
-
-// Extern to stage init
-BETTER_SMS_FOR_CALLBACK void resetGlobalValues(TApplication *) {
-    waterColor[0].set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
-    waterColor[1].set(0xFE, 0xA8, 0x02, 0x6E);  // Yoshi Juice rgba
-    waterColor[2].set(0x9B, 0x01, 0xFD, 0x6E);
-    waterColor[3].set(0xFD, 0x62, 0xA7, 0x6E);
-    bodyColor[0].set(0x40, 0xA1, 0x24, 0xFF);  // Yoshi rgba
-    bodyColor[1].set(0xFF, 0x8C, 0x1C, 0xFF);
-    bodyColor[2].set(0xAA, 0x4C, 0xFF, 0xFF);
-    bodyColor[3].set(0xFF, 0xA0, 0xBE, 0xFF);
-    gAudioVolume = 0.75f;
-    gAudioPitch  = 1.0f;
-    gAudioSpeed  = 1.0f;
-}

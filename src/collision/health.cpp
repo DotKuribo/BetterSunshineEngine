@@ -12,7 +12,6 @@
 #include "player.hxx"
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
 using namespace BetterSMS::Collision;
 
 BETTER_SMS_FOR_CALLBACK void decHealth(TMario *player, const TBGCheckData *data, u32 flags) {

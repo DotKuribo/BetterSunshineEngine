@@ -29,6 +29,7 @@
 #include "module.hxx"
 #include "player.hxx"
 #include "p_settings.hxx"
+#include "p_geometry.hxx"
 #include "stage.hxx"
 
 using namespace BetterSMS;
@@ -387,7 +388,7 @@ static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
     TVec3f down(0.0f, -1.0f, 0.0f);
 
     TVec3f nroofvec;
-    Vector3::normalized(*roof->getNormal(), nroofvec);
+    PSVECNormalize(*roof->getNormal(), nroofvec);
 
     const f32 ratio = Vector3::angleBetween(nroofvec, down);
     player->setPlayerVelocity(lerp(_speed, player->mForwardSpeed, ratio));
@@ -781,6 +782,8 @@ BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) {
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
 
+    initMario(player, true);
+
     for (auto &item : sPlayerInitializers) {
         item.second(player, true);
     }
@@ -794,6 +797,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80276C94, 0x8026EA20, 0, 0), playerInitHandler);
 static bool shadowMarioInitHandler() {
     TMario *player;
     SMS_ASM_BLOCK("lwz %0, 0x150 (31)" : "=r"(player));
+
+    initMario(player, false);
 
     for (auto &item : sPlayerInitializers) {
         item.second(player, false);
@@ -813,6 +818,8 @@ static void playerLoadAfterHandler(TMario *player) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80276BB8, 0, 0, 0), playerLoadAfterHandler);
 
 static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
+    blazePlayer(player, true);
+
     for (auto &item : sPlayerUpdaters) {
         item.second(player, true);
     }
@@ -822,6 +829,8 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
+    blazePlayer(player, false);
+
     for (auto &item : sPlayerUpdaters) {
         item.second(player, false);
     }

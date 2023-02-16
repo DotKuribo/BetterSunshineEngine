@@ -4,10 +4,7 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry/JGMVec.hxx>
 
-#include "constmath.hxx"
-#include "p_geometry.hxx"
-
-using namespace BetterSMS::Geometry;
+#include "libs/constmath.hxx"
 
 class TVectorTriangle {
 public:
@@ -28,9 +25,9 @@ public:
         TVec3f vectorB(c.x - a.x, c.y - a.y, c.z - a.z);
 
         TVec3f vec;
-        Vector3::cross(vectorA, vectorB, vec);
+        PSVECCrossProduct(vectorA, vectorB, vec);
         if (normalize)
-            Vector3::normalized(vec, out);
+            PSVECNormalize(vec, out);
     }
 
     f32 yPosAtXZ(f32 x, f32 z) {

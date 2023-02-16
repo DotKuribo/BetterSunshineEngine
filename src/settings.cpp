@@ -268,7 +268,7 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     {
         OSCalendarTime calendar;
         OSTicksToCalendarTime(OSGetTime(), &calendar);
-        snprintf(saveBuffer + 36, 32, "Module Save Data (%lu/%lu/%lu)", calendar.mon + 1,
+        snprintf(saveBuffer + 36, 32, "Module Info (%lu/%lu/%lu)", calendar.mon + 1,
                  calendar.mday, calendar.year);
     }
 

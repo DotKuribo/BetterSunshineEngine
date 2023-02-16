@@ -10,7 +10,10 @@
 #include "module.hxx"
 #include "player.hxx"
 
+#include "p_geometry.hxx"
+
 using namespace BetterSMS;
+using namespace BetterSMS::Geometry;
 
 static void doProcessJumpState(TMario *player) {
     auto playerData = Player::getData(player);

@@ -110,14 +110,6 @@ extern void initStateMonitor(TApplication *);
 extern void updateStateMonitor(TApplication *);
 extern void drawStateMonitor(TApplication *, const J2DOrthoGraph *);
 
-// STAGE CONFIG
-extern void loadStageConfig(TMarDirector *);
-extern void resetGlobalValues(TApplication *);
-
-// PLAYER CONFIG
-extern void initMario(TMario *, bool);
-extern void resetPlayerDatas(TApplication *);
-
 // PLAYER WARP
 extern void processWarp(TMario *, bool);
 extern void updateDebugCollision(TMario *, bool);
@@ -261,21 +253,13 @@ static void initLib() {
                                          BetterAppContextDirectLevelSelect);
     Application::registerContextCallback(10, BetterAppContextDirectSettingsMenu);
 
-    //// Set up stage config handlers
-    Stage::registerInitCallback("__init_config", loadStageConfig);
-    Stage::registerExitCallback("__reset_globals", resetGlobalValues);
-
     //// Set up player params
-    Player::registerInitCallback("__init_mario", initMario);
-    Stage::registerExitCallback("__destroy_mario", resetPlayerDatas);
-
     Player::registerUpdateCallback("__update_mario_multijump", checkForMultiJump);
     Player::registerStateMachine(MultiJumpState, processMultiJump);
 
     #if 0
     Player::registerUpdateCallback("__debug_warp_collision", updateDebugCollision);
     #endif
-    Player::registerUpdateCallback("__blaze_player", blazePlayer);
 
     // Set up player map collisions
     Player::registerCollisionHandler(3000, decHealth);

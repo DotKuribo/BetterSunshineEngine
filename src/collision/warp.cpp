@@ -10,11 +10,13 @@
 #include "logging.hxx"
 #include "player.hxx"
 
+#include "p_geometry.hxx"
 #include "p_globals.hxx"
 #include "p_warp.hxx"
 
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
+using namespace BetterSMS::Geometry;
 
 #define EXPAND_WARP_SET(base) (base) : case ((base) + 10) : case ((base) + 20) : case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
