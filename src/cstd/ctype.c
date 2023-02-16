@@ -1,7 +1,11 @@
 #include <Dolphin/types.h>
 #include <SMS/macros.h>
 
-SMS_NO_INLINE int isxdigit(int c) {
+#ifndef BETTER_SMS_FOR_EXPORT
+#define BETTER_SMS_FOR_EXPORT SMS_NO_INLINE
+#endif
+
+BETTER_SMS_FOR_EXPORT int isxdigit(int c) {
     if (c >= '0' && c <= '9')
         return true;
     else if (c >= 'a' && c <= 'f')
@@ -12,14 +16,14 @@ SMS_NO_INLINE int isxdigit(int c) {
     return false;
 }
 
-SMS_NO_INLINE int isupper(int c) {
+BETTER_SMS_FOR_EXPORT int isupper(int c) {
     if (c >= 'A' && c <= 'Z')
         return true;
 
     return false;
 }
 
-SMS_NO_INLINE int isspace(int c) {
+BETTER_SMS_FOR_EXPORT int isspace(int c) {
     if (c >= '\t' && c <= '\r')
         return true;
     else if (c == ' ')
@@ -28,7 +32,7 @@ SMS_NO_INLINE int isspace(int c) {
     return false;
 }
 
-SMS_NO_INLINE int ispunct(int c) {
+BETTER_SMS_FOR_EXPORT int ispunct(int c) {
     if (c >= '!' && c <= '/')
         return true;
     else if (c >= ':' && c <= '@')
@@ -43,7 +47,7 @@ SMS_NO_INLINE int ispunct(int c) {
     return false;
 }
 
-SMS_NO_INLINE int isprint(int c) {
+BETTER_SMS_FOR_EXPORT int isprint(int c) {
     if (c >= ' ' && c <= '~')
         return true;
     else if (c > 0x7F)
@@ -52,14 +56,14 @@ SMS_NO_INLINE int isprint(int c) {
     return false;
 }
 
-SMS_NO_INLINE int islower(int c) {
+BETTER_SMS_FOR_EXPORT int islower(int c) {
     if (c >= 'a' && c <= 'z')
         return true;
 
     return false;
 }
 
-SMS_NO_INLINE int isgraph(int c) {
+BETTER_SMS_FOR_EXPORT int isgraph(int c) {
     if (c >= '!' && c <= '~')
         return true;
     else if (c > 0x7F)
@@ -68,14 +72,14 @@ SMS_NO_INLINE int isgraph(int c) {
     return false;
 }
 
-SMS_NO_INLINE int isdigit(int c) {
+BETTER_SMS_FOR_EXPORT int isdigit(int c) {
     if (c >= '0' && c <= '9')
         return true;
 
     return false;
 }
 
-SMS_NO_INLINE int iscntrl(int c) {
+BETTER_SMS_FOR_EXPORT int iscntrl(int c) {
     if (c >= 0 && c <= 0x1F)
         return true;
     else if (c == 0x7F)
@@ -84,7 +88,7 @@ SMS_NO_INLINE int iscntrl(int c) {
     return false;
 }
 
-SMS_NO_INLINE int isalpha(int c) {
+BETTER_SMS_FOR_EXPORT int isalpha(int c) {
     if (c >= 'a' && c <= 'z')
         return true;
     else if (c >= 'A' && c <= 'Z')
@@ -93,7 +97,7 @@ SMS_NO_INLINE int isalpha(int c) {
     return false;
 }
 
-SMS_NO_INLINE int isalnum(int c) {
+BETTER_SMS_FOR_EXPORT int isalnum(int c) {
     if (c >= '0' && c <= '9')
         return true;
     else if (c >= 'a' && c <= 'z')

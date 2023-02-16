@@ -335,7 +335,8 @@ static void redirectPlayerWithNormal(TMario *player, const TVec3f &normal, f32 m
         player->changePlayerStatus(TMario::STATE_FALL, 0, false);
 }
 
-void instantWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void instantWarpHandler(TMario *player, const TBGCheckData *data,
+                                                u32 flags) {
     auto *playerData = Player::getData(player);
 
     if ((flags & Player::InteractionFlags::ON_ENTER) ||
@@ -366,7 +367,7 @@ void instantWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
     playerData->mIsWarpActive = false;
 }
 
-void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
                            u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -446,7 +447,17 @@ void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
     }
 }
 
-void effectWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void instantScreenWipeWarpHandler(TMario *player, const TBGCheckData *data,
+                                                          u32 flags) {
+    screenWipeWarpHandler(player, data, flags);
+
+    auto *playerData = Player::getData(player);
+    if (playerData->mIsWarpActive && playerData->mWarpState == 0)
+        playerData->mWarpTimer = 81;
+}
+
+BETTER_SMS_FOR_CALLBACK void effectWarpHandler(TMario *player, const TBGCheckData *data,
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if ((flags & Player::InteractionFlags::ON_ENTER) ||
@@ -522,7 +533,8 @@ void effectWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
     }
 }
 
-void portalWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void portalWarpHandler(TMario *player, const TBGCheckData *data,
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if ((flags & Player::InteractionFlags::ON_ENTER)) {
@@ -552,8 +564,8 @@ void portalWarpHandler(TMario *player, const TBGCheckData *data, u32 flags) {
     redirectPlayerWithNormal(player, *linkedCol->getNormal(), 50.0f);
 }
 
-void portalFreeWarpHandler(TMario *player, const TBGCheckData *data,
-                           u32 flags) {
+BETTER_SMS_FOR_CALLBACK void portalFreeWarpHandler(TMario *player, const TBGCheckData *data,
+                                                   u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_4CM_CONTACT) &&

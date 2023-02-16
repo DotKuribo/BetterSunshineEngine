@@ -91,7 +91,7 @@ u32 XYZState = 0xF000FFFF;
 static bool sJustStartedXYZ = false;
 static bool sJustExitedXYZ  = false;
 
-void checkMarioXYZMode(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void checkMarioXYZMode(TMario *player, bool isMario) {
     constexpr u32 enterButton = TMarioGamePad::EButtons::DPAD_UP;
 
     if ((player->mController->mButtons.mInput & TMarioGamePad::L))
@@ -112,7 +112,7 @@ void checkMarioXYZMode(TMario *player, bool isMario) {
 }
 
 // extern -> debug update callback
-bool updateMarioXYZMode(TMario *player) {
+BETTER_SMS_FOR_CALLBACK bool updateMarioXYZMode(TMario *player) {
     constexpr f32 baseSpeed = 21.0f;
     constexpr u32 exitButton = TMarioGamePad::EButtons::DPAD_UP;
 
@@ -163,7 +163,7 @@ enum DebugNozzleKind {
 static s32 sNozzleKind = DebugNozzleKind::SPRAY;
 
 // extern -> debug update callback
-void updateFluddNozzle(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void updateFluddNozzle(TApplication *app) {
     TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
 
     if (!director || !BetterSMS::isDebugMode() ||

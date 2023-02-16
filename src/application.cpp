@@ -25,27 +25,27 @@ using namespace BetterSMS;
 
 static TGlobalUnorderedMap<u8, Application::ContextCallback> sContextCBs(16);
 
-SMS_NO_INLINE bool BetterSMS::Application::isContextRegistered(u8 context) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::isContextRegistered(u8 context) {
     return sContextCBs.find(context) != sContextCBs.end();
 }
 
-SMS_NO_INLINE bool BetterSMS::Application::registerContextCallback(u8 context, ContextCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 context, ContextCallback cb) {
     if (sContextCBs.find(context) != sContextCBs.end())
         return false;
     sContextCBs[context] = cb;
     return true;
 }
 
-SMS_NO_INLINE void BetterSMS::Application::deregisterContextCallback(u8 context) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Application::deregisterContextCallback(u8 context) {
     sContextCBs.erase(context);
 }
 
-bool BetterAppContextGameBoot(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBoot(TApplication *app) {
     SMSSetupGCLogoRenderingInfo(app->mDisplay);
     return false;
 }
 
-bool BetterAppContextGameBootLogo(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBootLogo(TApplication *app) {
     SMSSetupGCLogoRenderingInfo(app->mDisplay);
 
     auto *director = new TGCLogoDir();
@@ -55,7 +55,7 @@ bool BetterAppContextGameBootLogo(TApplication *app) {
     return false;
 }
 
-bool BetterAppContextDirectMovie(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectMovie(TApplication *app) {
     SMSSetupMovieRenderingInfo(app->mDisplay);
 
     app->mFader->setDisplaySize(SMSGetGameRenderWidth(), SMSGetGameRenderHeight());
@@ -67,7 +67,7 @@ bool BetterAppContextDirectMovie(TApplication *app) {
     return false;
 }
 
-bool BetterAppContextGameBootIntro(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBootIntro(TApplication *app) {
     app->mCutSceneID           = 9;
     app->mNextScene.mAreaID    = 15;
     app->mNextScene.mEpisodeID = 0;
@@ -76,7 +76,7 @@ bool BetterAppContextGameBootIntro(TApplication *app) {
     return false;
 }
 
-bool BetterAppContextDirectStage(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectStage(TApplication *app) {
     if (!app->checkAdditionalMovie()) {
         SMSSetupGameRenderingInfo(app->mDisplay, (app->_44 & 1) != 0);
 
@@ -97,7 +97,7 @@ bool BetterAppContextDirectStage(TApplication *app) {
     }
 }
 
-bool BetterAppContextDirectShineSelect(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectShineSelect(TApplication *app) {
     SMSSetupTitleRenderingInfo(app->mDisplay);
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
@@ -109,7 +109,7 @@ bool BetterAppContextDirectShineSelect(TApplication *app) {
     return false;
 }
 
-bool BetterAppContextDirectLevelSelect(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app) {
     SMSSetupTitleRenderingInfo(app->mDisplay);
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
@@ -125,7 +125,7 @@ bool BetterAppContextDirectLevelSelect(TApplication *app) {
     return false;
 }
 
-bool BetterAppContextDirectSettingsMenu(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectSettingsMenu(TApplication *app) {
     SMSSetupTitleRenderingInfo(app->mDisplay);
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());

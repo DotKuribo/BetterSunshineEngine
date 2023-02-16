@@ -15,7 +15,7 @@ using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 using namespace BetterSMS::Collision;
 
-void decHealth(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void decHealth(TMario *player, const TBGCheckData *data, u32 flags) {
     auto *playerData = Player::getData(player);
     if (playerData->mCollisionTimer <= 0) {
         player->decHP(1);
@@ -24,7 +24,7 @@ void decHealth(TMario *player, const TBGCheckData *data, u32 flags) {
         playerData->mCollisionTimer -= 1;
 }
 
-void incHealth(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void incHealth(TMario *player, const TBGCheckData *data, u32 flags) {
     auto *playerData = Player::getData(player);
     if (playerData->mCollisionTimer <= 0) {
         player->incHP(1);

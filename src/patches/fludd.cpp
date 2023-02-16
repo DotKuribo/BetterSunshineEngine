@@ -213,7 +213,7 @@ static bool checkAirNozzle() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80262580, 0x8025A30C, 0, 0), checkAirNozzle);
 SMS_WRITE_32(SMS_PORT_REGION(0x80262584, 0x8025A310, 0, 0), 0x2C030000);
 
-void updateDeadTriggerState(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void updateDeadTriggerState(TMario *player, bool isMario) {
     if (!isMario)
         return;
 

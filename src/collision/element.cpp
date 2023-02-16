@@ -17,7 +17,7 @@ using namespace BetterSMS::Collision;
 
 // types start at 3000
 
-void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!(flags & Player::InteractionFlags::GROUNDED))
         return;
 
@@ -35,7 +35,7 @@ void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
     }
 }
 
-void burnPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void burnPlayer(TMario *player, const TBGCheckData *data, u32 flags) {
     if (!(flags & Player::InteractionFlags::GROUNDED))
         return;
 

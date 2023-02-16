@@ -48,7 +48,7 @@ void addToHitActorCount(JDrama::TViewObj *obj, u32 flags, JDrama::TGraphics *gra
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802a0450, 0, 0, 0), addToHitActorCount);
 
-void initStateMonitor(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void initStateMonitor(TApplication *app) {
     sDebugUIPane = 0;
 
     gpPlayerStateStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
@@ -99,7 +99,7 @@ void initStateMonitor(TApplication *app) {
     sIsInitialized = true;
 }
 
-void updateStateMonitor(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void updateStateMonitor(TApplication *app) {
     TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
 
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE || !gpMarioAddress || !sIsInitialized)
@@ -179,7 +179,7 @@ void updateStateMonitor(TApplication *app) {
     sHitObjCount = 0;
 }
 
-void drawStateMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
+BETTER_SMS_FOR_CALLBACK void drawStateMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
     TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
 
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE || !gpMarioAddress || !sIsInitialized)

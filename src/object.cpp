@@ -43,12 +43,12 @@ static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomMi
 static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjInteractionList(64);
 static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjGrabList(64);
 
-SMS_NO_INLINE size_t BetterSMS::Objects::getRemainingCapacity() {
+BETTER_SMS_FOR_EXPORT size_t BetterSMS::Objects::getRemainingCapacity() {
     return sObjExpansionSize - sOBJNewCount;
 }
 
 // Map objects (coins, blocks, etc)
-SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
                                                               Objects::NameRefInitializer initFn) {
     if (sCustomMapObjList.find(name) != sCustomMapObjList.end())
         return false;
@@ -62,7 +62,7 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, 
 }
 
 // Enemys (Strollin' Stus, Electrokoopas, etc)
-SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
                                                              Objects::NameRefInitializer initFn) {
     if (sCustomEnemyObjList.find(name) != sCustomEnemyObjList.end())
         return false;
@@ -76,7 +76,7 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, O
 }
 
 // Misc (Managers, tables, etc)
-SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
                                                             Objects::NameRefInitializer initFn) {
     if (sCustomMiscObjList.find(name) != sCustomMiscObjList.end())
         return false;
@@ -84,7 +84,7 @@ SMS_NO_INLINE bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
     return true;
 }
 
-SMS_NO_INLINE bool
+BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectCollideInteractor(u32 objectID,
                                                     Objects::ObjectInteractor interactor) {
     if (sCustomObjInteractionList.find(objectID) != sCustomObjInteractionList.end())
@@ -93,7 +93,7 @@ BetterSMS::Objects::registerObjectCollideInteractor(u32 objectID,
     return true;
 }
 
-SMS_NO_INLINE bool
+BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectGrabInteractor(u32 objectID,
                                                  Objects::ObjectInteractor interactor) {
     if (sCustomObjGrabList.find(objectID) != sCustomObjGrabList.end())
@@ -102,7 +102,7 @@ BetterSMS::Objects::registerObjectGrabInteractor(u32 objectID,
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Objects::deregisterObject(const char *name) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::deregisterObject(const char *name) {
     if (sCustomMapObjList.erase(name)) {
         sOBJNewCount -= 1;
         return true;

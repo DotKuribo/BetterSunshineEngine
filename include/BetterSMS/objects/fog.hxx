@@ -5,9 +5,13 @@
 #include <JSystem/JDrama/JDRActor.hxx>
 #include <JSystem/JUtility/JUTColor.hxx>
 
+#include "module.hxx"
+
 class TSimpleFog : public JDrama::TViewObj {
 public:
-    static JDrama::TNameRef *instantiate() { return new TSimpleFog("TSimpleFog"); }
+    BETTER_SMS_FOR_CALLBACK static JDrama::TNameRef *instantiate() {
+        return new TSimpleFog("TSimpleFog");
+    }
 
     TSimpleFog(const char *name)
         : TViewObj(name), mType(1), mColor(), mStartZ(0.0f), mEndZ(20000.0f),

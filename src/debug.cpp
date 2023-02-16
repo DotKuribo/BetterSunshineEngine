@@ -21,42 +21,42 @@ static TGlobalUnorderedMap<TGlobalString, Debug::InitCallback> sDebugInitCBs(32)
 static TGlobalUnorderedMap<TGlobalString, Debug::UpdateCallback> sDebugUpdateCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Debug::DrawCallback> sDebugDrawCBs(32);
 
-SMS_NO_INLINE bool BetterSMS::Debug::registerInitCallback(const char *name, InitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerInitCallback(const char *name, InitCallback cb) {
     if (sDebugInitCBs.find(name) != sDebugInitCBs.end())
         return false;
     sDebugInitCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Debug::registerUpdateCallback(const char *name, UpdateCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerUpdateCallback(const char *name, UpdateCallback cb) {
     if (sDebugUpdateCBs.find(name) != sDebugUpdateCBs.end())
         return false;
     sDebugUpdateCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Debug::registerDrawCallback(const char *name, DrawCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerDrawCallback(const char *name, DrawCallback cb) {
     if (sDebugDrawCBs.find(name) != sDebugDrawCBs.end())
         return false;
     sDebugDrawCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE void BetterSMS::Debug::deregisterInitCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Debug::deregisterInitCallback(const char *name) {
     sDebugInitCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Debug::deregisterUpdateCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Debug::deregisterUpdateCallback(const char *name) {
     sDebugUpdateCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Debug::deregisterDrawCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Debug::deregisterDrawCallback(const char *name) {
     sDebugDrawCBs.erase(name);
 }
 
 #pragma region CallbackHandlers
 
-void initDebugCallbacks(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void initDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
         return;
 
@@ -71,7 +71,7 @@ void initDebugCallbacks(TApplication *app) {
 
 static bool sIsActive = true;
 
-void updateDebugCallbacks(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void updateDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
         return;
 
@@ -87,7 +87,7 @@ void updateDebugCallbacks(TApplication *app) {
     }
 }
 
-void drawDebugCallbacks(TApplication *app, const J2DOrthoGraph *ortho) {
+BETTER_SMS_FOR_CALLBACK void drawDebugCallbacks(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!BetterSMS::isDebugMode())
         return;
 

@@ -12,12 +12,12 @@
 
 /* extern to handlers.cpp */
 
-void setGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void setGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
 
     player->mJumpParams.mGravity.set(static_cast<f32>(data->mValue) / 100.0f);
 }
 
-void antiGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void antiGravityCol(TMario *player, const TBGCheckData *data, u32 flags) {
     Vec position;
     player->JSGGetTranslation(&position);
 

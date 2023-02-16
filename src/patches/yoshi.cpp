@@ -144,7 +144,7 @@ static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 grou
     yoshi->mSubState = 30;
 }
 
-void checkForYoshiDeath(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void checkForYoshiDeath(TMario *player, bool isMario) {
     if (!player->mYoshi)
         return;
 
@@ -158,7 +158,7 @@ void checkForYoshiDeath(TMario *player, bool isMario) {
     checkForOOBDeath(player->mYoshi, ground, groundY);
 }
 
-void forceValidRidingAnimation(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void forceValidRidingAnimation(TMario *player, bool isMario) {
     TYoshi *yoshi = player->mYoshi;
     if (!yoshi)
         return;

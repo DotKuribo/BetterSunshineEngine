@@ -3,75 +3,77 @@
 #include <Dolphin/types.h>
 #include <SMS/macros.h>
 
+#include "module.hxx"
+
 static OSCalendarTime sCalendar;
 
-SMS_NO_INLINE const char *BetterSMS::Time::buildDate() { return __DATE__; }
-SMS_NO_INLINE const char *BetterSMS::Time::buildTime() { return __TIME__; }
-SMS_NO_INLINE OSTime BetterSMS::Time::ostime() { return OSGetTime(); }
+BETTER_SMS_FOR_EXPORT const char *BetterSMS::Time::buildDate() { return __DATE__; }
+BETTER_SMS_FOR_EXPORT const char *BetterSMS::Time::buildTime() { return __TIME__; }
+BETTER_SMS_FOR_EXPORT OSTime BetterSMS::Time::ostime() { return OSGetTime(); }
 
-SMS_NO_INLINE void BetterSMS::Time::calendarTime(OSCalendarTime &result) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Time::calendarTime(OSCalendarTime &result) {
     return OSTicksToCalendarTime(ostime(), &result);
 }
 
-SMS_NO_INLINE void BetterSMS::Time::date(char *dst) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Time::date(char *dst) {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     calendarToDate(dst, sCalendar);
 }
 
-SMS_NO_INLINE void BetterSMS::Time::time(char *dst) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Time::time(char *dst) {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     calendarToTime(dst, sCalendar);
 }
 
-SMS_NO_INLINE u16 BetterSMS::Time::nanosecond() {
+BETTER_SMS_FOR_EXPORT u16 BetterSMS::Time::nanosecond() {
     return OSTicksToNanoseconds(OSGetTime());
 }
 
-SMS_NO_INLINE u16 BetterSMS::Time::microsecond() {
+BETTER_SMS_FOR_EXPORT u16 BetterSMS::Time::microsecond() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.usec;
 }
 
-SMS_NO_INLINE u16 BetterSMS::Time::millisecond() {
+BETTER_SMS_FOR_EXPORT u16 BetterSMS::Time::millisecond() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.msec;
 }
 
-SMS_NO_INLINE u8 BetterSMS::Time::second() {
+BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::second() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.sec;
 }
 
-SMS_NO_INLINE u8 BetterSMS::Time::minute() {
+BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::minute() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.usec;
 }
 
-SMS_NO_INLINE u8 BetterSMS::Time::hour() {
+BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::hour() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.hour;
 }
 
-SMS_NO_INLINE u8 BetterSMS::Time::day() {
+BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::day() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.mday;
 }
 
-SMS_NO_INLINE u8 BetterSMS::Time::month() {
+BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::month() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.mon;
 }
 
-SMS_NO_INLINE u8 BetterSMS::Time::year() {
+BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::year() {
     OSTicksToCalendarTime(OSGetTime(), &sCalendar);
     return sCalendar.year;
 }
 
-SMS_NO_INLINE void BetterSMS::Time::calendarToDate(char *dst, const OSCalendarTime &calendar) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Time::calendarToDate(char *dst, const OSCalendarTime &calendar) {
     snprintf(dst, 32, "%lu/%lu/%lu", calendar.mon + 1, calendar.mday, calendar.year);
 }
 
-SMS_NO_INLINE void BetterSMS::Time::calendarToTime(char *dst, const OSCalendarTime &calendar) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Time::calendarToTime(char *dst, const OSCalendarTime &calendar) {
     if (calendar.hour == 0)
         snprintf(dst, 32, "%lu:%02lu AM", calendar.hour + 12, calendar.min);
     else if (calendar.hour < 12)

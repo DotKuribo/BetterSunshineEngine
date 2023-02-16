@@ -32,7 +32,7 @@ static J2DTextBox *gpFPSStringB = nullptr;
 static char sStringBuffer[10];
 static bool sIsInitialized = false;
 
-void initFPSMonitor(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void initFPSMonitor(TApplication *app) {
     gpFPSStringW                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpFPSStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpFPSStringW->mStrPtr         = sStringBuffer;
@@ -50,7 +50,7 @@ void initFPSMonitor(TApplication *app) {
 
 extern FPSSetting gFPSSetting;
 
-void updateFPSMonitor(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void updateFPSMonitor(TApplication *app) {
     if (!app->mDirector || !sIsInitialized)
         return;
 
@@ -82,7 +82,7 @@ void updateFPSMonitor(TApplication *app) {
     }
 }
 
-void drawFPSMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
+BETTER_SMS_FOR_CALLBACK void drawFPSMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!sIsInitialized)
         return;
 

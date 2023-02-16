@@ -12,7 +12,7 @@ using namespace BetterSMS;
 
 u32 MultiJumpState = 0xF00001C1;
 
-void checkForMultiJump(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void checkForMultiJump(TMario *player, bool isMario) {
     auto *playerData = Player::getData(player);
     if (!playerData)
         return;
@@ -23,7 +23,10 @@ void checkForMultiJump(TMario *player, bool isMario) {
         (player->mState & 0x800000) || isYoshi || player->mState == TMario::STATE_SLIP_JUMP ||
         player->mState == TMario::STATE_THROWN || player->mAttributes.mIsGameOver;
 
-    if (!isAirBorn || isInvalidState) {
+    if (isInvalidState)
+        return;
+
+    if (!isAirBorn) {
         playerData->mCurJump = 1;
         return;
     }
@@ -40,7 +43,7 @@ void checkForMultiJump(TMario *player, bool isMario) {
     }
 }
 
-bool processMultiJump(TMario *player) {
+BETTER_SMS_FOR_CALLBACK bool processMultiJump(TMario *player) {
     auto *playerData = Player::getData(player);
     
     const s32 jumpsLeft = (playerData->getParams()->mMaxJumps.get() - playerData->mCurJump);
@@ -51,20 +54,11 @@ bool processMultiJump(TMario *player) {
 
     if (jumpsLeft == 1) {
         state   = static_cast<u32>(TMario::STATE_D_JUMP);
-        voiceID = 0x78B6;
-        animID  = 0x6F;
     } else if (jumpsLeft % 2) {
         state   = static_cast<u32>(TMario::STATE_JUMP);
-        voiceID = 0x78B1;
-        animID  = 0x4D;
     } else {
         state   = static_cast<u32>(TMario::STATE_D_JUMP);
-        voiceID = 0x78B6;
-        animID  = 0x50;
     }
-
-    player->startVoice(voiceID);
-    player->setAnimation(animID, 1.0f);
 
     const TMarioGamePad *controller = player->mController;
     const f32 stickMagnitude        = controller->mControlStick.mLengthFromNeutral;
@@ -81,15 +75,19 @@ bool processMultiJump(TMario *player) {
     player->mForwardSpeed *= stickMagnitude;
     player->changePlayerJumping(state, 0);
 
+
     return true;
 }
 
 static void playDoubleOrTripleAnim(TMario *player, int state, int anim, int unk_0) {
     auto *playerData = Player::getData(player);
-    if (playerData->getParams()->mMaxJumps.get() - playerData->mCurJump == 0 &&
-        player->mState == MultiJumpState) {
+    size_t maxjumps  = playerData->getParams()->mMaxJumps.get();
+    if (maxjumps > 1 && playerData->mCurJump >= maxjumps) {
         player->jumpingBasic(state, 0x6F, unk_0);
-        player->startVoice(0x78B6);
+        if (playerData->mCurJump == maxjumps) {  // Hack
+            player->startVoice(0x78B6);
+            playerData->mCurJump += 1;
+        }
     }
     else
         player->jumpingBasic(state, anim, unk_0);

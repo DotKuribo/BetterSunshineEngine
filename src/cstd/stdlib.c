@@ -3,7 +3,11 @@
 
 #include "cstd/stdlib.h"
 
-SMS_NO_INLINE void reverse(char *dst, const char *src, size_t len) {
+#ifndef BETTER_SMS_FOR_EXPORT
+#define BETTER_SMS_FOR_EXPORT SMS_NO_INLINE
+#endif
+
+BETTER_SMS_FOR_EXPORT void reverse(char *dst, const char *src, size_t len) {
     if (src == NULL || len <= 1)
         return;
 
@@ -21,7 +25,7 @@ SMS_NO_INLINE void reverse(char *dst, const char *src, size_t len) {
 }
 
 // Implementation of itoa()
-SMS_NO_INLINE void itoa(char *dst, int num, int base) {
+BETTER_SMS_FOR_EXPORT void itoa(char *dst, int num, int base) {
     int i           = 0;
     bool isNegative = false;
 

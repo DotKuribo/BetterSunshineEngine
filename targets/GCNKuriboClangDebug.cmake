@@ -35,7 +35,7 @@ set(SMS_COMPILE_FLAGS
 
     ${SMS_COMPILE_DEFINES}
 
-	-O1 -fno-inline -fno-exceptions 
+	-O1 -fno-exceptions 
     -fno-rtti -ffast-math -fpermissive
     -fdeclspec -fno-unwind-tables
     -nodefaultlibs -nobuiltininc -nostdinc++ -nostdlib

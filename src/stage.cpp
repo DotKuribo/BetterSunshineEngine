@@ -28,55 +28,55 @@ static TGlobalUnorderedMap<TGlobalString, Stage::ExitCallback> sStageExitCBs(64)
 
 Stage::TStageParams *Stage::TStageParams::sStageConfig = nullptr;
 
-SMS_NO_INLINE Stage::TStageParams *BetterSMS::Stage::getStageConfiguration() {
+BETTER_SMS_FOR_EXPORT Stage::TStageParams *BetterSMS::Stage::getStageConfiguration() {
     return TStageParams::sStageConfig;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::registerInitCallback(const char *name, InitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerInitCallback(const char *name, InitCallback cb) {
     if (sStageInitCBs.find(name) != sStageInitCBs.end())
         return false;
     sStageInitCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::registerUpdateCallback(const char *name, UpdateCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerUpdateCallback(const char *name, UpdateCallback cb) {
     if (sStageUpdateCBs.find(name) != sStageUpdateCBs.end())
         return false;
     sStageUpdateCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::registerDraw2DCallback(const char *name, Draw2DCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerDraw2DCallback(const char *name, Draw2DCallback cb) {
     if (sStageDrawCBs.find(name) != sStageDrawCBs.end())
         return false;
     sStageDrawCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::registerExitCallback(const char *name, ExitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExitCallback(const char *name, ExitCallback cb) {
     if (sStageExitCBs.find(name) != sStageExitCBs.end())
         return false;
     sStageExitCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE void BetterSMS::Stage::deregisterInitCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterInitCallback(const char *name) {
     sStageDrawCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Stage::deregisterUpdateCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterUpdateCallback(const char *name) {
     sStageDrawCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Stage::deregisterDraw2DCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterDraw2DCallback(const char *name) {
     sStageDrawCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Stage::deregisterExitCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterExitCallback(const char *name) {
     sStageExitCBs.erase(name);
 }
 
-SMS_NO_INLINE const char *BetterSMS::Stage::getStageName(u8 area, u8 episode) {
+BETTER_SMS_FOR_EXPORT const char *BetterSMS::Stage::getStageName(u8 area, u8 episode) {
     const auto *areaAry = gpApplication.mStageArchiveAry;
     if (!areaAry || area >= areaAry->mChildren.size())
         return nullptr;
@@ -91,13 +91,13 @@ SMS_NO_INLINE const char *BetterSMS::Stage::getStageName(u8 area, u8 episode) {
     return stageName.mArchiveName;
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::isDivingStage(u8 area, u8 episode) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::isDivingStage(u8 area, u8 episode) {
     Stage::TStageParams params;
     params.load(Stage::getStageName(area, episode));
     return params.mIsDivingStage.get();
 }
 
-SMS_NO_INLINE bool BetterSMS::Stage::isExStage(u8 area, u8 episode) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::isExStage(u8 area, u8 episode) {
     Stage::TStageParams params;
     params.load(Stage::getStageName(area, episode));
     return params.mIsExStage.get();
@@ -317,9 +317,10 @@ SMS_PATCH_B(SMS_PORT_REGION(0x802A8AE0, 0x802A0B88, 0, 0), isOptionMap);
 #pragma endregion
 
 // Extern to stage init
-void loadStageConfig(TMarDirector *) {
+BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
     Console::debugLog("Reseting stage params...\n");
 
+    delete Stage::TStageParams::sStageConfig;
     Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
 
     Stage::TStageParams *config = Stage::getStageConfiguration();
@@ -331,7 +332,7 @@ void loadStageConfig(TMarDirector *) {
 }
 
 // Extern to stage init
-void resetGlobalValues(TApplication *) {
+BETTER_SMS_FOR_CALLBACK void resetGlobalValues(TApplication *) {
     waterColor[0].set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
     waterColor[1].set(0xFE, 0xA8, 0x02, 0x6E);  // Yoshi Juice rgba
     waterColor[2].set(0x9B, 0x01, 0xFD, 0x6E);

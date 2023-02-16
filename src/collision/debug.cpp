@@ -10,7 +10,8 @@ static u8 sHomeID   = 0;
 static u8 sTargetID = 254;
 static TBGCheckData *sHomeTriangle;
 
-void updateDebugCollision(TMario *player, bool isMario) {
+#if 0
+BETTER_SMS_FOR_CALLBACK void updateDebugCollision(TMario *player, bool isMario) {
     if (!isMario)
         return;
 
@@ -45,3 +46,4 @@ void updateDebugCollision(TMario *player, bool isMario) {
 
     return;
 }
+#endif

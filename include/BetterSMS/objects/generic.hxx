@@ -2,9 +2,13 @@
 #include <JSystem/JAudio/JAISound.hxx>
 #include <SMS/MapObj/MapObjRail.hxx>
 
+#include "module.hxx"
+
 class TGenericRailObj : public TRailMapObj {
 public:
-    static JDrama::TNameRef *instantiate() { return new TGenericRailObj("GenericRailObj"); }
+    BETTER_SMS_FOR_CALLBACK static JDrama::TNameRef *instantiate() {
+        return new TGenericRailObj("GenericRailObj");
+    }
 
     TGenericRailObj(const char *name)
         : TRailMapObj(name), mSoundID(-1), mSoundStrength(1.0f), mContactAnim(false),

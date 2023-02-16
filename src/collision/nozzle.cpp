@@ -33,7 +33,8 @@ static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFl
     fludd->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 }
 
-void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data,
+                                                      u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -46,7 +47,8 @@ void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data, u32 flag
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data,
+                                                      u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -59,7 +61,8 @@ void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data, u32 flag
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data,
+                                                      u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -72,7 +75,8 @@ void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data, u32 flag
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data,
+                                                       u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -85,7 +89,8 @@ void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data, u32 fla
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleSpray(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleSpray(TMario *player, const TBGCheckData *data,
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
@@ -98,7 +103,8 @@ void changeNozzleSpray(TMario *player, const TBGCheckData *data, u32 flags) {
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleHover(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleHover(TMario *player, const TBGCheckData *data,
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
@@ -111,7 +117,8 @@ void changeNozzleHover(TMario *player, const TBGCheckData *data, u32 flags) {
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleTurbo(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleTurbo(TMario *player, const TBGCheckData *data,
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
@@ -124,7 +131,8 @@ void changeNozzleTurbo(TMario *player, const TBGCheckData *data, u32 flags) {
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-void changeNozzleRocket(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void changeNozzleRocket(TMario *player, const TBGCheckData *data,
+                                                u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))

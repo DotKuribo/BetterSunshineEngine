@@ -10,7 +10,7 @@
 
 extern FPSSetting gFPSSetting;
 
-void updateFPS(TMarDirector *director) {
+BETTER_SMS_FOR_CALLBACK void updateFPS(TMarDirector *director) {
     switch (gFPSSetting.getInt()) {
     case FPSSetting::FPS_30:
         gpApplication.mDisplay->mRetraceCount                                   = 2;

@@ -130,6 +130,7 @@ extern u32 MultiJumpState;
 extern void checkForMultiJump(TMario *, bool);
 extern bool processMultiJump(TMario *);
 extern void updateDeadTriggerState(TMario *player, bool isMario);
+extern void blazePlayer(TMario *player, bool isMario);
 
 // PLAYER STATE
 extern void updateClimbContext(TMario *, bool);
@@ -152,6 +153,7 @@ extern void antiGravityCol(TMario *player, const TBGCheckData *data, u32 flags);
 extern void boostPadCol(TMario *player, const TBGCheckData *data, u32 flags);
 extern void instantWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
 extern void screenWipeWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
+extern void instantScreenWipeWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
 extern void effectWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
 extern void portalWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
 extern void portalFreeWarpHandler(TMario *player, const TBGCheckData *data, u32 flags);
@@ -273,7 +275,10 @@ static void initLib() {
     Player::registerUpdateCallback("__update_mario_multijump", checkForMultiJump);
     Player::registerStateMachine(MultiJumpState, processMultiJump);
 
+    #if 0
     Player::registerUpdateCallback("__debug_warp_collision", updateDebugCollision);
+    #endif
+    Player::registerUpdateCallback("__blaze_player", blazePlayer);
 
     // Set up player map collisions
     Player::registerCollisionHandler(3000, decHealth);
@@ -294,8 +299,9 @@ static void initLib() {
     Player::registerCollisionHandler(3060, instantWarpHandler);
     Player::registerCollisionHandler(3061, screenWipeWarpHandler);
     Player::registerCollisionHandler(3062, effectWarpHandler);
-    Player::registerCollisionHandler(3063, portalWarpHandler);
-    Player::registerCollisionHandler(3064, portalFreeWarpHandler);
+    Player::registerCollisionHandler(3063, instantScreenWipeWarpHandler);
+    Player::registerCollisionHandler(3064, portalWarpHandler);
+    Player::registerCollisionHandler(3065, portalFreeWarpHandler);
 
     //// PLAYER STATE
     Player::registerUpdateCallback("__check_upwarp_climb", updateClimbContext);

@@ -26,7 +26,7 @@
 static u8 sLineBuffer[sizeof(String) * 64];
 static JKRSolidHeap sLineHeap(&sLineBuffer, 64, JKRHeap::sRootHeap, false);
 
-static SMS_NO_INLINE size_t getSplitLines(const char *str, String **out, size_t maxLines = __UINT32_MAX__) {
+static BETTER_SMS_FOR_EXPORT size_t getSplitLines(const char *str, String **out, size_t maxLines = __UINT32_MAX__) {
   String string(str, 1024);
 
   size_t nlinePos = string.find('\n', 0);

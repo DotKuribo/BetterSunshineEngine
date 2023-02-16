@@ -48,9 +48,9 @@ static void drawHeapUsage(JKRHeap *heap, f32 &maxUsage, JUtility::TColor color, 
     }
 }
 
-void resetMonitor(TApplication *app) { gCurrentHeapMaxUsage = 0.0f; }
+BETTER_SMS_FOR_CALLBACK void resetMonitor(TApplication *app) { gCurrentHeapMaxUsage = 0.0f; }
 
-void drawMonitor(TApplication *app, const J2DOrthoGraph *graph) {
+BETTER_SMS_FOR_CALLBACK void drawMonitor(TApplication *app, const J2DOrthoGraph *graph) {
     auto *systemHeap  = JKRHeap::sSystemHeap;
     auto *currentHeap = JKRHeap::sCurrentHeap;
     auto *rootHeap    = JKRHeap::sRootHeap;

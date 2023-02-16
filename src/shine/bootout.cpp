@@ -94,7 +94,7 @@ static void exitShineDemo(TMarDirector *director, TMario *mario, CPolarSubCamera
 }
 
 extern PromptsSetting gSavePromptSetting;
-static void restoreMario(TMarDirector *director, u32 nextState) {
+SMS_NO_INLINE static void restoreMario(TMarDirector *director, u32 nextState) {
     TShine *shine = director->mCollectedShine;
 
     if (!shine || !(shine->mType & 0x10))
@@ -178,10 +178,6 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80297BD8, 0x8028FA70, 0, 0), thinkSetBootFlag);
 static void thinkSetNextSequence(TGameSequence *sequence, u8 area, u8 episode,
                                  JDrama::TFlagT<u16> flag) {
     if (!(gpMarDirector->mCollectedShine->mType & 0x10)) {
-#if SMS_DEMO
-        area    = 1;
-        episode = 5;
-#endif
         sequence->set(area, episode, flag);
     }
 }

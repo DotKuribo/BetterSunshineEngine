@@ -21,7 +21,7 @@ static TGlobalUnorderedMap<TGlobalString, Game::DrawCallback> sGameDrawCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::ChangeCallback> sGameChangeCBs(32);
 
 // Register a function to be called on game init
-SMS_NO_INLINE bool BetterSMS::Game::registerInitCallback(const char *name, InitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerInitCallback(const char *name, InitCallback cb) {
     if (sGameInitCBs.find(name) != sGameInitCBs.end())
         return false;
     sGameInitCBs[name] = cb;
@@ -29,7 +29,7 @@ SMS_NO_INLINE bool BetterSMS::Game::registerInitCallback(const char *name, InitC
 }
 
 // Register a function to be called on game boot
-SMS_NO_INLINE bool BetterSMS::Game::registerBootCallback(const char *name, BootCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerBootCallback(const char *name, BootCallback cb) {
     if (sGameBootCBs.find(name) != sGameBootCBs.end())
         return false;
     sGameBootCBs[name] = cb;
@@ -37,7 +37,7 @@ SMS_NO_INLINE bool BetterSMS::Game::registerBootCallback(const char *name, BootC
 }
 
 // Register a function to be called every game loop
-SMS_NO_INLINE bool BetterSMS::Game::registerLoopCallback(const char *name, LoopCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerLoopCallback(const char *name, LoopCallback cb) {
     if (sGameLoopCBs.find(name) != sGameLoopCBs.end())
         return false;
     sGameLoopCBs[name] = cb;
@@ -45,7 +45,7 @@ SMS_NO_INLINE bool BetterSMS::Game::registerLoopCallback(const char *name, LoopC
 }
 
 // Register a function to be called after the game draws graphics
-SMS_NO_INLINE bool BetterSMS::Game::registerPostDrawCallback(const char *name, DrawCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerPostDrawCallback(const char *name, DrawCallback cb) {
     if (sGameDrawCBs.find(name) != sGameDrawCBs.end())
         return false;
     sGameDrawCBs[name] = cb;
@@ -53,30 +53,30 @@ SMS_NO_INLINE bool BetterSMS::Game::registerPostDrawCallback(const char *name, D
 }
 
 // Register a function to be called on game context change
-SMS_NO_INLINE bool BetterSMS::Game::registerChangeCallback(const char *name, ChangeCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerChangeCallback(const char *name, ChangeCallback cb) {
     if (sGameChangeCBs.find(name) != sGameChangeCBs.end())
         return false;
     sGameChangeCBs[name] = cb;
     return true;
 }
 
-SMS_NO_INLINE void BetterSMS::Game::deregisterInitCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterInitCallback(const char *name) {
     sGameInitCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Game::deregisterBootCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterBootCallback(const char *name) {
     sGameBootCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Game::deregisterLoopCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterLoopCallback(const char *name) {
     sGameLoopCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Game::deregisterPostDrawCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterPostDrawCallback(const char *name) {
     sGameDrawCBs.erase(name);
 }
 
-SMS_NO_INLINE void BetterSMS::Game::deregisterChangeCallback(const char *name) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterChangeCallback(const char *name) {
     sGameChangeCBs.erase(name);
 }
 

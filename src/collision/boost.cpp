@@ -11,7 +11,7 @@
 #include "logging.hxx"
 #include "player.hxx"
 
-void boostPadCol(TMario *player, const TBGCheckData *data, u32 flags) {
+BETTER_SMS_FOR_CALLBACK void boostPadCol(TMario *player, const TBGCheckData *data, u32 flags) {
     auto playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))

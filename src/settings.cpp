@@ -39,7 +39,7 @@
 #include "p_module.hxx"
 #include "p_settings.hxx"
 
-SMS_NO_INLINE const char *Settings::getGroupName(const Settings::SettingsGroup &group) {
+BETTER_SMS_FOR_EXPORT const char *Settings::getGroupName(const Settings::SettingsGroup &group) {
     if (!group.mModule)
         return "Super Mario Sunshine";
     return group.mModule->mName;
@@ -96,7 +96,7 @@ void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out) {
     }
 }
 
-void initAllSettings(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     sSunshineSettingsGroup.addSetting(&sRumbleSetting);
     sSunshineSettingsGroup.addSetting(&sSoundSetting);
     sSunshineSettingsGroup.addSetting(&sSubtitleSetting);
@@ -947,7 +947,7 @@ inline size_t setting_hash::operator()(BetterSMS::Settings::SingleSetting *v) co
 
 static TGlobalUnorderedMap<Settings::SingleSetting *, bool> sNewUnlockMap(256);
 
-void initUnlockedSettings(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
     sLastTime = 0;
 
     sUnlockedSettings.clear();
@@ -978,7 +978,8 @@ void initUnlockedSettings(TApplication *app) {
     sVisualState = 0;
 }
 
-void checkForUnlockedSettings(const Settings::SettingsGroup &group, TGlobalList<Settings::SingleSetting *> &out) {
+BETTER_SMS_FOR_CALLBACK void checkForUnlockedSettings(const Settings::SettingsGroup &group,
+                                                      TGlobalList<Settings::SingleSetting *> &out) {
     for (auto &setting : group.getSettings()) {
         if (sNewUnlockMap.find(setting) == sNewUnlockMap.end()) {
             sNewUnlockMap[setting] = setting->isUnlocked();
@@ -991,7 +992,7 @@ void checkForUnlockedSettings(const Settings::SettingsGroup &group, TGlobalList<
     }
 }
 
-void updateUnlockedSettings(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void updateUnlockedSettings(TApplication *app) {
     TGlobalList<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
@@ -1011,7 +1012,7 @@ void updateUnlockedSettings(TApplication *app) {
     }
 }
 
-void drawUnlockedSettings(TApplication *app, const J2DOrthoGraph *ortho) {
+BETTER_SMS_FOR_CALLBACK void drawUnlockedSettings(TApplication *app, const J2DOrthoGraph *ortho) {
     if (sUnlockedSettings.size() == 0)
         return;
 
@@ -1051,7 +1052,7 @@ void drawUnlockedSettings(TApplication *app, const J2DOrthoGraph *ortho) {
     }
 }
 
-void checkForCompletionAwards(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void checkForCompletionAwards(TApplication *app) {
     if (!TFlagManager::smInstance)
         return;
 

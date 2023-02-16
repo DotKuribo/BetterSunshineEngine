@@ -113,7 +113,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801B751C, 0x801AF3D4, 0, 0), 0x418200A4);
 
 // Remove save prompts
 extern PromptsSetting gSavePromptSetting;
-bool conditionalSavePrompt(TMarDirector *director, u8 nextState) {
+BETTER_SMS_FOR_CALLBACK bool conditionalSavePrompt(TMarDirector *director, u8 nextState) {
     switch (gSavePromptSetting.getInt()) {
     default:
     case PromptsSetting::ALL:

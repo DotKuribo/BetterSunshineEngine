@@ -21,7 +21,7 @@
 using namespace BetterSMS;
 
 // Name of the song to play, e.g. "BeachTheme"
-SMS_NO_INLINE bool BetterSMS::Music::queueSong(const char *name) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Music::queueSong(const char *name) {
     auto *streamer           = AudioStreamer::getInstance();
     AudioStreamer::AudioPacket packet = AudioStreamer::AudioPacket(name);
 
@@ -29,43 +29,43 @@ SMS_NO_INLINE bool BetterSMS::Music::queueSong(const char *name) {
 }
 
 // Play a paused/queued song
-SMS_NO_INLINE void BetterSMS::Music::playSong() {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::playSong() {
     auto *streamer = AudioStreamer::getInstance();
     streamer->play();
 }
 
 // Pause song, fading out by `fadeTime` seconds
-SMS_NO_INLINE void BetterSMS::Music::pauseSong(f32 fadeTime) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::pauseSong(f32 fadeTime) {
     auto *streamer = AudioStreamer::getInstance();
     return streamer->pause(fadeTime);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::stopSong(f32 fadeTime) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::stopSong(f32 fadeTime) {
     auto *streamer = AudioStreamer::getInstance();
-    return streamer->stop(fadeTime);
+    return streamer->next(fadeTime);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::skipSong(f32 fadeTime) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::skipSong(f32 fadeTime) {
     auto *streamer = AudioStreamer::getInstance();
     return streamer->skip(fadeTime);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::setVolume(u8 left, u8 right) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setVolume(u8 left, u8 right) {
     auto *streamer = AudioStreamer::getInstance();
     streamer->setVolumeLR(left, right);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::setVolumeFade(u8 dstVolume, f32 seconds) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setVolumeFade(u8 dstVolume, f32 seconds) {
     auto *streamer = AudioStreamer::getInstance();
     streamer->setVolumeFadeTo(dstVolume, seconds);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::setMaxVolume(u8 max) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setMaxVolume(u8 max) {
     auto *streamer = AudioStreamer::getInstance();
     streamer->setFullVolumeLR(max, max);
 }
 
-SMS_NO_INLINE void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
     auto *streamer            = AudioStreamer::getInstance();
     AudioStreamer::AudioPacket &packet = streamer->getCurrentAudio();
 
@@ -220,7 +220,7 @@ Music::AudioStreamer::AudioStreamer(void *(*mainLoop)(void *), OSPriority priori
 }
 
 Music::AudioStreamer::~AudioStreamer() {
-    JKRHeap::sRootHeap->free(mAudioStack);
+    JKRHeap::sSystemHeap->free(mAudioStack);
     OSCancelAlarm(&mVolumeFadeAlarm);
     OSCancelThread(&mMainThread);
 
@@ -230,7 +230,8 @@ Music::AudioStreamer::~AudioStreamer() {
 }
 
 void Music::AudioStreamer::initThread(OSPriority threadPrio) {
-    mAudioStack = static_cast<u8 *>(JKRHeap::sRootHeap->alloc(AudioStackSize, 32));
+    JKRHeap *heap = JKRHeap::sSystemHeap;
+    mAudioStack = static_cast<u8 *>(heap->alloc(AudioStackSize, 32));
     OSInitMessageQueue(&mMessageQueue, mMessageList, AudioMessageQueueSize);
     OSCreateAlarm(&mVolumeFadeAlarm);
     OSSetPeriodicAlarm(&mVolumeFadeAlarm, OSGetTime(), OSMillisecondsToTicks(1), volumeAlarm);
@@ -853,7 +854,7 @@ static void stopMusicOnGameOver(u32 musicID) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802988B0, 0x80290748, 0, 0), stopMusicOnGameOver);
 
-void stopMusicOnExitStage(TApplication *app) {
+BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         auto *streamer = Music::AudioStreamer::getInstance();
         streamer->next(0.2f);

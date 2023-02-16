@@ -41,7 +41,7 @@ static TGlobalUnorderedMap<TGlobalString, Player::UpdateCallback> sPlayerUpdater
 static TGlobalUnorderedMap<u32, Player::MachineCallback> sPlayerStateMachines(32);
 static TGlobalUnorderedMap<u16, Player::CollisionCallback> sPlayerCollisionHandlers(32);
 
-SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
+BETTER_SMS_FOR_EXPORT Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto &dataDict = sPlayerDict[player];
     auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict["__better_sms"]);
 
@@ -53,7 +53,7 @@ SMS_NO_INLINE Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     return data;
 }
 
-SMS_NO_INLINE void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
+BETTER_SMS_FOR_EXPORT void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
 
     auto &dataDict = sPlayerDict[player];
     auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict[key]);
@@ -67,7 +67,7 @@ SMS_NO_INLINE void *BetterSMS::Player::getRegisteredData(TMario *player, const c
 }
 
 // Register arbitrary module data for a player
-SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
     auto &dataDict = sPlayerDict[player];
     if (dataDict.find(key) != dataDict.end())
         return false;
@@ -75,26 +75,26 @@ SMS_NO_INLINE bool BetterSMS::Player::registerData(TMario *player, const char *k
     return true;
 }
 
-SMS_NO_INLINE void BetterSMS::Player::deregisterData(TMario *player, const char *key) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, const char *key) {
     auto &dataDict = sPlayerDict[player];
     dataDict.erase(key);
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerInitCallback(const char *key, InitCallback process) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerInitCallback(const char *key, InitCallback process) {
     if (sPlayerInitializers.find(key) != sPlayerInitializers.end())
         return false;
     sPlayerInitializers[key] = process;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerLoadAfterCallback(const char *key, LoadAfterCallback process) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerLoadAfterCallback(const char *key, LoadAfterCallback process) {
     if (sPlayerLoadAfterCBs.find(key) != sPlayerLoadAfterCBs.end())
         return false;
     sPlayerLoadAfterCBs[key] = process;
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerUpdateCallback(const char *key,
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerUpdateCallback(const char *key,
                                                             UpdateCallback process) {
     if (sPlayerUpdaters.find(key) != sPlayerUpdaters.end())
         return false;
@@ -102,7 +102,7 @@ SMS_NO_INLINE bool BetterSMS::Player::registerUpdateCallback(const char *key,
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachineCallback process) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerStateMachine(u32 state, MachineCallback process) {
     if ((state & 0x1C0) != 0x1C0) {
         Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
                      "engine collisions)!\n");
@@ -113,7 +113,7 @@ SMS_NO_INLINE bool BetterSMS::Player::registerStateMachine(u32 state, MachineCal
     return true;
 }
 
-SMS_NO_INLINE bool BetterSMS::Player::registerCollisionHandler(u16 colType,
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerCollisionHandler(u16 colType,
                                                                CollisionCallback process) {
     if ((colType & 0xC000) != 0) {
         Console::log("[WARNING] Collision type registered has camera clip and shadow flags set "
@@ -125,23 +125,23 @@ SMS_NO_INLINE bool BetterSMS::Player::registerCollisionHandler(u16 colType,
     return true;
 }
 
-SMS_NO_INLINE void BetterSMS::Player::deregisterInitCallback(const char *key) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterInitCallback(const char *key) {
     sPlayerInitializers.erase(key);
 }
 
-SMS_NO_INLINE void BetterSMS::Player::deregisterLoadAfterCallback(const char *key) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterLoadAfterCallback(const char *key) {
     sPlayerLoadAfterCBs.erase(key);
 }
 
-SMS_NO_INLINE void BetterSMS::Player::deregisterUpdateCallback(const char *key) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterUpdateCallback(const char *key) {
     sPlayerUpdaters.erase(key);
 }
 
-SMS_NO_INLINE void BetterSMS::Player::deregisterStateMachine(u32 state) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterStateMachine(u32 state) {
     sPlayerStateMachines.erase(state);
 }
 
-SMS_NO_INLINE void BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
     sPlayerCollisionHandlers.erase(colType);
 }
 
@@ -168,7 +168,7 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
     gpCamera->JSGSetViewTargetPosition(reinterpret_cast<const Vec &>(point));
 }
 
-SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player,
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player,
                                                           const TBGCheckData *colTriangle,
                                                           bool isFluid) {
     constexpr s32 DisableMovementTime = 80;
@@ -232,7 +232,7 @@ SMS_NO_INLINE void BetterSMS::Player::warpToCollisionFace(TMario *player,
 #undef EXPAND_WARP_CATEGORY
 }
 
-SMS_NO_INLINE void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &destPoint,
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &destPoint,
                                                   WarpKind kind, s32 framesToWarp,
                                                   bool isWarpFluid) {
     if (!player)
@@ -249,7 +249,7 @@ SMS_NO_INLINE void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &
     }
 }
 
-SMS_NO_INLINE void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
                                                              CPolarSubCamera *camera, Vec2 dir,
                                                              f32 lerp_) {
     player->mAngle.y = lerp<f32>(
@@ -262,7 +262,7 @@ SMS_NO_INLINE void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
 static constexpr s32 MaxFireDamageTime = 300;
 static constexpr s32 MaxFireTime       = MaxFireDamageTime * 3;
 
-SMS_NO_INLINE void BetterSMS::Player::setFire(TMario *player) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::setFire(TMario *player) {
     auto playerData = Player::getData(player);
 
     if (playerData->mIsOnFire) {
@@ -273,10 +273,9 @@ SMS_NO_INLINE void BetterSMS::Player::setFire(TMario *player) {
     playerData->mIsOnFire     = true;
     playerData->mFireTimer    = 0;
     playerData->mFireTimerMax = MaxFireTime;
-    player->changePlayerStatus(0x80000588, 0, false);
 }
 
-SMS_NO_INLINE void BetterSMS::Player::extinguishFire(TMario *player, bool expired) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Player::extinguishFire(TMario *player, bool expired) {
     auto playerData = Player::getData(player);
 
     if (playerData->mIsOnFire && !expired)
@@ -287,9 +286,13 @@ SMS_NO_INLINE void BetterSMS::Player::extinguishFire(TMario *player, bool expire
     playerData->mFireTimer = 0;
 }
 
-// Externed to player update process
-void blazePlayer(TMario *player) {
+BETTER_SMS_FOR_CALLBACK void blazePlayer(TMario *player, bool isMario) {
+    if (!isMario)
+        return;
+
     auto playerData = Player::getData(player);
+    if (!playerData->mIsOnFire)
+        return;
 
     const f32 fireScale = 3.0f - (static_cast<f32>(playerData->mFireTimer) / MaxFireTime) * 2.0f;
 
@@ -732,7 +735,7 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
 }
 
 // Extern to Player Init CB
-void initMario(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
     Stage::TStageParams *config = Stage::getStageConfiguration();
 
     Player::TPlayerData *params = new Player::TPlayerData(player, nullptr, isMario);
@@ -771,7 +774,7 @@ void initMario(TMario *player, bool isMario) {
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 }
 
-void resetPlayerDatas(TApplication *application) {
+BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) {
     sPlayerDict.empty();
 }
 
