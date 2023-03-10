@@ -423,10 +423,8 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
     mCollisionFlags.mIsFaceUsed      = false;
     mCollisionFlags.mIsSpinBounce    = false;
 
-    if (isMario && loadPrm("/sme.prm")) {
-        Console::debugLog("Custom character params loaded!\n");
-    } else {
-        Console::debugLog("Default character params loaded!\n");
+    if (isMario) {
+        loadPrm("/sme.prm");
     }
 
     mCanUseFludd = mParams->mCanUseFludd.get();
@@ -438,14 +436,12 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
 }
 
 void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
-    scale = Max(scale, 0.0f);
+    scale = Max(scale, 0.1f);
 
-    TVec3f size(1.0f, 1.0f, 1.0f);
+    TVec3f size = {1.0f, 1.0f, 1.0f};
     size.scale(scale);
 
-    mPlayer->JSGSetScaling(reinterpret_cast<Vec &>(size));
-    if (mPlayer->mModelData)
-        mPlayer->mModelData->mModel->mBaseScale = size;
+    mPlayer->mModelData->mModel->mBaseScale = mPlayer->mScale;
 
     mDefaultAttrs.applyHistoryTo(getPlayer());
 
@@ -857,6 +853,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802500B8, 0, 0, 0), stateMachineHandler);
 static u32 collisionHandler(TMario *player) {
     auto *playerData = Player::getData(player);
 
+    if ((player->mState != static_cast<u32>(TMario::STATE_JUMPSPINR) &&
+         player->mState != static_cast<u32>(TMario::STATE_JUMPSPINL)))
+        playerData->mCollisionFlags.mIsSpinBounce = false;
+
     const u16 colType = player->mFloorTriangle->mType & 0xFFF;
     const u16 prevColType = playerData->mPrevCollisionType & 0xFFF;
 
@@ -895,8 +895,6 @@ static u32 collisionHandler(TMario *player) {
                 item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                                   marioFlags);
         }
-    } else {
-        playerData->mWarpState = 0xFF;
     }
 
     TSMSFader *fader = gpApplication.mFader;

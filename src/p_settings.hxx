@@ -12,19 +12,22 @@
 #include <SMS/GC2D/SelectGrad.hxx>
 #include <SMS/MarioUtil/DrawUtil.hxx>
 #include <SMS/MarioUtil/gd-reinit-gx.hxx>
+#include <SMS/System/CardManager.hxx>
 #include <SMS/System/Resolution.hxx>
 
 #include "libs/anim2d.hxx"
 #include "libs/container.hxx"
-#include "libs/global_list.hxx"
+#include "libs/global_vector.hxx"
 #include "settings.hxx"
 #include "module.hxx"
 #include "p_icons.hxx"
 
 using namespace BetterSMS;
 
-s32 MountCard(const s32 channel);
-s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFileInfo &infoOut);
+void InitCard();
+s32 MountCard();
+s32 UnmountCard();
+s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut);
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo);
@@ -413,7 +416,7 @@ static const u8 *sLoadingIconTIMGs[] = {
     gShineSpriteIconFrame16
 };
 
-void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out);
+void getSettingsGroups(TGlobalVector<Settings::SettingsGroup *> &out);
 
 inline int getTextWidth(J2DTextBox *textbox) {
     const size_t textLength = strlen(textbox->mStrPtr);
@@ -444,7 +447,7 @@ struct SettingInfo {
 struct GroupInfo {
     J2DPane *mGroupPane;
     Settings::SettingsGroup *mSettingGroup;
-    TGlobalList<SettingInfo *> mSettingInfos;
+    JGadget::TVector<SettingInfo *> mSettingInfos;
 };
 
 class SettingsScreen;
@@ -658,7 +661,7 @@ private:
     GroupInfo *mCurrentGroupInfo;
     SettingInfo *mCurrentSettingInfo;
     SimpleTexAnimator mShineAnimator;
-    TGlobalList<GroupInfo *> mGroups;
+    TGlobalVector<GroupInfo *> mGroups;
 };
 
 class SaveErrorPanel : public JDrama::TViewObj {

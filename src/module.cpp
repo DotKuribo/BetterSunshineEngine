@@ -122,9 +122,13 @@ extern void updateDeadTriggerState(TMario *player, bool isMario);
 extern void blazePlayer(TMario *player, bool isMario);
 
 // PLAYER STATE
+extern void updateCollisionContext(TMario *, bool);
 extern void updateClimbContext(TMario *, bool);
 
 // PLAYER COLLISION
+extern void initializeWarpCallback(TMario *, bool);
+extern void processWarpCallback(TMario *, bool);
+
 extern void decHealth(TMario *player, const TBGCheckData *data, u32 flags);
 extern void incHealth(TMario *player, const TBGCheckData *data, u32 flags);
 extern void elecPlayer(TMario *player, const TBGCheckData *data, u32 flags);
@@ -173,38 +177,6 @@ extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 extern "C" void __cxa_pure_virtual();
 
 static void initLib() {
-
-#define STRINGIFY_CONFIG(c) " " #c " = " SMS_STRINGIZE(c) "\n"
-
-    // clang-format off
-    Console::log("==== BetterSunshineEngine Config ====\n"
-                 STRINGIFY_CONFIG(BETTER_SMS_CRASHFIXES)
-                 STRINGIFY_CONFIG(BETTER_SMS_BUGFIXES)
-                 STRINGIFY_CONFIG(BETTER_SMS_NO_DOWNWARP)
-                 STRINGIFY_CONFIG(BETTER_SMS_YOSHI_SAVE_NOZZLES)
-                 STRINGIFY_CONFIG(BETTER_SMS_CUSTOM_MUSIC)
-                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_SHINES)
-                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_OBJECTS)
-                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_COLLISION)
-                 STRINGIFY_CONFIG(BETTER_SMS_EXTRA_BMG_COMMANDS)
-                 STRINGIFY_CONFIG(BETTER_SMS_EXTENDED_RENDER_DISTANCE)
-                 STRINGIFY_CONFIG(BETTER_SMS_SWAP_LZ_BUTTONS)
-                 STRINGIFY_CONFIG(BETTER_SMS_LONG_JUMP)
-                 STRINGIFY_CONFIG(BETTER_SMS_MULTI_JUMP)
-                 STRINGIFY_CONFIG(BETTER_SMS_HOVER_BURST)
-                 STRINGIFY_CONFIG(BETTER_SMS_HOVER_SLIDE)
-                 STRINGIFY_CONFIG(BETTER_SMS_ROCKET_DIVE)
-                 STRINGIFY_CONFIG(BETTER_SMS_GREEN_YOSHI)
-                 STRINGIFY_CONFIG(BETTER_SMS_UNDERWATER_FRUIT)
-                 STRINGIFY_CONFIG(BETTER_SMS_SLOT_B_SUPPORT)
-                 STRINGIFY_CONFIG(BETTER_SMS_SHADOW_MARIO_HEALTHBAR)
-                 STRINGIFY_CONFIG(BETTER_SMS_DYNAMIC_FALL_DAMAGE)
-                 STRINGIFY_CONFIG(BETTER_SMS_EXCEPTION_HANDLER)
-                 "=====================================\n");
-    // clang-format on
-
-#undef STRINGIFY_CONFIG
-
     makeExtendedObjDataTable();
     initLoadingScreen();
 
@@ -218,6 +190,7 @@ static void initLib() {
     sSettingsGroup.addSetting(&gCameraInvertXSetting);
     sSettingsGroup.addSetting(&gCameraInvertYSetting);
     sSettingsGroup.addSetting(&gSavePromptSetting);
+
     {
         auto &saveInfo        = sSettingsGroup.getSaveInfo();
         saveInfo.mSaveName    = Settings::getGroupName(sSettingsGroup);
@@ -232,6 +205,7 @@ static void initLib() {
         saveInfo.mIconTable   = GetResourceTextureHeader(gSaveIcon);
         saveInfo.mSaveGlobal  = true;
     }
+
     BetterSMS::registerModule(&sBetterSMSInfo);
 
     //
@@ -262,18 +236,20 @@ static void initLib() {
     #endif
 
     // Set up player map collisions
+    Player::registerInitCallback("__init_warp_callback", initializeWarpCallback);
+    Player::registerUpdateCallback("__proc_warp_callback", processWarpCallback);
     Player::registerCollisionHandler(3000, decHealth);
     Player::registerCollisionHandler(3001, incHealth);
     Player::registerCollisionHandler(3010, elecPlayer);
     Player::registerCollisionHandler(3011, burnPlayer);
-    Player::registerCollisionHandler(3030, changeNozzleSprayOnTouch);
-    Player::registerCollisionHandler(3031, changeNozzleHoverOnTouch);
-    Player::registerCollisionHandler(3032, changeNozzleTurboOnTouch);
-    Player::registerCollisionHandler(3033, changeNozzleRocketOnTouch);
-    Player::registerCollisionHandler(3035, changeNozzleSpray);
-    Player::registerCollisionHandler(3036, changeNozzleHover);
-    Player::registerCollisionHandler(3037, changeNozzleTurbo);
-    Player::registerCollisionHandler(3038, changeNozzleRocket);
+    Player::registerCollisionHandler(3030, changeNozzleSpray);
+    Player::registerCollisionHandler(3031, changeNozzleHover);
+    Player::registerCollisionHandler(3032, changeNozzleTurbo);
+    Player::registerCollisionHandler(3033, changeNozzleRocket);
+    Player::registerCollisionHandler(3035, changeNozzleSprayOnTouch);
+    Player::registerCollisionHandler(3036, changeNozzleHoverOnTouch);
+    Player::registerCollisionHandler(3037, changeNozzleTurboOnTouch);
+    Player::registerCollisionHandler(3038, changeNozzleRocketOnTouch);
     Player::registerCollisionHandler(3040, setGravityCol);
     Player::registerCollisionHandler(3041, antiGravityCol);
     Player::registerCollisionHandler(3042, boostPadCol);
@@ -285,6 +261,7 @@ static void initLib() {
     Player::registerCollisionHandler(3065, portalFreeWarpHandler);
 
     //// PLAYER STATE
+    //Player::registerUpdateCallback("__update_collision_context", updateCollisionContext);
     Player::registerUpdateCallback("__check_upwarp_climb", updateClimbContext);
 
     //// YOSHI
@@ -295,6 +272,7 @@ static void initLib() {
     Player::registerUpdateCallback("__check_for_xyz", checkMarioXYZMode);
     Player::registerUpdateCallback("__update_dead_trigger", updateDeadTriggerState);
     Player::registerStateMachine(XYZState, updateMarioXYZMode);
+
     Debug::registerUpdateCallback("__update_fludd_nozzle", updateFluddNozzle);
 
     Debug::registerDrawCallback("__draw_memory_usage", drawMonitor);
@@ -310,8 +288,8 @@ static void initLib() {
 
     // Music
     Game::registerChangeCallback("__stop_music_on_exit", stopMusicOnExitStage);
-    /*Debug::registerInitCallback("__init_music_state", initStreamInfo);
-    Debug::registerDrawCallback("__draw_music_state", printStreamInfo);*/
+    Debug::registerInitCallback("__init_music_state", initStreamInfo);
+    Debug::registerDrawCallback("__draw_music_state", printStreamInfo);
 
     Objects::registerObjectAsMapObj("GenericRailObj", &generic_railobj_data,
                                     TGenericRailObj::instantiate);

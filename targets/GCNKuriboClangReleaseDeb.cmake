@@ -20,13 +20,14 @@ set(CMAKE_EXE_LINKER_FLAGS_INIT "-fuse-ld=lld -T ${PROJECT_SOURCE_DIR}/linker.ld
 set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=lld -T ${PROJECT_SOURCE_DIR}/linker.ld")
 set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=lld -T ${PROJECT_SOURCE_DIR}/linker.ld")
 
+
 set(CMAKE_CXX_STANDARD_LIBRARIES "")
 
 set(SMS_REGION us)
 
 set(SMS_COMPILE_DEFINES
-    -D__powerpc__ -DKURIBO_NO_TYPES -DNTSCU -DSMS_DEBUG=1
-    -DGEKKO -D_GLIBCXX_HAVE_WCHAR_H -D__ISO_C_VISIBLE=2000
+    -D__powerpc__ -DKURIBO_NO_TYPES
+    -DGEKKO -DNTSCU -DSMS_DEBUG
 )
 
 set(SMS_COMPILE_FLAGS
@@ -35,6 +36,7 @@ set(SMS_COMPILE_FLAGS
 
     ${SMS_COMPILE_DEFINES}
 
+    #-fno-inline
 	-Os -fno-exceptions 
     -fno-rtti -ffast-math -fpermissive
     -fdeclspec -fno-unwind-tables

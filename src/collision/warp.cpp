@@ -6,6 +6,7 @@
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 
+#include "libs/global_unordered_map.hxx"
 #include "libs/triangle.hxx"
 #include "logging.hxx"
 #include "player.hxx"
@@ -337,63 +338,53 @@ static void redirectPlayerWithNormal(TMario *player, const TVec3f &normal, f32 m
         player->changePlayerStatus(TMario::STATE_FALL, 0, false);
 }
 
+struct WarpCallbackInfo {
+    const TBGCheckData *source;
+    const TBGCheckData *dest;
+    void (*callback)(TMario *, const TBGCheckData *, const TBGCheckData *);
+};
+
+static TGlobalUnorderedMap<TMario *, WarpCallbackInfo> sCallbackMap(4);
+
+static void defaultWarpCallback(TMario *player, const TBGCheckData *src, const TBGCheckData *dst) {}
+
+BETTER_SMS_FOR_CALLBACK void initializeWarpCallback(TMario *player, bool isMario) {
+    sCallbackMap[player] = {player->mFloorTriangle, nullptr, defaultWarpCallback};
+}
+
+BETTER_SMS_FOR_CALLBACK void processWarpCallback(TMario *player, bool isMario) {
+    auto callbackInfo = sCallbackMap[player];
+    callbackInfo.callback(player, callbackInfo.source, callbackInfo.dest);
+}
+
 BETTER_SMS_FOR_CALLBACK void instantWarpHandler(TMario *player, const TBGCheckData *data,
                                                 u32 flags) {
     auto *playerData = Player::getData(player);
 
-    if ((flags & Player::InteractionFlags::ON_ENTER) ||
-        (flags & Player::InteractionFlags::ON_CONTACT)) {
-        if (playerData->mWarpState == 0xFF)
-            playerData->mIsWarpActive = true;
-        playerData->mWarpState    = 0;
+    if (((flags & Player::InteractionFlags::ON_ENTER) ||
+         (flags & Player::InteractionFlags::ON_CONTACT)) &&
+        (flags & Player::InteractionFlags::GROUNDED)) {
+        if (playerData->mWarpState == 0xFF) {
+            const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
+            if (!linkedCol)
+                return;
+
+            TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1],
+                                     linkedCol->mVertices[2]);
+
+            TVec3f center;
+            triangle.center(center);
+
+            warpPlayerToPoint(player, center);
+            playerData->mWarpState          = 0xFF;
+            playerData->mPrevCollisionFloor = player->mFloorTriangle;
+            playerData->mPrevCollisionType  = player->mFloorTriangle->mType;
+        }
     }
-
-    if ((flags & Player::InteractionFlags::ON_EXIT) ||
-        (flags & Player::InteractionFlags::ON_DETACH)) {
-        playerData->mIsWarpActive = false;
-    }
-
-    if (!playerData->mIsWarpActive)
-        return;
-
-    const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
-    if (!linkedCol)
-        return;
-
-    TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
-
-    TVec3f center;
-    triangle.center(center);
-
-    warpPlayerToPoint(player, center);
-    playerData->mIsWarpActive = false;
 }
 
-BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
-                           u32 flags) {
+static void internalWipeWarpHandler(TMario *player, const TBGCheckData *src, const TBGCheckData *dst) {
     auto *playerData = Player::getData(player);
-
-    if ((flags & Player::InteractionFlags::ON_ENTER) ||
-         (flags & Player::InteractionFlags::ON_CONTACT)) {
-        if (playerData->mWarpState == 0xFF)
-            playerData->mIsWarpActive = true;
-        playerData->mWarpState    = 0;
-    }
-
-    if ((flags & Player::InteractionFlags::ON_EXIT) ||
-        (flags & Player::InteractionFlags::ON_DETACH)) {
-        playerData->mIsWarpActive = false;
-    }
-
-    if (!playerData->mIsWarpActive)
-        return;
-
-    if (PSVECMag(player->mSpeed) > 1.0f || !(flags & Player::InteractionFlags::GROUNDED))
-        return;
-
-    const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
-    if (!linkedCol)
-        return;
 
     constexpr s32 DisableMovementTime = 80;
     constexpr s32 EnableMovementTime  = 60;
@@ -401,7 +392,7 @@ BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGChec
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
+        TVectorTriangle triangle(dst->mVertices[0], dst->mVertices[1], dst->mVertices[2]);
         triangle.center(center);
     }
 
@@ -413,6 +404,7 @@ BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGChec
         if (playerData->mWarpTimer > DisableMovementTime) {
             playerData->mCollisionFlags.mIsDisableInput = true;
             player->mController->mState.mReadInput      = false;
+            player->mController->mState.mDisable        = true;
 
             playerData->mWarpTimer = 0;
             playerData->mWarpState = 1;
@@ -437,10 +429,12 @@ BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGChec
         if (playerData->mWarpTimer > EnableMovementTime) {
             playerData->mCollisionFlags.mIsDisableInput = false;
             player->mController->mState.mReadInput      = true;
+            player->mController->mState.mDisable        = false;
 
             playerData->mWarpTimer    = -1;
-            playerData->mWarpState = 0xFF;
+            playerData->mWarpState    = 0xFF;
             playerData->mIsWarpActive = false;
+            sCallbackMap[player]      = {player->mFloorTriangle, nullptr, defaultWarpCallback};
         }
         break;
     }
@@ -449,48 +443,63 @@ BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGChec
     }
 }
 
-BETTER_SMS_FOR_CALLBACK void instantScreenWipeWarpHandler(TMario *player, const TBGCheckData *data,
-                                                          u32 flags) {
-    screenWipeWarpHandler(player, data, flags);
-
+BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
+                           u32 flags) {
     auto *playerData = Player::getData(player);
-    if (playerData->mIsWarpActive && playerData->mWarpState == 0)
-        playerData->mWarpTimer = 81;
+
+    if (((flags & Player::InteractionFlags::ON_ENTER) ||
+         (flags & Player::InteractionFlags::ON_CONTACT)) && (flags & Player::InteractionFlags::GROUNDED)) {
+        if (playerData->mWarpState == 0xFF) {
+            if (PSVECMag(player->mSpeed) > 1.0f || !(flags & Player::InteractionFlags::GROUNDED))
+                return;
+
+            const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
+            if (!linkedCol)
+                return;
+
+            sCallbackMap[player] = {player->mFloorTriangle, linkedCol, internalWipeWarpHandler};
+            playerData->mIsWarpActive = true;
+            playerData->mWarpState    = 0;
+        }
+    }
 }
 
-BETTER_SMS_FOR_CALLBACK void effectWarpHandler(TMario *player, const TBGCheckData *data,
-                                               u32 flags) {
+BETTER_SMS_FOR_CALLBACK void instantScreenWipeWarpHandler(TMario *player, const TBGCheckData *data,
+                                                          u32 flags) {
     auto *playerData = Player::getData(player);
 
-    if ((flags & Player::InteractionFlags::ON_ENTER) ||
-        (flags & Player::InteractionFlags::ON_CONTACT)) {
-        if (playerData->mWarpState == 0xFF)
+    if (!(flags & Player::InteractionFlags::GROUNDED)) {
+        return;
+    }
+
+    if ((flags & Player::InteractionFlags::ON_ENTER) || (flags & Player::InteractionFlags::ON_CONTACT)) {
+        if (playerData->mWarpState == 0xFF) {
+            const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
+            if (!linkedCol)
+                return;
+
+            sCallbackMap[player] = {player->mFloorTriangle, linkedCol, internalWipeWarpHandler};
             playerData->mIsWarpActive = true;
-        playerData->mWarpState    = 0;
+            playerData->mWarpState = 0;
+            playerData->mWarpTimer = 81;
+        }
     }
+}
 
-    if ((flags & Player::InteractionFlags::ON_EXIT) ||
-        (flags & Player::InteractionFlags::ON_DETACH)) {
-        playerData->mIsWarpActive = false;
-    }
-
-    if (!playerData->mIsWarpActive)
-        return;
-
-    if (PSVECMag(player->mSpeed) > 1.0f || !(flags & Player::InteractionFlags::GROUNDED))
-        return;
-
-    const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
-    if (!linkedCol)
-        return;
-
+static void internalEffectWarpHandler(TMario* player, const TBGCheckData* src,
+    const TBGCheckData* dst) {
     constexpr s32 DisableMovementTime = 80;
     constexpr s32 TeleportTime        = 60;
     constexpr s32 EnableMovementTime  = 60;
 
+    if (PSVECMag(player->mSpeed) > 1.0f)
+        return;
+
+    auto *playerData                  = Player::getData(player);
+
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
+        TVectorTriangle triangle(dst->mVertices[0], dst->mVertices[1], dst->mVertices[2]);
         triangle.center(center);
     }
 
@@ -500,6 +509,7 @@ BETTER_SMS_FOR_CALLBACK void effectWarpHandler(TMario *player, const TBGCheckDat
         if (playerData->mWarpTimer > DisableMovementTime) {
             playerData->mCollisionFlags.mIsDisableInput = true;
             player->mController->mState.mReadInput      = false;
+            player->mController->mState.mDisable        = true;
 
             playerData->mWarpTimer = 0;
             playerData->mWarpState = 1;
@@ -523,15 +533,36 @@ BETTER_SMS_FOR_CALLBACK void effectWarpHandler(TMario *player, const TBGCheckDat
         if (playerData->mWarpTimer >= EnableMovementTime) {
             playerData->mCollisionFlags.mIsDisableInput = false;
             player->mController->mState.mReadInput      = true;
+            player->mController->mState.mDisable        = false;
 
             playerData->mWarpTimer    = -1;
-            playerData->mWarpState = 0xFF;
+            playerData->mWarpState    = 0xFF;
             playerData->mIsWarpActive = false;
+            sCallbackMap[player]      = {player->mFloorTriangle, nullptr, defaultWarpCallback};
         }
         break;
     }
     default:
         break;
+    }
+}
+
+BETTER_SMS_FOR_CALLBACK void effectWarpHandler(TMario *player, const TBGCheckData *data,
+                                               u32 flags) {
+    auto *playerData = Player::getData(player);
+
+    if (((flags & Player::InteractionFlags::ON_ENTER) ||
+         (flags & Player::InteractionFlags::ON_CONTACT)) &&
+        (flags & Player::InteractionFlags::GROUNDED)) {
+        if (playerData->mWarpState == 0xFF) {
+            const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
+            if (!linkedCol)
+                return;
+
+            sCallbackMap[player] = {player->mFloorTriangle, linkedCol, internalEffectWarpHandler};
+            playerData->mIsWarpActive = true;
+            playerData->mWarpState    = 0;
+        }
     }
 }
 

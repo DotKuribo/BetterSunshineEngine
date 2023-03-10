@@ -38,7 +38,10 @@ static void resetValuesOnStateChange(TMario *player) {
 
     if (playerData->mCollisionFlags.mIsDisableInput)
         // Patches pausing/map escaping the controller lock
+    {
         player->mController->mState.mReadInput = false;
+        player->mController->mState.mDisable   = true;
+    }
 }
 
 static void resetValuesOnGroundContact(TMario *player) {
@@ -113,7 +116,7 @@ using namespace BetterSMS;
 //SMS_WRITE_32(SMS_PORT_REGION(0x802596C0, 0x8025144C, 0, 0), 0x60000000);
 
 // extern -> generic.cpp
-void updateCollisionContext(TMario *player) {
+void updateCollisionContext(TMario *player, bool isMario) {
     constexpr s16 CrushTimeToDie = 0;
 
     auto playerData = Player::getData(player);
@@ -124,11 +127,11 @@ void updateCollisionContext(TMario *player) {
     resetValuesOnCollisionChange(player);
 
     if (!Collision::TCollisionLink::isValidWarpCol(player->mFloorTriangle)) {
-        if (playerData->mIsWarpActive) {
+        /*if (playerData->mIsWarpActive) {
             player->mController->mState.mReadInput      = true;
             playerData->mCollisionFlags.mIsDisableInput = false;
             playerData->mIsWarpActive                   = false;
-        }
+        }*/
     }
 
     const f32 marioCollisionHeight = *(f32 *)SMS_PORT_REGION(0x80415CC4, 0x8040D21C, 0, 0) *
@@ -154,6 +157,8 @@ void updateCollisionContext(TMario *player) {
         if (playerData->mCollisionFlags.mCrushedTimer > CrushTimeToDie) {
             player->loserExec();
             playerData->mCollisionFlags.mCrushedTimer = 0;
+            player->mScale.y                          = 0.2f;
+            player->mModelData->mModel->mBaseScale    = player->mScale;
         }
     }
 }

@@ -46,7 +46,7 @@ void initStreamInfo(TApplication *app) {
     sIsInitialized                  = true;
 }
 
-void printStreamInfo(TApplication *app, J2DOrthoGraph *graph) {
+void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
 
     if (!director || !sIsInitialized)

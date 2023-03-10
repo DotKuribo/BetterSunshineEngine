@@ -31,7 +31,8 @@
 
 #include "libs/constmath.hxx"
 #include "libs/container.hxx"
-#include "libs/global_list.hxx"
+#include "libs/global_vector.hxx"
+#include "libs/string.hxx"
 #include "settings.hxx"
 #include "module.hxx"
 
@@ -58,10 +59,10 @@ static SubtitleSetting sSubtitleSetting("Movie Subtitles");
 
 // PRIVATE
 
-void getSettingsGroups(TGlobalList<Settings::SettingsGroup *> &out) {
-    TGlobalList<Settings::SettingsGroup *> tempCore;
-    TGlobalList<Settings::SettingsGroup *> tempGame;
-    TGlobalList<Settings::SettingsGroup *> tempMode;
+void getSettingsGroups(TGlobalVector<Settings::SettingsGroup *> &out) {
+    TGlobalVector<Settings::SettingsGroup *> tempCore;
+    TGlobalVector<Settings::SettingsGroup *> tempGame;
+    TGlobalVector<Settings::SettingsGroup *> tempMode;
 
     for (auto &item : gModuleInfos) {
         Settings::SettingsGroup *group = item.second->mSettings;
@@ -101,40 +102,28 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     sSunshineSettingsGroup.addSetting(&sSoundSetting);
     sSunshineSettingsGroup.addSetting(&sSubtitleSetting);
 
-    s32 cardChannel = CARD_SLOTA;
-    s32 cardStatus  = MountCard(cardChannel);
-    if (cardStatus < CARD_ERROR_READY) {
-        cardChannel = CARD_SLOTB;
-        cardStatus  = MountCard(cardChannel);
-        if (cardStatus < CARD_ERROR_READY) {
-            return;
-        }
-    }
-
     CARDFileInfo finfo;
 
-    for (auto &module : gModuleInfos) {
-        auto settingsGroup = module.second->mSettings;
-        if (!settingsGroup)  // No settings registered
-            continue;
+    InitCard();
+    if (MountCard() < CARD_ERROR_READY)
+        return;
 
-        int ret = OpenSavedSettings(*settingsGroup, cardChannel, finfo);
-        if (ret < CARD_ERROR_READY) {
-            CloseSavedSettings(*settingsGroup, &finfo);
-            return;
-        }
+    //for (auto &module : gModuleInfos) {
+    //    auto settingsGroup = module.second->mSettings;
+    //    if (!settingsGroup)  // No settings registered
+    //        continue;
 
-        ReadSavedSettings(*settingsGroup, &finfo);
-        CloseSavedSettings(*settingsGroup, &finfo);
-    }
+    //    int ret = OpenSavedSettings(*settingsGroup, finfo);
+    //    if (ret < CARD_ERROR_READY) {
+    //        CloseSavedSettings(*settingsGroup, &finfo);
+    //        return;
+    //    }
 
-    /*for (auto &group : groups) {
-        for (auto &setting : group->getSettings()) {
-            if (setting->isUnlocked()) {
-                group->mUnlockedMap.set(reinterpret_cast<u32>(setting), true);
-            }
-        }
-    }*/
+    //    ReadSavedSettings(*settingsGroup, &finfo);
+    //    CloseSavedSettings(*settingsGroup, &finfo);
+    //}
+
+    UnmountCard();
 }
 
 //
@@ -152,42 +141,52 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
 /*** Memory Card Work Area ***/
 static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
 
-s32 MountCard(s32 channel) {
-    s32 ret   = -1;
-    int tries = 0;
-    int isMounted;
+static bool sIsMounted;
+static s32 sChannel;
 
-    s32 memScale, sectsize;
+static void detachCallback_(s32 channel, s32 res) { sIsMounted = false; }
 
-    // Mount the card, try several times as they are tricky
-    while ((tries < 10) && (ret < 0)) {
-        /*** We already initialized the Memory Card subsystem with CARD_Init() in
-        select_memcard_slot(). Let's reset the EXI subsystem, just to make sure we have no problems
-        mounting the card ***/
-        CARDInit();
+void InitCard() { CARDInit(); }
 
-        /*** Mount the card ***/
-        ret = CARDMount(channel, SysArea, detachCallback);
-        if (ret >= 0)
-            break;
+s32 MountCard() {
+    sIsMounted = true;
 
-        __CARDSync(channel);
-        tries++;
+    s32 check;
+
+    check = CARDCheck(CARD_SLOTA);
+    if (check >= CARD_ERROR_BUSY) {
+        sChannel = CARD_SLOTA;
+        return check;
     }
 
-    /*** Make sure the card is really mounted ***/
-    isMounted = CARDProbeEx(channel, &memScale, &sectsize);
-    if (memScale > 0 && sectsize > 0)  // then we really mounted de card
-    {
-        return isMounted;
+    check = CARDCheck(CARD_SLOTB);
+    if (check >= CARD_ERROR_BUSY) {
+        sChannel = CARD_SLOTB;
+        return check;
     }
 
-    /*** If this point is reached, something went wrong ***/
-    CARDUnmount(channel);
-    return ret;
+    check = CARDMount(CARD_SLOTA, SysArea, detachCallback_);
+    if (check == CARD_ERROR_READY) {
+        sChannel = CARD_SLOTA;
+        return check;
+    }
+
+    check = CARDMount(CARD_SLOTB, SysArea, detachCallback_);
+    if (check == CARD_ERROR_READY) {
+        sChannel = CARD_SLOTB;
+        return check;
+    }
+
+    sIsMounted = false;
+    return check;
 }
 
-s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFileInfo &infoOut) {
+s32 UnmountCard() {
+    sIsMounted = false;
+    return CARDUnmount(sChannel);
+}
+
+s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
     auto &info = group.getSaveInfo();
 
     // Create and open save file for this group
@@ -202,14 +201,14 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, const s32 channel, CARDFil
     if (info.mSaveGlobal)
         __CARDSetDiskID(&info.mGameCode);
 
-    int ret;
-    do {
-        ret = CARDOpen(channel, normalizedPath, &infoOut);
-    } while (ret == CARD_ERROR_BUSY);
+    int ret = CARDOpen(sChannel, normalizedPath, &infoOut);
+    while (ret == CARD_ERROR_BUSY) {
+        ret = CARDCheck(sChannel);
+    }
 
     if (ret == CARD_ERROR_NOFILE) {
         int cret =
-            CARDCreate(channel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
+            CARDCreate(sChannel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
         if (cret < CARD_ERROR_READY) {
             if (info.mSaveGlobal)
                 __CARDSetDiskID(DISK_GAME_ID);
@@ -289,6 +288,9 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
     for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
         s32 result = CARDWrite(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
+        while (result == CARD_ERROR_BUSY) {
+            result = CARDCheck(finfo->mChannel);
+        }
         if (result < CARD_ERROR_READY) {
             return result;
         }
@@ -308,6 +310,9 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
     for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
         s32 result = CARDRead(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
+        while (result == CARD_ERROR_BUSY) {
+            result = CARDCheck(finfo->mChannel);
+        }
         if (result < CARD_ERROR_READY) {
             return result;
         }
@@ -367,6 +372,8 @@ s32 SettingsDirector::direct() {
         gpMSound->enterStage(MS_WAVE_DELFINO_PLAZA, 1, 2);
         MSBgm::startBGM(BGM_UNDERGROUND);
 
+        gpCardManager->unmount();
+
         mState = State::CONTROL;
         return 0;
     }
@@ -424,8 +431,10 @@ void *SettingsDirector::setupThreadFunc(void *param) {
 
 s32 SettingsDirector::exit() {
     TSMSFader *fader = gpApplication.mFader;
-    if (fader->mFadeStatus == TSMSFader::FADE_OFF)
+    if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
         gpApplication.mFader->startFadeoutT(0.3f);
+        gpCardManager->mount_(true);
+    }
     return fader->mFadeStatus == TSMSFader::FADE_ON ? 5 : 1;
 }
 
@@ -595,7 +604,7 @@ void SettingsDirector::initializeSettingsLayout() {
     }
 
     int i = 0;
-    TGlobalList<Settings::SettingsGroup *> settingsGroups;
+    TGlobalVector<Settings::SettingsGroup *> settingsGroups;
     getSettingsGroups(settingsGroups);
 
     settingsGroups.insert(settingsGroups.begin(), &sSunshineSettingsGroup);
@@ -636,7 +645,6 @@ void SettingsDirector::initializeSettingsLayout() {
         groupInfo->mSettingGroup = group;
 
         int n = 0;
-        auto settingList = new TGlobalList<SettingInfo *>();
         for (auto &setting : group->getSettings()) {
             if (!setting->isUnlocked())
                 continue;
@@ -775,7 +783,7 @@ void SettingsDirector::initializeErrorLayout() {
                 &mSaveErrorPanel->mChoiceBoxes[0]->mPtrLink);
 
             mSaveErrorPanel->mChoiceBoxes[1] =
-                new J2DTextBox('save', {250, 240, 392, 268}, gpSystemFont->mFont, "Retry",
+                new J2DTextBox('save', {250, 230, 392, 258}, gpSystemFont->mFont, "Retry",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Bottom);
             {
                 mSaveErrorPanel->mChoiceBoxes[1]->mCharSizeX = 24;
@@ -822,46 +830,50 @@ void SettingsDirector::saveSettings_() {
     char statusBuf[40];
     char messageBuf[100];
 
-    s32 cardChannel = gpCardManager->mChannel;
-    s32 cardStatus  = MountCard(cardChannel);
-    if (cardStatus < CARD_ERROR_READY) {
-        failSave(cardStatus);
-        return;
-    }
+    {
+        gpCardManager->mount_(true);
 
-    // Save base game settings (language, etc)
-    sRumbleSetting.emit();
-    sSubtitleSetting.emit();
-    sSoundSetting.emit();
+        // Save base game settings (language, etc)
+        sRumbleSetting.emit();
+        sSubtitleSetting.emit();
+        sSoundSetting.emit();
+
+        {
+            JSUMemoryOutputStream out(nullptr, 0);
+            gpCardManager->getOptionWriteStream(&out);
+            TFlagManager::smInstance->saveOption(out);
+            gpCardManager->writeOptionBlock();
+        }
+
+        gpCardManager->unmount();
+    }
 
     {
-        JSUMemoryOutputStream out(nullptr, 0);
-        gpCardManager->getOptionWriteStream(&out);
-        TFlagManager::smInstance->saveOption(out);
-        int ret = gpCardManager->writeOptionBlock_();
-        if (ret < CARD_ERROR_READY) {
-            gpCardManager->unmount();
-            failSave(ret);
+        s32 cardStatus = MountCard();
+
+        if (cardStatus < CARD_ERROR_READY) {
+            failSave(cardStatus);
             return;
         }
-    }
 
-    CARDFileInfo finfo;
+        CARDFileInfo finfo;
 
-    TGlobalList<Settings::SettingsGroup *> groups;
-    getSettingsGroups(groups);
+        TGlobalVector<Settings::SettingsGroup *> groups;
+        getSettingsGroups(groups);
 
-    for (auto &group : groups) {
-        size_t saveDataStartData = 0;
-        int ret = OpenSavedSettings(*group, cardChannel, finfo);
-        if (ret < CARD_ERROR_READY) {
+        for (auto &group : groups) {
+            s32 ret = OpenSavedSettings(*group, finfo);
+            if (ret < CARD_ERROR_READY) {
+                CloseSavedSettings(*group, &finfo);
+                failSave(ret);
+                return;
+            }
+
+            UpdateSavedSettings(*group, &finfo);
             CloseSavedSettings(*group, &finfo);
-            failSave(ret);
-            return;
         }
 
-        UpdateSavedSettings(*group, &finfo);
-        CloseSavedSettings(*group, &finfo);
+        UnmountCard();
     }
 
     mState = State::SAVE_SUCCESS;
@@ -870,7 +882,7 @@ void SettingsDirector::saveSettings_() {
 }
 
 void SettingsDirector::failSave(int errorcode) {
-    CARDUnmount(gpCardManager->mChannel);
+    UnmountCard();
     mSaveErrorPanel->switchScreen();
     mErrorCode = errorcode;
     strncpy(sErrorTag, getErrorString(errorcode), 64);
@@ -912,7 +924,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80299D0C, 0, 0, 0), checkForSettingsMenu);
 static J2DPicture *sNotificationPicture;
 static J2DScreen *sNotificationScreen;
 static J2DTextBox *sNotificationBox;
-static TGlobalList<char *> sUnlockedSettings;
+static TGlobalVector<TGlobalString> sUnlockedSettings;
 
 static OSTime sLastTime = 0;
 static int sVisualState = 0;
@@ -975,7 +987,7 @@ BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
 }
 
 BETTER_SMS_FOR_CALLBACK void checkForUnlockedSettings(const Settings::SettingsGroup &group,
-                                                      TGlobalList<Settings::SingleSetting *> &out) {
+                                                      TGlobalVector<Settings::SingleSetting *> &out) {
     for (auto &setting : group.getSettings()) {
         if (sNewUnlockMap.find(setting) == sNewUnlockMap.end()) {
             sNewUnlockMap[setting] = setting->isUnlocked();
@@ -989,20 +1001,22 @@ BETTER_SMS_FOR_CALLBACK void checkForUnlockedSettings(const Settings::SettingsGr
 }
 
 BETTER_SMS_FOR_CALLBACK void updateUnlockedSettings(TApplication *app) {
-    TGlobalList<Settings::SettingsGroup *> groups;
+    TGlobalVector<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        TGlobalList<Settings::SingleSetting *> unlockedSettings;
+        TGlobalVector<Settings::SingleSetting *> unlockedSettings;
         checkForUnlockedSettings(*group, unlockedSettings);
 
         for (auto &setting : unlockedSettings) {
-            char *notifText = new char[100];
-            snprintf(notifText, 100, "%s\n\nUnlocked the \"%s\" setting!", Settings::getGroupName(*group), setting->getName());
+            char notifbuf[128];
+            snprintf(notifbuf, 100, "%s\n\nUnlocked the \"%s\" setting!",
+                     Settings::getGroupName(*group), setting->getName());
 
-            sUnlockedSettings.insert(sUnlockedSettings.end(), notifText);
+            sUnlockedSettings.push_back(notifbuf);
+
             if (sUnlockedSettings.size() == 1) {
-                strncpy(sNotificationBox->mStrPtr, notifText, 100);
+                strncpy(sNotificationBox->mStrPtr, notifbuf, 100);
             }
         }
     }
@@ -1011,8 +1025,6 @@ BETTER_SMS_FOR_CALLBACK void updateUnlockedSettings(TApplication *app) {
 BETTER_SMS_FOR_CALLBACK void drawUnlockedSettings(TApplication *app, const J2DOrthoGraph *ortho) {
     if (sUnlockedSettings.size() == 0)
         return;
-
-    auto notifKey = reinterpret_cast<u32>(*sUnlockedSettings.begin());
 
     ReInitializeGX();
     const_cast<J2DOrthoGraph *>(ortho)->setup2D();
@@ -1039,10 +1051,11 @@ BETTER_SMS_FOR_CALLBACK void drawUnlockedSettings(TApplication *app, const J2DOr
     } else {
         sNotificationBox->mAlpha = Max(sNotificationBox->mAlpha - 10, 0);
         if (sNotificationBox->mAlpha == 0) {
-            delete *sUnlockedSettings.begin();
             sUnlockedSettings.erase(sUnlockedSettings.begin());
-            if (sUnlockedSettings.size() > 0)
-                strncpy(sNotificationBox->mStrPtr, *sUnlockedSettings.begin(), 100);
+            if (sUnlockedSettings.size() > 0) {
+                auto notif = sUnlockedSettings.begin();
+                strncpy(sNotificationBox->mStrPtr, notif->c_str(), 100);
+            }
             sVisualState = 0;
         }
     }

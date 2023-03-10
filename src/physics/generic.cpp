@@ -11,16 +11,6 @@
 
 using namespace BetterSMS;
 
-static u32 updateContexts(TMario *player) {
-    extern void updateCollisionContext(TMario * player);
-    extern void updateClimbContext(TMario * player);
-
-    updateCollisionContext(player);
-    updateClimbContext(player);
-
-    return 1;
-}
-
 static void addVelocity(TMario *player, f32 velocity) {
     auto playerData = Player::getData(player);
 

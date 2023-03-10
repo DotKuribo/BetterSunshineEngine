@@ -14,25 +14,30 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 
-static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd) {
+static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd, bool showFill) {
     TWaterGun *fludd = player->mFludd;
     if (!fludd)
         return;
 
     player->mAttributes.mHasFludd = hasFludd;
 
-    TNozzleBase *nozzle = fludd->mNozzleList[kind];
-    if (fludd->mCurrentNozzle != kind) {
+    TNozzleBase *nozzle;
+    if (fludd->mCurrentNozzle != fludd->mSecondNozzle)
+        nozzle = fludd->mNozzleList[TWaterGun::Spray];
+    else
+        nozzle = fludd->mNozzleList[kind];
+
+    if (fludd->mSecondNozzle != kind) {
         fludd->changeNozzle(kind, true);
-        player->emitGetEffect();
-    } else if (fludd->mCurrentWater < nozzle->mEmitParams.mAmountMax.get()) {
-        player->emitGetWaterEffect();
     }
 
+    if (fludd->mCurrentWater < nozzle->mEmitParams.mAmountMax.get() && showFill) {
+        player->emitGetWaterEffect();
+    }
     fludd->mCurrentWater = nozzle->mEmitParams.mAmountMax.get();
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleSpray(TMario *player, const TBGCheckData *data,
                                                       u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -42,11 +47,12 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleSprayOnTouch(TMario *player, const TBGC
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Spray, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Spray, data->mValue == 1,
+                 (flags & Player::InteractionFlags::ON_ENTER) != 0);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleHover(TMario *player, const TBGCheckData *data,
                                                       u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -56,11 +62,12 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleHoverOnTouch(TMario *player, const TBGC
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Hover, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Hover, data->mValue == 1,
+                 (flags & Player::InteractionFlags::ON_ENTER) != 0);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleTurbo(TMario *player, const TBGCheckData *data,
                                                       u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -70,11 +77,12 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleTurboOnTouch(TMario *player, const TBGC
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Turbo, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Turbo, data->mValue == 1,
+                 (flags & Player::InteractionFlags::ON_ENTER) != 0);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleRocket(TMario *player, const TBGCheckData *data,
                                                        u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -84,11 +92,12 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleRocketOnTouch(TMario *player, const TBG
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Rocket, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Rocket, data->mValue == 1,
+                 (flags & Player::InteractionFlags::ON_ENTER) != 0);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleSpray(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data,
                                                u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -98,11 +107,11 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleSpray(TMario *player, const TBGCheckDat
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Spray, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Spray, data->mValue == 1, true);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleHover(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data,
                                                u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -112,11 +121,11 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleHover(TMario *player, const TBGCheckDat
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Hover, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Hover, data->mValue == 1, true);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleTurbo(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data,
                                                u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -126,11 +135,11 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleTurbo(TMario *player, const TBGCheckDat
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Turbo, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Turbo, data->mValue == 1, true);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
 
-BETTER_SMS_FOR_CALLBACK void changeNozzleRocket(TMario *player, const TBGCheckData *data,
+BETTER_SMS_FOR_CALLBACK void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data,
                                                 u32 flags) {
     auto *playerData = Player::getData(player);
 
@@ -140,6 +149,6 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleRocket(TMario *player, const TBGCheckDa
     if (!playerData->getCanUseFludd())
         return;
 
-    changeNozzle(player, TWaterGun::Rocket, data->mValue == 1);
+    changeNozzle(player, TWaterGun::Rocket, data->mValue == 1, true);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }

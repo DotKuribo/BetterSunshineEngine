@@ -1,3 +1,4 @@
+#include <Dolphin/DVD.h>
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
@@ -44,7 +45,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8016D53C, 0x801628AC, 0, 0), 0x48000344);
 
 // // Load msound.aaf from AudioRes folder or archive (NTSC-U) [Xayrga/JoshuaMK]
 static void smartMSoundLoad(u32 *data) {
-    if (*data != 0) {
+    if (DVDConvertPathToEntrynum("/AudioRes/msound.aaf") < 0) {
         setParamInitDataPointer__18JAIGlobalParameterFPv(data);
     }
 }
