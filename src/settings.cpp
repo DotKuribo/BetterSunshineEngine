@@ -108,20 +108,20 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     if (MountCard() < CARD_ERROR_READY)
         return;
 
-    //for (auto &module : gModuleInfos) {
-    //    auto settingsGroup = module.second->mSettings;
-    //    if (!settingsGroup)  // No settings registered
-    //        continue;
+    for (auto &module : gModuleInfos) {
+        auto settingsGroup = module.second->mSettings;
+        if (!settingsGroup)  // No settings registered
+            continue;
 
-    //    int ret = OpenSavedSettings(*settingsGroup, finfo);
-    //    if (ret < CARD_ERROR_READY) {
-    //        CloseSavedSettings(*settingsGroup, &finfo);
-    //        return;
-    //    }
+        int ret = OpenSavedSettings(*settingsGroup, finfo);
+        if (ret < CARD_ERROR_READY) {
+            CloseSavedSettings(*settingsGroup, &finfo);
+            return;
+        }
 
-    //    ReadSavedSettings(*settingsGroup, &finfo);
-    //    CloseSavedSettings(*settingsGroup, &finfo);
-    //}
+        ReadSavedSettings(*settingsGroup, &finfo);
+        CloseSavedSettings(*settingsGroup, &finfo);
+    }
 
     UnmountCard();
 }
@@ -141,8 +141,8 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
 /*** Memory Card Work Area ***/
 static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
 
-static bool sIsMounted;
-static s32 sChannel;
+static bool sIsMounted = false;
+static s32 sChannel = 0;
 
 static void detachCallback_(s32 channel, s32 res) { sIsMounted = false; }
 
@@ -201,14 +201,15 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
     if (info.mSaveGlobal)
         __CARDSetDiskID(&info.mGameCode);
 
-    int ret = CARDOpen(sChannel, normalizedPath, &infoOut);
+    s32 ret = CARDOpen(sChannel, normalizedPath, &infoOut);
     while (ret == CARD_ERROR_BUSY) {
         ret = CARDCheck(sChannel);
     }
 
     if (ret == CARD_ERROR_NOFILE) {
-        int cret =
+        s32 cret =
             CARDCreate(sChannel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
+        OSReport("Result (CREATE): %d\n", cret);
         if (cret < CARD_ERROR_READY) {
             if (info.mSaveGlobal)
                 __CARDSetDiskID(DISK_GAME_ID);
@@ -291,6 +292,7 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         while (result == CARD_ERROR_BUSY) {
             result = CARDCheck(finfo->mChannel);
         }
+        OSReport("Result (WRITE): %d\n", result);
         if (result < CARD_ERROR_READY) {
             return result;
         }
@@ -313,6 +315,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         while (result == CARD_ERROR_BUSY) {
             result = CARDCheck(finfo->mChannel);
         }
+        OSReport("Result (READ): %d\n", result);
         if (result < CARD_ERROR_READY) {
             return result;
         }
