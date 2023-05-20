@@ -15,7 +15,7 @@
 
 static bool isSeaBMDPresent(TMarDirector *director) {
     if (BetterSMS::areBugsPatched())
-        return JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
+        return JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr && JKRArchive::getGlbResource("/scene/Map/Map/seaindirect.bmd") != nullptr;
     else
         return true;
 }
