@@ -548,6 +548,15 @@ void SettingsDirector::initializeDramaHierarchy() {
     }
 }
 
+static size_t newlines(const char *buf) {
+    size_t newlineCount = 0;
+    for (size_t i = 0; buf[i] != '\0'; ++i) {
+        if (buf[i] == '\n')
+            newlineCount += 1;
+    }
+    return newlineCount;
+}
+
 void SettingsDirector::initializeSettingsLayout() {
     const int screenOrthoWidth = BetterSMS::getScreenOrthoWidth();
     const int screenRenderWidth = BetterSMS::getScreenRenderWidth();
@@ -647,7 +656,7 @@ void SettingsDirector::initializeSettingsLayout() {
         groupInfo->mGroupPane    = groupPane;
         groupInfo->mSettingGroup = group;
 
-        int n = 0;
+        int n = 0, ny = 0;
         for (auto &setting : group->getSettings()) {
             if (!setting->isUnlocked())
                 continue;
@@ -656,11 +665,11 @@ void SettingsDirector::initializeSettingsLayout() {
                 new J2DPane(19, ('q' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
 
             J2DTextBox *settingText = new J2DTextBox(
-                ('s' << 24) | n, {0, 110 + (28 * n), 600, 158 + (28 * n)},
+                ('s' << 24) | n, {0, 110 + (23 * ny), 600, 158 + (23 * ny)},
                 gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
 
             J2DTextBox *settingTextBehind = new J2DTextBox(
-                ('b' << 24) | n, {2, 112 + (28 * n), 602, 160 + (28 * n)},
+                ('b' << 24) | n, {2, 112 + (23 * ny), 602, 160 + (23 * ny)},
                 gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
                 char valueTextbuf[40];
@@ -674,21 +683,23 @@ void SettingsDirector::initializeSettingsLayout() {
                 const u8 color = setting->isUserEditable() ? 255 : 140;
 
                 settingText->mStrPtr                 = settingTextBuf;
-                settingText->mCharSizeX              = 24;
-                settingText->mCharSizeY              = 24;
-                settingText->mNewlineSize            = 24;
+                settingText->mCharSizeX              = 21;
+                settingText->mCharSizeY              = 21;
+                settingText->mNewlineSize            = 21;
                 settingText->mGradientBottom         = {color, color, color, alpha};
                 settingText->mGradientTop            = {color, color, color, alpha};
 
                 settingTextBehind->mStrPtr         = settingTextBuf;
-                settingTextBehind->mCharSizeX      = 24;
-                settingTextBehind->mCharSizeY      = 24;
-                settingTextBehind->mNewlineSize    = 24;
+                settingTextBehind->mCharSizeX      = 21;
+                settingTextBehind->mCharSizeY      = 21;
+                settingTextBehind->mNewlineSize    = 21;
                 settingTextBehind->mGradientBottom = {0, 0, 0, alpha};
                 settingTextBehind->mGradientTop    = {0, 0, 0, alpha};
 
                 settingPane->mChildrenList.append(&settingTextBehind->mPtrLink);
                 settingPane->mChildrenList.append(&settingText->mPtrLink);
+
+                ny += newlines(settingTextBuf) + 1;
             }
             groupPane->mChildrenList.append(&settingPane->mPtrLink);
 
@@ -698,7 +709,7 @@ void SettingsDirector::initializeSettingsLayout() {
             settingInfo->mSettingData    = setting;
             groupInfo->mSettingInfos.insert(groupInfo->mSettingInfos.end(), settingInfo);
 
-            ++n;
+            n += 1;
         }
 
         mSettingScreen->mScreen->mChildrenList.append(&groupPane->mPtrLink);
@@ -993,10 +1004,11 @@ BETTER_SMS_FOR_CALLBACK void checkForUnlockedSettings(const Settings::SettingsGr
                                                       TGlobalVector<Settings::SingleSetting *> &out) {
     for (auto &setting : group.getSettings()) {
         if (sNewUnlockMap.find(setting) == sNewUnlockMap.end()) {
-            sNewUnlockMap[setting] = setting->isUnlocked();
+            sNewUnlockMap[setting] = setting->isUnlocked() && setting->isUserEditable();
         }
         bool &unlocked = sNewUnlockMap[setting];
-        if (setting->isUnlocked() && !unlocked) {  // This means the setting was just unlocked
+        if (setting->isUnlocked() && setting->isUserEditable() &&
+            !unlocked) {  // This means the setting was just unlocked
             out.insert(out.begin(), setting);
             unlocked = true;
         }

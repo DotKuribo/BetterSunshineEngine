@@ -53,7 +53,6 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80014F9C, 0x80014ff8, 0, 0), smartMSoundLoad);
 
 /* -- PATCHES -- */
 
-#if BETTER_SMS_BUGFIXES
 // Restore Chao Seed
 SMS_WRITE_32(SMS_PORT_REGION(0x802FD1A0, 0x802f5330, 0, 0), 0x808D8C70);
 
@@ -65,7 +64,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8028113C, 0x80278ec8, 0, 0),
 
 // Fix Health Meter Not Rising Underwater
 SMS_WRITE_32(SMS_PORT_REGION(0x801410E4, 0x80135cf8, 0, 0), 0x60000000);
-#endif
 
 #if BETTER_SMS_SPC_LOGGING
 // Sunscript logging restoration

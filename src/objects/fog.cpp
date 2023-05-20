@@ -21,7 +21,7 @@
 #include "objects/fog.hxx"
 
 void TSimpleFog::load(JSUMemoryInputStream &in) {
-    JDrama::TViewObj::load(in);
+    JDrama::TActor::load(in);
 
     in.readData(&mType, 4);
     in.readData(&mStartZ, 4);
@@ -29,11 +29,8 @@ void TSimpleFog::load(JSUMemoryInputStream &in) {
     in.readData(&mNearZ, 4);
     in.readData(&mFarZ, 4);
     in.readData(&mColor, 4);
-
-    OSReport("augggah\n");
 }
 
 void TSimpleFog::perform(u32 flags, JDrama::TGraphics *graphics) {
     GXSetFog(mType, mStartZ, mEndZ, mNearZ, mFarZ, mColor);
-    OSReport("augggah\n");
 }

@@ -91,6 +91,8 @@ static void exitShineDemo(TMarDirector *director, TMario *mario, CPolarSubCamera
     auto *streamer = Music::AudioStreamer::getInstance();
     if (streamer->isPaused())
         streamer->play();
+
+    ((u16 *)director->mGCConsole)[0x8A / 2] = 0;
 }
 
 extern PromptsSetting gSavePromptSetting;

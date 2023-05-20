@@ -23,13 +23,14 @@ public:
     virtual void setGroundCollision() override;
     virtual void readRailFlag() override;
     virtual void resetPosition() override;
+    virtual void requestShadow() override;
 
     bool checkMarioRiding();
     void playAnimations(s8 state);
     void stopAnimations();
 
     const char *mModelName;
-    bool mContactAnim;
+    u8 mContactAnim;
     bool mCullModel;
     f32 mFrameRate;
     u32 mSoundID;

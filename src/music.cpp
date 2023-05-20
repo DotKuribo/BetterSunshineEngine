@@ -852,6 +852,26 @@ static void stopMusicOnGameOver(u32 musicID) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802988B0, 0x80290748, 0, 0), stopMusicOnGameOver);
 
+static void pauseMusicOnScriptMusicStart(u32 musicID) {
+    auto *streamer = Music::AudioStreamer::getInstance();
+
+    if (streamer->isPlaying())
+        streamer->pause(PauseFadeSpeed);
+
+    MSBgm::startBGM(musicID);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8028b7f0, 0, 0, 0), pauseMusicOnScriptMusicStart);
+
+static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
+    auto *streamer = Music::AudioStreamer::getInstance();
+
+    if (streamer->isPaused())
+        streamer->play();
+
+    MSBgm::stopBGM(musicID, _unk);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8028B318, 0, 0, 0), startMusicOnScriptMusicStop);
+
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         auto *streamer = Music::AudioStreamer::getInstance();

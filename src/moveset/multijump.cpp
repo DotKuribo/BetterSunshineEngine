@@ -73,11 +73,20 @@ BETTER_SMS_FOR_CALLBACK bool processMultiJump(TMario *player) {
     playerData->mCurJump += 1;
 
     player->mForwardSpeed *= stickMagnitude;
-    player->changePlayerJumping(state, 0);
+    player->changePlayerJumping(state, 1);
 
 
     return true;
 }
+
+static bool avoidSlipJumpOnMultiJump(TMario *player) {
+    auto *playerData = Player::getData(player);
+    if (playerData->mCurJump > 1) {
+        return false;
+    }
+    return player->isForceSlip();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80253A8C, 0, 0, 0), avoidSlipJumpOnMultiJump);
 
 static void playDoubleOrTripleAnim(TMario *player, int state, int anim, int unk_0) {
     auto *playerData = Player::getData(player);

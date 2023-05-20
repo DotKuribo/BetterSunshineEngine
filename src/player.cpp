@@ -336,6 +336,9 @@ BETTER_SMS_FOR_CALLBACK void blazePlayer(TMario *player, bool isMario) {
         }
     }
 
+    if (player->mTranslation.y - player->mWaterHeight <= -40.0f * player->mScale.y)
+        Player::extinguishFire(player, false);
+
     if (playerData->mFireTimer > playerData->mFireTimerMax)
         Player::extinguishFire(player, true);
 }
@@ -359,7 +362,7 @@ static u32 patchYStorage() {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    if (BetterSMS::areBugsPatched()) {
+    if (BetterSMS::areExploitsPatched()) {
         if (player->mState != static_cast<u32>(TMario::STATE_IDLE))
             player->mSpeed.y = 0.0f;
     }

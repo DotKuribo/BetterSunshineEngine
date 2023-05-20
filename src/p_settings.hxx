@@ -418,26 +418,6 @@ static const u8 *sLoadingIconTIMGs[] = {
 
 void getSettingsGroups(TGlobalVector<Settings::SettingsGroup *> &out);
 
-inline int getTextWidth(J2DTextBox *textbox) {
-    const size_t textLength = strlen(textbox->mStrPtr);
-
-    size_t textWidth = 0;
-    for (int i = 0; i < textLength; ++i) {
-        JUTFont::TWidth width;
-        textbox->mFont->getWidthEntry(textbox->mStrPtr[i], &width);
-        textWidth += width.mWidth;
-    }
-
-    return textWidth + (Max(textLength - 1, 0) * textbox->mCharSpacing);
-}
-
-inline void centerTextBoxX(J2DTextBox* textbox, int width) {
-    int textWidth      = getTextWidth(textbox);
-    textbox->mRect.mX1 = ((width >> 1) - (getScreenRatioAdjustX() / 2)) -
-                         (getTextWidth(textbox) >> 1) - textbox->mCharSizeX - 4;
-    textbox->mRect.mX2 = textbox->mRect.mX1 + textWidth + (strlen(textbox->mStrPtr) * textbox->mCharSizeX);
-}
-
 struct SettingInfo {
     J2DTextBox *mSettingTextBox;
     J2DTextBox *mSettingTextBoxBack;
@@ -534,15 +514,19 @@ public:
                 return;
 
             if (mCurrentTextBox != settingPane) {
-                //mShineIcon->move(settingPane->mRect.mX1 - 32, settingPane->mRect.mY1);
+                // mShineIcon->move(settingPane->mRect.mX1 - 32, settingPane->mRect.mY1);
                 if (mCurrentTextBox) {
                     mCurrentTextBox->mGradientTop    = {255, 255, 255, 255};
                     mCurrentTextBox->mGradientBottom = {255, 255, 255, 255};
                 }
+
                 mCurrentTextBox                  = reinterpret_cast<J2DTextBox *>(settingPane);
-                mCurrentTextBox->mGradientTop    = {180, 230, 10, 255};
-                mCurrentTextBox->mGradientBottom = {240, 170, 10, 255};
+                if (mCurrentSettingInfo && mCurrentSettingInfo->mSettingData->isUserEditable()) {
+                    mCurrentTextBox->mGradientTop    = {180, 230, 10, 255};
+                    mCurrentTextBox->mGradientBottom = {240, 170, 10, 255};
+                }
             }
+
 
             /*mShineAnimator.process(mShineIcon);*/
         }
@@ -586,27 +570,29 @@ private:
             }
         }
 
-        if (mController->mButtons.mRapidInput &
-            (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT)) {
-            mCurrentSettingInfo->mSettingData->nextValue();
-            {
-                char valueTextBuf[40];
-                mCurrentSettingInfo->mSettingData->getValueStr(valueTextBuf);
+        if (mCurrentSettingInfo && mCurrentSettingInfo->mSettingData->isUserEditable()) {
+            if (mController->mButtons.mRapidInput &
+                (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT)) {
+                mCurrentSettingInfo->mSettingData->nextValue();
+                {
+                    char valueTextBuf[40];
+                    mCurrentSettingInfo->mSettingData->getValueStr(valueTextBuf);
 
-                snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
-                         mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
+                    snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
+                             mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
+                }
             }
-        }
 
-        if (mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_LEFT |
-            TMarioGamePad::MAINSTICK_LEFT)) {
-            mCurrentSettingInfo->mSettingData->prevValue();
-            {
-                char valueTextBuf[40];
-                mCurrentSettingInfo->mSettingData->getValueStr(valueTextBuf);
+            if (mController->mButtons.mRapidInput &
+                (TMarioGamePad::DPAD_LEFT | TMarioGamePad::MAINSTICK_LEFT)) {
+                mCurrentSettingInfo->mSettingData->prevValue();
+                {
+                    char valueTextBuf[40];
+                    mCurrentSettingInfo->mSettingData->getValueStr(valueTextBuf);
 
-                snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
-                         mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
+                    snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
+                             mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
+                }
             }
         }
 

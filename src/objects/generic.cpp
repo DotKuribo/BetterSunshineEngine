@@ -16,6 +16,8 @@
 #include <SMS/Player/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/MarioUtil/ShadowUtil.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
 
 #include "libs/constmath.hxx"
 #include "objects/generic.hxx"
@@ -67,11 +69,6 @@ void TGenericRailObj::load(JSUMemoryInputStream &in) {
 
     initMapObj();
     makeObjAppeared();
-
-    if (mCollisionManager)
-        mCollisionManager->mCurrentMapCollision->setAllActor(this);
-
-    playAnimations(J3DFrameCtrl::LOOP);
 }
 
 void TGenericRailObj::makeMActors() {
@@ -108,26 +105,40 @@ void TGenericRailObj::initMapCollisionData() {
 }
 
 void TGenericRailObj::initMapObj() {
-    TMapObjBase::initMapObj();
-    mActorData->setLightType(2);
+    TRailMapObj::initMapObj();
+    //mActorData->setLightType(2);
+
+    if (mCollisionManager) {
+        mCollisionManager->changeCollision(0);
+        mCollisionManager->mCurrentMapCollision->setAllActor(this);
+    }
+
+    playAnimations(J3DFrameCtrl::LOOP);
 }
 
 void TGenericRailObj::control() {
     TMapObjBase::control();
 
-    mStateFlags.asFlags.mCullModel = mCullModel;
+    if (mCullModel)
+        mStateFlags.asU32 |= 0x100;
+    else
+        mStateFlags.asU32 &= ~0x100;
 
     if (checkMarioRiding()) {
-        if (mContactAnim) {
+        if (mContactAnim > 0) {
             auto *frameCtrl = mActorData->getFrameCtrl(MActor::BCK);
             if (frameCtrl)
-                frameCtrl->mFrameRate = mFrameRate;
+                frameCtrl->mFrameRate = mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     } else {
-        if (mContactAnim) {
+        if (mContactAnim == 1) {
             auto *frameCtrl = mActorData->getFrameCtrl(MActor::BCK);
             if (frameCtrl)
-                frameCtrl->mFrameRate = -mFrameRate;
+                frameCtrl->mFrameRate = -mFrameRate * (SMSGetAnmFrameRate() / 2);
+        } else if (mContactAnim == 2) {
+            auto *frameCtrl = mActorData->getFrameCtrl(MActor::BCK);
+            if (frameCtrl)
+                frameCtrl->mAnimState = J3DFrameCtrl::ONCE_RESET;
         }
     }
 
@@ -192,6 +203,9 @@ void TGenericRailObj::control() {
     mRotation.add(mCurrentRotation);
     mCurrentRotation.add(mBaseRotation);
     clampRotation(mCurrentRotation);
+
+    mGroundY = gpMapCollisionData->checkGround(mTranslation.x, mTranslation.y, mTranslation.z, 0,
+                                               const_cast<const TBGCheckData **>(&mFloorBelow));
 }
 
 void TGenericRailObj::setGroundCollision() {
@@ -236,6 +250,17 @@ void TGenericRailObj::resetPosition() {
     readRailFlag();
 }
 
+void TGenericRailObj::requestShadow() {
+    TCircleShadowRequest request;
+    request.mTranslation   = mTranslation;
+    request.mTranslation.y = mGroundY;
+    request.mOffsetY       = 0;
+    request.mOffsetY2      = 0;
+    request.mRotationY     = mRotation.y;
+    request.mShadowType    = getShadowType();
+    gpBindShadowManager->request(request, mObjectID);
+}
+
 bool TGenericRailObj::checkMarioRiding() {
     if (gpMarioAddress->mFloorTriangle->mOwner != this)
         return false;
@@ -248,8 +273,9 @@ void TGenericRailObj::playAnimations(s8 state) {
         mActorData->setBck(mModelName);
         auto *frameCtrl = mActorData->getFrameCtrl(MActor::BCK);
         if (frameCtrl) {
-            frameCtrl->mAnimState = mContactAnim ? J3DFrameCtrl::ONCE : state;
-            frameCtrl->mFrameRate = mContactAnim ? 0.0f : mFrameRate;
+            frameCtrl->mAnimState = mContactAnim > 0 ? J3DFrameCtrl::ONCE : state;
+            frameCtrl->mFrameRate = mContactAnim > 0 ? 0.0f
+                                                     : mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     }
 
@@ -258,7 +284,7 @@ void TGenericRailObj::playAnimations(s8 state) {
         auto *frameCtrl = mActorData->getFrameCtrl(MActor::BLK);
         if (frameCtrl) {
             frameCtrl->mAnimState = state;
-            frameCtrl->mFrameRate = mFrameRate;
+            frameCtrl->mFrameRate = mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     }
 
@@ -267,7 +293,7 @@ void TGenericRailObj::playAnimations(s8 state) {
         auto *frameCtrl = mActorData->getFrameCtrl(MActor::BRK);
         if (frameCtrl) {
             frameCtrl->mAnimState = state;
-            frameCtrl->mFrameRate = mFrameRate;
+            frameCtrl->mFrameRate = mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     }
 
@@ -276,7 +302,7 @@ void TGenericRailObj::playAnimations(s8 state) {
         auto *frameCtrl = mActorData->getFrameCtrl(MActor::BPK);
         if (frameCtrl) {
             frameCtrl->mAnimState = state;
-            frameCtrl->mFrameRate = mFrameRate;
+            frameCtrl->mFrameRate = mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     }
 
@@ -285,7 +311,7 @@ void TGenericRailObj::playAnimations(s8 state) {
         auto *frameCtrl = mActorData->getFrameCtrl(MActor::BTP);
         if (frameCtrl) {
             frameCtrl->mAnimState = state;
-            frameCtrl->mFrameRate = mFrameRate;
+            frameCtrl->mFrameRate = mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     }
 
@@ -294,7 +320,7 @@ void TGenericRailObj::playAnimations(s8 state) {
         auto *frameCtrl = mActorData->getFrameCtrl(MActor::BTK);
         if (frameCtrl) {
             frameCtrl->mAnimState = state;
-            frameCtrl->mFrameRate = mFrameRate;
+            frameCtrl->mFrameRate = mFrameRate * (SMSGetAnmFrameRate() / 2);
         }
     }
 }

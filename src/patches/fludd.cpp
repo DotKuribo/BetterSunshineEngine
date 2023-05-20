@@ -81,7 +81,6 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
         return;
 
     const f32 lookAtRatio = 2 * (Vector3::lookAtRatio(playerForward, floorNormal) - 0.5f);
-    OSReport("Ratio = %.02f\n", lookAtRatio);
 
     if (isnan(lookAtRatio))
         return;

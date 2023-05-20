@@ -124,6 +124,7 @@ extern void blazePlayer(TMario *player, bool isMario);
 // PLAYER STATE
 extern void updateCollisionContext(TMario *, bool);
 extern void updateClimbContext(TMario *, bool);
+extern void checkForForceDropOnDeadActor(TMario *, bool);
 
 // PLAYER COLLISION
 extern void initializeWarpCallback(TMario *, bool);
@@ -263,6 +264,7 @@ static void initLib() {
     //// PLAYER STATE
     //Player::registerUpdateCallback("__update_collision_context", updateCollisionContext);
     Player::registerUpdateCallback("__check_upwarp_climb", updateClimbContext);
+    Player::registerUpdateCallback("__check_force_drop_dead_actor", checkForForceDropOnDeadActor);
 
     //// YOSHI
     Player::registerUpdateCallback("__update_yoshi_swim", checkForYoshiDeath);

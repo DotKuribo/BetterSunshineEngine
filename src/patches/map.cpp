@@ -14,7 +14,10 @@
 // TODO: Account for BetterSMS::areBugsPatched()
 
 static bool isSeaBMDPresent(TMarDirector *director) {
-    return JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
+    if (BetterSMS::areBugsPatched())
+        return JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
+    else
+        return true;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8018A064, 0, 0, 0), isSeaBMDPresent);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A068, 0, 0, 0), 0x2C030000);

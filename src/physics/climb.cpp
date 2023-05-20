@@ -31,7 +31,7 @@ static void climbSometimes(TMario *player) {
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
 
 BETTER_SMS_FOR_CALLBACK void updateClimbContext(TMario *player, bool isMario) {
-    if (!BetterSMS::areBugsPatched()) {
+    if (!BetterSMS::areExploitsPatched()) {
         return;
     }
 
