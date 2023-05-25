@@ -614,28 +614,30 @@ private:
                 mCurrentGroupInfo->mGroupPane->mIsVisible = false;
                 mCurrentGroupInfo = getGroupInfo(mGroupID);
                 mCurrentGroupInfo->mGroupPane->mIsVisible = true;
-                mCurrentSettingInfo = getSettingInfo(0);
-                mSettingID          = 0;
+
+                // We intentionally loop past the end to get a nullptr
+                for (int i = 0; i <= mCurrentGroupInfo->mSettingInfos.size(); ++i) {
+                    mCurrentSettingInfo = getSettingInfo(i);
+                    mSettingID          = i;
+                    if (!mCurrentSettingInfo || mCurrentSettingInfo->mSettingData->isUserEditable())
+                        break;
+                }
             }
         }
     }
 
     GroupInfo *getGroupInfo(u32 index) {
-        auto it = mGroups.begin();
-        for (int i = 0; i < mGroups.size(); ++i, ++it) {
-            if (i == index)
-                return *it;
-        }
-        return nullptr;
+        if (index >= mGroups.size())
+            return nullptr;
+
+        return mGroups.at(index);
     }
 
     SettingInfo *getSettingInfo(u32 index) {
-        auto it = mCurrentGroupInfo->mSettingInfos.begin();
-        for (int i = 0; i < mCurrentGroupInfo->mSettingInfos.size(); ++i, ++it) {
-            if (i == index)
-                return *it;
-        }
-        return nullptr;
+        if (index >= mCurrentGroupInfo->mSettingInfos.size())
+            return nullptr;
+
+        return mCurrentGroupInfo->mSettingInfos.at(index);
     }
 
     s32 mGroupID;

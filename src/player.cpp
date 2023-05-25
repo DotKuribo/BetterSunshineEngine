@@ -258,102 +258,6 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::rotateRelativeToCamera(TMario *pla
         camera->mHorizontalAngle + s16(radiansToAngle(atan2f(dir.x, -dir.y)) * 182), lerp_);
 }
 
-#pragma region FireAPI
-
-static constexpr s32 MaxFireDamageTime = 300;
-static constexpr s32 MaxFireTime       = MaxFireDamageTime * 3;
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::setFire(TMario *player) {
-    auto playerData = Player::getData(player);
-
-    if (playerData->mIsOnFire) {
-        playerData->mFireTimer %= MaxFireDamageTime;
-        return;
-    }
-
-    playerData->mIsOnFire     = true;
-    playerData->mFireTimer    = 0;
-    playerData->mFireTimerMax = MaxFireTime;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::extinguishFire(TMario *player, bool expired) {
-    auto playerData = Player::getData(player);
-
-    if (playerData->mIsOnFire && !expired)
-        MSoundSE::startSoundActor(0x28C5, reinterpret_cast<Vec *>(&player->mTranslation), 0, nullptr,
-                                  0, 0);
-
-    playerData->mIsOnFire  = false;
-    playerData->mFireTimer = 0;
-}
-
-BETTER_SMS_FOR_CALLBACK void blazePlayer(TMario *player, bool isMario) {
-    if (!isMario)
-        return;
-
-    auto playerData = Player::getData(player);
-    if (!playerData->mIsOnFire)
-        return;
-
-    const f32 fireScale = 3.0f - (static_cast<f32>(playerData->mFireTimer) / MaxFireTime) * 2.0f;
-
-    JPABaseEmitter *emitterFire =
-        gpMarioParticleManager->emitAndBindToPosPtr(0x135, &player->mTranslation, 1, player);
-    emitterFire->mSize2.set(player->mScale.x * fireScale, player->mScale.y * fireScale,
-                            player->mScale.z * fireScale);
-
-    JPABaseEmitter *emitterSmoke =
-        gpMarioParticleManager->emitAndBindToPosPtr(0x136, &player->mTranslation, 1, player);
-    emitterSmoke->mSize2.set(player->mScale.x * fireScale, player->mScale.y * fireScale,
-                             player->mScale.z * fireScale);
-
-    JPABaseEmitter *emitterEmber =
-        gpMarioParticleManager->emitAndBindToPosPtr(0x137, &player->mTranslation, 1, player);
-    emitterEmber->mSize2.set(player->mScale.x * fireScale, player->mScale.y * fireScale,
-                             player->mScale.z * fireScale);
-
-    const s32 fireFrame = playerData->mFireTimer % MaxFireDamageTime;
-    playerData->mFireTimer += 1;
-
-    if (player->mFludd->mCurrentNozzle == TWaterGun::Hover && player->mFludd->mIsEmitWater)
-        playerData->mFireTimerMax -= 1;
-
-    if (fireFrame == 0) {
-        player->decHP(1);
-        player->changePlayerStatus(0x208B6, 0, false);
-        player->startVoice(0x7849);
-    }
-
-    if (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN))) {
-        switch (static_cast<TMario::State>(player->mState)) {
-        case TMario::STATE_TURNING_MID:
-            break;
-        case TMario::STATE_IDLE:
-            player->changePlayerStatus(TMario::STATE_RUNNING, 0, false);
-        default:
-            player->setPlayerVelocity(50.0f * player->mScale.z);
-            player->mActionState = 1;
-        }
-    }
-
-    if (player->mTranslation.y - player->mWaterHeight <= -40.0f * player->mScale.y)
-        Player::extinguishFire(player, false);
-
-    if (playerData->mFireTimer > playerData->mFireTimerMax)
-        Player::extinguishFire(player, true);
-}
-
-static void flameMario(TEffectObjBase *fire, u32 message) {
-    s32 marioIdx;
-    SMS_FROM_GPR(30, marioIdx);
-
-    TMario *player = reinterpret_cast<TMario *>(fire->mCollidingObjs[marioIdx]);
-    Player::setFire(player);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80038148, 0x80038200, 0, 0), flameMario);
-
-#pragma endregion
-
 #pragma region Patches
 
 #if BETTER_SMS_BUGFIXES
@@ -381,23 +285,6 @@ static void patchRideMovementUpWarp(Mtx out, Vec *ride, Vec *pos) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpWarp);
 
-static void patchRoofCollisionSpeed(TMario *player, f32 _speed) {
-    const TBGCheckData *roof = player->mRoofTriangle;
-    if (!roof || !BetterSMS::isCollisionRepaired()) {
-        player->setPlayerVelocity(_speed);
-        return;
-    }
-
-    TVec3f down(0.0f, -1.0f, 0.0f);
-
-    TVec3f nroofvec;
-    PSVECNormalize(*roof->getNormal(), nroofvec);
-
-    const f32 ratio = Vector3::angleBetween(nroofvec, down);
-    player->setPlayerVelocity(lerp(_speed, player->mForwardSpeed, ratio));
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x802569BC, 0x8024E748, 0, 0), patchRoofCollisionSpeed);
-
 #endif
 
 #pragma endregion
@@ -409,7 +296,7 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
       mIsLongJumping(false), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
       mPrevCollisionType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
       mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),
-      mWarpTimer(-1), mWarpState(0xFF), mIsOnFire(false), mFireTimer(0), mFireTimerMax(0) {
+      mWarpTimer(-1), mWarpState(0xFF) {
 
     mParams = new TPlayerParams();
 
@@ -817,8 +704,6 @@ static void playerLoadAfterHandler(TMario *player) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80276BB8, 0, 0, 0), playerLoadAfterHandler);
 
 static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
-    blazePlayer(player, true);
-
     for (auto &item : sPlayerUpdaters) {
         item.second(player, true);
     }
@@ -828,8 +713,6 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
-    blazePlayer(player, false);
-
     for (auto &item : sPlayerUpdaters) {
         item.second(player, false);
     }

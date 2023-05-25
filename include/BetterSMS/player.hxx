@@ -75,12 +75,6 @@ namespace BetterSMS {
         // Apply a rotation to a player, which is relative to the camera
         void rotateRelativeToCamera(TMario *, CPolarSubCamera *, Vec2, f32);
 
-        // Set a player on fire
-        void setFire(TMario *);
-
-        // Extinguish the player if on fire
-        void extinguishFire(TMario *, bool);
-
 #pragma region ParamHandler
 
         struct TPlayerParams : public TParams {
@@ -243,9 +237,6 @@ namespace BetterSMS {
             FluddHistory mFluddHistory;
             ParamHistory mDefaultAttrs;
             TMario::TDirtyParams mDefaultDirtyParams;
-            bool mIsOnFire;
-            s16 mFireTimer;
-            s16 mFireTimerMax;
 
             TVec3f mWarpDestination;
             s32 mWarpTimer;

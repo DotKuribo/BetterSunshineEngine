@@ -60,7 +60,7 @@ static void restoreNozzles(TMario *player) {
                                       ->mEmitParams.mAmountMax.get());
     changeNozzle__9TWaterGunFQ29TWaterGun11TNozzleTypeb(player->mFludd,
                                                         playerData->mFluddHistory.mSecondNozzle, 1);
-    player->normalizeNozzle();
+    //player->normalizeNozzle();
     player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
                                         ->mEmitParams.mAmountMax.get() *
                                     factor;

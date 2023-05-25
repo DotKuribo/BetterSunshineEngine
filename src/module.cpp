@@ -421,8 +421,6 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Player::warpToPoint, "warpToPoint__Q29BetterSMS6PlayerFv");
         KURIBO_EXPORT_AS(BetterSMS::Player::rotateRelativeToCamera,
                          "rotateRelativeToCamera__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::setFire, "setFire__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::extinguishFire, "extinguishFire__Q29BetterSMS6PlayerFv");
 
         /* MUSIC */
         KURIBO_EXPORT_AS(BetterSMS::Music::queueSong, "queueSong__Q29BetterSMS5MusicFPCc");

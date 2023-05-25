@@ -17,17 +17,17 @@
 
 using namespace BetterSMS;
 
-static void climbSometimes(TMario *player) {
-    auto playerData = Player::getData(player);
-
-    const bool isMarioClimb = isMarioClimb__16TCameraMarioDataCFUl(player->mState);
-    if (playerData->mIsOnFire) {
-        if (isMarioClimb)
-            player->changePlayerStatus(TMario::STATE_FALL, 0, false);
-        return;
-    }
-    player->barProcess();
-}
+//static void climbSometimes(TMario *player) {
+//    auto playerData = Player::getData(player);
+//
+//    const bool isMarioClimb = isMarioClimb__16TCameraMarioDataCFUl(player->mState);
+//    if (playerData->mIsOnFire) {
+//        if (isMarioClimb)
+//            player->changePlayerStatus(TMario::STATE_FALL, 0, false);
+//        return;
+//    }
+//    player->barProcess();
+//}
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
 
 BETTER_SMS_FOR_CALLBACK void updateClimbContext(TMario *player, bool isMario) {

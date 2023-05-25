@@ -6,6 +6,7 @@
 #include <SMS/System/GameSequence.hxx>
 #include <SMS/System/MarDirector.hxx>
 #include <SMS/macros.h>
+#include <SMS/Manager/FlagManager.hxx>
 #include <SMS/Manager/ModelWaterManager.hxx>
 #include <SMS/MapObj/MapObjInit.hxx>
 
@@ -109,16 +110,6 @@ void BetterSMS::Stage::TStageParams::reset() {
     mIsOptionStage.set(false);
     mIsMultiplayerStage.set(false);
     mIsEggFree.set(true);
-    // mLightType.set(TLightContext::ActiveType::DISABLED);
-    // mLightPosX.set(0.0f);
-    // mLightPosY.set(3600.0f);
-    // mLightPosZ.set(-7458.0f);
-    // mLightSize.set(8000.0f);
-    // mLightStep.set(100.0f);
-    // mLightColor.set(JUtility::TColor(0, 20, 40, 0));
-    // mLightLayerCount.set(5);
-    // mLightDarkLevel.set(120);
-    // mPlayerSelectWhiteList.set(0xFFFFFFFF);
     mPlayerHasFludd.set(true);
     mPlayerHasHelmet.set(false);
     mPlayerHasGlasses.set(false);
@@ -252,6 +243,8 @@ BETTER_SMS_FOR_CALLBACK void resetStageConfig(TApplication *) {
 }
 
 void initStageCallbacks(TMarDirector *director) {
+    TFlagManager::smInstance->resetStage();
+
     loadStageConfig(director);
 
     for (auto &item : sStageInitCBs) {
@@ -264,6 +257,7 @@ void initStageCallbacks(TMarDirector *director) {
     sIsStageInitialized = true;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802998B8, 0x80291750, 0, 0), initStageCallbacks);
+SMS_WRITE_32(SMS_PORT_REGION(0x802B7720, 0, 0, 0), 0x60000000);
 
 void updateStageCallbacks(TApplication *app) {
     u32 func;
