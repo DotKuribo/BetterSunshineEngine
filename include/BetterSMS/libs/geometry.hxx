@@ -7,7 +7,7 @@
 #include <SMS/MarioUtil/MathUtil.hxx>
 
 #include "constmath.hxx"
-#include "module.hxx"
+#include "../module.hxx"
 
 namespace BetterSMS {
     namespace Geometry {
