@@ -6,7 +6,7 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <SMS/MarioUtil/MathUtil.hxx>
 
-#include "libs/constmath.hxx"
+#include "constmath.hxx"
 #include "module.hxx"
 
 namespace BetterSMS {
