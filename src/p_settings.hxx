@@ -18,6 +18,7 @@
 #include "libs/anim2d.hxx"
 #include "libs/container.hxx"
 #include "libs/global_vector.hxx"
+#include "memory.hxx"
 #include "settings.hxx"
 #include "module.hxx"
 #include "p_icons.hxx"
@@ -940,6 +941,47 @@ public:
 private:
     static bool sIsUnlocked;
     bool mBugsValue;
+};
+
+class CollisionFixesSetting final : public Settings::SwitchSetting {
+public:
+    CollisionFixesSetting(const char *name) : SwitchSetting(name, &mCollisionFixesFlag), mCollisionFixesFlag(true) {
+        mValueChangedCB = CollisionFixesSetting::valueChanged;
+    }
+
+    bool isUnlocked() const override { return sIsUnlocked; }
+
+    void load(JSUMemoryInputStream &in) override {
+        in.read(&sIsUnlocked, 1);
+        {
+            bool b;
+            in.read(&b, 1);
+            setBool(b);
+        }
+    }
+    void save(JSUMemoryOutputStream &out) override {
+        out.write(&sIsUnlocked, 1);
+        out.write(mValuePtr, 1);
+    }
+
+    inline void lock() { sIsUnlocked = false; }
+    inline void unlock() { sIsUnlocked = true; }
+
+private:
+    static void valueChanged(void *old, void *cur, ValueKind kind) {
+        auto flag = *reinterpret_cast<bool *>(cur);
+        if (flag) {
+            // Force exotic wall selection (Fixes intersecting walls)
+            PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x802556A0, 0, 0, 0)),
+                              0x4800000C);
+        } else {
+            PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x802556A0, 0, 0, 0)),
+                              0x4082000C);
+        }
+    }
+
+    static bool sIsUnlocked;
+    bool mCollisionFixesFlag;
 };
 
 class PromptsSetting final : public Settings::IntSetting {

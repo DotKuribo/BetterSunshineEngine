@@ -11,7 +11,7 @@
 #include "logging.hxx"
 #include "player.hxx"
 
-#include "p_geometry.hxx"
+#include "libs/geometry.hxx"
 #include "p_globals.hxx"
 #include "p_warp.hxx"
 

@@ -20,7 +20,7 @@
 #include "module.hxx"
 #include "player.hxx"
 #include "p_settings.hxx"
-#include "p_geometry.hxx"
+#include "libs/geometry.hxx"
 
 #if BETTER_SMS_BUGFIXES
 

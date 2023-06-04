@@ -35,7 +35,7 @@ static Settings::SettingsGroup sSettingsGroup(2, 0, Settings::Priority::CORE);
 
 BugsSetting gBugFixesSetting("Bug Fixes");
 BugsSetting gExploitFixesSetting("Exploit Fixes");
-BugsSetting gCollisionFixesSetting("Collision Fixes");
+CollisionFixesSetting gCollisionFixesSetting("Collision Fixes");
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 ViewportSetting gViewportSetting("Viewport");
 FPSSetting gFPSSetting("Frame Rate");

@@ -29,7 +29,7 @@
 #include "module.hxx"
 #include "player.hxx"
 #include "p_settings.hxx"
-#include "p_geometry.hxx"
+#include "libs/geometry.hxx"
 #include "stage.hxx"
 
 using namespace BetterSMS;

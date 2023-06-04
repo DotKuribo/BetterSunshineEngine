@@ -10,7 +10,7 @@
 #include "module.hxx"
 #include "player.hxx"
 
-#include "p_geometry.hxx"
+#include "libs/geometry.hxx"
 
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
