@@ -177,6 +177,14 @@ static void thinkSetBootFlag(TShineFader *shineFader, u32 unk_1, u32 unk_2) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80297BD8, 0x8028FA70, 0, 0), thinkSetBootFlag);
 
+static void maintainBootFlagOnAppearSimple() {
+    TShine *shine;
+    SMS_FROM_GPR(31, shine);
+
+    shine->mType = (shine->mType & 0x10) | 3;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BD018, 0x8028FAA8, 0, 0), maintainBootFlagOnAppearSimple);
+
 static void thinkSetNextSequence(TGameSequence *sequence, u8 area, u8 episode,
                                  JDrama::TFlagT<u16> flag) {
     if (!(gpMarDirector->mCollectedShine->mType & 0x10)) {
