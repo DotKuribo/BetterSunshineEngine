@@ -8,6 +8,7 @@
 #include <SMS/macros.h>
 #include <sdk.h>
 
+#include "memory.hxx"
 #include "settings.hxx"
 
 #define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
@@ -74,6 +75,76 @@ namespace BetterSMS {
         Settings::SettingsGroup *mSettings;
     };
 
+    class BugsSetting final : public Settings::SwitchSetting {
+    public:
+        BugsSetting(const char *name) : SwitchSetting(name, &mBugsValue), mBugsValue(true) {}
+        ~BugsSetting() override {}
+
+        bool isUnlocked() const override { return sIsUnlocked; }
+
+        void load(JSUMemoryInputStream &in) override {
+            in.read(&sIsUnlocked, 1);
+            {
+                bool b;
+                in.read(&b, 1);
+                setBool(b);
+            }
+        }
+        void save(JSUMemoryOutputStream &out) override {
+            out.write(&sIsUnlocked, 1);
+            out.write(mValuePtr, 1);
+        }
+
+        inline void lock() { sIsUnlocked = false; }
+        inline void unlock() { sIsUnlocked = true; }
+
+    private:
+        static bool sIsUnlocked;
+        bool mBugsValue;
+    };
+
+    class CollisionFixesSetting final : public Settings::SwitchSetting {
+    public:
+        CollisionFixesSetting(const char *name)
+            : SwitchSetting(name, &mCollisionFixesFlag), mCollisionFixesFlag(true) {
+            mValueChangedCB = CollisionFixesSetting::valueChanged;
+        }
+
+        bool isUnlocked() const override { return sIsUnlocked; }
+
+        void load(JSUMemoryInputStream &in) override {
+            in.read(&sIsUnlocked, 1);
+            {
+                bool b;
+                in.read(&b, 1);
+                setBool(b);
+            }
+        }
+        void save(JSUMemoryOutputStream &out) override {
+            out.write(&sIsUnlocked, 1);
+            out.write(mValuePtr, 1);
+        }
+
+        inline void lock() { sIsUnlocked = false; }
+        inline void unlock() { sIsUnlocked = true; }
+
+    private:
+        static void valueChanged(void *old, void *cur, ValueKind kind) {
+            auto flag = *reinterpret_cast<bool *>(cur);
+            if (flag) {
+                // Force exotic wall selection (Fixes intersecting walls)
+                PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x802556A0, 0, 0, 0)),
+                                  0x4800000C);
+            } else {
+                PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x802556A0, 0, 0, 0)),
+                                  0x4082000C);
+            }
+        }
+
+        static bool sIsUnlocked;
+        bool mCollisionFixesFlag;
+    };
+
     bool isGameEmulated();
     bool isMusicBeingStreamed();
     bool isMusicStreamingAllowed();
@@ -92,4 +163,8 @@ namespace BetterSMS {
     f32 getScreenToFullScreenRatio();
     f32 getScreenRatioAdjustX();
     f32 getFrameRate();
+    BugsSetting *getBugFixesSetting();
+    BugsSetting *getExploitFixesSetting();
+    CollisionFixesSetting *getCollisionFixesSetting();
+
 }  // namespace BetterSMS

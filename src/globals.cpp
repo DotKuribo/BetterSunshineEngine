@@ -75,3 +75,11 @@ f32 BetterSMS::getFrameRate() {
 
     return SMS_PORT_REGION(FPS, FPS / 1.2, FPS, FPS);
 }
+
+extern BugsSetting gBugsFixesSetting;
+extern BugsSetting gExploitFixesSetting;
+extern CollisionFixesSetting gCollisionFixesSetting;
+
+BugsSetting *BetterSMS::getBugFixesSetting() { return &gBugsFixesSetting; }
+BugsSetting *BetterSMS::getExploitFixesSetting() { return &gExploitFixesSetting; }
+CollisionFixesSetting *BetterSMS::getCollisionFixesSetting() { return &gCollisionFixesSetting; }

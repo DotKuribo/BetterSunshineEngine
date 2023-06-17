@@ -98,7 +98,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802619D8, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x802619DC, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x802619E0, 0, 0, 0), 0x60000000);
 
-// This function serves to make f1 safe for earlier processing!
+// This function serves to make f1 safe for earlier processing! ^^
 static void wrapVelocityReset(TMario *player) { player->setPlayerVelocity(0.0f); }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802619E8, 0, 0, 0), wrapVelocityReset);
 
@@ -177,20 +177,6 @@ static SMS_ASM_FUNC void scaleRoofMoveDiff() {
                                "blr                                             \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80261824, 0x802595B0, 0, 0), scaleRoofMoveDiff);
-
-static void scaleHangSpeed(TMario *player) {
-    auto playerData = Player::getData(player);
-
-    player->mForwardSpeed += 1.0f;
-
-    if (playerData->isMario())
-        player->mForwardSpeed =
-            Min(player->mForwardSpeed, 4.0f * playerData->getParams()->mSpeedMultiplier.get());
-    else
-        player->mForwardSpeed = Min(player->mForwardSpeed, 4.0f);
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x802615AC, 0, 0, 0), scaleHangSpeed);
-// SMS_WRITE_32(SMS_PORT_REGION(0x802615B0, 0, 0, 0), 0x60000000);
 
 //static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
 //    TMario *player;

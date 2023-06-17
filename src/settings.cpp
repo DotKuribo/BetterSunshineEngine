@@ -50,8 +50,8 @@ BETTER_SMS_FOR_EXPORT const char *Settings::getGroupName(const Settings::Setting
 
 using namespace BetterSMS;
 
-bool BugsSetting::sIsUnlocked = false;
-bool CollisionFixesSetting::sIsUnlocked = false;
+bool BugsSetting::sIsUnlocked = true;
+bool CollisionFixesSetting::sIsUnlocked = true;
 
 static Settings::SettingsGroup sSunshineSettingsGroup = {1, 0, Settings::Priority::CORE};
 static RumbleSetting sRumbleSetting("Controller Rumble");
@@ -210,7 +210,7 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
     if (ret == CARD_ERROR_NOFILE) {
         s32 cret =
             CARDCreate(sChannel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
-        OSReport("Result (CREATE): %d\n", cret);
+        //OSReport("Result (CREATE): %d\n", cret);
         if (cret < CARD_ERROR_READY) {
             if (info.mSaveGlobal)
                 __CARDSetDiskID(DISK_GAME_ID);
@@ -293,7 +293,7 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         while (result == CARD_ERROR_BUSY) {
             result = CARDCheck(finfo->mChannel);
         }
-        OSReport("Result (WRITE): %d\n", result);
+        //OSReport("Result (WRITE): %d\n", result);
         if (result < CARD_ERROR_READY) {
             return result;
         }
@@ -316,7 +316,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         while (result == CARD_ERROR_BUSY) {
             result = CARDCheck(finfo->mChannel);
         }
-        OSReport("Result (READ): %d\n", result);
+        //OSReport("Result (READ): %d\n", result);
         if (result < CARD_ERROR_READY) {
             return result;
         }

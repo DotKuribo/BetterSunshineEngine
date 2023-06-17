@@ -79,42 +79,31 @@ namespace BetterSMS {
 
         struct TPlayerParams : public TParams {
             TPlayerParams()
-                : TParams(), SMS_TPARAM_INIT(mMaxJumps, 1), SMS_TPARAM_INIT(mMaxHealth, 8),
-                  SMS_TPARAM_INIT(mCanRideYoshi, true), SMS_TPARAM_INIT(mCanUseFludd, true),
+                : TParams(), SMS_TPARAM_INIT(mMaxHealth, 8),
+                  SMS_TPARAM_INIT(mCanRideYoshi, true),
+                  SMS_TPARAM_INIT(mCanUseFludd, true),
                   SMS_TPARAM_INIT(mPlayerHasHelmet, false),
                   SMS_TPARAM_INIT(mPlayerHasGlasses, false),
                   SMS_TPARAM_INIT(mPlayerHasShirt, false),
-                  SMS_TPARAM_INIT(mGravityMultiplier, 1.0f), SMS_TPARAM_INIT(mScaleMultiplier, 1.0f),
-                  SMS_TPARAM_INIT(mSpeedMultiplier, 1.0f),
-                  SMS_TPARAM_INIT(mBaseJumpMultiplier, 1.0f),
-                  SMS_TPARAM_INIT(mMultiJumpMultiplier, 0.875f),
-                  SMS_TPARAM_INIT(mMultiJumpFSpeedMulti, 0.9f),
+                  SMS_TPARAM_INIT(mScaleMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mThrowPowerMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mUnderwaterHealthMultiplier, 1.0f),
-                  SMS_TPARAM_INIT(mFallDamageMinMultiplier, 1.0f),
-                  SMS_TPARAM_INIT(mSlideMultiplier, 1.0f) {
-                load("/Mario/BetterSMS.prm");
+                  SMS_TPARAM_INIT(mFallDamageMinMultiplier, 1.0f) {
+                load("/Mario/better_sms.prm");
             }
 
             enum class FluddCleanType : u8 { NONE, CLEAN, GOOP };
 
-            TParamRT<u8> mMaxJumps;
             TParamRT<u8> mMaxHealth;
             TParamRT<bool> mCanRideYoshi;
             TParamRT<bool> mCanUseFludd;
             TParamRT<bool> mPlayerHasHelmet;
             TParamRT<bool> mPlayerHasGlasses;
             TParamRT<bool> mPlayerHasShirt;
-            TParamRT<f32> mGravityMultiplier;
             TParamRT<f32> mScaleMultiplier;
-            TParamRT<f32> mSpeedMultiplier;
-            TParamRT<f32> mBaseJumpMultiplier;
-            TParamRT<f32> mMultiJumpMultiplier;
-            TParamRT<f32> mMultiJumpFSpeedMulti;
             TParamRT<f32> mThrowPowerMultiplier;
             TParamRT<f32> mUnderwaterHealthMultiplier;
             TParamRT<f32> mFallDamageMinMultiplier;
-            TParamRT<f32> mSlideMultiplier;
         };
 
         class TPlayerData {
@@ -182,7 +171,6 @@ namespace BetterSMS {
             CPolarSubCamera *getCamera() const { return mCamera; }
             bool getCanSprayFludd() const { return mCanSprayFludd; }
             bool getCanUseFludd() const { return mCanUseFludd; }
-            u8 getMaxJumps() const { return mParams->mMaxJumps.get(); }
             const TPlayerParams *getParams() const { return mParams; }
             TMario *getPlayer() const { return mPlayer; }
             u32 getPlayerID() const { return mPlayerID; }
@@ -212,7 +200,6 @@ namespace BetterSMS {
 
         public:
             u8 mCurJump;
-            bool mIsLongJumping;
             bool mIsClimbTired;
             u32 mLastQuarterFrameState;
             u16 mPrevCollisionType;

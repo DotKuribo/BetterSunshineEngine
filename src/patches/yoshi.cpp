@@ -73,8 +73,30 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024EC2C, 0x802469A8, 0, 0), 0x60000000);
 
 #if BETTER_SMS_GREEN_YOSHI
 
+static void killYoshi(TYoshi *yoshi) {
+    if (gpMSound->gateCheck(31000))
+        MSoundSE::startSoundActor(31000, yoshi->mTranslation, 0, nullptr, 0, 4);
+
+	if (yoshi->mState == TYoshi::MOUNTED)
+		yoshi->mMario->getOffYoshi(true);
+
+	yoshi->mState = TYoshi::DROWNING;
+
+	MActor *actor = yoshi->mActor;
+    if (actor->getCurAnmIdx(MActor::BCK) != 25) {
+		if (!actor->checkCurBckFromIndex(25))
+			actor->setBckFromIndex(25);
+		thinkBtp__6TYoshiFi(yoshi, 25);
+		initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
+            									   ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
+	}
+
+    yoshi->mType = 0;
+    yoshi->mSubState = 30;
+}
+
 static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
-    if (yoshi->mType == TYoshi::GREEN)
+    if (yoshi->mType == TYoshi::GREEN || BetterSMS::isCollisionRepaired())
         return;
 
     // Check for water hit
@@ -95,28 +117,13 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
         !(yoshi->mState == TYoshi::UNMOUNTED || yoshi->mState == TYoshi::MOUNTED))
         return;
 
-    if (gpMSound->gateCheck(31000))
-        MSoundSE::startSoundActor(31000, yoshi->mTranslation, 0, nullptr, 0, 4);
-
-    if (yoshi->mState == TYoshi::MOUNTED)
-        yoshi->mMario->getOffYoshi(true);
-
-    yoshi->mState = TYoshi::DROWNING;
-
-    MActor *actor = yoshi->mActor;
-    if (actor->getCurAnmIdx(MActor::BCK) != 25) {
-        if (!actor->checkCurBckFromIndex(25))
-            actor->setBckFromIndex(25);
-        thinkBtp__6TYoshiFi(yoshi, 25);
-        initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
-                                       ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
-    }
-
-    yoshi->mType     = 0;
-    yoshi->mSubState = 30;
+    killYoshi(yoshi);
 }
 
 static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
+    if (BetterSMS::isCollisionRepaired())
+		return;
+
     if (yoshi->mState != TYoshi::UNMOUNTED)
         return;
 
@@ -126,22 +133,7 @@ static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 grou
     if (yoshi->mTranslation.y - groundY > 200)
         return;
 
-    if (gpMSound->gateCheck(31000))
-        MSoundSE::startSoundActor(31000, yoshi->mTranslation, 0, nullptr, 0, 4);
-
-    yoshi->mState = TYoshi::DROWNING;
-
-    MActor *actor = yoshi->mActor;
-    if (actor->getCurAnmIdx(MActor::BCK) != 25) {
-        if (!actor->checkCurBckFromIndex(25))
-            actor->setBckFromIndex(25);
-        thinkBtp__6TYoshiFi(yoshi, 25);
-        initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
-                                       ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
-    }
-
-    yoshi->mType     = 0;
-    yoshi->mSubState = 30;
+    killYoshi(yoshi);
 }
 
 BETTER_SMS_FOR_CALLBACK void checkForYoshiDeath(TMario *player, bool isMario) {
@@ -164,7 +156,7 @@ BETTER_SMS_FOR_CALLBACK void forceValidRidingAnimation(TMario *player, bool isMa
         return;
 
     // Force valid animation
-    if (yoshi->mState == TYoshi::MOUNTED && player->mState != TMario::STATE_SHINE_C)
+    if (yoshi->mState == TYoshi::MOUNTED && player->mState != TMario::STATE_SHINE_C && BetterSMS::areExploitsPatched())
         player->setAnimation(TMario::ANIMATION_IDLE, 1.0f);
 }
 

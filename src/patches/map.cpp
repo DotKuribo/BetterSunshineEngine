@@ -15,10 +15,13 @@
 
 // TODO: Account for BetterSMS::areBugsPatched()
 
+static bool sIsSeaBMDPresent = false;
+
 static bool isSeaBMDPresent(TMarDirector *director) {
     const u8 area = director->mAreaID;
+    sIsSeaBMDPresent = JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
     if (BetterSMS::areBugsPatched())
-        return JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
+        return sIsSeaBMDPresent;
     else
         return (area <= 1 || area == 4 || area == 3 || area == 14 || area == 9 || area == 5 || area == 6 || area == 20);
 }
@@ -49,6 +52,14 @@ static void *isSeaIndirectBMDPresent(THitActor *staticobj, const char *name) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8018A0D0, 0, 0, 0), isSeaIndirectBMDPresent);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A0D4, 0, 0, 0), 0x2C030000);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A0D8, 0, 0, 0), 0x41820150);
+
+static void *isSeaFilterPresent(const char *name, MActorAnmData *data, u32 unk, u32 flags) {
+    if (BetterSMS::areBugsPatched() && !sIsSeaBMDPresent) {
+        return nullptr;
+    }
+    return (void *)SMS_MakeMActorWithAnmData__FPCcP13MActorAnmDataUlUl(name, data, unk, flags);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801EA824, 0, 0, 0), isSeaFilterPresent);
 
 static f32 considerDryGround(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **data) {
     return map->mCollisionData->checkGround(x, y, z, 5, data);

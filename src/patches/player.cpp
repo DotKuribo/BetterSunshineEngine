@@ -43,3 +43,11 @@ void checkForForceDropOnDeadActor(TMario* player, bool isMario) {
         return;
     }
 }
+
+#undef VT_COVER_FRUIT
+#undef VT_RANDOM_FRUIT
+#undef VT_RESET_FRUIT
+#undef VT_WOOD_BARREL
+#undef VT_MAP_OBJ_GENERAL
+#undef VT_MAP_OBJ_BALL
+#undef VT_MAP_OBJ_ITEM

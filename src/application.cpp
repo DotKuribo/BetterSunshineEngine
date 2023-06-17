@@ -24,6 +24,7 @@
 using namespace BetterSMS;
 
 static TGlobalUnorderedMap<u8, Application::ContextCallback> sContextCBs(16);
+static bool sIsAdditionalMovie = false;
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::isContextRegistered(u8 context) {
     return sContextCBs.find(context) != sContextCBs.end();
@@ -77,7 +78,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBootIntro(TApplication *app) {
 }
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectStage(TApplication *app) {
-    if (!app->checkAdditionalMovie()) {
+    sIsAdditionalMovie = app->checkAdditionalMovie();
+    if (!sIsAdditionalMovie) {
         SMSSetupGameRenderingInfo(app->mDisplay, (app->_44 & 1) != 0);
 
         app->mFader->setDisplaySize(SMSGetGameRenderWidth(), SMSGetGameRenderHeight());
@@ -207,9 +209,16 @@ void BetterApplicationProcess(TApplication *app) {
                 }
             }
         }
+
         app->mContext      = delayContext;
-        app->mPrevScene    = app->mCurrentScene;
-        app->mCurrentScene = app->mNextScene;
+
+        // This fixes the secret area movies destroying previous scene data
+        if (sIsAdditionalMovie) {
+			sIsAdditionalMovie = false;
+        } else {
+            app->mPrevScene    = app->mCurrentScene;
+            app->mCurrentScene = app->mNextScene;
+        }
     } while (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80005624, 0, 0, 0), BetterApplicationProcess);

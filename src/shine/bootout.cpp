@@ -79,6 +79,17 @@ static void isKillEnemiesShine(TConductor *gpConductor, TVec3f *playerCoordinate
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802413E0, 0x8023916C, 0, 0), isKillEnemiesShine);
 
+static u32 isAppearSimpleShine() {
+    TShine *shine;
+    SMS_FROM_GPR(30, shine);
+
+    return shine->mType & 0xF;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BD7D4, 0, 0, 0), isAppearSimpleShine);
+SMS_WRITE_32(SMS_PORT_REGION(0x801BD7D8, 0, 0, 0), 0x28030003);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BD820, 0, 0, 0), isAppearSimpleShine);
+SMS_WRITE_32(SMS_PORT_REGION(0x801BD824, 0, 0, 0), 0x28030003);
+
 static void exitShineDemo(TMarDirector *director, TMario *mario, CPolarSubCamera *camera) {
     if (SMS_isDivingMap__Fv() || (mario->mPrevState & 0x20D0) == 0x20D0)
         mario->mState = mario->mPrevState;
@@ -177,13 +188,15 @@ static void thinkSetBootFlag(TShineFader *shineFader, u32 unk_1, u32 unk_2) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80297BD8, 0x8028FA70, 0, 0), thinkSetBootFlag);
 
-static void maintainBootFlagOnAppearSimple() {
+static u32 maintainBootFlagOnAppearSimple() {
     TShine *shine;
     SMS_FROM_GPR(31, shine);
 
     shine->mType = (shine->mType & 0x10) | 3;
+    return 60;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x801BD018, 0x8028FAA8, 0, 0), maintainBootFlagOnAppearSimple);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801BD000, 0x8028FAA8, 0, 0), maintainBootFlagOnAppearSimple);
+SMS_WRITE_32(SMS_PORT_REGION(0x801BD018, 0x8028FAC0, 0, 0), 0x60000000);
 
 static void thinkSetNextSequence(TGameSequence *sequence, u8 area, u8 episode,
                                  JDrama::TFlagT<u16> flag) {

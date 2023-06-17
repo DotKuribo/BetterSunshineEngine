@@ -116,10 +116,7 @@ extern void updateDebugCollision(TMario *, bool);
 
 // PLAYER MOVES
 extern u32 MultiJumpState;
-extern void checkForMultiJump(TMario *, bool);
-extern bool processMultiJump(TMario *);
 extern void updateDeadTriggerState(TMario *player, bool isMario);
-extern void blazePlayer(TMario *player, bool isMario);
 
 // PLAYER STATE
 extern void updateCollisionContext(TMario *, bool);
@@ -175,6 +172,10 @@ extern void checkForCompletionAwards(TApplication *);
 extern void updateUnlockedSettings(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
+extern void patches_staticResetter(TMarDirector *);
+
+// ================================= //
+
 extern "C" void __cxa_pure_virtual();
 
 static void initLib() {
@@ -204,7 +205,7 @@ static void initLib() {
         saveInfo.mIconSpeed   = CARD_SPEED_SLOW;
         saveInfo.mIconCount   = 2;
         saveInfo.mIconTable   = GetResourceTextureHeader(gSaveIcon);
-        saveInfo.mSaveGlobal  = true;
+        saveInfo.mSaveGlobal  = false;
     }
 
     BetterSMS::registerModule(&sBetterSMSInfo);
@@ -227,10 +228,6 @@ static void initLib() {
     Application::registerContextCallback(TApplication::CONTEXT_DIRECT_LEVEL_SELECT,
                                          BetterAppContextDirectLevelSelect);
     Application::registerContextCallback(10, BetterAppContextDirectSettingsMenu);
-
-    //// Set up player params
-    Player::registerUpdateCallback("__update_mario_multijump", checkForMultiJump);
-    Player::registerStateMachine(MultiJumpState, processMultiJump);
 
     #if 0
     Player::registerUpdateCallback("__debug_warp_collision", updateDebugCollision);
@@ -310,6 +307,9 @@ static void initLib() {
     Game::registerPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
     Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
 
+    // PATCHES
+    Stage::registerInitCallback("__init_shine_100_resetter", patches_staticResetter);
+
     PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600004); // Make system memory more expansive (takes away from stage heap)
 }
 
@@ -342,6 +342,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio, "getScreenToFullScreenRatio__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getScreenRatioAdjustX, "getScreenRatioAdjustX__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getFrameRate, "getFrameRate__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getBugFixesSetting, "getBugFixesSetting__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getExploitFixesSetting, "getExploitFixesSetting__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getCollisionFixesSetting, "getCollisionFixesSetting__9BetterSMSFv");
 
         /* APPLICATION */
         KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered, "isContextRegistered__Q29BetterSMS11ApplicationFUc");
@@ -420,7 +423,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "warpToCollisionFace__Q29BetterSMS6PlayerFv");
         KURIBO_EXPORT_AS(BetterSMS::Player::warpToPoint, "warpToPoint__Q29BetterSMS6PlayerFv");
         KURIBO_EXPORT_AS(BetterSMS::Player::rotateRelativeToCamera,
-                         "rotateRelativeToCamera__Q29BetterSMS6PlayerFv");
+                         "rotateRelativeToCamera__Q29BetterSMS6PlayerFP6TMarioP15CPolarSubCamera4Vec2f");
 
         /* MUSIC */
         KURIBO_EXPORT_AS(BetterSMS::Music::queueSong, "queueSong__Q29BetterSMS5MusicFPCc");

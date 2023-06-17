@@ -26,7 +26,7 @@ static void patchWaterDownWarp(f32 y) {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    if (!BetterSMS::areBugsPatched()) {
+    if (!BetterSMS::isCollisionRepaired()) {
         player->mTranslation.y = y;
         return;
     }
@@ -58,7 +58,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024FB5C, 0x802478EC, 0, 0), 0x41820084);
 static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
     SMS_FROM_GPR(29, player);
 
-    const TBGCheckData **tri = const_cast<const TBGCheckData **>(&player->mFloorTriangleWater);
+    const TBGCheckData **tri = &player->mFloorTriangleWater;
     const TMapCollisionData *collision = gpMapCollisionData;
 
     const f32 gridFraction = 1.0f / 1024.0f;
@@ -94,7 +94,7 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
             &waterAbove);
     }
 
-    if (BetterSMS::areBugsPatched()) {
+    if (BetterSMS::isCollisionRepaired() && !SMS_isDivingMap__Fv()) {
         if (!(player->mState & TMario::STATE_WATERBORN)) {
             f32 yPos = collision->checkGround(x, waterAboveHeight - 10.0f, z, 0, tri);
             if (*tri && isColTypeWater((*tri)->mType)) {
