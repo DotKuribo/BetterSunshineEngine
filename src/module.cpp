@@ -305,7 +305,6 @@ static void initLib() {
     Game::registerBootCallback("__init_setting_notifs", initUnlockedSettings);
     Game::registerLoopCallback("__update_setting_notifs", updateUnlockedSettings);
     Game::registerPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
-    Debug::registerUpdateCallback("__check_awards", checkForCompletionAwards);
 
     // PATCHES
     Stage::registerInitCallback("__init_shine_100_resetter", patches_staticResetter);

@@ -1074,14 +1074,4 @@ BETTER_SMS_FOR_CALLBACK void drawUnlockedSettings(TApplication *app, const J2DOr
     }
 }
 
-BETTER_SMS_FOR_CALLBACK void checkForCompletionAwards(TApplication *app) {
-    if (!TFlagManager::smInstance)
-        return;
-
-    const size_t shineCount = TFlagManager::smInstance->getFlag(0x40000);
-    if (shineCount >= 120 && !gBugFixesSetting.isUnlocked()) {
-        gBugFixesSetting.unlock();
-    }
-}
-
 #undef DISK_GAME_ID
