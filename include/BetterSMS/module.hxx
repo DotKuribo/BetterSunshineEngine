@@ -77,13 +77,13 @@ namespace BetterSMS {
 
     class BugsSetting final : public Settings::SwitchSetting {
     public:
-        BugsSetting(const char *name) : SwitchSetting(name, &mBugsValue), mBugsValue(true) {}
+        BugsSetting(const char *name) : SwitchSetting(name, &mBugsValue), mBugsValue(true), mIsUnlocked(true) {}
         ~BugsSetting() override {}
 
-        bool isUnlocked() const override { return sIsUnlocked; }
+        bool isUnlocked() const override { return mIsUnlocked; }
 
         void load(JSUMemoryInputStream &in) override {
-            in.read(&sIsUnlocked, 1);
+            in.read(&mIsUnlocked, 1);
             {
                 bool b;
                 in.read(&b, 1);
@@ -91,29 +91,30 @@ namespace BetterSMS {
             }
         }
         void save(JSUMemoryOutputStream &out) override {
-            out.write(&sIsUnlocked, 1);
+            out.write(&mIsUnlocked, 1);
             out.write(mValuePtr, 1);
         }
 
-        inline void lock() { sIsUnlocked = false; }
-        inline void unlock() { sIsUnlocked = true; }
+        inline void lock() { mIsUnlocked = false; }
+        inline void unlock() { mIsUnlocked = true; }
 
     private:
-        static bool sIsUnlocked;
+        bool mIsUnlocked;
         bool mBugsValue;
     };
 
     class CollisionFixesSetting final : public Settings::SwitchSetting {
     public:
         CollisionFixesSetting(const char *name)
-            : SwitchSetting(name, &mCollisionFixesFlag), mCollisionFixesFlag(true) {
+            : SwitchSetting(name, &mCollisionFixesFlag), mCollisionFixesFlag(true),
+              mIsUnlocked(true) {
             mValueChangedCB = CollisionFixesSetting::valueChanged;
         }
 
-        bool isUnlocked() const override { return sIsUnlocked; }
+        bool isUnlocked() const override { return mIsUnlocked; }
 
         void load(JSUMemoryInputStream &in) override {
-            in.read(&sIsUnlocked, 1);
+            in.read(&mIsUnlocked, 1);
             {
                 bool b;
                 in.read(&b, 1);
@@ -121,12 +122,12 @@ namespace BetterSMS {
             }
         }
         void save(JSUMemoryOutputStream &out) override {
-            out.write(&sIsUnlocked, 1);
+            out.write(&mIsUnlocked, 1);
             out.write(mValuePtr, 1);
         }
 
-        inline void lock() { sIsUnlocked = false; }
-        inline void unlock() { sIsUnlocked = true; }
+        inline void lock() { mIsUnlocked = false; }
+        inline void unlock() { mIsUnlocked = true; }
 
     private:
         static void valueChanged(void *old, void *cur, ValueKind kind) {
@@ -141,7 +142,7 @@ namespace BetterSMS {
             }
         }
 
-        static bool sIsUnlocked;
+        bool mIsUnlocked;
         bool mCollisionFixesFlag;
     };
 

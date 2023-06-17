@@ -50,9 +50,6 @@ BETTER_SMS_FOR_EXPORT const char *Settings::getGroupName(const Settings::Setting
 
 using namespace BetterSMS;
 
-bool BugsSetting::sIsUnlocked = true;
-bool CollisionFixesSetting::sIsUnlocked = true;
-
 static Settings::SettingsGroup sSunshineSettingsGroup = {1, 0, Settings::Priority::CORE};
 static RumbleSetting sRumbleSetting("Controller Rumble");
 static SoundSetting sSoundSetting("Sound Mode");
