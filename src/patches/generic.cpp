@@ -79,20 +79,29 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801B7518, 0x801AF3D0, 0, 0), 0x28030000);
 SMS_WRITE_32(SMS_PORT_REGION(0x801B751C, 0x801AF3D4, 0, 0), 0x418200A4);
 
 // Remove save prompts
-extern PromptsSetting gSavePromptSetting;
+extern SavePromptsSetting gSavePromptSetting;
 BETTER_SMS_FOR_CALLBACK bool conditionalSavePrompt(TMarDirector *director, u8 nextState) {
     switch (gSavePromptSetting.getInt()) {
     default:
-    case PromptsSetting::ALL:
+    case SavePromptsSetting::ALL:
         return true;
-    case PromptsSetting::NO_BLUE:
+    case SavePromptsSetting::NO_BLUE:
         if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] == 1) {
             return false;
         } else {
             return true;
         }
-    case PromptsSetting::NONE:
+    case SavePromptsSetting::NONE:
         if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0) {
+            return false;
+        } else {
+            return true;
+        }
+    case SavePromptsSetting::AUTO_SAVE:
+        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0) {
+            if (!BetterSMS::triggerAutoSave()) {
+                OSReport("AutoSave failed!\n");
+            }
             return false;
         } else {
             return true;

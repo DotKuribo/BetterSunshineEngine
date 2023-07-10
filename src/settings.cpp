@@ -106,8 +106,8 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     if (MountCard() < CARD_ERROR_READY)
         return;
 
-    for (auto &module : gModuleInfos) {
-        auto settingsGroup = module.second->mSettings;
+    for (auto &init : gModuleInfos) {
+        auto settingsGroup = init.second->mSettings;
         if (!settingsGroup)  // No settings registered
             continue;
 
@@ -117,7 +117,10 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
             return;
         }
 
-        ReadSavedSettings(*settingsGroup, &finfo);
+        // If this returns BROKEN, the save file is desynced by version and should be reset
+        if (ReadSavedSettings(*settingsGroup, &finfo) == CARD_ERROR_BROKEN) {
+            UpdateSavedSettings(*settingsGroup, &finfo);
+        }
         CloseSavedSettings(*settingsGroup, &finfo);
     }
 
@@ -227,9 +230,6 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     auto &info = group.getSaveInfo();
 
-    const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
-    char *saveBuffer          = new (32) char[saveDataSize];
-
     {
         CARDStat fstatus;
 
@@ -251,6 +251,9 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
         CARDSetStatus(finfo->mChannel, finfo->mFileNo, &fstatus);
     }
+
+    const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
+    char *saveBuffer          = new (JKRHeap::sSystemHeap, 32) char[saveDataSize];
 
     // Reset data
     memset(saveBuffer, 0, saveDataSize);
@@ -292,10 +295,12 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         }
         //OSReport("Result (WRITE): %d\n", result);
         if (result < CARD_ERROR_READY) {
+            delete[] saveBuffer;
             return result;
         }
     }
 
+    delete[] saveBuffer;
     return CARD_ERROR_READY;
 }
 
@@ -303,7 +308,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     auto &info = group.getSaveInfo();
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
-    char *saveBuffer          = new (32) char[saveDataSize];
+    char *saveBuffer          = new (JKRHeap::sSystemHeap, 32) char[saveDataSize];
 
     // Reset data
     memset(saveBuffer, 0, saveDataSize);
@@ -315,16 +320,18 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         }
         //OSReport("Result (READ): %d\n", result);
         if (result < CARD_ERROR_READY) {
+            delete[] saveBuffer;
             return result;
         }
     }
 
     if (saveBuffer[0] != group.getMajorVersion()) {
         OSPanic(__FILE__, __LINE__,
-                "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\nConsider deleting "
-                "the saved settings on the memory card.",
+                "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
+                "Automatically resetting to defaults...",
                 Settings::getGroupName(group));
-        return CARD_ERROR_READY;
+        delete[] saveBuffer;
+        return CARD_ERROR_BROKEN;
     }
 
     size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
@@ -335,6 +342,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         setting->load(in);
     }
 
+    delete[] saveBuffer;
     return CARD_ERROR_READY;
 }
 
@@ -346,6 +354,57 @@ s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo
     if (info.mSaveGlobal)
         __CARDSetDiskID(DISK_GAME_ID);
     return ret;
+}
+
+static TCardBookmarkInfo sBookMarkInfo;
+
+s32 SaveAllSettings() {
+    {
+        gpCardManager->getBookmarkInfos(&sBookMarkInfo);
+        while (gpCardManager->mCommand == TCardManager::GETBOOKMARKS) {
+            SMS_ASM_BLOCK("");  // Wait for save to finish
+        }
+        JSUMemoryOutputStream out(nullptr, 0);
+        gpCardManager->getWriteStream(&out);
+        TFlagManager::smInstance->save(out);
+        gpCardManager->writeBlock(gpApplication.mCurrentSaveBlock);  // This is the block being used
+        while (gpCardManager->mCommand == TCardManager::SAVEBLOCK) {
+            SMS_ASM_BLOCK("");  // Wait for save to finish
+        }
+        gpCardManager->unmount();
+    }
+
+    {
+        s32 cardStatus = MountCard();
+
+        if (cardStatus < CARD_ERROR_READY) {
+            return cardStatus;
+        }
+
+        CARDFileInfo finfo;
+
+        TGlobalVector<Settings::SettingsGroup *> groups;
+        getSettingsGroups(groups);
+
+        for (auto &group : groups) {
+            s32 ret = OpenSavedSettings(*group, finfo);
+            if (ret < CARD_ERROR_READY) {
+                CloseSavedSettings(*group, &finfo);
+                return ret;
+            }
+
+            if (UpdateSavedSettings(*group, &finfo) == CARD_ERROR_READY)
+                OSReport("Saved settings for module \"%s\"!\n", Settings::getGroupName(*group));
+			else
+				OSReport("Failed to save settings for module \"%s\"!\n",
+                    						 Settings::getGroupName(*group));
+            CloseSavedSettings(*group, &finfo);
+        }
+
+        UnmountCard();
+    }
+
+    return CARD_ERROR_READY;
 }
 
 SettingsDirector::~SettingsDirector() { gpMSound->exitStage(); }
@@ -933,7 +992,6 @@ static s32 checkForSettingsMenu(TMarDirector *director) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80299D0C, 0, 0, 0), checkForSettingsMenu);
 
-static J2DPicture *sNotificationPicture;
 static J2DScreen *sNotificationScreen;
 static J2DTextBox *sNotificationBox;
 static TGlobalVector<TGlobalString> sUnlockedSettings;

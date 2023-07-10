@@ -22,6 +22,10 @@ public:
     }
     ~SimpleTexAnimator() {}
 
+    size_t getCurrentFrame() const { return static_cast<size_t>(mCurrentFrame); }
+    size_t getFrameCount() const { return mTexCount; }
+    f32 getRotation() const { return mRotation; }
+
     void setTextures(const ResTIMG **textures, size_t texCount) {
         mTextures     = textures;
         mTexCount     = texCount;
@@ -46,7 +50,7 @@ public:
         if (mCurrentFrame >= mTexCount)
             mCurrentFrame -= mTexCount - 1.0;
 
-        picture->changeTexture(mTextures[static_cast<size_t>(mCurrentFrame)], 0);
+        picture->changeTexture(mTextures[static_cast<size_t>(mCurrentFrame) % mTexCount], 0);
         picture->mRotation = mRotation;
     }
 

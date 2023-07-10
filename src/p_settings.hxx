@@ -32,6 +32,7 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut);
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo);
+s32 SaveAllSettings();
 
 const u8 SMS_ALIGN(32) gSaveBnr[] = {
     0x09, 0x00, 0x00, 0x60, 0x00, 0x20, 0x00, 0x00, 0x01, 0x02, 0x00, 0xd0, 0x00, 0x00, 0x0c, 0x20,
@@ -915,14 +916,14 @@ private:
     int mFPSValue;
 };
 
-class PromptsSetting final : public Settings::IntSetting {
+class SavePromptsSetting final : public Settings::IntSetting {
 public:
-    enum Kind { ALL, NO_BLUE, NONE };
+    enum Kind { ALL, NO_BLUE, NONE, AUTO_SAVE };
 
-    PromptsSetting(const char *name) : IntSetting(name, &mPromptsValue), mPromptsValue(ALL) {
-        mValueRange = {0, 2, 1};
+    SavePromptsSetting(const char *name) : IntSetting(name, &mPromptsValue), mPromptsValue(AUTO_SAVE) {
+        mValueRange = {0, 3, 1};
     }
-    ~PromptsSetting() override {}
+    ~SavePromptsSetting() override {}
 
     void getValueStr(char *dst) const override {
         switch (getInt()) {
@@ -935,6 +936,9 @@ public:
             break;
         case Kind::NONE:
             strncpy(dst, "NONE", 10);
+            break;
+		case Kind::AUTO_SAVE:
+            strncpy(dst, "AUTO SAVE", 10);
             break;
         }
     }

@@ -106,14 +106,14 @@ static void exitShineDemo(TMarDirector *director, TMario *mario, CPolarSubCamera
     ((u16 *)director->mGCConsole)[0x8A / 2] = 0;
 }
 
-extern PromptsSetting gSavePromptSetting;
+extern SavePromptsSetting gSavePromptSetting;
 SMS_NO_INLINE static void restoreMario(TMarDirector *director, u32 nextState) {
     TShine *shine = director->mCollectedShine;
 
     if (!shine || !(shine->mType & 0x10))
         return;
 
-    if (gSavePromptSetting.getInt() == PromptsSetting::NONE) {
+    if (gSavePromptSetting.getInt() == SavePromptsSetting::NONE || gSavePromptSetting.getInt() == SavePromptsSetting::AUTO_SAVE) {
         if (gpCamera->getRestDemoFrames() != 0) {
             return;
         }

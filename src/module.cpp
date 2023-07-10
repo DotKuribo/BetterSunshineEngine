@@ -43,7 +43,7 @@ static bool sCameraInvertX = false;
 static bool sCameraInvertY = false;
 Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX);
 Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY);
-PromptsSetting gSavePromptSetting("Save Prompts");
+SavePromptsSetting gSavePromptSetting("Save Prompts");
 
 static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 1, &sSettingsGroup};
 //
@@ -171,6 +171,11 @@ extern void initUnlockedSettings(TApplication *);
 extern void checkForCompletionAwards(TApplication *);
 extern void updateUnlockedSettings(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
+
+// SAVE FILE
+extern void initAutoSaveIcon(TApplication *);
+extern void updateAutoSaveIcon(TApplication *);
+extern void drawAutoSaveIcon(TApplication *, const J2DOrthoGraph *);
 
 extern void patches_staticResetter(TMarDirector *);
 
@@ -306,6 +311,11 @@ static void initLib() {
     Game::registerLoopCallback("__update_setting_notifs", updateUnlockedSettings);
     Game::registerPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
 
+    //// AUTO SAVE
+    Game::registerBootCallback("__init_auto_save", initAutoSaveIcon);
+    Game::registerLoopCallback("__update_auto_save", updateAutoSaveIcon);
+    Game::registerPostDrawCallback("__draw_auto_save", drawAutoSaveIcon);
+
     // PATCHES
     Stage::registerInitCallback("__init_shine_100_resetter", patches_staticResetter);
 
@@ -344,6 +354,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::getBugFixesSetting, "getBugFixesSetting__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getExploitFixesSetting, "getExploitFixesSetting__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getCollisionFixesSetting, "getCollisionFixesSetting__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::triggerAutoSave, "triggerAutoSave__9BetterSMSFv");
 
         /* APPLICATION */
         KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered, "isContextRegistered__Q29BetterSMS11ApplicationFUc");
