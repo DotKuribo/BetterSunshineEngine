@@ -17,6 +17,7 @@
 #include "logging.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"
+#include "p_debug.hxx"
 
 using namespace BetterSMS;
 
@@ -85,6 +86,11 @@ BETTER_SMS_FOR_CALLBACK void updateFPSMonitor(TApplication *app) {
 BETTER_SMS_FOR_CALLBACK void drawFPSMonitor(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!sIsInitialized)
         return;
+
+    if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
+        if (gDebugUIPage == 0)
+            return;
+    }
 
     {
         auto monitorX = gBaseMonitorX + getScreenRatioAdjustX();

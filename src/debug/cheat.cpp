@@ -3,18 +3,21 @@
 
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/Player/Mario.hxx>
-#include <SMS/System/Application.hxx>
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
-#include <SMS/Camera/PolarSubCamera.hxx>
+#include <SMS/Player/Mario.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
 #include "logging.hxx"
 #include "module.hxx"
+#include "raw_fn.hxx"
+
+#include "p_debug.hxx"
 
 using namespace BetterSMS;
 
@@ -47,7 +50,7 @@ void drawCheatText(TApplication *app, const J2DOrthoGraph *graph) {
     if (!gDebugTextBoxW || !gDebugTextBoxW->getStringPtr())
         return;
 
-    if (BetterSMS::isDebugMode()) {
+    if (BetterSMS::isDebugMode() && gDebugUIPage != 0) {
         gDebugTextBoxB->draw(235, 462);
         gDebugTextBoxW->draw(234, 460);
     }
@@ -87,78 +90,154 @@ static void isLevelSelectAvailable() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A6794, 0x8029E6EC, 0, 0), isLevelSelectAvailable);
 
-u32 XYZState = 0xF000FFFF;
-static bool sJustStartedXYZ = false;
-static bool sJustExitedXYZ  = false;
+bool gIsGameUIActive  = true;
+int gMarioAnimation   = 0;
+bool gIsDebugActive   = false;
+bool gIsFastMovement  = false;
+int gAnimationID      = 0;
+float gAnimationSpeed = 1.0f;
 
-BETTER_SMS_FOR_CALLBACK void checkMarioXYZMode(TMario *player, bool isMario) {
-    constexpr u32 enterButton = TMarioGamePad::EButtons::DPAD_UP;
+static bool sJustStartedDebug = false;
+static bool sJustExitedDebug  = false;
+static int sNumAnimations     = 336;
 
-    if ((player->mController->mButtons.mInput & TMarioGamePad::L))
-        return;
+extern void DebugMoveMarioXYZ(TMario *player);
+extern void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera);
+
+//----//
+
+BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
+    // Just toggle the global things here.
+
+    const bool shouldToggleDebugUI =
+        ButtonsFramePressed(player->mController, gControlToggleDebugUI) &&
+        ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shouldToggleGameUI =
+        ButtonsFramePressed(player->mController, gControlToggleGameUI) &&
+        !ButtonsPressed(player->mController, gSecondaryMask);
+
+    if (shouldToggleDebugUI) {
+        gDebugUIPage = (gDebugUIPage + 1) % 5;
+    }
+
+    if (shouldToggleGameUI) {
+        gIsGameUIActive ^= true;
+    }
 
     if (player->mState == XYZState)
         return;
 
-    if ((player->mController->mButtons.mFrameInput & enterButton) && BetterSMS::isDebugMode()) {
-        if (!sJustExitedXYZ) {
+    gIsDebugActive = false;
+    gDebugState    = NONE;
+
+    if (ButtonsFramePressed(player->mController, gControlToggleDebugActive) &&
+        ButtonsPressed(player->mController, gActivateMask) && BetterSMS::isDebugMode()) {
+        if (!sJustExitedDebug) {
             player->mPrevState = player->mState;
-            player->mState = XYZState;
-            sJustStartedXYZ = true;
+            player->mState     = XYZState;
+            sJustStartedDebug  = true;
         }
     } else {
-        sJustExitedXYZ = false;
+        sJustExitedDebug = false;
     }
 }
 
 // extern -> debug update callback
-BETTER_SMS_FOR_CALLBACK bool updateMarioXYZMode(TMario *player) {
-    constexpr f32 baseSpeed = 21.0f;
-    constexpr u32 exitButton = TMarioGamePad::EButtons::DPAD_UP;
-
+BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
     player->mSpeed.set(0.0f, 0.0f, 0.0f);
     player->mForwardSpeed = 0.0f;
 
-    if ((player->mController->mButtons.mFrameInput & exitButton)) {
-        if (!sJustStartedXYZ && !(player->mController->mButtons.mInput & TMarioGamePad::L)) {
-            player->mState = TMario::STATE_FALL;
-            sJustExitedXYZ = true;
+    gIsDebugActive = true;
+
+    const bool shouldToggleDebug =
+        ButtonsFramePressed(player->mController, gControlToggleDebugActive) &&
+        ButtonsPressed(player->mController, gActivateMask);
+
+    const bool shouldToggleDebugState =
+        ButtonsFramePressed(player->mController, gControlToggleDebugState) &&
+        ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shouldIncreaseAnimationID =
+        ButtonsFramePressed(player->mController, gControlIncreaseAnimationID) &&
+        !ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shouldDecreaseAnimationID =
+        ButtonsFramePressed(player->mController, gControlDecreaseAnimationID) &&
+        !ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shouldIncreaseAnimationSpeed =
+        ButtonsRapidPressed(player->mController, gControlIncreaseAnimationSpeed) &&
+        ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shouldDecreaseAnimationSpeed =
+        ButtonsRapidPressed(player->mController, gControlDecreaseAnimationSpeed) &&
+        ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shoudToggleFastMovement =
+        ButtonsFramePressedEx(player->mController, gControlToggleFastMovement);
+
+    if (shouldToggleDebugState) {
+        gDebugState += 1;
+        if (gDebugState > 2)
+            gDebugState = NONE;
+
+        if (!sJustStartedDebug && gDebugState == NONE) {
+            player->mState   = TMario::STATE_FALL;
+            sJustExitedDebug = true;
             return true;
         }
     } else {
-        sJustStartedXYZ = false;
+        sJustStartedDebug = false;
     }
 
-    const JUTGamePad::CStick &mainStick = player->mController->mControlStick;
-    const f32 speedMultiplier           = lerp<f32>(1, 2, player->mController->mButtons.mAnalogR);
-
-    const f32 cameraRotY = (f32)(gpCamera->mHorizontalAngle) / 182.0f;
-
-    player->mTranslation.x +=
-        ((-sinf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
-    player->mTranslation.z +=
-        ((-cosf(angleToRadians(cameraRotY)) * baseSpeed) * speedMultiplier) * mainStick.mStickY;
-    player->mTranslation.x -= ((-sinf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
-                    mainStick.mStickX;
-    player->mTranslation.z -= ((-cosf(angleToRadians(cameraRotY + 90.0f)) * baseSpeed) * speedMultiplier) *
-                    mainStick.mStickX;
-
-    if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::B) {
-        player->mTranslation.y -= (baseSpeed * speedMultiplier);
-    } else if (player->mController->mButtons.mInput & TMarioGamePad::EButtons::A) {
-        player->mTranslation.y += (baseSpeed * speedMultiplier);
+    if (shoudToggleFastMovement) {
+        gIsFastMovement ^= true;
     }
+
+    switch (gDebugState) {
+    default:
+    case XYZ_MODE:
+        DebugMoveMarioXYZ(player);
+        break;
+    case CAM_MODE:
+        DebugFreeFlyCamera(player, gpCamera);
+        break;
+    }
+
+    int prevAnimation = gAnimationID;
+    while (gMarioAnimeData[gAnimationID].mAnimID == 200 || gAnimationID == prevAnimation) {
+        if (shouldIncreaseAnimationID)
+            gAnimationID += 1;
+        else if (shouldDecreaseAnimationID)
+            gAnimationID -= 1;
+        else
+            break;
+
+        if (gAnimationID < 0) {
+            gAnimationID = sNumAnimations - 1;
+            break;
+        }
+        if (gAnimationID >= sNumAnimations) {
+            gAnimationID = 0;
+            break;
+        }
+    }
+
+    if (shouldIncreaseAnimationSpeed)
+        gAnimationSpeed += 0.01;
+    else if (shouldDecreaseAnimationSpeed)
+        gAnimationSpeed -= 0.01;
+
+    gAnimationSpeed = clamp(gAnimationSpeed, 0.0f, 1000.0f);
+
+    if (gMarioAnimeData[gAnimationID].mAnimID != 200)
+        player->setAnimation(gAnimationID, gAnimationSpeed);
+
     return false;
 }
 
-enum DebugNozzleKind {
-    SPRAY,
-    ROCKET,
-    UNDERWATER,
-    YOSHI,
-    HOVER,
-    TURBO
-};
+enum DebugNozzleKind { SPRAY, ROCKET, UNDERWATER, YOSHI, HOVER, TURBO };
 
 static s32 sNozzleKind = DebugNozzleKind::SPRAY;
 
@@ -170,18 +249,29 @@ BETTER_SMS_FOR_CALLBACK void updateFluddNozzle(TApplication *app) {
         director->mCurState != TMarDirector::Status::STATE_NORMAL)
         return;
 
-    TMario *player = gpMarioAddress;
+    if (gDebugState != NONE)
+        return;
+
+    TMario *player   = gpMarioAddress;
     TWaterGun *fludd = player->mFludd;
 
     if (!fludd)
         return;
 
+    const bool shouldSwitchNozzleR =
+        ButtonsRapidPressed(player->mController, gControlNozzleSwitchR) &&
+        !ButtonsPressed(player->mController, gSecondaryMask);
+
+    const bool shouldSwitchNozzleL =
+        ButtonsRapidPressed(player->mController, gControlNozzleSwitchL) &&
+        !ButtonsPressed(player->mController, gSecondaryMask);
+
     sNozzleKind = fludd->mSecondNozzle;
 
     s32 adjust = 0;
-    if ((player->mController->mButtons.mFrameInput & TMarioGamePad::DPAD_RIGHT))
+    if (shouldSwitchNozzleR)
         adjust = 1;
-    else if ((player->mController->mButtons.mFrameInput & TMarioGamePad::DPAD_LEFT))
+    else if (shouldSwitchNozzleL)
         adjust = -1;
 
     if (adjust == 0)
@@ -220,13 +310,46 @@ BETTER_SMS_FOR_CALLBACK void updateFluddNozzle(TApplication *app) {
     fludd->mCurrentNozzle = fludd->mSecondNozzle;
 
     if (sNozzleKind != fludd->mSecondNozzle) {
-        fludd->mCurrentNozzle = fludd->mSecondNozzle;
+        fludd->mCurrentNozzle      = fludd->mSecondNozzle;
         TNozzleBase *currentNozzle = fludd->mNozzleList[fludd->mCurrentNozzle];
         fludd->mCurrentWater       = currentNozzle->mEmitParams.mAmountMax.get();
     }
 
     sNozzleKind %= 7;
 }
+
+static bool shouldUpdateMarDirector() {
+    TMarDirector *director;
+    SMS_FROM_GPR(31, director);
+
+    return director->mAreaID != 15 && !gIsDebugActive;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80297A48, 0, 0, 0), shouldUpdateMarDirector);
+SMS_WRITE_32(SMS_PORT_REGION(0x80297A4C, 0, 0, 0), 0x28030000);
+
+static SMS_ASM_FUNC void flagConditionalGameUI() {
+    SMS_ASM_BLOCK("lis 12, gIsGameUIActive@ha      \n\t"
+                  "lbz 12, gIsGameUIActive@l (12)  \n\t"
+                  "cmpwi 12, 1                     \n\t"
+                  "beq _render_ui                  \n\t"
+                  "li 4, 0                         \n\t"
+                  "_render_ui:                     \n\t"
+                  "rlwinm. 0, 4, 0, 31, 31         \n\t"
+                  "blr                             \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80140844, 0, 0, 0), flagConditionalGameUI);
+
+static u32 checkShouldUpdateMeaning() {
+    TMarioGamePad *controller;
+    SMS_FROM_GPR(30, controller);
+
+    if (gIsDebugActive)
+        controller->mMeaning = 0;
+    return controller->mMeaning;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802a8948, 0, 0, 0), checkShouldUpdateMeaning);
+SMS_WRITE_32(SMS_PORT_REGION(0x802a894c, 0, 0, 0), 0x7c63f878);
+SMS_WRITE_32(SMS_PORT_REGION(0x802a8950, 0, 0, 0), 0x907e00d4);
 
 // static u8 sHomeID   = 0;
 // static u8 sTargetID = 254;
@@ -271,7 +394,7 @@ BETTER_SMS_FOR_CALLBACK void updateFluddNozzle(TApplication *app) {
 static u32 preventDebuggingDeath(TMario *player) {
     return player->mState == XYZState ? 0x224E0 : player->mState;  // Spoof non dying value
 };
-//SMS_PATCH_BL(SMS_PORT_REGION(0x80243110, 0x8023AE9C, 0, 0), preventDebuggingDeath);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80243110, 0x8023AE9C, 0, 0), preventDebuggingDeath);
 
 static void preventDebuggingInteraction(TMario *player, JDrama::TGraphics *graphics) {
     if (player->mState != XYZState)
@@ -282,4 +405,4 @@ static void preventDebuggingInteraction(TMario *player, JDrama::TGraphics *graph
         player->mState        = static_cast<u32>(TMario::STATE_IDLE);
     }
 }
-//SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x8024512C, 0, 0), preventDebuggingInteraction);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x8024512C, 0, 0), preventDebuggingInteraction);

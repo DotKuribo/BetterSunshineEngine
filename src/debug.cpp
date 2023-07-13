@@ -69,17 +69,8 @@ BETTER_SMS_FOR_CALLBACK void initDebugCallbacks(TApplication *app) {
     currentHeap->becomeCurrentHeap();
 }
 
-static bool sIsActive = true;
-
 BETTER_SMS_FOR_CALLBACK void updateDebugCallbacks(TApplication *app) {
     if (!BetterSMS::isDebugMode())
-        return;
-
-    if ((app->mGamePads[0]->mButtons.mInput & TMarioGamePad::L) &&
-        (app->mGamePads[0]->mButtons.mFrameInput & TMarioGamePad::DPAD_UP))
-        sIsActive ^= true;
-
-    if (!sIsActive)
         return;
 
     for (auto &item : sDebugUpdateCBs) {
@@ -89,9 +80,6 @@ BETTER_SMS_FOR_CALLBACK void updateDebugCallbacks(TApplication *app) {
 
 BETTER_SMS_FOR_CALLBACK void drawDebugCallbacks(TApplication *app, const J2DOrthoGraph *ortho) {
     if (!BetterSMS::isDebugMode())
-        return;
-
-    if (!sIsActive)
         return;
 
     for (auto &item : sDebugDrawCBs) {

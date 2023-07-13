@@ -93,10 +93,11 @@ extern bool BetterAppContextDirectSettingsMenu(TApplication *app);
 
 // DEBUG
 extern void initDebugCallbacks(TApplication *);
+extern void resetDebugState(TMarDirector *);
 
 extern u32 XYZState;
-extern void checkMarioXYZMode(TMario *, bool);
-extern bool updateMarioXYZMode(TMario *);
+extern void checkDebugMode(TMario *, bool);
+extern bool updateDebugMode(TMario *);
 extern void updateFluddNozzle(TApplication *);
 
 extern void drawMonitor(TApplication *, const J2DOrthoGraph *);
@@ -106,9 +107,13 @@ extern void initFPSMonitor(TApplication *);
 extern void updateFPSMonitor(TApplication *);
 extern void drawFPSMonitor(TApplication *, const J2DOrthoGraph *);
 
-extern void initStateMonitor(TApplication *);
-extern void updateStateMonitor(TApplication *);
-extern void drawStateMonitor(TApplication *, const J2DOrthoGraph *);
+extern void initDebugStateMonitor(TApplication *);
+extern void updateDebugStateMonitor(TApplication *);
+extern void drawDebugStateMonitor(TApplication *, const J2DOrthoGraph *);
+
+extern void initGameStateMonitor(TApplication *);
+extern void updateGameStateMonitor(TApplication *);
+extern void drawGameStateMonitor(TApplication *, const J2DOrthoGraph *);
 
 // PLAYER WARP
 extern void processWarp(TMario *, bool);
@@ -273,9 +278,9 @@ static void initLib() {
     Player::registerUpdateCallback("__update_yoshi_riding", forceValidRidingAnimation);
 
     //// DEBUG
-    Player::registerUpdateCallback("__check_for_xyz", checkMarioXYZMode);
+    Player::registerUpdateCallback("__check_for_xyz", checkDebugMode);
     Player::registerUpdateCallback("__update_dead_trigger", updateDeadTriggerState);
-    Player::registerStateMachine(XYZState, updateMarioXYZMode);
+    Player::registerStateMachine(XYZState, updateDebugMode);
 
     Debug::registerUpdateCallback("__update_fludd_nozzle", updateFluddNozzle);
 
@@ -286,9 +291,15 @@ static void initLib() {
     Debug::registerUpdateCallback("__update_fps_counter", updateFPSMonitor);
     Debug::registerDrawCallback("__draw_fps_counter", drawFPSMonitor);
 
-    Debug::registerInitCallback("__init_state_counter", initStateMonitor);
-    Debug::registerUpdateCallback("__update_state_counter", updateStateMonitor);
-    Debug::registerDrawCallback("__draw_state_counter", drawStateMonitor);
+    Debug::registerInitCallback("__init_game_state_counter", initGameStateMonitor);
+    Debug::registerUpdateCallback("__update_game_state_counter", updateGameStateMonitor);
+    Debug::registerDrawCallback("__draw_game_state_counter", drawGameStateMonitor);
+
+    Debug::registerInitCallback("__init_debug_state_counter", initDebugStateMonitor);
+    Debug::registerUpdateCallback("__update_debug_state_counter", updateDebugStateMonitor);
+    Debug::registerDrawCallback("__draw_debug_state_counter", drawDebugStateMonitor);
+
+    Stage::registerInitCallback("__reset_debug_state", resetDebugState);
 
     // Music
     Game::registerChangeCallback("__stop_music_on_exit", stopMusicOnExitStage);

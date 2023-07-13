@@ -21,6 +21,8 @@
 #include "module.hxx"
 #include "music.hxx"
 
+#include "p_debug.hxx"
+
 using namespace BetterSMS;
 
 static char sStringBuffer[100]{};
@@ -33,12 +35,12 @@ void initStreamInfo(TApplication *app) {
     gpMusicStringB                  = new J2DTextBox(gpSystemFont->mFont, "");
     gpMusicStringW->mStrPtr         = sStringBuffer;
     gpMusicStringB->mStrPtr         = sStringBuffer;
-    gpMusicStringW->mNewlineSize    = 15;
-    gpMusicStringW->mCharSizeX      = 12;
-    gpMusicStringW->mCharSizeY      = 15;
-    gpMusicStringB->mNewlineSize    = 15;
-    gpMusicStringB->mCharSizeX      = 12;
-    gpMusicStringB->mCharSizeY      = 15;
+    gpMusicStringW->mNewlineSize    = 11;
+    gpMusicStringW->mCharSizeX      = 11;
+    gpMusicStringW->mCharSizeY      = 11;
+    gpMusicStringB->mNewlineSize    = 11;
+    gpMusicStringB->mCharSizeX      = 11;
+    gpMusicStringB->mCharSizeY      = 11;
     gpMusicStringW->mGradientTop    = {255, 255, 255, 255};
     gpMusicStringW->mGradientBottom = {255, 255, 255, 255};
     gpMusicStringB->mGradientTop    = {0, 0, 0, 255};
@@ -49,7 +51,10 @@ void initStreamInfo(TApplication *app) {
 void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     TMarDirector *director = reinterpret_cast<TMarDirector *>(app->mDirector);
 
-    if (!director || !sIsInitialized)
+    if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
+        return;
+
+    if (!director || !sIsInitialized || gDebugUIPage == 0)
         return;
 
     if (director->mCurState != TMarDirector::STATE_INTRO_PLAYING &&

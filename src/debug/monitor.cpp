@@ -17,6 +17,8 @@
 #include "logging.hxx"
 #include "module.hxx"
 
+#include "p_debug.hxx"
+
 using namespace BetterSMS;
 
 static s16 gBaseMonitorX = 10, gMonitorY = 443;
@@ -55,7 +57,7 @@ BETTER_SMS_FOR_CALLBACK void drawMonitor(TApplication *app, const J2DOrthoGraph 
     auto *currentHeap = JKRHeap::sCurrentHeap;
     auto *rootHeap    = JKRHeap::sRootHeap;
 
-    if (!systemHeap || !currentHeap || !rootHeap)
+    if (!systemHeap || !currentHeap || !rootHeap || gDebugUIPage == 0)
         return;
 
     if (currentHeap != gCurrentHeap) {
