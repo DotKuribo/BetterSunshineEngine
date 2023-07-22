@@ -24,7 +24,8 @@ BETTER_SMS_FOR_CALLBACK void resetDebugState(TMarDirector *director) {
     gMarioAnimation   = 0;
     gIsCameraFrozen   = false;
     gIsCameraTracking = false;
-    gIsDebugActive               = false;
+    gIsDebugActive    = false;
     gAnimationID      = 0;
-    gAnimationSpeed = 1.0f;
+    gAnimationSpeed   = 1.0f;
+    gDebugState       = 0;
 }

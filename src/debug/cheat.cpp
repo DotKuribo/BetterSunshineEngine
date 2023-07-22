@@ -13,6 +13,7 @@
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
+#include "libs/geometry.hxx"
 #include "logging.hxx"
 #include "module.hxx"
 #include "raw_fn.hxx"
@@ -20,6 +21,7 @@
 #include "p_debug.hxx"
 
 using namespace BetterSMS;
+using namespace BetterSMS::Geometry;
 
 /* CHEAT HANDLER */
 
@@ -58,10 +60,13 @@ void drawCheatText(TApplication *app, const J2DOrthoGraph *graph) {
 
 static void *handleDebugCheat(void *GCLogoDir) {
     if (!gDebugHandler.isInitialized()) {
+#if SMS_DEBUG
+        gDebugHandler.succeed();
+#else
         gDebugHandler.setGamePad(gpApplication.mGamePads[0]);
         gDebugHandler.setInputList(gDebugModeCheatCode);
         gDebugHandler.setSuccessCallBack(&debugModeNotify);
-
+#endif
         auto *currentHeap               = JKRHeap::sRootHeap->becomeCurrentHeap();
         gDebugTextBoxW                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
         gDebugTextBoxB                  = new J2DTextBox(gpSystemFont->mFont, "Debug Mode");
@@ -151,8 +156,7 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
     gIsDebugActive = true;
 
     const bool shouldToggleDebug =
-        ButtonsFramePressed(player->mController, gControlToggleDebugActive) &&
-        ButtonsPressed(player->mController, gActivateMask);
+        ButtonsFramePressed(player->mController, gControlToggleDebugActive);
 
     const bool shouldToggleDebugState =
         ButtonsFramePressed(player->mController, gControlToggleDebugState) &&
@@ -186,6 +190,11 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
             player->mState   = TMario::STATE_FALL;
             sJustExitedDebug = true;
             return true;
+        } else if (gDebugState == CAM_MODE) {
+            if (!gIsCameraFrozen) {
+                gCamPosition = gpCamera->mTranslation;
+                gCamRotation = Vector3::eulerFromMatrix(gpCamera->mTRSMatrix);
+            }
         }
     } else {
         sJustStartedDebug = false;
@@ -322,7 +331,7 @@ static bool shouldUpdateMarDirector() {
     TMarDirector *director;
     SMS_FROM_GPR(31, director);
 
-    return director->mAreaID != 15 && !gIsDebugActive;
+    return director->mAreaID != 15 && !BetterSMS::isDebugMode();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80297A48, 0, 0, 0), shouldUpdateMarDirector);
 SMS_WRITE_32(SMS_PORT_REGION(0x80297A4C, 0, 0, 0), 0x28030000);
@@ -343,7 +352,7 @@ static u32 checkShouldUpdateMeaning() {
     TMarioGamePad *controller;
     SMS_FROM_GPR(30, controller);
 
-    if (gIsDebugActive)
+    if (gIsDebugActive && gpApplication.mContext == TApplication::CONTEXT_DIRECT_STAGE)
         controller->mMeaning = 0;
     return controller->mMeaning;
 }

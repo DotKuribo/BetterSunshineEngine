@@ -30,8 +30,8 @@ constexpr auto gControlToggleDebugUI     = TMarioGamePad::DPAD_DOWN;  // Seconda
 constexpr auto gControlToggleGameUI      = TMarioGamePad::DPAD_DOWN;
 
 constexpr auto gControlToggleFastMovement = TMarioGamePad::START;
-//constexpr auto gControlXYZMoveUp   = TMarioGamePad::A;
-//constexpr auto gControlXYZMoveDown = TMarioGamePad::B;
+constexpr auto gControlXYZMoveUp   = TMarioGamePad::A;
+constexpr auto gControlXYZMoveDown = TMarioGamePad::B;
 
 constexpr auto gControlToggleCameraFrozen  = TMarioGamePad::A;
 constexpr auto gControlToggleCameraTrack   = TMarioGamePad::X;

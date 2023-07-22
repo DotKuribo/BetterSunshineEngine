@@ -13,6 +13,7 @@
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
+#include "libs/geometry.hxx"
 #include "logging.hxx"
 #include "module.hxx"
 #include "raw_fn.hxx"
@@ -24,6 +25,8 @@ bool gIsCameraFrozen = false;
 
 TVec3f gCamPosition = {0, 0, 0}, gCamRotation = {0, 0, 0};
 float gCamFOV = 70.0f;
+
+using namespace BetterSMS::Geometry;
 
 void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     constexpr f32 baseSpeed = 15.0f;
@@ -152,14 +155,8 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     if (!gIsCameraTracking) {
         C_MTXLookAt(camera->mTRSMatrix, gCamPosition, localUpVec, forwardVec + gCamPosition);
     } else {
-        C_MTXLookAt(camera->mTRSMatrix, gCamPosition, localUpVec, *gpMarioPos);
-        gCamRotation.x = angleToRadians(atan2f(-camera->mTRSMatrix[2][1],
-                                sqrtf(camera->mTRSMatrix[2][0] * camera->mTRSMatrix[2][0] +
-                                      camera->mTRSMatrix[2][2] * camera->mTRSMatrix[2][2])));
-
-        gCamRotation.y = angleToRadians(atan2f(camera->mTRSMatrix[1][0], camera->mTRSMatrix[0][0]));
-
-        gCamRotation.z = angleToRadians(atan2f(camera->mTRSMatrix[2][1], camera->mTRSMatrix[2][2]));
+        C_MTXLookAt(camera->mTRSMatrix, gCamPosition, upVec, *gpMarioPos);
+        gCamRotation = Vector3::eulerFromMatrix(gpCamera->mTRSMatrix);
     }
 }
 
@@ -172,7 +169,7 @@ static bool shouldDebugPassThroughCameraPerform() {
     else if (gIsCameraFrozen)
         return true;
 
-    return (graphics->_00[0] & 1);
+    return (graphics->_00[1] & 1);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80023034, 0, 0, 0), shouldDebugPassThroughCameraPerform);
 SMS_WRITE_32(SMS_PORT_REGION(0x80023038, 0, 0, 0), 0x2C030000);
@@ -202,13 +199,13 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80023114, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x80023118, 0, 0, 0), 0x60000000);
 
 static void shouldCtrlCamera(CPolarSubCamera *camera) {
-    if (!gDebugHandler.isActive() || gDebugState != DebugState::CAM_MODE)
+    if (gDebugState != DebugState::CAM_MODE)
         camera->ctrlNormalOrTowerCamera_();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x800238fc, 0, 0, 0), shouldCtrlCamera);
 
 static bool isSimpleCamera(u32 r3, bool isSimple) {
-    if (gDebugHandler.isActive())
+    if (gDebugState != DebugState::CAM_MODE)
         return false;
     return isSimple;
 }

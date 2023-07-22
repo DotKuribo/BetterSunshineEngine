@@ -18,6 +18,7 @@
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
+#include "libs/geometry.hxx"
 #include "libs/profiler.hxx"
 #include "logging.hxx"
 #include "module.hxx"
@@ -25,6 +26,7 @@
 #include "p_debug.hxx"
 
 using namespace BetterSMS;
+using namespace BetterSMS::Geometry;
 
 extern int gDebugUIPage;
 
@@ -191,19 +193,7 @@ BETTER_SMS_FOR_CALLBACK void updateGameStateMonitor(TApplication *app) {
              floorColNormal.z, floorColType, floorColValue, wallColNormal.x, wallColNormal.y,
              wallColNormal.z, wallColType, wallColValue);
 
-    TVec3f camRotation;
-
-    // Calculating the yaw (y)
-    camRotation.y = atan2f(gpCamera->mTRSMatrix[0][2], gpCamera->mTRSMatrix[2][2]);
-
-    // Calculating the pitch (x), considering quadrant ambiguity of cos
-    if (gpCamera->mTRSMatrix[1][2] <= 0)
-        camRotation.x = acosf(sqrt(1 - gpCamera->mTRSMatrix[1][2] * gpCamera->mTRSMatrix[1][2]));
-    else
-        camRotation.x = -acosf(sqrt(1 - gpCamera->mTRSMatrix[1][2] * gpCamera->mTRSMatrix[1][2]));
-
-    // Calculating the roll (z)
-    camRotation.z = atan2f(gpCamera->mTRSMatrix[1][0], gpCamera->mTRSMatrix[1][1]);
+    TVec3f camRotation = Vector3::eulerFromMatrix(gpCamera->mTRSMatrix);
 
     snprintf(sCameraStringBuffer, 200,
              "Camera Stats:\n"

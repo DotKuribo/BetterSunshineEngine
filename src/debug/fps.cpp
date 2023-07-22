@@ -52,7 +52,7 @@ BETTER_SMS_FOR_CALLBACK void initFPSMonitor(TApplication *app) {
 extern FPSSetting gFPSSetting;
 
 BETTER_SMS_FOR_CALLBACK void updateFPSMonitor(TApplication *app) {
-    if (!app->mDirector || !sIsInitialized)
+    if (!app->mDirector || !sIsInitialized|| !BetterSMS::isDebugMode())
         return;
 
     sFPSCounter += 1.0f;
@@ -88,7 +88,7 @@ BETTER_SMS_FOR_CALLBACK void drawFPSMonitor(TApplication *app, const J2DOrthoGra
         return;
 
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
-        if (gDebugUIPage == 0)
+        if (gDebugUIPage == 0|| !BetterSMS::isDebugMode())
             return;
     }
 

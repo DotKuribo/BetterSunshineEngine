@@ -5,11 +5,11 @@
 #include <JSystem/J2D/J2DPane.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
+#include <SMS/MSound/MSound.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSound.hxx>
-#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
@@ -46,7 +46,8 @@ static void drawHeapUsage(JKRHeap *heap, f32 &maxUsage, JUtility::TColor color, 
 
     {
         s16 adjust = getScreenRatioAdjustX();
-        drawMonitorBar(currentUsage, maxUsage, color, (gBaseMonitorX - adjust) + 2, y, (gMonitorWidth + adjust) - 6, 4);
+        drawMonitorBar(currentUsage, maxUsage, color, (gBaseMonitorX - adjust) + 2, y,
+                       (gMonitorWidth + adjust) - 6, 4);
     }
 }
 
@@ -57,7 +58,7 @@ BETTER_SMS_FOR_CALLBACK void drawMonitor(TApplication *app, const J2DOrthoGraph 
     auto *currentHeap = JKRHeap::sCurrentHeap;
     auto *rootHeap    = JKRHeap::sRootHeap;
 
-    if (!systemHeap || !currentHeap || !rootHeap || gDebugUIPage == 0)
+    if (!systemHeap || !currentHeap || !rootHeap || gDebugUIPage == 0|| !BetterSMS::isDebugMode())
         return;
 
     if (currentHeap != gCurrentHeap) {

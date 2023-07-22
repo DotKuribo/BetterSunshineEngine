@@ -99,7 +99,7 @@ BETTER_SMS_FOR_CALLBACK void updateDebugStateMonitor(TApplication *app) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE || !gpMarioAddress || !sIsInitialized)
         return;
 
-    if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
+    if (director->mCurState == TMarDirector::STATE_INTRO_INIT|| !BetterSMS::isDebugMode())
         return;
 
     if (gDebugState == NONE) {
@@ -173,7 +173,7 @@ BETTER_SMS_FOR_CALLBACK void drawDebugStateMonitor(TApplication *app, const J2DO
     if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
         return;
 
-    if (gDebugUIPage == 0)
+    if (gDebugUIPage == 0|| !BetterSMS::isDebugMode())
         return;
 
     s16 adjust = getScreenRatioAdjustX();
