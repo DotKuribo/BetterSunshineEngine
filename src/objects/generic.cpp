@@ -230,17 +230,17 @@ void TGenericRailObj::readRailFlag() {
         TGraphNode &graphNode = graph->mNodes[prevIndex];
         TRailNode *railNode   = graphNode.mRailNode;
 
-        mCurrentNodeRotation = {static_cast<f32>(railNode->mValues[1]) / 182.0f,
-                                static_cast<f32>(railNode->mValues[2]) / 182.0f,
-                                static_cast<f32>(railNode->mValues[3]) / 182.0f};
+        mCurrentNodeRotation = {convertAngleS16ToFloat(railNode->mValues[1]),
+                                convertAngleS16ToFloat(railNode->mValues[2]),
+                                convertAngleS16ToFloat(railNode->mValues[3])};
     }
 
     TGraphNode &graphNextNode = graph->mNodes[currentIndex];
     TRailNode *railNextNode   = graphNextNode.mRailNode;
 
-    mTargetNodeRotation = {static_cast<f32>(railNextNode->mValues[1]) / 182.0f,
-                           static_cast<f32>(railNextNode->mValues[2]) / 182.0f,
-                           static_cast<f32>(railNextNode->mValues[3]) / 182.0f};
+    mTargetNodeRotation = {convertAngleS16ToFloat(railNextNode->mValues[1]),
+                           convertAngleS16ToFloat(railNextNode->mValues[2]),
+                           convertAngleS16ToFloat(railNextNode->mValues[3])};
 }
 
 void TGenericRailObj::resetPosition() {

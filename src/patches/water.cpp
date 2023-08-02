@@ -4,14 +4,14 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/Player/Mario.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/Map/Map.hxx>
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
 #include <SMS/MoveBG/ResetFruit.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSoundSESystem.hxx>
-
 
 #include "module.hxx"
 #include "p_settings.hxx"
@@ -31,11 +31,18 @@ static void patchWaterDownWarp(f32 y) {
         return;
     }
 
-    if (player->mFloorTriangleWater == player->mFloorTriangle &&
-        !isColTypeWater(player->mFloorTriangle->mType))
-        player->changePlayerStatus(TMario::STATE_FALL, 0, false);
-    else
+    if (player->mFloorTriangleWater != &TMapCollisionData::mIllegalCheckData &&
+        player->mFloorTriangleWater != player->mFloorTriangle) {
         player->mTranslation.y = y;
+        return;
+    }
+
+    if (isColTypeWater(player->mFloorTriangle->mType)) {
+        player->mTranslation.y = y;
+        return;
+    }
+
+    player->changePlayerStatus(TMario::STATE_FALL, 0, false);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80272710, 0x8026A49C, 0, 0), patchWaterDownWarp);
 
@@ -55,16 +62,13 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB54, 0x802478E4, 0, 0), canDiePlane);
 SMS_WRITE_32(SMS_PORT_REGION(0x8024FB58, 0x802478E8, 0, 0), 0x2C030000);
 SMS_WRITE_32(SMS_PORT_REGION(0x8024FB5C, 0x802478EC, 0, 0), 0x41820084);
 
-static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
-    SMS_FROM_GPR(29, player);
-
-    const TBGCheckData **tri = &player->mFloorTriangleWater;
-    const TMapCollisionData *collision = gpMapCollisionData;
+static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, const TMap *map, const TBGCheckData **water) {
+    TMario *player = gpMarioAddress;
 
     const f32 gridFraction = 1.0f / 1024.0f;
 
-    const f32 boundsX = collision->mAreaSizeX;
-    const f32 boundsZ = collision->mAreaSizeZ;
+    const f32 boundsX = map->mCollisionData->mAreaSizeX;
+    const f32 boundsZ = map->mCollisionData->mAreaSizeZ;
 
     if (x < -boundsX || x >= boundsX)
         return 0;
@@ -77,33 +81,100 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, TMario *player) {
 
     const TBGCheckData *waterAbove;
 
-    f32 waterAboveHeight = collision->checkRoofList(
+    if (BetterSMS::isCollisionRepaired() && (player->mState & TMario::STATE_WATERBORN)) {
+        // Passing 8, filters to just water when collision is fixed
+        f32 waterY = map->mCollisionData->checkGround(x, y, z, 8, &waterAbove);
+        if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+            f32 roofY = map->mCollisionData->checkRoofList(
+                x, player->mTranslation.y, z, 0,
+                map->mCollisionData
+                    ->mStaticCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
+                    .mCheckList[TBGCheckListRoot::ROOF]
+                    .mNextTriangle,
+                &waterAbove);
+
+            if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+                roofY = map->mCollisionData->checkRoofList(
+                    x, player->mTranslation.y, z, 0,
+                    map->mCollisionData
+                        ->mStaticCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
+                        .mCheckList[TBGCheckListRoot::WALL]
+                        .mNextTriangle,
+                    &waterAbove);
+            }
+
+            if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+                roofY = map->mCollisionData->checkRoofList(
+                    x, player->mTranslation.y, z, 0,
+                    map->mCollisionData
+                        ->mStaticCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
+                        .mCheckList[TBGCheckListRoot::WALL]
+                        .mNextTriangle,
+                    &waterAbove);
+            }
+
+            if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+                return player->mWaterHeight;
+            } else if (roofY <= player->mWaterHeight) {
+                return player->mWaterHeight;
+            }
+
+            *water = player->mFloorTriangle;
+            return player->mTranslation.y;
+        }
+        *water = waterAbove;
+        return waterY;
+    }
+
+    f32 waterAboveHeight = map->mCollisionData->checkRoofList(
         x, player->mTranslation.y, z, 0,
-        gpMapCollisionData->mStaticCollisionRoot[cellX + (cellZ * gpMapCollisionData->mBlockXCount)]
+        map->mCollisionData
+            ->mStaticCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
             .mCheckList[TBGCheckListRoot::ROOF]
             .mNextTriangle,
         &waterAbove);
 
+    // if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+    //     waterAboveHeight = map->mCollisionData->checkRoofList(
+    //         x, player->mTranslation.y, z, 0,
+    //         map->mCollisionData
+    //             ->mMoveCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
+    //             .mCheckList[TBGCheckListRoot::ROOF]
+    //             .mNextTriangle,
+    //         &waterAbove);
+    // }
+
     if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
-        waterAboveHeight = collision->checkRoofList(
+        waterAboveHeight = map->mCollisionData->checkRoofList(
             x, player->mTranslation.y, z, 0,
-            gpMapCollisionData
-                ->mStaticCollisionRoot[cellX + (cellZ * gpMapCollisionData->mBlockXCount)]
+            map->mCollisionData
+                ->mStaticCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
                 .mCheckList[TBGCheckListRoot::WALL]
                 .mNextTriangle,
             &waterAbove);
     }
 
+    // if (waterAbove == &TMapCollisionData::mIllegalCheckData) {
+    //     waterAboveHeight = map->mCollisionData->checkRoofList(
+    //         x, player->mTranslation.y, z, 0,
+    //         map->mCollisionData
+    //             ->mMoveCollisionRoot[cellX + (cellZ * map->mCollisionData->mBlockXCount)]
+    //             .mCheckList[TBGCheckListRoot::WALL]
+    //             .mNextTriangle,
+    //         &waterAbove);
+    // }
+
     if (BetterSMS::isCollisionRepaired() && !SMS_isDivingMap__Fv()) {
         if (!(player->mState & TMario::STATE_WATERBORN)) {
-            f32 yPos = collision->checkGround(x, waterAboveHeight - 10.0f, z, 0, tri);
-            if (*tri && isColTypeWater((*tri)->mType)) {
+            f32 yPos = map->mCollisionData->checkGround(x, waterAboveHeight - 10.0f, z, 0, water);
+            if (*water && isColTypeWater((*water)->mType)) {
                 return yPos;
             }
         }
     }
 
-    return collision->checkGround(x, y, z, 0, tri);
+    // Passing 8, filters to just water when collision is fixed
+    return map->mCollisionData->checkGround(x, y, z, 8, water);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024F12C, 0x80246EB8, 0, 0), enhanceWaterCheck);
 
@@ -114,7 +185,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024F12C, 0x80246EB8, 0, 0), enhanceWaterCheck);
 //     if (player->mFloorTriangle == player->mFloorTriangleWater) {
 //         const TBGCheckData *floor;
 
-//         f32 height = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
+//         f32 height = gpMapCollisionData->checkGround(player->mTranslation.x,
+//         player->mTranslation.y,
 //                                                      player->mTranslation.z, 1, &floor);
 
 //         if (floor != &gpMapCollisionData->mIllegalCheckData) {

@@ -3,33 +3,33 @@
 
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
+#include <SMS/Enemy/EffectObjBase.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/Player/Mario.hxx>
-#include <SMS/Strategic/HitActor.hxx>
-#include <SMS/Strategic/LiveActor.hxx>
-#include <SMS/assert.h>
-#include <SMS/System/Application.hxx>
-#include <SMS/macros.h>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Manager/MarioParticleManager.hxx>
 #include <SMS/Manager/ModelWaterManager.hxx>
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
-#include <SMS/Enemy/EffectObjBase.hxx>
+#include <SMS/Player/Mario.hxx>
+#include <SMS/Strategic/HitActor.hxx>
+#include <SMS/Strategic/LiveActor.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/System/CardManager.hxx>
+#include <SMS/assert.h>
+#include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "libs/constmath.hxx"
 #include "libs/global_unordered_map.hxx"
 #include "libs/profiler.hxx"
-#include "libs/triangle.hxx"
 #include "libs/string.hxx"
+#include "libs/triangle.hxx"
 
+#include "libs/geometry.hxx"
 #include "logging.hxx"
 #include "module.hxx"
-#include "player.hxx"
 #include "p_settings.hxx"
-#include "libs/geometry.hxx"
+#include "player.hxx"
 #include "stage.hxx"
 
 using namespace BetterSMS;
@@ -44,7 +44,7 @@ static TGlobalUnorderedMap<u16, Player::CollisionCallback> sPlayerCollisionHandl
 
 BETTER_SMS_FOR_EXPORT Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     auto &dataDict = sPlayerDict[player];
-    auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict["__better_sms"]);
+    auto data      = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict["__better_sms"]);
 
     if (!data) {
         Console::debugLog(
@@ -57,18 +57,18 @@ BETTER_SMS_FOR_EXPORT Player::TPlayerData *BetterSMS::Player::getData(TMario *pl
 BETTER_SMS_FOR_EXPORT void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
 
     auto &dataDict = sPlayerDict[player];
-    auto data     = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict[key]);
+    auto data      = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict[key]);
 
     if (!data) {
-        Console::debugLog("Trying to access player data (%s) that is not registered!\n",
-                          key);
+        Console::debugLog("Trying to access player data (%s) that is not registered!\n", key);
     }
 
     return data;
 }
 
 // Register arbitrary module data for a player
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerData(TMario *player, const char *key, void *data) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerData(TMario *player, const char *key,
+                                                           void *data) {
     auto &dataDict = sPlayerDict[player];
     if (dataDict.find(key) != dataDict.end())
         return false;
@@ -81,14 +81,16 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, con
     dataDict.erase(key);
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerInitCallback(const char *key, InitCallback process) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerInitCallback(const char *key,
+                                                                   InitCallback process) {
     if (sPlayerInitializers.find(key) != sPlayerInitializers.end())
         return false;
     sPlayerInitializers[key] = process;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerLoadAfterCallback(const char *key, LoadAfterCallback process) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerLoadAfterCallback(const char *key,
+                                                                        LoadAfterCallback process) {
     if (sPlayerLoadAfterCBs.find(key) != sPlayerLoadAfterCBs.end())
         return false;
     sPlayerLoadAfterCBs[key] = process;
@@ -96,14 +98,15 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerLoadAfterCallback(const ch
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerUpdateCallback(const char *key,
-                                                            UpdateCallback process) {
+                                                                     UpdateCallback process) {
     if (sPlayerUpdaters.find(key) != sPlayerUpdaters.end())
         return false;
     sPlayerUpdaters[key] = process;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerStateMachine(u32 state, MachineCallback process) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerStateMachine(u32 state,
+                                                                   MachineCallback process) {
     if ((state & 0x1C0) != 0x1C0) {
         Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
                      "engine collisions)!\n");
@@ -115,7 +118,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerStateMachine(u32 state, Ma
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerCollisionHandler(u16 colType,
-                                                               CollisionCallback process) {
+                                                                       CollisionCallback process) {
     if ((colType & 0xC000) != 0) {
         Console::log("[WARNING] Collision type registered has camera clip and shadow flags set "
                      "(0x4000 || 0x8000)! This may cause unwanted behaviour!\n");
@@ -170,8 +173,8 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player,
-                                                          const TBGCheckData *colTriangle,
-                                                          bool isFluid) {
+                                                                  const TBGCheckData *colTriangle,
+                                                                  bool isFluid) {
     constexpr s32 DisableMovementTime = 80;
     constexpr s32 TeleportTime        = 140;
     constexpr s32 EnableMovementTime  = 60;
@@ -183,15 +186,22 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player
     auto playerData = Player::getData(player);
 
     TVec3f triCenter;
-    TVectorTriangle vectorTri(colTriangle->mVertices[0], colTriangle->mVertices[1], colTriangle->mVertices[2]);
+    TVectorTriangle vectorTri(colTriangle->mVertices[0], colTriangle->mVertices[1],
+                              colTriangle->mVertices[2]);
     vectorTri.center(triCenter);
 
     TVec3f triFluidCenter = triCenter;
     triFluidCenter.y += 300.0f;
 
-#define EXPAND_WARP_SET(base) (base) : case ((base) + 10) : case ((base) + 20) : case ((base) + 30)
+#define EXPAND_WARP_SET(base)                                                                      \
+    (base) : case ((base) + 10) :                                                                  \
+    case ((base) + 20):                                                                            \
+    case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
+    (base) : case ((base) + 1) :                                                                   \
+    case ((base) + 2):                                                                             \
+    case ((base) + 3):                                                                             \
+    case ((base) + 4)
 
     const u16 type = colTriangle->mType & 0x7FFF;
     switch (type) {
@@ -234,8 +244,8 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToPoint(TMario *player, const TVec3f &destPoint,
-                                                  WarpKind kind, s32 framesToWarp,
-                                                  bool isWarpFluid) {
+                                                          WarpKind kind, s32 framesToWarp,
+                                                          bool isWarpFluid) {
     if (!player)
         return;
 
@@ -251,11 +261,12 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToPoint(TMario *player, const 
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
-                                                             CPolarSubCamera *camera, Vec2 dir,
-                                                             f32 lerp_) {
-    player->mAngle.y = lerp<f32>(
-        player->mAngle.y,
-        camera->mHorizontalAngle + s16(radiansToAngle(atan2f(dir.x, -dir.y)) * 182), lerp_);
+                                                                     CPolarSubCamera *camera,
+                                                                     Vec2 dir, f32 lerp_) {
+    player->mAngle.y = lerp<f32>(player->mAngle.y,
+                                 camera->mHorizontalAngle +
+                                     convertAngleFloatToS16(radiansToAngle(atan2f(dir.x, -dir.y))),
+                                 lerp_);
 }
 
 #pragma region Patches
@@ -292,8 +303,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpW
 #pragma region TPlayerDataImplementation
 
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
-    : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCanSprayFludd(true), mCurJump(0),
-      mIsClimbTired(false), mLastQuarterFrameState(player->mState),
+    : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCanSprayFludd(true),
+      mCurJump(0), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
       mPrevCollisionType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
       mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),
       mWarpTimer(-1), mWarpState(0xFF) {
@@ -658,9 +669,7 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 }
 
-BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) {
-    sPlayerDict.empty();
-}
+BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) { sPlayerDict.empty(); }
 
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
@@ -740,7 +749,7 @@ static u32 collisionHandler(TMario *player) {
          player->mState != static_cast<u32>(TMario::STATE_JUMPSPINL)))
         playerData->mCollisionFlags.mIsSpinBounce = false;
 
-    const u16 colType = player->mFloorTriangle->mType & 0xFFF;
+    const u16 colType     = player->mFloorTriangle->mType & 0xFFF;
     const u16 prevColType = playerData->mPrevCollisionType & 0xFFF;
 
     u32 marioFlags = 0;
@@ -775,8 +784,7 @@ static u32 collisionHandler(TMario *player) {
     } else if (colType >= 3000) {  // Custom collision is routinely updated
         for (auto &item : sPlayerCollisionHandlers) {
             if (item.first == colType)
-                item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
-                                  marioFlags);
+                item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle), marioFlags);
         }
     }
 

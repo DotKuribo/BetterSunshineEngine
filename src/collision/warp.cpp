@@ -2,9 +2,9 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/System/Application.hxx>
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "libs/global_unordered_map.hxx"
 #include "libs/triangle.hxx"
@@ -19,9 +19,15 @@ using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 using namespace BetterSMS::Geometry;
 
-#define EXPAND_WARP_SET(base) (base) : case ((base) + 10) : case ((base) + 20) : case ((base) + 30)
+#define EXPAND_WARP_SET(base)                                                                      \
+    (base) : case ((base) + 10) :                                                                  \
+    case ((base) + 20):                                                                            \
+    case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
+    (base) : case ((base) + 1) :                                                                   \
+    case ((base) + 2):                                                                             \
+    case ((base) + 3):                                                                             \
+    case ((base) + 4)
 
 static f32 GetSqrDistBetweenColTriangles(const TBGCheckData *a, const TBGCheckData *b) {
     TVectorTriangle triA(a->mVertices[0], a->mVertices[1], a->mVertices[2]);
@@ -168,8 +174,7 @@ void TWarpCollisionList::addLink(TCollisionLink &link) {
         return;
     }
     Console::debugLog("TWarpCollision::addLink(): (%d) Added link of type %d at 0x%X\n",
-                      link.getThisColTriangle()->mType, link.getSearchMode(),
-                      &mColList[mUsedSize]);
+                      link.getThisColTriangle()->mType, link.getSearchMode(), &mColList[mUsedSize]);
     mColList[mUsedSize++] = link;
 }
 
@@ -211,7 +216,8 @@ const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *col
     if (!TCollisionLink::isValidWarpCol(colTriangle))
         return nullptr;
 
-    TVectorTriangle colVector(colTriangle->mVertices[0], colTriangle->mVertices[1], colTriangle->mVertices[2]);
+    TVectorTriangle colVector(colTriangle->mVertices[0], colTriangle->mVertices[1],
+                              colTriangle->mVertices[2]);
     TVectorTriangle targetVector;
 
     u16 matchedIndices[mMaxSize];
@@ -235,7 +241,7 @@ const TBGCheckData *TWarpCollisionList::getNearestTarget(const TBGCheckData *col
         s32 numLinked = 0;
         for (u32 i = 0; i < size(); ++i) {
             const TCollisionLink &colLink = mColList[i];
-            f32 minDist            = TCollisionLink::getMinTargetDistanceFrom(colTriangle);
+            f32 minDist                   = TCollisionLink::getMinTargetDistanceFrom(colTriangle);
             if (!colLink.isValidDest())
                 continue;
             if (GetSqrDistBetweenColTriangles(colLink.getThisColTriangle(), colTriangle) >
@@ -322,13 +328,13 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
     gpCamera->mTranslation.x = lerp<f32>(gpCamera->mTranslation.x, point.x, 0.9375f);
     gpCamera->mTranslation.y = point.y + 300.0f;
     gpCamera->mTranslation.z = lerp<f32>(gpCamera->mTranslation.z, point.z, 0.9375f);
-    gpCamera->mTargetPos = point;
+    gpCamera->mTargetPos     = point;
 }
 
 static void redirectPlayerWithNormal(TMario *player, const TVec3f &normal, f32 minVelocity) {
     const f32 magnitude = Max(PSVECMag(reinterpret_cast<Vec *>(&player->mSpeed)), minVelocity);
 
-    player->mAngle.y = static_cast<u16>(Vector3::getNormalAngle(normal)) * 182;
+    player->mAngle.y = convertAngleFloatToS16(Vector3::getNormalAngle(normal));
     player->setPlayerVelocity(magnitude * normal.x + magnitude * normal.z);
     player->mSpeed.y = magnitude * normal.y;
 
@@ -383,7 +389,8 @@ BETTER_SMS_FOR_CALLBACK void instantWarpHandler(TMario *player, const TBGCheckDa
     }
 }
 
-static void internalWipeWarpHandler(TMario *player, const TBGCheckData *src, const TBGCheckData *dst) {
+static void internalWipeWarpHandler(TMario *player, const TBGCheckData *src,
+                                    const TBGCheckData *dst) {
     auto *playerData = Player::getData(player);
 
     constexpr s32 DisableMovementTime = 80;
@@ -401,6 +408,13 @@ static void internalWipeWarpHandler(TMario *player, const TBGCheckData *src, con
     ++playerData->mWarpTimer;
     switch (playerData->mWarpState) {
     case 0: {
+        if (player->mFloorTriangle->mType != src->mType) {
+            playerData->mWarpTimer    = -1;
+            playerData->mWarpState    = 0xFF;
+            playerData->mIsWarpActive = false;
+            sCallbackMap[player]      = {player->mFloorTriangle, nullptr, defaultWarpCallback};
+        }
+
         if (playerData->mWarpTimer > DisableMovementTime) {
             playerData->mCollisionFlags.mIsDisableInput = true;
             player->mController->mState.mReadInput      = false;
@@ -444,11 +458,12 @@ static void internalWipeWarpHandler(TMario *player, const TBGCheckData *src, con
 }
 
 BETTER_SMS_FOR_CALLBACK void screenWipeWarpHandler(TMario *player, const TBGCheckData *data,
-                           u32 flags) {
+                                                   u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (((flags & Player::InteractionFlags::ON_ENTER) ||
-         (flags & Player::InteractionFlags::ON_CONTACT)) && (flags & Player::InteractionFlags::GROUNDED)) {
+         (flags & Player::InteractionFlags::ON_CONTACT)) &&
+        (flags & Player::InteractionFlags::GROUNDED)) {
         if (playerData->mWarpState == 0xFF) {
             if (PSVECMag(player->mSpeed) > 1.0f || !(flags & Player::InteractionFlags::GROUNDED))
                 return;
@@ -472,7 +487,8 @@ BETTER_SMS_FOR_CALLBACK void instantScreenWipeWarpHandler(TMario *player, const 
         return;
     }
 
-    if ((flags & Player::InteractionFlags::ON_ENTER) || (flags & Player::InteractionFlags::ON_CONTACT)) {
+    if ((flags & Player::InteractionFlags::ON_ENTER) ||
+        (flags & Player::InteractionFlags::ON_CONTACT)) {
         if (playerData->mWarpState == 0xFF) {
             const TBGCheckData *linkedCol = BetterSMS::sWarpColArray->resolveCollisionWarp(data);
             if (!linkedCol)
@@ -480,22 +496,19 @@ BETTER_SMS_FOR_CALLBACK void instantScreenWipeWarpHandler(TMario *player, const 
 
             sCallbackMap[player] = {player->mFloorTriangle, linkedCol, internalWipeWarpHandler};
             playerData->mIsWarpActive = true;
-            playerData->mWarpState = 0;
-            playerData->mWarpTimer = 81;
+            playerData->mWarpState    = 0;
+            playerData->mWarpTimer    = 81;
         }
     }
 }
 
-static void internalEffectWarpHandler(TMario* player, const TBGCheckData* src,
-    const TBGCheckData* dst) {
+static void internalEffectWarpHandler(TMario *player, const TBGCheckData *src,
+                                      const TBGCheckData *dst) {
     constexpr s32 DisableMovementTime = 80;
     constexpr s32 TeleportTime        = 60;
     constexpr s32 EnableMovementTime  = 60;
 
-    if (PSVECMag(player->mSpeed) > 1.0f)
-        return;
-
-    auto *playerData                  = Player::getData(player);
+    auto *playerData = Player::getData(player);
 
     TVec3f center;
     {
@@ -506,6 +519,18 @@ static void internalEffectWarpHandler(TMario* player, const TBGCheckData* src,
     ++playerData->mWarpTimer;
     switch (playerData->mWarpState) {
     case 0: {
+        if (PSVECMag(player->mSpeed) > 1.0f) {
+            if (player->mFloorTriangle->mType == src->mType) {
+                playerData->mWarpTimer = 0;
+            } else {
+                playerData->mWarpTimer    = -1;
+                playerData->mWarpState    = 0xFF;
+                playerData->mIsWarpActive = false;
+                sCallbackMap[player]      = {player->mFloorTriangle, nullptr, defaultWarpCallback};
+            }
+            break;
+        }
+
         if (playerData->mWarpTimer > DisableMovementTime) {
             playerData->mCollisionFlags.mIsDisableInput = true;
             player->mController->mState.mReadInput      = false;
@@ -573,7 +598,7 @@ BETTER_SMS_FOR_CALLBACK void portalWarpHandler(TMario *player, const TBGCheckDat
     if ((flags & Player::InteractionFlags::ON_ENTER)) {
         if (playerData->mWarpState == 0xFF)
             playerData->mIsWarpActive = true;
-        playerData->mWarpState    = 0;
+        playerData->mWarpState = 0;
     }
 
     if ((flags & Player::InteractionFlags::ON_EXIT)) {
@@ -589,7 +614,8 @@ BETTER_SMS_FOR_CALLBACK void portalWarpHandler(TMario *player, const TBGCheckDat
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
+        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1],
+                                 linkedCol->mVertices[2]);
         triangle.center(center);
     }
 
@@ -612,7 +638,8 @@ BETTER_SMS_FOR_CALLBACK void portalFreeWarpHandler(TMario *player, const TBGChec
 
     TVec3f center;
     {
-        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1], linkedCol->mVertices[2]);
+        TVectorTriangle triangle(linkedCol->mVertices[0], linkedCol->mVertices[1],
+                                 linkedCol->mVertices[2]);
         triangle.center(center);
     }
 

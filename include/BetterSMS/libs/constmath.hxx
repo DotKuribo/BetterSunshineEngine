@@ -23,3 +23,6 @@ constexpr f32 sigmoid(f32 x, f32 f, f32 r, f32 c, f32 b) {
 constexpr f64 sigmoid(f64 x, f64 f, f64 r, f64 c, f64 b) {
     return f + ((r - f) / (1.0f + expf((b * -1.0f) * (x - c))));
 }
+
+constexpr f32 convertAngleS16ToFloat(s16 angle) { return static_cast<f32>(angle) / 182.04445f; }
+constexpr s16 convertAngleFloatToS16(f32 angle) { return static_cast<s16>(angle * 182.04445f); }

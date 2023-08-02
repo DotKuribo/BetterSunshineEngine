@@ -1,12 +1,11 @@
-#include <SMS/macros.h>
 #include <SMS/Map/Map.hxx>
-#include <SMS/Player/Mario.hxx>
-#include <SMS/Strategic/Strategy.hxx>
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/Map/MapMakeList.hxx>
+#include <SMS/Player/Mario.hxx>
+#include <SMS/Strategic/Strategy.hxx>
+#include <SMS/macros.h>
 
 #include "memory.hxx"
-
 
 #include "module.hxx"
 #include "p_settings.hxx"
@@ -105,40 +104,40 @@ static void addAfterPreNode_(int cellx, int cellz, TBGCheckList *addlist, TBGChe
 }
 
 // Skip wall padding (new collision)
-//SMS_WRITE_32(0x8019295C, 0x60000000);
-//SMS_WRITE_32(0x80192960, 0x60000000);
-//SMS_WRITE_32(0x80192964, 0x60000000);
-//SMS_WRITE_32(0x80192968, 0x60000000);
-//SMS_WRITE_32(0x8019296C, 0x60000000);
-//SMS_WRITE_32(0x80192970, 0x60000000);
-//SMS_WRITE_32(0x80192974, 0x60000000);
+// SMS_WRITE_32(0x8019295C, 0x60000000);
+// SMS_WRITE_32(0x80192960, 0x60000000);
+// SMS_WRITE_32(0x80192964, 0x60000000);
+// SMS_WRITE_32(0x80192968, 0x60000000);
+// SMS_WRITE_32(0x8019296C, 0x60000000);
+// SMS_WRITE_32(0x80192970, 0x60000000);
+// SMS_WRITE_32(0x80192974, 0x60000000);
 
 // Skip safety checks
-//SMS_WRITE_32(0x80192994, 0x60000000);
-//SMS_WRITE_32(0x80192998, 0x60000000);
-//SMS_WRITE_32(0x8019299C, 0x60000000);
-//SMS_WRITE_32(0x801929A0, 0x60000000);
-//SMS_WRITE_32(0x801929A4, 0x60000000);
+// SMS_WRITE_32(0x80192994, 0x60000000);
+// SMS_WRITE_32(0x80192998, 0x60000000);
+// SMS_WRITE_32(0x8019299C, 0x60000000);
+// SMS_WRITE_32(0x801929A0, 0x60000000);
+// SMS_WRITE_32(0x801929A4, 0x60000000);
 
-//SMS_WRITE_32(0x801929C8, 0x60000000);
-//SMS_WRITE_32(0x801929CC, 0x60000000);
-//SMS_WRITE_32(0x801929D0, 0x60000000);
-//SMS_WRITE_32(0x801929D4, 0x60000000);
-//SMS_WRITE_32(0x801929D8, 0x60000000);
-//SMS_WRITE_32(0x801929DC, 0x60000000);
+// SMS_WRITE_32(0x801929C8, 0x60000000);
+// SMS_WRITE_32(0x801929CC, 0x60000000);
+// SMS_WRITE_32(0x801929D0, 0x60000000);
+// SMS_WRITE_32(0x801929D4, 0x60000000);
+// SMS_WRITE_32(0x801929D8, 0x60000000);
+// SMS_WRITE_32(0x801929DC, 0x60000000);
 
-//SMS_WRITE_32(0x80192A00, 0x60000000);
-//SMS_WRITE_32(0x80192A04, 0x60000000);
-//SMS_WRITE_32(0x80192A08, 0x60000000);
-//SMS_WRITE_32(0x80192A0C, 0x60000000);
-//SMS_WRITE_32(0x80192A10, 0x60000000);
+// SMS_WRITE_32(0x80192A00, 0x60000000);
+// SMS_WRITE_32(0x80192A04, 0x60000000);
+// SMS_WRITE_32(0x80192A08, 0x60000000);
+// SMS_WRITE_32(0x80192A0C, 0x60000000);
+// SMS_WRITE_32(0x80192A10, 0x60000000);
 
-//SMS_WRITE_32(0x80192A34, 0x60000000);
-//SMS_WRITE_32(0x80192A38, 0x60000000);
-//SMS_WRITE_32(0x80192A3C, 0x60000000);
-//SMS_WRITE_32(0x80192A40, 0x60000000);
-//SMS_WRITE_32(0x80192A44, 0x60000000);
-//SMS_WRITE_32(0x80192A48, 0x60000000);
+// SMS_WRITE_32(0x80192A34, 0x60000000);
+// SMS_WRITE_32(0x80192A38, 0x60000000);
+// SMS_WRITE_32(0x80192A3C, 0x60000000);
+// SMS_WRITE_32(0x80192A40, 0x60000000);
+// SMS_WRITE_32(0x80192A44, 0x60000000);
+// SMS_WRITE_32(0x80192A48, 0x60000000);
 
 void addCheckDataToGrid(TMapCollisionData *collision, TBGCheckData *data, s32 kind) {
     s32 type = data->getPlaneType();
@@ -158,8 +157,8 @@ void addCheckDataToGrid(TMapCollisionData *collision, TBGCheckData *data, s32 ki
             TBGCheckList *addNode;
             if (kind == COLLISION_MOVE) {
                 list = &gpMapCollisionData
-                           ->mMoveCollisionRoot[cellx + (cellz * collision->mBlockXCount)]
-                           .mCheckList[type];
+                            ->mMoveCollisionRoot[cellx + (cellz * collision->mBlockXCount)]
+                            .mCheckList[type];
                 switch (type) {
                 case TBGCheckListRoot::GROUND:
                     addNode = addGroundNode_(list, data);
@@ -183,8 +182,8 @@ void addCheckDataToGrid(TMapCollisionData *collision, TBGCheckData *data, s32 ki
                 }
 
                 list = &gpMapCollisionData
-                           ->mStaticCollisionRoot[cellx + (cellz * collision->mBlockXCount)]
-                           .mCheckList[type];
+                            ->mStaticCollisionRoot[cellx + (cellz * collision->mBlockXCount)]
+                            .mCheckList[type];
                 switch (type) {
                 case TBGCheckListRoot::GROUND:
                     addNode = addGroundNode_(list, data);
@@ -203,11 +202,11 @@ void addCheckDataToGrid(TMapCollisionData *collision, TBGCheckData *data, s32 ki
         }
     }
 }
-//SMS_PATCH_BL(0x8018E210, addCheckDataToGrid);
-//SMS_PATCH_BL(0x80191568, addCheckDataToGrid);
-//SMS_PATCH_BL(0x801917BC, addCheckDataToGrid);
-//SMS_PATCH_BL(0x80191A58, addCheckDataToGrid);
-//SMS_PATCH_BL(0x80191AAC, addCheckDataToGrid);
+// SMS_PATCH_BL(0x8018E210, addCheckDataToGrid);
+// SMS_PATCH_BL(0x80191568, addCheckDataToGrid);
+// SMS_PATCH_BL(0x801917BC, addCheckDataToGrid);
+// SMS_PATCH_BL(0x80191A58, addCheckDataToGrid);
+// SMS_PATCH_BL(0x80191AAC, addCheckDataToGrid);
 
 // -- ROUNDED CORNERS -- //
 
@@ -375,7 +374,8 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
     return numCols;
 }
 
-static size_t checkWallsExotic_(TMapCollisionData* collision, TBGWallCheckRecord* record, bool roundCorners) {
+static size_t checkWallsExotic_(TMapCollisionData *collision, TBGWallCheckRecord *record,
+                                bool roundCorners) {
     record->mNumWalls = 0;
 
     const f32 gridFraction = 1.0f / 1024.0f;
@@ -386,10 +386,10 @@ static size_t checkWallsExotic_(TMapCollisionData* collision, TBGWallCheckRecord
     // This fixes large objects consuming many cells when bug fixes are enabled
     const f32 cellRadius = BetterSMS::isCollisionRepaired() ? record->mRadius : 0.0f;
 
-    const f32 minX       = record->mPosition.x - cellRadius;
-    const f32 maxX       = record->mPosition.x + cellRadius;
-    const f32 minZ       = record->mPosition.z - cellRadius;
-    const f32 maxZ       = record->mPosition.z + cellRadius;
+    const f32 minX = record->mPosition.x - cellRadius;
+    const f32 maxX = record->mPosition.x + cellRadius;
+    const f32 minZ = record->mPosition.z - cellRadius;
+    const f32 maxZ = record->mPosition.z + cellRadius;
 
     if (maxX < -boundsX || minX >= boundsX)
         return 0;
@@ -462,7 +462,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801899E8, 0, 0, 0), checkWallsExotic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189A64, 0, 0, 0), checkWallsExotic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189B04, 0, 0, 0), checkWallsExotic);
 
-static bool checkTouchWallsWithStates(TMap* map, TBGWallCheckRecord* record) {
+static bool checkTouchWallsWithStates(TMap *map, TBGWallCheckRecord *record) {
     bool isSensitiveState = false;
     isSensitiveState |= (gpMarioAddress->mState & 0x30000000) != 0;  // Hanging still
     return checkWallsExotic_(map->mCollisionData, record, !isSensitiveState) > 0;
@@ -488,10 +488,21 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             list        = bgCheckNode;
         } while (y < checkData->mMinHeight);
 
+        if (BetterSMS::isCollisionRepaired() && (flags & 8)) {
+            const u16 type = checkData->mType;
+            if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
+                continue;
+            }
+        }
+
         if ((flags & 4) != 0) {  // Pass through Check
             const u16 type = checkData->mType;
             if (type == 0x401 || type == 0x801 || type == 0x10A || type == 0x8400) {
                 continue;
+            }
+            if (BetterSMS::isCollisionRepaired()) {
+                if (type == 0x800)
+                    continue;
             }
         }
 
@@ -538,9 +549,8 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x8018C334, 0, 0, 0), patchedCheckGroundList);
 
-//static float removeQuarterFrames() { return 120.0f; }
-//SMS_PATCH_BL(SMS_PORT_REGION(0x80299850, 0, 0, 0), removeQuarterFrames);
-
+// static float removeQuarterFrames() { return 120.0f; }
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80299850, 0, 0, 0), removeQuarterFrames);
 
 // Force exotic wall selection (Fixes intersecting walls)
 SMS_WRITE_32(SMS_PORT_REGION(0x802556A0, 0, 0, 0), 0x4800000C);
@@ -548,10 +558,10 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802556A0, 0, 0, 0), 0x4800000C);
 bool isActiveFromGroup(TIdxGroupObj *group, THitActor *target, f32 range) {
     for (auto &obj : group->mViewObjList) {
         auto *actor = reinterpret_cast<THitActor *>(obj);
-        auto a_xz = actor->mTranslation;
-        a_xz.y    = 0;
-        auto t_xz = target->mTranslation;
-        t_xz.y    = 0;
+        auto a_xz   = actor->mTranslation;
+        a_xz.y      = 0;
+        auto t_xz   = target->mTranslation;
+        t_xz.y      = 0;
         if (PSVECSquareDistance(a_xz, t_xz) < range) {
             return true;
         }
@@ -564,10 +574,10 @@ bool isActiveFromObjectGroup(THitActor *target, f32 range) {
         auto *actor = reinterpret_cast<TLiveActor *>(obj);
         if (actor->mCollisionManager)
             continue;
-        auto a_xz   = actor->mTranslation;
-        a_xz.y      = 0;
-        auto t_xz   = target->mTranslation;
-        t_xz.y      = 0;
+        auto a_xz = actor->mTranslation;
+        a_xz.y    = 0;
+        auto t_xz = target->mTranslation;
+        t_xz.y    = 0;
         if (PSVECSquareDistance(a_xz, t_xz) < range) {
             return true;
         }
@@ -576,9 +586,9 @@ bool isActiveFromObjectGroup(THitActor *target, f32 range) {
 }
 
 bool isActive(TLiveActor *target) {
-    f32 scale           = target->mScale.x;
-    scale               = Max(scale, target->mScale.y);
-    scale               = Max(scale, target->mScale.z);
+    f32 scale = target->mScale.x;
+    scale     = Max(scale, target->mScale.y);
+    scale     = Max(scale, target->mScale.z);
 
     f32 range = 10000 * 10000 * scale;
 
@@ -607,11 +617,11 @@ static void filterMoveUpdates(TLiveActor *target) {
         target->setGroundCollision();
     }
 }
-//SMS_PATCH_BL(SMS_PORT_REGION(0x80218260, 0, 0, 0), filterMoveUpdates);
-//SMS_WRITE_32(SMS_PORT_REGION(0x80218264, 0, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x80218268, 0, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x8021826C, 0, 0, 0), 0x60000000);
-//SMS_PATCH_BL(SMS_PORT_REGION(0x801AFBF8, 0, 0, 0), filterMoveUpdates);
-//SMS_WRITE_32(SMS_PORT_REGION(0x801AFBFC, 0, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x801AFC00, 0, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x801AFC04, 0, 0, 0), 0x60000000);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80218260, 0, 0, 0), filterMoveUpdates);
+// SMS_WRITE_32(SMS_PORT_REGION(0x80218264, 0, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x80218268, 0, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x8021826C, 0, 0, 0), 0x60000000);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x801AFBF8, 0, 0, 0), filterMoveUpdates);
+// SMS_WRITE_32(SMS_PORT_REGION(0x801AFBFC, 0, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x801AFC00, 0, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x801AFC04, 0, 0, 0), 0x60000000);

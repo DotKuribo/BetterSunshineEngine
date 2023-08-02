@@ -27,35 +27,6 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
-// TODO: Make check for BetterSMS::areBugsPatched()
-static SMS_ASM_FUNC bool makeWaterHitCheckForDeath(TBGCheckData *col) {
-    // clang-format off
-  SMS_ASM_BLOCK (
-    "lhz 0, 0 (3)             \n\t"
-    "cmpwi 0, 2048            \n\t"
-    "bne .makeWaterCheck_tmp0 \n\t"
-    "li 0, 1025               \n\t"
-    ".makeWaterCheck_tmp0:    \n\t"
-    SMS_PORT_REGION (
-      "lis 12, 0x8018           \n\t"
-      "ori 12, 12, 0xC36C       \n\t",
-
-      "lis 12, 0x8018           \n\t"
-      "ori 12, 12, 0x4bf4       \n\t",
-
-      "lis 12, 0           \n\t"
-      "ori 12, 12, 0       \n\t",
-
-      "lis 12, 0           \n\t"
-      "ori 12, 12, 0       \n\t"
-    )
-    "mtctr 12                 \n\t"
-    "bctr                     \n\t"
-  );
-    // clang-format on
-}
-SMS_PATCH_B(SMS_PORT_REGION(0x8018C368, 0x80184BF0, 0, 0), makeWaterHitCheckForDeath);
-
 static void normalizeHoverSlopeSpeed(f32 floorPos) {
     TMario *player;
     SMS_FROM_GPR(22, player);
