@@ -22,6 +22,7 @@
 #include "objects/fog.hxx"
 #include "objects/generic.hxx"
 #include "objects/particle.hxx"
+#include "objects/sound.hxx"
 #include "player.hxx"
 #include "p_module.hxx"
 #include "p_settings.hxx"
@@ -311,6 +312,7 @@ static void initLib() {
                                     TGenericRailObj::instantiate);
     Objects::registerObjectAsMisc("SimpleFog", TSimpleFog::instantiate);
     Objects::registerObjectAsMisc("ParticleBox", TParticleBox::instantiate);
+    Objects::registerObjectAsMisc("SoundBox", TSoundBox::instantiate);
 
     Game::registerBootCallback("__init_debug_handles", initDebugCallbacks);
 
