@@ -323,12 +323,14 @@ static void warpPlayerToPoint(TMario *player, const TVec3f &point) {
     if (!player)
         return;
 
-    player->mTranslation = point;
+    player->warpRequest(point, convertAngleS16ToFloat(player->mAngle.y));
+
+    /*player->mTranslation = point;
 
     gpCamera->mTranslation.x = lerp<f32>(gpCamera->mTranslation.x, point.x, 0.9375f);
     gpCamera->mTranslation.y = point.y + 300.0f;
     gpCamera->mTranslation.z = lerp<f32>(gpCamera->mTranslation.z, point.z, 0.9375f);
-    gpCamera->mTargetPos     = point;
+    gpCamera->mTargetPos     = point;*/
 }
 
 static void redirectPlayerWithNormal(TMario *player, const TVec3f &normal, f32 minVelocity) {
