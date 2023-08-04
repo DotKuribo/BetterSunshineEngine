@@ -36,9 +36,8 @@ J2DTextBox *gDebugTextBoxB;
 TCheatHandler gDebugHandler;
 
 static void debugModeNotify(TCheatHandler *) {
-    if (gpMSound->gateCheck(MSound::SE_SHINE_TOUCH)) {
-        auto *sound =
-            MSoundSESystem::MSoundSE::startSoundSystemSE(MSound::SE_NINTENDO_SOUND, 0, 0, 0);
+    if (gpMSound->gateCheck(MSD_SE_MV_CHAO)) {
+        auto *sound = MSoundSESystem::MSoundSE::startSoundSystemSE(MSD_SE_MV_CHAO, 0, 0, 0);
         if (sound)
             sound->setPitch(1.25f, 0, 0);
     }
