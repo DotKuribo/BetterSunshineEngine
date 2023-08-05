@@ -115,6 +115,13 @@ void BetterSMS::Stage::TStageParams::reset() {
     mPlayerHasGlasses.set(false);
     mPlayerHasShirt.set(false);
     mPlayerCanRideYoshi.set(true);
+    mMusicEnabled.set(true);
+    mMusicSetCustom.set(false);
+    mMusicAreaID.set(1);
+    mMusicEpisodeID.set(1);
+    mMusicPitch.set(1);
+    mMusicSpeed.set(1);
+    mMusicVolume.set(1);
 }
 
 static int findNumber(const char *string, size_t max) {
@@ -204,8 +211,6 @@ void BetterSMS::Stage::TStageParams::load(const char *stageName) {
 
     mIsCustomConfigLoaded = false;
 }
-
-extern void updateDebugCallbacks();
 
 void initStageLoading(TMarDirector *director) {
     Loading::setLoading(true);

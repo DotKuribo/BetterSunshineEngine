@@ -96,7 +96,7 @@ static void killYoshi(TYoshi *yoshi) {
 }
 
 static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
-    if (yoshi->mType == TYoshi::GREEN || BetterSMS::isCollisionRepaired())
+    if (yoshi->mType == TYoshi::GREEN || !BetterSMS::isCollisionRepaired())
         return;
 
     // Check for water hit
@@ -121,8 +121,8 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
 }
 
 static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
-    if (BetterSMS::isCollisionRepaired())
-		return;
+    if (!BetterSMS::isCollisionRepaired())
+		  return;
 
     if (yoshi->mState != TYoshi::UNMOUNTED)
         return;

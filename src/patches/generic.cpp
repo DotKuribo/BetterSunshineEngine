@@ -5,14 +5,14 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/Player/Mario.hxx>
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/Player/Mario.hxx>
 
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
-#include <SMS/macros.h>
 #include <SMS/System/CardManager.hxx>
+#include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
 #include "module.hxx"
@@ -47,7 +47,7 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802FD1A0, 0x802f5330, 0, 0), 0x808D8C70);
 SMS_WRITE_32(SMS_PORT_REGION(0x801410E4, 0x80135cf8, 0, 0), 0x60000000);
 
 // Sunscript logging restoration
-//SMS_WRITE_32(SMS_PORT_REGION(0x8003DB3C, 0x8003D98C, 0, 0),
+// SMS_WRITE_32(SMS_PORT_REGION(0x8003DB3C, 0x8003D98C, 0, 0),
 //             SMS_PORT_REGION(0x48306B08, 0x482FEE38, 0, 0));
 
 // Show Exception Handler
@@ -92,13 +92,15 @@ BETTER_SMS_FOR_CALLBACK bool conditionalSavePrompt(TMarDirector *director, u8 ne
             return true;
         }
     case SavePromptsSetting::NONE:
-        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0) {
+        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0 &&
+            reinterpret_cast<u8 *>(director)[0x261] != 7) {
             return false;
         } else {
             return true;
         }
     case SavePromptsSetting::AUTO_SAVE:
-        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0) {
+        if (nextState == 11 && reinterpret_cast<u8 *>(director)[0x261] != 0 &&
+            reinterpret_cast<u8 *>(director)[0x261] != 7) {
             if (!BetterSMS::triggerAutoSave()) {
                 OSReport("AutoSave failed!\n");
             }

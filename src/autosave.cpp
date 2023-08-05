@@ -1,8 +1,8 @@
 #include <Dolphin/CARD.h>
 
 #include "module.hxx"
-#include "p_settings.hxx"
 #include "p_autosave.hxx"
+#include "p_settings.hxx"
 
 extern SavePromptsSetting gSavePromptSetting;
 
@@ -11,22 +11,22 @@ static bool gIsAutoSaveActive = false;
 static u8 SMS_ALIGN(32) gSaveThreadStack[0x4000];
 static OSThread gSaveThread;
 
-static void *saveAllThread(void* arg) {
-	if (SaveAllSettings() == CARD_ERROR_READY) {
-		gIsAutoSaveActive = false;
-	}
+static void *saveAllThread(void *arg) {
+    if (SaveAllSettings() == CARD_ERROR_READY) {
+        gIsAutoSaveActive = false;
+    }
     return nullptr;
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::triggerAutoSave() {
     if (gIsAutoSaveActive || gSavePromptSetting.getInt() != SavePromptsSetting::AUTO_SAVE)
-		return false;
+        return false;
 
     s32 status = CARDCheck(gpCardManager->mChannel);
     if (status != CARD_ERROR_READY && status != CARD_ERROR_NOCARD)
-		return false;
+        return false;
 
-	gIsAutoSaveActive = true;
+    gIsAutoSaveActive = true;
     OSCreateThread(&gSaveThread, saveAllThread, NULL, gSaveThreadStack + sizeof(gSaveThreadStack),
                    sizeof(gSaveThreadStack), 17, 0);
     OSResumeThread(&gSaveThread);
@@ -82,9 +82,10 @@ BETTER_SMS_FOR_CALLBACK void updateAutoSaveIcon(TApplication *app) {
     }
 
     const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
-    sAutoSavePicture.mRect = {460 + screenAdjustX, 420, 492 + screenAdjustX, 452};
+    sAutoSavePicture.mRect  = {460 + screenAdjustX, 420, 492 + screenAdjustX, 452};
 
-    if (sAutoSaveAnimator.getCurrentFrame() == 8 || sAutoSaveAnimator.getCurrentFrame() == 15 || sAutoSaveAnimator.getCurrentFrame() == 19) {
+    if (sAutoSaveAnimator.getCurrentFrame() == 8 || sAutoSaveAnimator.getCurrentFrame() == 15 ||
+        sAutoSaveAnimator.getCurrentFrame() == 19) {
         sAutoSaveAnimator.setFrameRate(20.0f / 3.0f);
     } else {
         sAutoSaveAnimator.setFrameRate(20.0f);
