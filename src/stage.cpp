@@ -129,7 +129,7 @@ static int findNumber(const char *string, size_t max) {
         const char chr = string[i];
         if (chr == '\0')
             return -1;
-        if (chr >= 0x30 && chr <= 0x39)
+        if (chr >= '0' && chr <= '9')
             return i;
     }
     return -1;
