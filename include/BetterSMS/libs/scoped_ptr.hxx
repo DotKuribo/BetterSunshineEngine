@@ -22,7 +22,7 @@ public:
     T &operator*() const { return *ptr_; }
     T &operator[](size_t i) const { return ptr_[i]; }
 
-    bool operator bool() const { return ptr_; }
+    operator bool() const { return ptr_; }
 
 
 private:
