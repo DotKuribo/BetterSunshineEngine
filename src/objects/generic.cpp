@@ -261,6 +261,10 @@ void TGenericRailObj::requestShadow() {
     gpBindShadowManager->request(request, mObjectID);
 }
 
+u32 TGenericRailObj::getShadowType() {
+    return 2;
+}
+
 bool TGenericRailObj::checkMarioRiding() {
     if (gpMarioAddress->mFloorTriangle->mOwner != this)
         return false;

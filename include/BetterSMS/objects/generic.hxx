@@ -24,6 +24,7 @@ public:
     void readRailFlag() override;
     void resetPosition() override;
     void requestShadow() override;
+    u32 getShadowType() override;
 
     bool checkMarioRiding();
     void playAnimations(s8 state);
