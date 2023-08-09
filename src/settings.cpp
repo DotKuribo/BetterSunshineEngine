@@ -1,44 +1,45 @@
-#include <Dolphin/types.h>
-#include <Dolphin/mem.h>
-#include <Dolphin/ctype.h>
-#include <Dolphin/string.h>
 #include <Dolphin/CARD.h>
 #include <Dolphin/VI.h>
+#include <Dolphin/ctype.h>
+#include <Dolphin/mem.h>
+#include <Dolphin/string.h>
+#include <Dolphin/types.h>
 
-#include <JSystem/JDrama/JDRViewObjPtrListT.hxx>
+#include <JSystem/J2D/J2DPicture.hxx>
+#include <JSystem/J2D/J2DTextBox.hxx>
 #include <JSystem/JDrama/JDRCamera.hxx>
 #include <JSystem/JDrama/JDRDStage.hxx>
 #include <JSystem/JDrama/JDRDStageGroup.hxx>
 #include <JSystem/JDrama/JDRScreen.hxx>
+#include <JSystem/JDrama/JDRViewObjPtrListT.hxx>
 #include <JSystem/JUtility/JUTColor.hxx>
 #include <JSystem/JUtility/JUTRect.hxx>
-#include <JSystem/J2D/J2DPicture.hxx>
-#include <JSystem/J2D/J2DTextBox.hxx>
 #include <JSystem/JUtility/JUTTexture.hxx>
 
-#include <SMS/Manager/RumbleManager.hxx>
+#include <SMS/Camera/CubeManagerBase.hxx>
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSBGM.hxx>
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
-#include <SMS/System/Application.hxx>
-#include <SMS/Camera/CubeManagerBase.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/Manager/RumbleManager.hxx>
 #include <SMS/MarioUtil/DrawUtil.hxx>
 #include <SMS/MarioUtil/gd-reinit-gx.hxx>
-#include <SMS/System/Resolution.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/System/CardManager.hxx>
-#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/System/Resolution.hxx>
 
 #include "libs/constmath.hxx"
 #include "libs/container.hxx"
 #include "libs/global_vector.hxx"
 #include "libs/string.hxx"
-#include "settings.hxx"
 #include "module.hxx"
+#include "settings.hxx"
 
 #include "p_icons.hxx"
 #include "p_module.hxx"
 #include "p_settings.hxx"
+#include <libs/scoped_ptr.hxx>
 
 BETTER_SMS_FOR_EXPORT const char *Settings::getGroupName(const Settings::SettingsGroup &group) {
     if (!group.mModule)
@@ -143,7 +144,7 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
 static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
 
 static bool sIsMounted = false;
-static s32 sChannel = 0;
+static s32 sChannel    = 0;
 
 static void detachCallback_(s32 channel, s32 res) { sIsMounted = false; }
 
@@ -210,7 +211,7 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
     if (ret == CARD_ERROR_NOFILE) {
         s32 cret =
             CARDCreate(sChannel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
-        //OSReport("Result (CREATE): %d\n", cret);
+        // OSReport("Result (CREATE): %d\n", cret);
         if (cret < CARD_ERROR_READY) {
             if (info.mSaveGlobal)
                 __CARDSetDiskID(DISK_GAME_ID);
@@ -253,54 +254,55 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     }
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
-    char *saveBuffer          = new (JKRHeap::sSystemHeap, 32) char[saveDataSize];
-
-    // Reset data
-    memset(saveBuffer, 0, saveDataSize);
-
-    // Write version info
-    saveBuffer[0] = group.getMajorVersion();
-    saveBuffer[1] = group.getMinorVersion();
-
-    // Copy group name into save data
-    snprintf(saveBuffer + 4, 32, "%s", info.mSaveName);
-
-    // Copy date saved into save data
     {
-        OSCalendarTime calendar;
-        OSTicksToCalendarTime(OSGetTime(), &calendar);
-        snprintf(saveBuffer + 36, 32, "Module Info (%lu/%lu/%lu)", calendar.mon + 1,
-                 calendar.mday, calendar.year);
-    }
+        auto saveBuffer    = scoped_ptr<char>(new (JKRHeap::sSystemHeap, 32) char[saveDataSize]);
+        auto saveBufferPtr = saveBuffer.get();
 
-    memcpy(saveBuffer + CARD_DIRENTRY_SIZE,
-           reinterpret_cast<const u8 *>(info.mBannerImage) + info.mBannerImage->mTextureOffset,
-           0xE00);
-    memcpy(saveBuffer + CARD_DIRENTRY_SIZE + 0xE00,
-           reinterpret_cast<const u8 *>(info.mIconTable) + info.mIconTable->mTextureOffset,
-           0x500 * info.mIconCount);
+        // Reset data
+        memset(saveBufferPtr, 0, saveDataSize);
 
-    size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
+        // Write version info
+        saveBufferPtr[0] = group.getMajorVersion();
+        saveBufferPtr[1] = group.getMinorVersion();
 
-    // Write contents to save file
-    JSUMemoryOutputStream out(saveBuffer + dataPosOut, saveDataSize - dataPosOut);
-    for (auto &setting : group.getSettings()) {
-        setting->save(out);
-    }
+        // Copy group name into save data
+        snprintf(saveBufferPtr + 4, 32, "%s", info.mSaveName);
 
-    for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
-        s32 result = CARDWrite(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
-        while (result == CARD_ERROR_BUSY) {
-            result = CARDCheck(finfo->mChannel);
+        // Copy date saved into save data
+        {
+            OSCalendarTime calendar;
+            OSTicksToCalendarTime(OSGetTime(), &calendar);
+            snprintf(saveBufferPtr + 36, 32, "Module Info (%lu/%lu/%lu)", calendar.mon + 1,
+                     calendar.mday, calendar.year);
         }
-        //OSReport("Result (WRITE): %d\n", result);
-        if (result < CARD_ERROR_READY) {
-            delete[] saveBuffer;
-            return result;
+
+        memcpy(saveBufferPtr + CARD_DIRENTRY_SIZE,
+               reinterpret_cast<const u8 *>(info.mBannerImage) + info.mBannerImage->mTextureOffset,
+               0xE00);
+        memcpy(saveBufferPtr + CARD_DIRENTRY_SIZE + 0xE00,
+               reinterpret_cast<const u8 *>(info.mIconTable) + info.mIconTable->mTextureOffset,
+               0x500 * info.mIconCount);
+
+        size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
+
+        // Write contents to save file
+        JSUMemoryOutputStream out(saveBufferPtr + dataPosOut, saveDataSize - dataPosOut);
+        for (auto &setting : group.getSettings()) {
+            setting->save(out);
+        }
+
+        for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
+            s32 result = CARDWrite(finfo, saveBufferPtr, CARD_BLOCKS_TO_BYTES(1), i);
+            while (result == CARD_ERROR_BUSY) {
+                result = CARDCheck(finfo->mChannel);
+            }
+            // OSReport("Result (WRITE): %d\n", result);
+            if (result < CARD_ERROR_READY) {
+                return result;
+            }
         }
     }
 
-    delete[] saveBuffer;
     return CARD_ERROR_READY;
 }
 
@@ -308,41 +310,41 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     auto &info = group.getSaveInfo();
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
-    char *saveBuffer          = new (JKRHeap::sSystemHeap, 32) char[saveDataSize];
+    {
+        auto saveBuffer = scoped_ptr<char>(new (JKRHeap::sSystemHeap, 32) char[saveDataSize]);
+        auto saveBufferPtr = saveBuffer.get();
 
-    // Reset data
-    memset(saveBuffer, 0, saveDataSize);
+        // Reset data
+        memset(saveBufferPtr, 0, saveDataSize);
 
-    for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
-        s32 result = CARDRead(finfo, saveBuffer, CARD_BLOCKS_TO_BYTES(1), i);
-        while (result == CARD_ERROR_BUSY) {
-            result = CARDCheck(finfo->mChannel);
+        for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
+            s32 result = CARDRead(finfo, saveBufferPtr, CARD_BLOCKS_TO_BYTES(1), i);
+            while (result == CARD_ERROR_BUSY) {
+                result = CARDCheck(finfo->mChannel);
+            }
+            // OSReport("Result (READ): %d\n", result);
+            if (result < CARD_ERROR_READY) {
+                return result;
+            }
         }
-        //OSReport("Result (READ): %d\n", result);
-        if (result < CARD_ERROR_READY) {
-            delete[] saveBuffer;
-            return result;
+
+        if (saveBufferPtr[0] != group.getMajorVersion()) {
+            OSPanic(__FILE__, __LINE__,
+                    "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
+                    "Automatically resetting to defaults...",
+                    Settings::getGroupName(group));
+            return CARD_ERROR_BROKEN;
+        }
+
+        size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
+
+        // Write contents to save file
+        JSUMemoryInputStream in(saveBufferPtr + dataPosOut, saveDataSize - dataPosOut);
+        for (auto &setting : group.getSettings()) {
+            setting->load(in);
         }
     }
 
-    if (saveBuffer[0] != group.getMajorVersion()) {
-        OSPanic(__FILE__, __LINE__,
-                "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
-                "Automatically resetting to defaults...",
-                Settings::getGroupName(group));
-        delete[] saveBuffer;
-        return CARD_ERROR_BROKEN;
-    }
-
-    size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
-
-    // Write contents to save file
-    JSUMemoryInputStream in(saveBuffer + dataPosOut, saveDataSize - dataPosOut);
-    for (auto &setting : group.getSettings()) {
-        setting->load(in);
-    }
-
-    delete[] saveBuffer;
     return CARD_ERROR_READY;
 }
 
@@ -395,9 +397,9 @@ s32 SaveAllSettings() {
 
             if (UpdateSavedSettings(*group, &finfo) == CARD_ERROR_READY)
                 OSReport("Saved settings for module \"%s\"!\n", Settings::getGroupName(*group));
-			else
-				OSReport("Failed to save settings for module \"%s\"!\n",
-                    						 Settings::getGroupName(*group));
+            else
+                OSReport("Failed to save settings for module \"%s\"!\n",
+                         Settings::getGroupName(*group));
             CloseSavedSettings(*group, &finfo);
         }
 
@@ -414,8 +416,8 @@ s32 SettingsDirector::direct() {
 
     int *joinBuf[2];
 
-    //mController->read();
-    //mController->updateMeaning();
+    // mController->read();
+    // mController->updateMeaning();
     TSMSFader *fader = gpApplication.mFader;
     if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
         mSettingScreen->mController->mState.mReadInput = true;
@@ -455,7 +457,7 @@ s32 SettingsDirector::direct() {
         saveSettings();
         break;
     case State::SAVE_BUSY:
-        mSettingScreen->mPerformFlags |= 0b0001;  // Disable input
+        mSettingScreen->mPerformFlags |= 0b0001;    // Disable input
         mSaveErrorPanel->mPerformFlags &= ~0b1011;  // Enable view and input
         break;
     case State::SAVE_FAIL:
@@ -463,7 +465,7 @@ s32 SettingsDirector::direct() {
     case State::SAVE_SUCCESS:
         mSaveErrorPanel->disappear();
         mState = State::EXIT;
-        [[fallthrough]];	
+        [[fallthrough]];
     case State::EXIT: {
         ret = exit();
         break;
@@ -478,8 +480,8 @@ void SettingsDirector::setup(JDrama::TDisplay *display, TMarioGamePad *controlle
     mController                    = controller;
     mController->mState.mReadInput = false;
     SMSRumbleMgr->reset();
-    OSCreateThread(&gSetupThread, setupThreadFunc, this, gpSetupThreadStack + 0x10000,
-                   0x10000, 17, 0);
+    OSCreateThread(&gSetupThread, setupThreadFunc, this, gpSetupThreadStack + 0x10000, 0x10000, 17,
+                   0);
     OSResumeThread(&gSetupThread);
 }
 
@@ -579,7 +581,7 @@ void SettingsDirector::initializeDramaHierarchy() {
     {
         auto *screen = new JDrama::TScreen(screenRect, "Screen Grad");
 
-        auto *orthoProj = new JDrama::TOrthoProj();
+        auto *orthoProj                = new JDrama::TOrthoProj();
         orthoProj->mProjectionField[0] = -BetterSMS::getScreenRatioAdjustX();
         orthoProj->mProjectionField[2] = BetterSMS::getScreenRenderWidth();
         screen->assignCamera(orthoProj);
@@ -615,28 +617,30 @@ static size_t newlines(const char *buf) {
 }
 
 void SettingsDirector::initializeSettingsLayout() {
-    const int screenOrthoWidth = BetterSMS::getScreenOrthoWidth();
-    const int screenRenderWidth = BetterSMS::getScreenRenderWidth();
-    const int screenRenderHeight  = 480;
-    const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
+    const int screenOrthoWidth   = BetterSMS::getScreenOrthoWidth();
+    const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
+    const int screenRenderHeight = 480;
+    const int screenAdjustX      = BetterSMS::getScreenRatioAdjustX();
 
-    mSettingScreen->mScreen = new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
+    mSettingScreen->mScreen =
+        new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
     {
         JUTTexture *mask      = new JUTTexture();
         mask->mTexObj2.val[2] = 0;
         mask->storeTIMG(GetResourceTextureHeader(gMaskBlack));
         mask->_50 = false;
 
-        J2DPicture *maskTop = new J2DPicture('mskt', {0, 0, 0, 0});
+        J2DPicture *maskTop    = new J2DPicture('mskt', {0, 0, 0, 0});
         J2DPicture *maskBottom = new J2DPicture('mskb', {0, 0, 0, 0});
 
         maskTop->insert(mask, 0, 1.0f);
         maskBottom->insert(mask, 0, 1.0f);
 
         maskTop->mRect    = {-screenAdjustX, 0, screenOrthoWidth, 90};
-        maskBottom->mRect = {-screenAdjustX, screenRenderHeight - 90, screenOrthoWidth, screenRenderHeight};
+        maskBottom->mRect = {-screenAdjustX, screenRenderHeight - 90, screenOrthoWidth,
+                             screenRenderHeight};
 
-        maskTop->mAlpha = 160;
+        maskTop->mAlpha    = 160;
         maskBottom->mAlpha = 160;
 
         maskTop->mColorOverlay    = {0, 0, 0, 255};
@@ -655,10 +659,9 @@ void SettingsDirector::initializeSettingsLayout() {
         mSettingScreen->mScreen->mChildrenList.append(&maskTop->mPtrLink);
         mSettingScreen->mScreen->mChildrenList.append(&maskBottom->mPtrLink);
 
-        J2DTextBox *label =
-            new J2DTextBox('logo', {0, screenRenderHeight - 90, 600, screenRenderHeight}, gpSystemFont->mFont,
-                           "Game Settings",
-                           J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        J2DTextBox *label = new J2DTextBox(
+            'logo', {0, screenRenderHeight - 90, 600, screenRenderHeight}, gpSystemFont->mFont,
+            "Game Settings", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         label->mCharSizeX   = 24;
         label->mCharSizeY   = 24;
         label->mNewlineSize = 24;
@@ -666,9 +669,9 @@ void SettingsDirector::initializeSettingsLayout() {
 
         J2DTextBox *exitLabel = new J2DTextBox(
             'exit',
-            {static_cast<int>(20 - getScreenRatioAdjustX()), screenRenderHeight - 90, static_cast<int>(100 - getScreenRatioAdjustX()), screenRenderHeight},
-            gpSystemFont->mFont,
-            "# Exit", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+            {static_cast<int>(20 - getScreenRatioAdjustX()), screenRenderHeight - 90,
+             static_cast<int>(100 - getScreenRatioAdjustX()), screenRenderHeight},
+            gpSystemFont->mFont, "# Exit", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
         mSettingScreen->mScreen->mChildrenList.append(&exitLabel->mPtrLink);
     }
 
@@ -722,12 +725,12 @@ void SettingsDirector::initializeSettingsLayout() {
                 new J2DPane(19, ('q' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
 
             J2DTextBox *settingText = new J2DTextBox(
-                ('s' << 24) | n, {0, 110 + (23 * ny), 600, 158 + (23 * ny)},
-                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+                ('s' << 24) | n, {0, 110 + (23 * ny), 600, 158 + (23 * ny)}, gpSystemFont->mFont,
+                "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
 
             J2DTextBox *settingTextBehind = new J2DTextBox(
-                ('b' << 24) | n, {2, 112 + (23 * ny), 602, 160 + (23 * ny)},
-                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+                ('b' << 24) | n, {2, 112 + (23 * ny), 602, 160 + (23 * ny)}, gpSystemFont->mFont,
+                "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
                 char valueTextbuf[40];
                 setting->getValueStr(valueTextbuf);
@@ -739,12 +742,12 @@ void SettingsDirector::initializeSettingsLayout() {
                 const u8 alpha = setting->isUserEditable() ? 255 : 210;
                 const u8 color = setting->isUserEditable() ? 255 : 140;
 
-                settingText->mStrPtr                 = settingTextBuf;
-                settingText->mCharSizeX              = 21;
-                settingText->mCharSizeY              = 21;
-                settingText->mNewlineSize            = 21;
-                settingText->mGradientBottom         = {color, color, color, alpha};
-                settingText->mGradientTop            = {color, color, color, alpha};
+                settingText->mStrPtr         = settingTextBuf;
+                settingText->mCharSizeX      = 21;
+                settingText->mCharSizeY      = 21;
+                settingText->mNewlineSize    = 21;
+                settingText->mGradientBottom = {color, color, color, alpha};
+                settingText->mGradientTop    = {color, color, color, alpha};
 
                 settingTextBehind->mStrPtr         = settingTextBuf;
                 settingTextBehind->mCharSizeX      = 21;
@@ -760,10 +763,10 @@ void SettingsDirector::initializeSettingsLayout() {
             }
             groupPane->mChildrenList.append(&settingPane->mPtrLink);
 
-            auto *settingInfo            = new SettingInfo();
-            settingInfo->mSettingTextBox = settingText;
+            auto *settingInfo                = new SettingInfo();
+            settingInfo->mSettingTextBox     = settingText;
             settingInfo->mSettingTextBoxBack = settingTextBehind;
-            settingInfo->mSettingData    = setting;
+            settingInfo->mSettingData        = setting;
             groupInfo->mSettingInfos.insert(groupInfo->mSettingInfos.end(), settingInfo);
 
             n += 1;
@@ -773,7 +776,7 @@ void SettingsDirector::initializeSettingsLayout() {
         mSettingScreen->mGroups.insert(mSettingScreen->mGroups.end(), groupInfo);
 
         if (i == 0) {
-            mSettingScreen->mCurrentGroupInfo = groupInfo;
+            mSettingScreen->mCurrentGroupInfo   = groupInfo;
             mSettingScreen->mCurrentSettingInfo = mSettingScreen->getSettingInfo(0);
             mSettingScreen->mCurrentGroupInfo->mGroupPane->mIsVisible = true;
         }
@@ -804,7 +807,7 @@ void SettingsDirector::initializeErrorLayout() {
         mSaveErrorPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 280});
         mSaveErrorPanel->mAnimatedPane->mPane = rootPane;
 
-        J2DPicture *maskPanel    = new J2DPicture('mask', {0, 0, 0, 0});
+        J2DPicture *maskPanel = new J2DPicture('mask', {0, 0, 0, 0});
         {
             maskPanel->insert(mask, 0, 1.0f);
             maskPanel->mRect            = {0, 0, 400, 280};
@@ -822,7 +825,7 @@ void SettingsDirector::initializeErrorLayout() {
         {
             mSaveErrorPanel->mErrorTextBox =
                 new J2DTextBox('errl', {12, 16, 388, 40}, gpSystemFont->mFont, "",
-                                        J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Top);
+                               J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Top);
             {
                 mSaveErrorPanel->mErrorTextBox->mStrPtr         = sErrorTag;
                 mSaveErrorPanel->mErrorTextBox->mCharSizeX      = 21;
@@ -869,8 +872,7 @@ void SettingsDirector::initializeErrorLayout() {
         mSaveErrorPanel->mSaveTryingPane->mIsVisible = true;
         {
             J2DTextBox *description = new J2DTextBox(
-                'desc', {20, 50, 380, 230}, gpSystemFont->mFont,
-                "Saving to the memory card...",
+                'desc', {20, 50, 380, 230}, gpSystemFont->mFont, "Saving to the memory card...",
                 J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
                 description->mCharSizeX = 21;
@@ -947,7 +949,7 @@ void SettingsDirector::saveSettings_() {
         UnmountCard();
     }
 
-    mState = State::SAVE_SUCCESS;
+    mState     = State::SAVE_SUCCESS;
     mErrorCode = CARD_ERROR_READY;
     return;
 }
@@ -996,8 +998,8 @@ static J2DScreen *sNotificationScreen;
 static J2DTextBox *sNotificationBox;
 static TGlobalVector<TGlobalString> sUnlockedSettings;
 
-static OSTime sLastTime = 0;
-static int sVisualState = 0;
+static OSTime sLastTime  = 0;
+static int sVisualState  = 0;
 static int sOnScreenTime = 0;
 
 static char sNotifTextBuf[128];
@@ -1040,13 +1042,13 @@ BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
         sNotificationBox = new J2DTextBox(gpSystemFont->mFont, "");
         {
             sNotificationBox->mRect.set(100, 100, 500, 170);
-            sNotificationBox->mAlpha          = 0;
-            sNotificationBox->mCharSizeX      = 14;
-            sNotificationBox->mCharSizeY      = 15;
-            sNotificationBox->mNewlineSize    = 15;
-            sNotificationBox->mHBinding       = J2DTextBoxHBinding::Center;
-            sNotificationBox->mVBinding       = J2DTextBoxVBinding::Center;
-            sNotificationBox->mStrPtr         = sNotifTextBuf;
+            sNotificationBox->mAlpha       = 0;
+            sNotificationBox->mCharSizeX   = 14;
+            sNotificationBox->mCharSizeY   = 15;
+            sNotificationBox->mNewlineSize = 15;
+            sNotificationBox->mHBinding    = J2DTextBoxHBinding::Center;
+            sNotificationBox->mVBinding    = J2DTextBoxVBinding::Center;
+            sNotificationBox->mStrPtr      = sNotifTextBuf;
         }
         sNotificationScreen->mChildrenList.append(&sNotificationBox->mPtrLink);
     }
@@ -1056,8 +1058,9 @@ BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
     sVisualState = 0;
 }
 
-BETTER_SMS_FOR_CALLBACK void checkForUnlockedSettings(const Settings::SettingsGroup &group,
-                                                      TGlobalVector<Settings::SingleSetting *> &out) {
+BETTER_SMS_FOR_CALLBACK void
+checkForUnlockedSettings(const Settings::SettingsGroup &group,
+                         TGlobalVector<Settings::SingleSetting *> &out) {
     for (auto &setting : group.getSettings()) {
         if (sNewUnlockMap.find(setting) == sNewUnlockMap.end()) {
             sNewUnlockMap[setting] = setting->isUnlocked() && setting->isUserEditable();
@@ -1100,9 +1103,10 @@ BETTER_SMS_FOR_CALLBACK void drawUnlockedSettings(TApplication *app, const J2DOr
     ReInitializeGX();
     const_cast<J2DOrthoGraph *>(ortho)->setup2D();
 
-    J2DFillBox(sNotificationBox->mRect,
-               {30, 70, 230, lerp<u8>(0, 200, static_cast<f32>(sNotificationBox->mAlpha) / 255.0f)});
-    
+    J2DFillBox(
+        sNotificationBox->mRect,
+        {30, 70, 230, lerp<u8>(0, 200, static_cast<f32>(sNotificationBox->mAlpha) / 255.0f)});
+
     sNotificationScreen->draw(0, 0, ortho);
 
     if (sVisualState == 0) {
