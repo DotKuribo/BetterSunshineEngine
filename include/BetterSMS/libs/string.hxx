@@ -6,6 +6,7 @@
 
 #include <JSystem/bits/functional_hash.h>
 #include <JSystem/JGadget/Allocator.hxx>
+#include "global_allocator.hxx"
 
 namespace BetterSMS {
 
