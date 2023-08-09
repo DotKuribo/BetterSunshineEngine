@@ -13,17 +13,17 @@ public:
     TGenericRailObj(const char *name)
         : TRailMapObj(name), mSoundID(-1), mSoundStrength(1.0f), mContactAnim(false),
           mModelName(nullptr), mCurrentSound(nullptr) {}
-    virtual ~TGenericRailObj() override {}
+    ~TGenericRailObj() override {}
 
-    virtual void load(JSUMemoryInputStream &in) override;
-    virtual void initMapCollisionData() override;
-    virtual void initMapObj() override;
-    virtual void makeMActors() override;
-    virtual void control() override;
-    virtual void setGroundCollision() override;
-    virtual void readRailFlag() override;
-    virtual void resetPosition() override;
-    virtual void requestShadow() override;
+    void load(JSUMemoryInputStream &in) override;
+    void initMapCollisionData() override;
+    void initMapObj() override;
+    void makeMActors() override;
+    void control() override;
+    void setGroundCollision() override;
+    void readRailFlag() override;
+    void resetPosition() override;
+    void requestShadow() override;
 
     bool checkMarioRiding();
     void playAnimations(s8 state);

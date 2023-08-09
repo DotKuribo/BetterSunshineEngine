@@ -16,7 +16,7 @@
 
 // clang-format off
 
-static u8 sLoadingScreenBloFull[] = {
+static u8 SMS_ALIGN(32) sLoadingScreenBlo[] = {
   0x53, 0x43, 0x52, 0x4e, 0x62, 0x6c, 0x6f, 0x31, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x06, 
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
   0x49, 0x4e, 0x46, 0x31, 0x00, 0x00, 0x00, 0x10, 0x02, 0x58, 0x01, 0xe0, 0x00, 0x00, 0x00, 0x00, 
@@ -27,28 +27,6 @@ static u8 sLoadingScreenBloFull[] = {
   0x45, 0x4e, 0x44, 0x31, 0x00, 0x00, 0x00, 0x08, 0x45, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x08
 };
 
-static u8 sLoadingScreenBloWide[] = {
-  0x53, 0x43, 0x52, 0x4e, 0x62, 0x6c, 0x6f, 0x31, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x06, 
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-  0x49, 0x4e, 0x46, 0x31, 0x00, 0x00, 0x00, 0x10, 0x02, 0xe4, 0x01, 0xe0, 0x00, 0x00, 0x00, 0x00, 
-  0x50, 0x41, 0x4e, 0x31, 0x00, 0x00, 0x00, 0x18, 0x06, 0x01, 0x00, 0x00, 0x52, 0x4f, 0x4f, 0x54, 
-  0xff, 0xce, 0x00, 0x00, 0x02, 0xe4, 0x01, 0xe0, 0x42, 0x47, 0x4e, 0x31, 0x00, 0x00, 0x00, 0x08, 
-  0x50, 0x49, 0x43, 0x31, 0x00, 0x00, 0x00, 0x20, 0x06, 0x01, 0x00, 0x00, 0x69, 0x63, 0x6f, 0x6e, 
-  0x02, 0xb0, 0x01, 0x90, 0x00, 0x20, 0x00, 0x20, 0x05, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x05, 
-  0x45, 0x4e, 0x44, 0x31, 0x00, 0x00, 0x00, 0x08, 0x45, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x08
-};
-
-static u8 sLoadingScreenBloUltraWide[] = {
-  0x53, 0x43, 0x52, 0x4e, 0x62, 0x6c, 0x6f, 0x31, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x06, 
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-  0x49, 0x4e, 0x46, 0x31, 0x00, 0x00, 0x00, 0x10, 0x02, 0xe4, 0x01, 0xe0, 0x00, 0x00, 0x00, 0x00, 
-  0x50, 0x41, 0x4e, 0x31, 0x00, 0x00, 0x00, 0x18, 0x06, 0x01, 0x00, 0x00, 0x52, 0x4f, 0x4f, 0x54, 
-  0xff, 0x51, 0x00, 0x00, 0x04, 0x1a, 0x01, 0xe0, 0x42, 0x47, 0x4e, 0x31, 0x00, 0x00, 0x00, 0x08, 
-  0x50, 0x49, 0x43, 0x31, 0x00, 0x00, 0x00, 0x20, 0x06, 0x01, 0x00, 0x00, 0x69, 0x63, 0x6f, 0x6e, 
-  0x04, 0x78, 0x01, 0x90, 0x00, 0x20, 0x00, 0x20, 0x05, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x05, 
-  0x45, 0x4e, 0x44, 0x31, 0x00, 0x00, 0x00, 0x08, 0x45, 0x58, 0x54, 0x31, 0x00, 0x00, 0x00, 0x08
-};
-
 // clang-format on
 
 using namespace BetterSMS;
@@ -56,9 +34,7 @@ using namespace BetterSMS;
 static bool sIsLoading = false;
 
 static SimpleTexAnimator sLoadingIconAnimator(sLoadingIconTIMGs, 16);
-static J2DScreen *sLoadingScreenFull;
-static J2DScreen *sLoadingScreenWide;
-static J2DScreen *sLoadingScreenUltraWide;
+static J2DScreen *sLoadingScreen;
 static JUTTexture sLoadingIconTexture;
 
 void Loading::setLoading(bool isLoading) {
@@ -70,9 +46,7 @@ void Loading::setLoading(bool isLoading) {
 void Loading::setLoadingIcon(const ResTIMG **textures, size_t texCount) {
     sLoadingIconAnimator.setTextures(textures, texCount);
 }
-void Loading::setFullScreenLayout(J2DScreen *screen) { sLoadingScreenFull = screen; }
-void Loading::setWideScreenLayout(J2DScreen *screen) { sLoadingScreenWide = screen; }
-void Loading::setUltraWideScreenLayout(J2DScreen *screen) { sLoadingScreenUltraWide = screen; }
+void Loading::setLayout(J2DScreen *screen) { sLoadingScreen = screen; }
 void Loading::setFrameRate(f32 fps) { sLoadingIconAnimator.setFrameRate(fps); }
 
 #pragma region Implementation
@@ -81,23 +55,9 @@ static int baseIconX = 400;
 
 void initLoadingScreen() {
     {
-        JSUMemoryInputStream stream(sLoadingScreenBloFull, sizeof(sLoadingScreenBloFull));
-        sLoadingScreenFull = new J2DScreen();
-        sLoadingScreenFull->makeHiearachyPanes(sLoadingScreenFull, &stream, false, true, false,
-                                               nullptr);
-    }
-
-    {
-        JSUMemoryInputStream stream(sLoadingScreenBloWide, sizeof(sLoadingScreenBloWide));
-        sLoadingScreenWide = new J2DScreen();
-        sLoadingScreenWide->makeHiearachyPanes(sLoadingScreenWide, &stream, false, true, false,
-                                               nullptr);
-    }
-
-    {
-        JSUMemoryInputStream stream(sLoadingScreenBloUltraWide, sizeof(sLoadingScreenBloUltraWide));
-        sLoadingScreenUltraWide = new J2DScreen();
-        sLoadingScreenUltraWide->makeHiearachyPanes(sLoadingScreenUltraWide, &stream, false, true, false,
+        JSUMemoryInputStream stream(sLoadingScreenBlo, sizeof(sLoadingScreenBlo));
+        sLoadingScreen = new J2DScreen();
+        sLoadingScreen->makeHiearachyPanes(sLoadingScreen, &stream, false, true, false,
                                                nullptr);
     }
 
@@ -107,27 +67,7 @@ void initLoadingScreen() {
 
     {
         J2DPicture *loadingIcon =
-            reinterpret_cast<J2DPicture *>(sLoadingScreenFull->search('icon'));
-        if (loadingIcon) {
-            JUTRect rect = loadingIcon->mRect;
-            loadingIcon->insert(&sLoadingIconTexture, 0, 1.0);
-            loadingIcon->mRect = rect;
-        }
-    }
-
-    {
-        J2DPicture *loadingIcon =
-            reinterpret_cast<J2DPicture *>(sLoadingScreenWide->search('icon'));
-        if (loadingIcon) {
-            JUTRect rect = loadingIcon->mRect;
-            loadingIcon->insert(&sLoadingIconTexture, 0, 1.0);
-            loadingIcon->mRect = rect;
-        }
-    }
-
-    {
-        J2DPicture *loadingIcon =
-            reinterpret_cast<J2DPicture *>(sLoadingScreenUltraWide->search('icon'));
+            reinterpret_cast<J2DPicture *>(sLoadingScreen->search('icon'));
         if (loadingIcon) {
             JUTRect rect = loadingIcon->mRect;
             loadingIcon->insert(&sLoadingIconTexture, 0, 1.0);
@@ -141,28 +81,16 @@ void initLoadingScreen() {
 extern AspectRatioSetting gAspectRatioSetting;
 
 void drawLoadingScreen(TApplication *app, const J2DOrthoGraph *ortho) {
-    if (!sIsLoading || !sLoadingScreenFull || !sLoadingScreenWide || !sLoadingScreenUltraWide)
+    if (!sIsLoading || !sLoadingScreen)
         return;
 
-    const f32 screenRatio = BetterSMS::getScreenToFullScreenRatio();
+    const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
 
-    J2DScreen *screen;
-    switch (gAspectRatioSetting.getInt()) {
-    default:
-    case AspectRatioSetting::FULLOPENMATTE:
-    case AspectRatioSetting::FULL:
-        screen = sLoadingScreenFull;
-        break;
-    case AspectRatioSetting::WIDE:
-        screen = sLoadingScreenWide;
-        break;
-    case AspectRatioSetting::ULTRAWIDE:
-        screen = sLoadingScreenUltraWide;
-        break;
-    }
+    J2DScreen *screen = sLoadingScreen;
 
     auto loadingIcon = screen->search('icon');
     if (loadingIcon) {
+        loadingIcon->mRect = {540 + screenAdjustX, 400, 572 + screenAdjustX, 432};
         sLoadingIconAnimator.process(reinterpret_cast<J2DPicture *>(loadingIcon));
     }
 

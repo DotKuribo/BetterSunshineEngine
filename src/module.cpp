@@ -412,11 +412,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         /* LOADING */
         KURIBO_EXPORT_AS(BetterSMS::Loading::setLoading, "setLoading__Q29BetterSMS7LoadingFb");
         KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIcon, "setLoadingIcon__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setFullScreenLayout, "setFullScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setWideScreenLayout,
-                         "setWideScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setUltraWideScreenLayout,
-                         "setUltraWideScreenLayout__Q29BetterSMS7LoadingFP9J2DScreen");
+        KURIBO_EXPORT_AS(BetterSMS::Loading::setLayout, "setLayout__Q29BetterSMS7LoadingFP9J2DScreen");
         KURIBO_EXPORT_AS(BetterSMS::Loading::setFrameRate, "setFrameRate__Q29BetterSMS7LoadingFf");
 
         /* PLAYER */

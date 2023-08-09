@@ -254,8 +254,8 @@ void TGenericRailObj::requestShadow() {
     TCircleShadowRequest request;
     request.mTranslation   = mTranslation;
     request.mTranslation.y = mGroundY;
-    request.mOffsetY       = 0;
-    request.mOffsetY2      = 0;
+    request.mOffsetY       = mShadowRadius;
+    request.mOffsetY2      = mShadowRadius;
     request.mRotationY     = mRotation.y;
     request.mShadowType    = getShadowType();
     gpBindShadowManager->request(request, mObjectID);
