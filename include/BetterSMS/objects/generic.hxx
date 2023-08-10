@@ -2,7 +2,7 @@
 #include <JSystem/JAudio/JAISound.hxx>
 #include <SMS/MapObj/MapObjRail.hxx>
 
-#include "module.hxx"
+#include "../module.hxx"
 
 class TGenericRailObj : public TRailMapObj {
 public:
