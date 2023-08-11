@@ -379,6 +379,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered, "isContextRegistered__Q29BetterSMS11ApplicationFUc");
         KURIBO_EXPORT_AS(BetterSMS::Application::registerContextCallback, "registerContextCallback__Q29BetterSMS11ApplicationFUcPFP12TApplication_b");
         KURIBO_EXPORT_AS(BetterSMS::Application::deregisterContextCallback, "deregisterContextCallback__Q29BetterSMS11ApplicationFUc");
+        KURIBO_EXPORT_AS(BetterSMS::Application::setIntroStage, "setIntroStage__Q29BetterSMS11ApplicationFUcUc");
 
         /* BMG */
         KURIBO_EXPORT_AS(BetterSMS::BMG::registerBMGCommandCallback,

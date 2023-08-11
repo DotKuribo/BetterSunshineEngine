@@ -25,6 +25,7 @@ using namespace BetterSMS;
 
 static TGlobalUnorderedMap<u8, Application::ContextCallback> sContextCBs(16);
 static bool sIsAdditionalMovie = false;
+static u8 sIntroArea = 15, sIntroEpisode = 0;
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::isContextRegistered(u8 context) {
     return sContextCBs.find(context) != sContextCBs.end();
@@ -39,6 +40,11 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 co
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Application::deregisterContextCallback(u8 context) {
     sContextCBs.erase(context);
+}
+
+BETTER_SMS_FOR_EXPORT void BetterSMS::Application::setIntroStage(u8 area, u8 episode) {
+    sIntroArea = area;
+    sIntroEpisode = episode;
 }
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBoot(TApplication *app) {
@@ -91,7 +97,7 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectStage(TApplication *app) {
                                         app->mCurrentScene.mEpisodeID) != 0;
 
         if (skipLoop)
-            app->mContext = 4;
+            app->mContext = TApplication::CONTEXT_GAME_INTRO;
         return skipLoop;
     } else {
         BetterAppContextDirectMovie(app);
