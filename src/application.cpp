@@ -76,8 +76,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectMovie(TApplication *app) {
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBootIntro(TApplication *app) {
     app->mCutSceneID           = 9;
-    app->mNextScene.mAreaID    = 15;
-    app->mNextScene.mEpisodeID = 0;
+    app->mNextScene.mAreaID    = sIntroArea;
+    app->mNextScene.mEpisodeID = sIntroEpisode;
     app->mNextScene.mFlag.mVal = 0;
     BetterAppContextDirectMovie(app);
     return false;
@@ -143,8 +143,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectSettingsMenu(TApplication *ap
 
     director->setup(app->mDisplay, app->mGamePads[0]);
 
-    app->mCurrentScene.set(15, 0, 0);
-    app->mNextScene.set(15, 0, 0);
+    app->mCurrentScene.set(sIntroArea, sIntroEpisode, 0);
+    app->mNextScene.set(sIntroArea, sIntroEpisode, 0);
     return false;
 }
 
