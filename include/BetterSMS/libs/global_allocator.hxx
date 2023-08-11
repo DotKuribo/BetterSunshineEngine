@@ -3,8 +3,8 @@
 #include <Dolphin/types.h>
 
 #include <JSystem/bits/c++config.h>
-#include <JSystem/type_traits.hxx>
 #include <JSystem/memory.hxx>
+#include <JSystem/type_traits.hxx>
 #include <JSystem/utility.hxx>
 
 #include <JSystem/JKernel/JKRHeap.hxx>
@@ -18,7 +18,9 @@ public:
     typedef const _T &const_reference;
     typedef size_t size_type;
     typedef ptrdiff_t difference_type;
-    template <class U> struct rebind { typedef TGlobalAllocator<U> other; };
+    template <class U> struct rebind {
+        typedef TGlobalAllocator<U> other;
+    };
 
     _GLIBCXX20_CONSTEXPR TGlobalAllocator() _GLIBCXX_USE_NOEXCEPT = default;
     _GLIBCXX20_CONSTEXPR
@@ -36,22 +38,19 @@ public:
     pointer allocate(size_type _n, const void *hint = 0) {
         if (_n > max_size())
             return nullptr;
-        return static_cast<_T *>(
-            ::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
+        return static_cast<_T *>(::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
     }
 #elif __cplusplus >= 201703L
 #if __cplusplus == 201703L
     pointer allocate(size_type _n, const void *hint) {
         if (_n > max_size())
             return nullptr;
-        return static_cast<_T *>(
-            ::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
+        return static_cast<_T *>(::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
     }
 #endif
 
     _GLIBCXX_NODISCARD _GLIBCXX20_CONSTEXPR pointer allocate(size_t _n) {
-        return static_cast<_T *>(
-            ::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
+        return static_cast<_T *>(::operator new(_n * sizeof(value_type), JKRHeap::sSystemHeap, 4));
     }
 #endif
 

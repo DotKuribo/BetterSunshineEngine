@@ -222,7 +222,8 @@ static bool sIsStageInitialized = false;
 
 // Extern to stage init
 BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
-    Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
+    //Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
+    Stage::TStageParams::sStageConfig = new Stage::TStageParams;
 
     Stage::TStageParams *config = Stage::getStageConfiguration();
     config->reset();
@@ -232,7 +233,7 @@ BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
 
 // Extern to stage init
 BETTER_SMS_FOR_CALLBACK void resetStageConfig(TApplication *) {
-    delete Stage::TStageParams::sStageConfig;
+    //delete Stage::TStageParams::sStageConfig;
 
     waterColor[0].set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
     waterColor[1].set(0xFE, 0xA8, 0x02, 0x6E);  // Yoshi Juice rgba

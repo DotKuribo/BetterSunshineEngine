@@ -179,6 +179,8 @@ extern void checkForCompletionAwards(TApplication *);
 extern void updateUnlockedSettings(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
+extern void resetPlayerDatas(TApplication *application);
+
 // SAVE FILE
 extern void initAutoSaveIcon(TApplication *);
 extern void updateAutoSaveIcon(TApplication *);
@@ -315,6 +317,8 @@ static void initLib() {
     Objects::registerObjectAsMisc("SoundBox", TSoundBox::instantiate);
 
     Game::registerBootCallback("__init_debug_handles", initDebugCallbacks);
+
+    Game::registerChangeCallback("__reset_player_datas", resetPlayerDatas);
 
     ////Game::registerOnBootCallback("__init_fps", updateFPSBoot);
     Stage::registerInitCallback("__init_fps", updateFPS);
