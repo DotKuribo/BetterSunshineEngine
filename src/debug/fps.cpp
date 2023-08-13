@@ -88,7 +88,7 @@ BETTER_SMS_FOR_CALLBACK void drawFPSMonitor(TApplication *app, const J2DOrthoGra
         return;
 
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
-        if (gDebugUIPage == 0|| !BetterSMS::isDebugMode())
+        if (gDebugUIPage == 0 || !BetterSMS::isDebugMode())
             return;
     }
 

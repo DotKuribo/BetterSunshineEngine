@@ -89,7 +89,9 @@ void gameInitCallbackHandler(TApplication *app) {
 
 // extern -> custom app proc
 void gameBootCallbackHandler(TApplication *app) {
+    OSReport("Auuugh! I'm hit!\n");
     for (auto &item : sGameBootCBs) {
+        OSReport("Name: %s\n", item.first.c_str());
         item.second(&gpApplication);
     }
 }

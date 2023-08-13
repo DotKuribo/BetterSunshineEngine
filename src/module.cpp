@@ -23,9 +23,9 @@
 #include "objects/generic.hxx"
 #include "objects/particle.hxx"
 #include "objects/sound.hxx"
-#include "player.hxx"
 #include "p_module.hxx"
 #include "p_settings.hxx"
+#include "player.hxx"
 #include "settings.hxx"
 #include "stage.hxx"
 #include "time.hxx"
@@ -47,14 +47,16 @@ Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX
 Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY);
 SavePromptsSetting gSavePromptSetting("Save Prompts");
 
-static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 1, &sSettingsGroup};
+static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 2, &sSettingsGroup};
 //
 
 BetterSMS::TGlobalUnorderedMap<TGlobalString, const BetterSMS::ModuleInfo *> gModuleInfos(16);
 
 const ModuleInfo *BetterSMS::getModuleInfo(const char *key) { return gModuleInfos.at(key); }
 
-bool BetterSMS::isModuleRegistered(const char *key) { return gModuleInfos.find(key) != gModuleInfos.end(); }
+bool BetterSMS::isModuleRegistered(const char *key) {
+    return gModuleInfos.find(key) != gModuleInfos.end();
+}
 bool BetterSMS::registerModule(const ModuleInfo *info) {
     if (isModuleRegistered(info->mName)) {
         OSPanic(__FILE__, __LINE__,
@@ -66,9 +68,7 @@ bool BetterSMS::registerModule(const ModuleInfo *info) {
     gModuleInfos[info->mName] = info;
     return true;
 }
-void BetterSMS::deregisterModule(const ModuleInfo *info) {
-    gModuleInfos.erase(info->mName);
-}
+void BetterSMS::deregisterModule(const ModuleInfo *info) { gModuleInfos.erase(info->mName); }
 
 // mario.cpp
 extern "C" s16 mario_shadowCrashPatch();
@@ -227,8 +227,7 @@ static void initLib() {
     //
 
     // Set up application context handlers
-    Application::registerContextCallback(TApplication::CONTEXT_GAME_BOOT,
-                                         BetterAppContextGameBoot);
+    Application::registerContextCallback(TApplication::CONTEXT_GAME_BOOT, BetterAppContextGameBoot);
     Application::registerContextCallback(TApplication::CONTEXT_GAME_BOOT_LOGO,
                                          BetterAppContextGameBootLogo);
     Application::registerContextCallback(TApplication::CONTEXT_GAME_INTRO,
@@ -243,9 +242,14 @@ static void initLib() {
                                          BetterAppContextDirectLevelSelect);
     Application::registerContextCallback(10, BetterAppContextDirectSettingsMenu);
 
-    #if 0
+    //// AUTO SAVE
+    Game::registerBootCallback("__init_auto_save", initAutoSaveIcon);
+    Game::registerLoopCallback("__update_auto_save", updateAutoSaveIcon);
+    Game::registerPostDrawCallback("__draw_auto_save", drawAutoSaveIcon);
+
+#if 0
     Player::registerUpdateCallback("__debug_warp_collision", updateDebugCollision);
-    #endif
+#endif
 
     // Set up player map collisions
     Player::registerInitCallback("__init_warp_callback", initializeWarpCallback);
@@ -273,7 +277,7 @@ static void initLib() {
     Player::registerCollisionHandler(3065, portalFreeWarpHandler);
 
     //// PLAYER STATE
-    //Player::registerUpdateCallback("__update_collision_context", updateCollisionContext);
+    // Player::registerUpdateCallback("__update_collision_context", updateCollisionContext);
     Player::registerUpdateCallback("__check_upwarp_climb", updateClimbContext);
     Player::registerUpdateCallback("__check_force_drop_dead_actor", checkForForceDropOnDeadActor);
 
@@ -330,60 +334,78 @@ static void initLib() {
     Game::registerLoopCallback("__update_setting_notifs", updateUnlockedSettings);
     Game::registerPostDrawCallback("__draw_setting_notifs", drawUnlockedSettings);
 
-    //// AUTO SAVE
-    Game::registerBootCallback("__init_auto_save", initAutoSaveIcon);
-    Game::registerLoopCallback("__update_auto_save", updateAutoSaveIcon);
-    Game::registerPostDrawCallback("__draw_auto_save", drawAutoSaveIcon);
-
     // PATCHES
     Stage::registerInitCallback("__init_shine_100_resetter", patches_staticResetter);
 
-    PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600004); // Make system memory more expansive (takes away from stage heap)
+    PowerPC::writeU32(
+        reinterpret_cast<u32 *>(0x802A7454),
+        0x3C600004);  // Make system memory more expansive (takes away from stage heap)
 }
 
-static void destroyLib() {
-    PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600002);
-}
+static void destroyLib() { PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600002); }
 
-KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG)
-{
+KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG) {
     KURIBO_EXECUTE_ON_LOAD {
         initLib();
 
         // Generate exports
 
         /* MODULE */
-        // Hack for circular reference
-        KURIBO_EXPORT_AS(BetterSMS::Settings::getGroupName,
-                         "getGroupName__Q29BetterSMS8SettingsFRCQ39BetterSMS8Settings13SettingsGroup");
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");
         KURIBO_EXPORT_AS(BetterSMS::isModuleRegistered, "isModuleRegistered__9BetterSMSFPCc");
-        KURIBO_EXPORT_AS(BetterSMS::registerModule, "registerModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
-        KURIBO_EXPORT_AS(BetterSMS::deregisterModule, "deregisterModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
+        KURIBO_EXPORT_AS(BetterSMS::registerModule,
+                         "registerModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
+        KURIBO_EXPORT_AS(BetterSMS::deregisterModule,
+                         "deregisterModule__9BetterSMSFPCQ29BetterSMS10ModuleInfo");
         KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed, "isMusicStreamingAllowed__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed,
+                         "isMusicStreamingAllowed__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isDebugMode, "isDebugMode__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::setDebugMode, "setDebugMode__9BetterSMSFb");
         KURIBO_EXPORT_AS(BetterSMS::getScreenRenderWidth, "getScreenRenderWidth__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getScreenOrthoWidth, "getScreenOrthoWidth__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio, "getScreenToFullScreenRatio__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getScreenToFullScreenRatio,
+                         "getScreenToFullScreenRatio__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getScreenRatioAdjustX, "getScreenRatioAdjustX__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getFrameRate, "getFrameRate__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getBugFixesSetting, "getBugFixesSetting__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::getExploitFixesSetting, "getExploitFixesSetting__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::getCollisionFixesSetting, "getCollisionFixesSetting__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::getCollisionFixesSetting,
+                         "getCollisionFixesSetting__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::triggerAutoSave, "triggerAutoSave__9BetterSMSFv");
 
+        /* SETTINGS */
+        // Hack for circular reference
+        KURIBO_EXPORT_AS(
+            BetterSMS::Settings::getGroupName,
+            "getGroupName__Q29BetterSMS8SettingsFRCQ39BetterSMS8Settings13SettingsGroup");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Settings::LoadSettingsGroup,
+            "LoadSettingsGroup__Q29BetterSMS8SettingsFRQ39BetterSMS8Settings13SettingsGroup");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Settings::SaveSettingsGroup,
+            "SaveSettingsGroup__Q29BetterSMS8SettingsFRQ39BetterSMS8Settings13SettingsGroup");
+        KURIBO_EXPORT_AS(BetterSMS::Settings::LoadAllSettings,
+                         "LoadAllSettings__Q29BetterSMS8SettingsFv");
+        KURIBO_EXPORT_AS(BetterSMS::Settings::SaveAllSettings,
+                         "SaveAllSettings__Q29BetterSMS8SettingsFv");
+
         /* APPLICATION */
-        KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered, "isContextRegistered__Q29BetterSMS11ApplicationFUc");
-        KURIBO_EXPORT_AS(BetterSMS::Application::registerContextCallback, "registerContextCallback__Q29BetterSMS11ApplicationFUcPFP12TApplication_b");
-        KURIBO_EXPORT_AS(BetterSMS::Application::deregisterContextCallback, "deregisterContextCallback__Q29BetterSMS11ApplicationFUc");
-        KURIBO_EXPORT_AS(BetterSMS::Application::setIntroStage, "setIntroStage__Q29BetterSMS11ApplicationFUcUc");
+        KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered,
+                         "isContextRegistered__Q29BetterSMS11ApplicationFUc");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Application::registerContextCallback,
+            "registerContextCallback__Q29BetterSMS11ApplicationFUcPFP12TApplication_b");
+        KURIBO_EXPORT_AS(BetterSMS::Application::deregisterContextCallback,
+                         "deregisterContextCallback__Q29BetterSMS11ApplicationFUc");
+        KURIBO_EXPORT_AS(BetterSMS::Application::setIntroStage,
+                         "setIntroStage__Q29BetterSMS11ApplicationFUcUc");
 
         /* BMG */
-        KURIBO_EXPORT_AS(BetterSMS::BMG::registerBMGCommandCallback,
-                         "registerBMGCommandCallback__Q29BetterSMS3BMGFUcPFPCUcCUcP12TFlagManager_PCc");
+        KURIBO_EXPORT_AS(
+            BetterSMS::BMG::registerBMGCommandCallback,
+            "registerBMGCommandCallback__Q29BetterSMS3BMGFUcPFPCUcCUcP12TFlagManager_PCc");
         KURIBO_EXPORT_AS(BetterSMS::BMG::deregisterBMGCommandCallback,
                          "deregisterBMGCommandCallback__Q29BetterSMS3BMGFUc");
 
@@ -394,9 +416,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Console::debugLog, "debugLog__Q29BetterSMS7ConsoleFPCce");
 
         /* DEBUG */
-        KURIBO_EXPORT_AS(BetterSMS::Debug::registerInitCallback, "registerInitCallback,__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::registerUpdateCallback, "registerUpdateCallback__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
-        KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterInitCallback, "deregisterInitCallback__Q29BetterSMS5DebugFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Debug::registerInitCallback,
+                         "registerInitCallback,__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
+        KURIBO_EXPORT_AS(BetterSMS::Debug::registerUpdateCallback,
+                         "registerUpdateCallback__Q29BetterSMS5DebugFPCcPFP12TApplication_v");
+        KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterInitCallback,
+                         "deregisterInitCallback__Q29BetterSMS5DebugFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Debug::deregisterUpdateCallback,
                          "deregisterUpdateCallback__Q29BetterSMS5DebugFPCc");
 
@@ -409,22 +434,25 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::getBranchDest,
                          "getBranchDest__Q29BetterSMS7PowerPCFPUl");
         KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU8, "writeU8__Q29BetterSMS7PowerPCFPUcUc");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU16,
-                         "writeU16__Q29BetterSMS7PowerPCFPUsUs");
-        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU32,
-                         "writeU32__Q29BetterSMS7PowerPCFPUlUl");
+        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU16, "writeU16__Q29BetterSMS7PowerPCFPUsUs");
+        KURIBO_EXPORT_AS(BetterSMS::PowerPC::writeU32, "writeU32__Q29BetterSMS7PowerPCFPUlUl");
 
         /* LOADING */
         KURIBO_EXPORT_AS(BetterSMS::Loading::setLoading, "setLoading__Q29BetterSMS7LoadingFb");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIcon, "setLoadingIcon__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
-        KURIBO_EXPORT_AS(BetterSMS::Loading::setLayout, "setLayout__Q29BetterSMS7LoadingFP9J2DScreen");
+        KURIBO_EXPORT_AS(BetterSMS::Loading::setLoadingIcon,
+                         "setLoadingIcon__Q29BetterSMS7LoadingFPPC7ResTIMGUl");
+        KURIBO_EXPORT_AS(BetterSMS::Loading::setLayout,
+                         "setLayout__Q29BetterSMS7LoadingFP9J2DScreen");
         KURIBO_EXPORT_AS(BetterSMS::Loading::setFrameRate, "setFrameRate__Q29BetterSMS7LoadingFf");
 
         /* PLAYER */
-        KURIBO_EXPORT_AS(BetterSMS::Player::getRegisteredData, "getRegisteredData__Q29BetterSMS6PlayerFP6TMarioPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Player::getRegisteredData,
+                         "getRegisteredData__Q29BetterSMS6PlayerFP6TMarioPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::getData, "getData__Q29BetterSMS6PlayerFP6TMario");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerData, "registerData__Q29BetterSMS6PlayerFP6TMarioPCcPv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterData, "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Player::registerData,
+                         "registerData__Q29BetterSMS6PlayerFP6TMarioPCcPv");
+        KURIBO_EXPORT_AS(BetterSMS::Player::deregisterData,
+                         "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerInitCallback,
                          "registerInitCallback__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerLoadAfterCallback,
@@ -433,8 +461,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "registerUpdateCallback__Q29BetterSMS6PlayerFPCcPFP6TMariob_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::registerStateMachine,
                          "registerStateMachine__Q29BetterSMS6PlayerFUlPFP6TMario_b");
-        KURIBO_EXPORT_AS(BetterSMS::Player::registerCollisionHandler,
-                         "registerCollisionHandler__Q29BetterSMS6PlayerFUsPFP6TMarioPC12TBGCheckDataUl_v");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Player::registerCollisionHandler,
+            "registerCollisionHandler__Q29BetterSMS6PlayerFUsPFP6TMarioPC12TBGCheckDataUl_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterInitCallback,
                          "deregisterInitCallback__Q29BetterSMS6PlayerFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterLoadAfterCallback,
@@ -448,8 +477,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Player::warpToCollisionFace,
                          "warpToCollisionFace__Q29BetterSMS6PlayerFv");
         KURIBO_EXPORT_AS(BetterSMS::Player::warpToPoint, "warpToPoint__Q29BetterSMS6PlayerFv");
-        KURIBO_EXPORT_AS(BetterSMS::Player::rotateRelativeToCamera,
-                         "rotateRelativeToCamera__Q29BetterSMS6PlayerFP6TMarioP15CPolarSubCamera4Vec2f");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Player::rotateRelativeToCamera,
+            "rotateRelativeToCamera__Q29BetterSMS6PlayerFP6TMarioP15CPolarSubCamera4Vec2f");
 
         /* MUSIC */
         KURIBO_EXPORT_AS(BetterSMS::Music::queueSong, "queueSong__Q29BetterSMS5MusicFPCc");
@@ -462,30 +492,32 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::setMaxVolume, "setMaxVolume__Q29BetterSMS5MusicFUc");
         KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFff");
 
-    /* OBJECTS */
-    #if BETTER_SMS_EXTRA_OBJECTS
-        KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMapObj,
-                         "registerObjectAsMapObj__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
-        KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsEnemy,
-                         "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
+/* OBJECTS */
+#if BETTER_SMS_EXTRA_OBJECTS
+        KURIBO_EXPORT_AS(
+            BetterSMS::Objects::registerObjectAsMapObj,
+            "registerObjectAsMapObj__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Objects::registerObjectAsEnemy,
+            "registerObjectAsEnemy__Q29BetterSMS7ObjectsFPCcP7ObjDataPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::registerObjectAsMisc,
                          "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::deregisterObject,
                          "deregisterObject__Q29BetterSMS7ObjectsFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Objects::getRemainingCapacity,
                          "getRemainingCapacity__Q29BetterSMS7ObjectsFv");
-    #endif
+#endif
 
         /* GAME */
         KURIBO_EXPORT_AS(BetterSMS::Game::registerInitCallback,
                          "registerInitCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Game::registerBootCallback,
                          "registerBootCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
+        KURIBO_EXPORT_AS(BetterSMS::Game::registerLoopCallback,
+                         "registerLoopCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
         KURIBO_EXPORT_AS(
-            BetterSMS::Game::registerLoopCallback,
-            "registerLoopCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
-        KURIBO_EXPORT_AS(BetterSMS::Game::registerPostDrawCallback,
-                         "registerPostDrawCallback__Q29BetterSMS4GameFPCcPFP12TApplicationPC13J2DOrthoGraph_v");
+            BetterSMS::Game::registerPostDrawCallback,
+            "registerPostDrawCallback__Q29BetterSMS4GameFPCcPFP12TApplicationPC13J2DOrthoGraph_v");
         KURIBO_EXPORT_AS(BetterSMS::Game::registerChangeCallback,
                          "registerChangeCallback__Q29BetterSMS4GameFPCcPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Game::deregisterInitCallback,
@@ -494,9 +526,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "deregisterBootCallback__Q29BetterSMS4GameFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Game::deregisterLoopCallback,
                          "deregisterLoopCallback__Q29BetterSMS4GameFPCc");
-        KURIBO_EXPORT_AS(
-            BetterSMS::Game::deregisterPostDrawCallback,
-            "deregisterPostDrawCallback__Q29BetterSMS4GameFPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Game::deregisterPostDrawCallback,
+                         "deregisterPostDrawCallback__Q29BetterSMS4GameFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Game::deregisterChangeCallback,
                          "deregisterChangeCallback__Q29BetterSMS4GameFPCc");
 
@@ -507,8 +538,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "registerInitCallback__Q29BetterSMS5StageFPCcPFP12TMarDirector_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerUpdateCallback,
                          "registerUpdateCallback__Q29BetterSMS5StageFPCcPFP12TMarDirector_v");
-        KURIBO_EXPORT_AS(BetterSMS::Stage::registerDraw2DCallback,
-                         "registerDraw2DCallback__Q29BetterSMS5StageFPCcPFP12TMarDirectorPC13J2DOrthoGraph_v");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Stage::registerDraw2DCallback,
+            "registerDraw2DCallback__Q29BetterSMS5StageFPCcPFP12TMarDirectorPC13J2DOrthoGraph_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterInitCallback,
                          "deregisterInitCallback__Q29BetterSMS5StageFPCc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterUpdateCallback,
@@ -521,9 +553,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         /* TIME */
         KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS4TimeFv");
         KURIBO_EXPORT_AS(BetterSMS::Time::buildTime, "buildTime__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime, "calendarTime__Q29BetterSMS4TimeFR14OSCalendarTime");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate, "calendarToDate__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime, "calendarToTime__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
+        KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime,
+                         "calendarTime__Q29BetterSMS4TimeFR14OSCalendarTime");
+        KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate,
+                         "calendarToDate__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
+        KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime,
+                         "calendarToTime__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
         KURIBO_EXPORT_AS(BetterSMS::Time::date, "date__Q29BetterSMS4TimeFPc");
         KURIBO_EXPORT_AS(BetterSMS::Time::day, "day__Q29BetterSMS4TimeFv");
         KURIBO_EXPORT_AS(BetterSMS::Time::hour, "hour__Q29BetterSMS4TimeFv");
@@ -561,7 +596,6 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT(__cxa_pure_virtual);
     }
     KURIBO_EXECUTE_ON_UNLOAD { destroyLib(); }
-
 }
 KURIBO_MODULE_END()
 

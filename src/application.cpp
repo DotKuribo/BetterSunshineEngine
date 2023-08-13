@@ -181,6 +181,7 @@ void BetterApplicationProcess(TApplication *app) {
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
+                OSReport("Game Boot\n");
                 gameInitCallbackHandler(app);
                 app->initialize_bootAfter();
                 gameBootCallbackHandler(app);

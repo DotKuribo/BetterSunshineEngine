@@ -41,10 +41,121 @@
 #include "p_settings.hxx"
 #include <libs/scoped_ptr.hxx>
 
+/*** Memory Card Work Area ***/
+static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
+
+static bool sIsMounted = false;
+static s32 sChannel    = 0;
+
+static void detachCallback_(s32 channel, s32 res) { sIsMounted = false; }
+
 BETTER_SMS_FOR_EXPORT const char *Settings::getGroupName(const Settings::SettingsGroup &group) {
     if (!group.mModule)
         return "Super Mario Sunshine";
     return group.mModule->mName;
+}
+
+BETTER_SMS_FOR_EXPORT s32 Settings::MountCard() {
+    sIsMounted = true;
+
+    s32 check;
+
+    check = CARDCheck(CARD_SLOTA);
+    if (check >= CARD_ERROR_BUSY) {
+        sChannel = CARD_SLOTA;
+        return check;
+    }
+
+    check = CARDCheck(CARD_SLOTB);
+    if (check >= CARD_ERROR_BUSY) {
+        sChannel = CARD_SLOTB;
+        return check;
+    }
+
+    check = CARDMount(CARD_SLOTA, SysArea, detachCallback_);
+    if (check == CARD_ERROR_READY) {
+        sChannel = CARD_SLOTA;
+        return check;
+    }
+
+    check = CARDMount(CARD_SLOTB, SysArea, detachCallback_);
+    if (check == CARD_ERROR_READY) {
+        sChannel = CARD_SLOTB;
+        return check;
+    }
+
+    sIsMounted = false;
+    return check;
+}
+
+BETTER_SMS_FOR_EXPORT s32 Settings::UnmountCard() {
+    sIsMounted = false;
+    return CARDUnmount(sChannel);
+}
+
+BETTER_SMS_FOR_EXPORT s32 Settings::SaveSettingsGroup(Settings::SettingsGroup &group) {
+    CARDFileInfo finfo;
+    s32 ret = OpenSavedSettings(group, finfo);
+    if (ret < CARD_ERROR_READY) {
+        CloseSavedSettings(group, &finfo);
+        return ret;
+    }
+
+    ret = UpdateSavedSettings(group, &finfo);
+
+    if (ret == CARD_ERROR_READY)
+        OSReport("Saved settings for module \"%s\"!\n", Settings::getGroupName(group));
+    else {
+        OSReport("Failed to save settings for module \"%s\"!\n", Settings::getGroupName(group));
+        return ret;
+    }
+
+    return CloseSavedSettings(group, &finfo);
+}
+
+BETTER_SMS_FOR_EXPORT s32 Settings::LoadSettingsGroup(Settings::SettingsGroup &group) {
+    CARDFileInfo finfo;
+
+    int ret = OpenSavedSettings(group, finfo);
+    if (ret < CARD_ERROR_READY) {
+        CloseSavedSettings(group, &finfo);
+        return ret;
+    }
+
+    // If this returns BROKEN, the save file is desynced by version and should be reset
+    if (ReadSavedSettings(group, &finfo) == CARD_ERROR_BROKEN) {
+        ret = UpdateSavedSettings(group, &finfo);
+        if (ret < CARD_ERROR_READY) {
+            CloseSavedSettings(group, &finfo);
+            return ret;
+        }
+    }
+
+    return CloseSavedSettings(group, &finfo);
+}
+
+BETTER_SMS_FOR_EXPORT bool Settings::SaveAllSettings() {
+    TGlobalVector<Settings::SettingsGroup *> groups;
+    getSettingsGroups(groups);
+
+    for (auto &group : groups) {
+        if (SaveSettingsGroup(*group) < CARD_ERROR_READY)
+            return false;
+    }
+
+    return true;
+}
+
+BETTER_SMS_FOR_EXPORT bool Settings::LoadAllSettings() {
+    TGlobalVector<Settings::SettingsGroup *> groups;
+    getSettingsGroups(groups);
+
+    for (auto &group : groups) {
+        if (LoadSettingsGroup(*group) < CARD_ERROR_READY)
+            return false;
+    }
+
+    return true;
 }
 
 #define DISK_GAME_ID (void *)0x80000000
@@ -101,10 +212,8 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     sSunshineSettingsGroup.addSetting(&sSoundSetting);
     sSunshineSettingsGroup.addSetting(&sSubtitleSetting);
 
-    CARDFileInfo finfo;
-
     InitCard();
-    if (MountCard() < CARD_ERROR_READY)
+    if (Settings::MountCard() < CARD_ERROR_READY)
         return;
 
     for (auto &init : gModuleInfos) {
@@ -112,81 +221,13 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
         if (!settingsGroup)  // No settings registered
             continue;
 
-        int ret = OpenSavedSettings(*settingsGroup, finfo);
-        if (ret < CARD_ERROR_READY) {
-            CloseSavedSettings(*settingsGroup, &finfo);
-            return;
-        }
-
-        // If this returns BROKEN, the save file is desynced by version and should be reset
-        if (ReadSavedSettings(*settingsGroup, &finfo) == CARD_ERROR_BROKEN) {
-            UpdateSavedSettings(*settingsGroup, &finfo);
-        }
-        CloseSavedSettings(*settingsGroup, &finfo);
+        Settings::LoadSettingsGroup(*settingsGroup);
     }
 
-    UnmountCard();
+    Settings::UnmountCard();
 }
-
-//
-
-// PUBLIC
-
-/****************************************************************************
- * MountCard
- *
- * Mounts the memory card in the given slot.
- * CARD_Mount is called for a maximum of 10 tries
- * Returns the result of the last attempted CARD_Mount command.
- ***************************************************************************/
-
-/*** Memory Card Work Area ***/
-static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
-
-static bool sIsMounted = false;
-static s32 sChannel    = 0;
-
-static void detachCallback_(s32 channel, s32 res) { sIsMounted = false; }
 
 void InitCard() { CARDInit(); }
-
-s32 MountCard() {
-    sIsMounted = true;
-
-    s32 check;
-
-    check = CARDCheck(CARD_SLOTA);
-    if (check >= CARD_ERROR_BUSY) {
-        sChannel = CARD_SLOTA;
-        return check;
-    }
-
-    check = CARDCheck(CARD_SLOTB);
-    if (check >= CARD_ERROR_BUSY) {
-        sChannel = CARD_SLOTB;
-        return check;
-    }
-
-    check = CARDMount(CARD_SLOTA, SysArea, detachCallback_);
-    if (check == CARD_ERROR_READY) {
-        sChannel = CARD_SLOTA;
-        return check;
-    }
-
-    check = CARDMount(CARD_SLOTB, SysArea, detachCallback_);
-    if (check == CARD_ERROR_READY) {
-        sChannel = CARD_SLOTB;
-        return check;
-    }
-
-    sIsMounted = false;
-    return check;
-}
-
-s32 UnmountCard() {
-    sIsMounted = false;
-    return CARDUnmount(sChannel);
-}
 
 s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
     auto &info = group.getSaveInfo();
@@ -311,7 +352,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
     {
-        auto saveBuffer = scoped_ptr<char>(new (JKRHeap::sSystemHeap, 32) char[saveDataSize]);
+        auto saveBuffer    = scoped_ptr<char>(new (JKRHeap::sSystemHeap, 32) char[saveDataSize]);
         auto saveBufferPtr = saveBuffer.get();
 
         // Reset data
@@ -377,33 +418,15 @@ s32 SaveAllSettings() {
     }
 
     {
-        s32 cardStatus = MountCard();
+        s32 cardStatus = Settings::MountCard();
 
         if (cardStatus < CARD_ERROR_READY) {
             return cardStatus;
         }
 
-        CARDFileInfo finfo;
+        Settings::SaveAllSettings();
 
-        TGlobalVector<Settings::SettingsGroup *> groups;
-        getSettingsGroups(groups);
-
-        for (auto &group : groups) {
-            s32 ret = OpenSavedSettings(*group, finfo);
-            if (ret < CARD_ERROR_READY) {
-                CloseSavedSettings(*group, &finfo);
-                return ret;
-            }
-
-            if (UpdateSavedSettings(*group, &finfo) == CARD_ERROR_READY)
-                OSReport("Saved settings for module \"%s\"!\n", Settings::getGroupName(*group));
-            else
-                OSReport("Failed to save settings for module \"%s\"!\n",
-                         Settings::getGroupName(*group));
-            CloseSavedSettings(*group, &finfo);
-        }
-
-        UnmountCard();
+        Settings::UnmountCard();
     }
 
     return CARD_ERROR_READY;
@@ -922,7 +945,7 @@ void SettingsDirector::saveSettings_() {
     }
 
     {
-        s32 cardStatus = MountCard();
+        s32 cardStatus = Settings::MountCard();
 
         if (cardStatus < CARD_ERROR_READY) {
             failSave(cardStatus);
@@ -934,19 +957,9 @@ void SettingsDirector::saveSettings_() {
         TGlobalVector<Settings::SettingsGroup *> groups;
         getSettingsGroups(groups);
 
-        for (auto &group : groups) {
-            s32 ret = OpenSavedSettings(*group, finfo);
-            if (ret < CARD_ERROR_READY) {
-                CloseSavedSettings(*group, &finfo);
-                failSave(ret);
-                return;
-            }
+        Settings::SaveAllSettings();
 
-            UpdateSavedSettings(*group, &finfo);
-            CloseSavedSettings(*group, &finfo);
-        }
-
-        UnmountCard();
+        Settings::UnmountCard();
     }
 
     mState     = State::SAVE_SUCCESS;
@@ -955,7 +968,7 @@ void SettingsDirector::saveSettings_() {
 }
 
 void SettingsDirector::failSave(int errorcode) {
-    UnmountCard();
+    Settings::UnmountCard();
     mSaveErrorPanel->switchScreen();
     mErrorCode = errorcode;
     strncpy(sErrorTag, getErrorString(errorcode), 64);

@@ -251,18 +251,18 @@ void TGenericRailObj::resetPosition() {
 }
 
 void TGenericRailObj::requestShadow() {
-    TCircleShadowRequest request;
+    /*TCircleShadowRequest request;
     request.mTranslation   = mTranslation;
     request.mTranslation.y = mGroundY;
     request.mOffsetY       = mShadowRadius;
     request.mOffsetY2      = mShadowRadius;
     request.mRotationY     = mRotation.y;
     request.mShadowType    = getShadowType();
-    gpBindShadowManager->request(request, mObjectID);
+    gpBindShadowManager->request(request, mObjectID);*/
 }
 
 u32 TGenericRailObj::getShadowType() {
-    return 2;
+    return 0;
 }
 
 bool TGenericRailObj::checkMarioRiding() {

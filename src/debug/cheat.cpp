@@ -122,7 +122,7 @@ BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
         !ButtonsPressed(player->mController, gSecondaryMask);
 
     if (shouldToggleDebugUI) {
-        gDebugUIPage = (gDebugUIPage + 1) % 5;
+        gDebugUIPage = (gDebugUIPage + 1) % 6;
     }
 
     if (shouldToggleGameUI) {

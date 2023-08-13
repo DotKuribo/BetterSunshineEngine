@@ -54,7 +54,7 @@ void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
         return;
 
-    if (!director || !sIsInitialized || gDebugUIPage == 0|| !BetterSMS::isDebugMode())
+    if (!director || !sIsInitialized || gDebugUIPage == 0 || gDebugUIPage > 4 || !BetterSMS::isDebugMode())
         return;
 
     if (director->mCurState != TMarDirector::STATE_INTRO_PLAYING &&

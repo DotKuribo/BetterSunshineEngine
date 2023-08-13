@@ -173,12 +173,15 @@ BETTER_SMS_FOR_CALLBACK void drawDebugStateMonitor(TApplication *app, const J2DO
     if (director->mCurState == TMarDirector::STATE_INTRO_INIT)
         return;
 
-    if (gDebugUIPage == 0|| !BetterSMS::isDebugMode())
+    if (gDebugUIPage == 0 || !BetterSMS::isDebugMode())
         return;
 
     s16 adjust = getScreenRatioAdjustX();
     gpDebugStateStringB->draw(381, 462);
     gpDebugStateStringW->draw(380, 460);
-    gpDebugControlStringB->draw(gMonitorX - adjust + 1, gMonitorY + 1);
-    gpDebugControlStringW->draw(gMonitorX - adjust, gMonitorY);
+
+    if (gDebugUIPage <= 4) {
+        gpDebugControlStringB->draw(gMonitorX - adjust + 1, gMonitorY + 1);
+        gpDebugControlStringW->draw(gMonitorX - adjust, gMonitorY);
+    }
 }

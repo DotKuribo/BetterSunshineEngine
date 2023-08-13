@@ -43,8 +43,9 @@ static SimpleTexAnimator sAutoSaveAnimator(sAutoSaveIconTIMGs, 20);
 BETTER_SMS_FOR_CALLBACK void initAutoSaveIcon(TApplication *app) {
     auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
-    sAutoSaveScreen = new J2DScreen(8, 'ROOT', {0, 0, 600, 480});
-    {
+    /*sAutoSaveScreen = new J2DScreen(8, 'ROOT', {0, 0, 900, 480});
+    OSReport("AutoSaveIcon: %p\n", sAutoSaveScreen);*/
+    //{
         texture.mTexObj2.val[2] = 0;
         texture.storeTIMG(GetResourceTextureHeader(sAutoSaveIconTIMGs[0]));
         texture._50 = false;
@@ -53,7 +54,7 @@ BETTER_SMS_FOR_CALLBACK void initAutoSaveIcon(TApplication *app) {
             const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
 
             sAutoSavePicture.insert(&texture, 0, 1.0f);
-            sAutoSavePicture.mRect  = {460 + screenAdjustX, 420, 492 + screenAdjustX, 452};
+            sAutoSavePicture.mRect  = {0, 0, 32, 32};
             sAutoSavePicture.mAlpha = 255;
 
             /*sAutoSavePicture.mColorOverlay = {0, 0, 0, 255};
@@ -62,8 +63,8 @@ BETTER_SMS_FOR_CALLBACK void initAutoSaveIcon(TApplication *app) {
             sAutoSavePicture.mVertexColors[2] = {0, 0, 0, 255};
             sAutoSavePicture.mVertexColors[3] = {0, 0, 0, 255};*/
         }
-        sAutoSaveScreen->mChildrenList.append(&sAutoSavePicture.mPtrLink);
-    }
+        /*sAutoSaveScreen->mChildrenList.append(&sAutoSavePicture.mPtrLink);
+    }*/
 
     sAutoSaveAnimator.setFrameRate(20.0f);
 
@@ -82,7 +83,7 @@ BETTER_SMS_FOR_CALLBACK void updateAutoSaveIcon(TApplication *app) {
     }
 
     const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
-    sAutoSavePicture.mRect  = {460 + screenAdjustX, 420, 492 + screenAdjustX, 452};
+    sAutoSavePicture.mRect  = {400 + screenAdjustX, 420, 432 + screenAdjustX, 452};
 
     if (sAutoSaveAnimator.getCurrentFrame() == 8 || sAutoSaveAnimator.getCurrentFrame() == 15 ||
         sAutoSaveAnimator.getCurrentFrame() == 19) {
@@ -99,9 +100,11 @@ BETTER_SMS_FOR_CALLBACK void drawAutoSaveIcon(TApplication *app, const J2DOrthoG
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
         return;
 
+    const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
+
     ReInitializeGX();
     const_cast<J2DOrthoGraph *>(ortho)->setup2D();
 
     sAutoSaveAnimator.process(&sAutoSavePicture);
-    sAutoSaveScreen->draw(0, 0, ortho);
+    sAutoSavePicture.draw(460 + screenAdjustX, 420, 32, 32, false, false, false);
 }

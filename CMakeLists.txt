@@ -129,6 +129,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "src/objects/*.cpp"
         "src/patches/*.c"
         "src/patches/*.cpp"
+        "src/patches/collision/*.c"
+        "src/patches/collision/*.cpp"
         "src/physics/*.c"
         "src/physics/*.cpp"
         "src/shine/*.c"
@@ -149,7 +151,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "include/BetterSMS/objects/*.hxx"
     )
 
-    add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
+    add_executable(BetterSunshineEngine ${BETTERSMS_SRC} "src/patches/collision/search.cpp")
     target_link_libraries(BetterSunshineEngine PUBLIC
                           Dolphin
                           JSystem

@@ -119,7 +119,7 @@ namespace BetterSMS {
                     mValueChangedCB(mValuePtr, &lc, getKind());
                 *reinterpret_cast<float *>(mValuePtr) = lc;
             }
-            
+
             // Signals the changed callback which can update arbitrary memory
             void emit() { mValueChangedCB(mValuePtr, mValuePtr, getKind()); }
 
@@ -282,8 +282,7 @@ namespace BetterSMS {
             SettingsGroup() = delete;
             SettingsGroup(u8 major, u8 minor, Priority prio)
                 : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
-            SettingsGroup(u8 major, u8 minor, const SettingsList &settings,
-                          Priority prio)
+            SettingsGroup(u8 major, u8 minor, const SettingsList &settings, Priority prio)
                 : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio),
                   mSettings(settings) {}
 
@@ -311,9 +310,7 @@ namespace BetterSMS {
 
             void setSettings(const SettingsList &settings) { mSettings = settings; }
 
-            void addSetting(SingleSetting *setting) {
-                mSettings.insert(mSettings.end(), setting);
-            }
+            void addSetting(SingleSetting *setting) { mSettings.insert(mSettings.end(), setting); }
 
             void removeSetting(SingleSetting *setting) {
                 for (auto iter = mSettings.begin(); iter != mSettings.end(); ++iter) {
@@ -341,6 +338,12 @@ namespace BetterSMS {
             Priority mOrderPriority;
         };
 
+        s32 MountCard();
+        s32 UnmountCard();
+        s32 SaveSettingsGroup(SettingsGroup &group);
+        s32 LoadSettingsGroup(SettingsGroup &group);
+        bool SaveAllSettings();
+        bool LoadAllSettings();
 #pragma endregion
     }  // namespace Settings
 }  // namespace BetterSMS

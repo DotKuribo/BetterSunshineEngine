@@ -26,8 +26,6 @@
 using namespace BetterSMS;
 
 void InitCard();
-s32 MountCard();
-s32 UnmountCard();
 s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut);
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
