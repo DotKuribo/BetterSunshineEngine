@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Dolphin/OS.h>
-#include <Dolphin/types.h>
 #include <Dolphin/math.h>
+#include <Dolphin/types.h>
 
-#include <JSystem/bits/functional_hash.h>
-#include <JSystem/JGadget/Allocator.hxx>
 #include "global_allocator.hxx"
+#include <JSystem/JGadget/Allocator.hxx>
+#include <JSystem/bits/functional_hash.h>
 
 namespace BetterSMS {
 
@@ -183,7 +183,10 @@ namespace BetterSMS {
         }
 
         explicit _GLIBCXX20_CONSTEXPR TBasicString(const allocator_type &alloc) _GLIBCXX_NOEXCEPT
-            : mAllocator(alloc), mData(nullptr), mSize(0), mCapacity(120) {
+            : mAllocator(alloc),
+              mData(nullptr),
+              mSize(0),
+              mCapacity(120) {
             mData    = allocate_buffer(mCapacity);
             mData[0] = '\0';
         }
@@ -637,7 +640,7 @@ namespace BetterSMS {
                         "Realloc for TBasicString failed! (Attempted to allocate %lu bytes)", size);
             JSystem::copy(mData, mData + mSize + 1, p);
             deallocate_buffer(mData);
-            mData = p;
+            mData     = p;
             mCapacity = size;
         }
 
@@ -654,7 +657,7 @@ namespace BetterSMS {
     };
 
     template <class _CharT, class _Alloc = JGadget::TAllocator<_CharT>>
-    _GLIBCXX20_CONSTEXPR bool operator==(const TBasicString<_CharT, _Alloc>& a,
+    _GLIBCXX20_CONSTEXPR bool operator==(const TBasicString<_CharT, _Alloc> &a,
                                          const TBasicString<_CharT, _Alloc> &b) {
         if (a.length() != b.length())
             return false;
@@ -685,9 +688,9 @@ namespace BetterSMS {
     }
 #endif
 
-    using TString = TBasicString<char>;
+    using TString       = TBasicString<char>;
     using TGlobalString = TBasicString<char, TGlobalAllocator<char>>;
-    using TWString = TBasicString<wchar_t>;
+    using TWString      = TBasicString<wchar_t>;
 #ifdef _GLIBCXX_USE_CHAR8_T
     using TU8String = TBasicString<u8>;
 #endif
@@ -707,8 +710,7 @@ namespace JSystem {
 #ifndef _GLIBCXX_COMPATIBILITY_CXX0X
     /// std::hash specialization for string.
     template <typename _Alloc>
-    struct hash<BetterSMS::TBasicString<char, _Alloc>>
-        : public __str_hash_base<char, _Alloc> {};
+    struct hash<BetterSMS::TBasicString<char, _Alloc>> : public __str_hash_base<char, _Alloc> {};
 
     /// std::hash specialization for wstring.
     template <typename _Alloc>

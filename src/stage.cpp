@@ -2,13 +2,13 @@
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
 
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/Manager/ModelWaterManager.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/System/GameSequence.hxx>
 #include <SMS/System/MarDirector.hxx>
 #include <SMS/macros.h>
-#include <SMS/Manager/FlagManager.hxx>
-#include <SMS/Manager/ModelWaterManager.hxx>
-#include <SMS/MapObj/MapObjInit.hxx>
 
 #include "libs/container.hxx"
 #include "libs/global_unordered_map.hxx"
@@ -17,8 +17,8 @@
 
 #include "loading.hxx"
 #include "logging.hxx"
-#include "stage.hxx"
 #include "module.hxx"
+#include "stage.hxx"
 
 using namespace BetterSMS;
 
@@ -33,28 +33,32 @@ BETTER_SMS_FOR_EXPORT Stage::TStageParams *BetterSMS::Stage::getStageConfigurati
     return TStageParams::sStageConfig;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerInitCallback(const char *name, InitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerInitCallback(const char *name,
+                                                                  InitCallback cb) {
     if (sStageInitCBs.find(name) != sStageInitCBs.end())
         return false;
     sStageInitCBs[name] = cb;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerUpdateCallback(const char *name, UpdateCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerUpdateCallback(const char *name,
+                                                                    UpdateCallback cb) {
     if (sStageUpdateCBs.find(name) != sStageUpdateCBs.end())
         return false;
     sStageUpdateCBs[name] = cb;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerDraw2DCallback(const char *name, Draw2DCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerDraw2DCallback(const char *name,
+                                                                    Draw2DCallback cb) {
     if (sStageDrawCBs.find(name) != sStageDrawCBs.end())
         return false;
     sStageDrawCBs[name] = cb;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExitCallback(const char *name, ExitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExitCallback(const char *name,
+                                                                  ExitCallback cb) {
     if (sStageExitCBs.find(name) != sStageExitCBs.end())
         return false;
     sStageExitCBs[name] = cb;
@@ -222,7 +226,7 @@ static bool sIsStageInitialized = false;
 
 // Extern to stage init
 BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
-    //Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
+    // Stage::TStageParams::sStageConfig = new (JKRHeap::sSystemHeap, 4) Stage::TStageParams;
     Stage::TStageParams::sStageConfig = new Stage::TStageParams;
 
     Stage::TStageParams *config = Stage::getStageConfiguration();
@@ -233,7 +237,7 @@ BETTER_SMS_FOR_CALLBACK void loadStageConfig(TMarDirector *) {
 
 // Extern to stage init
 BETTER_SMS_FOR_CALLBACK void resetStageConfig(TApplication *) {
-    //delete Stage::TStageParams::sStageConfig;
+    // delete Stage::TStageParams::sStageConfig;
 
     waterColor[0].set(0x3C, 0x46, 0x78, 0x14);  // Water rgba
     waterColor[1].set(0xFE, 0xA8, 0x02, 0x6E);  // Yoshi Juice rgba

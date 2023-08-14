@@ -669,9 +669,7 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 }
 
-BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) {
-  sPlayerDict.clear();
-}
+BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) { sPlayerDict.clear(); }
 
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();

@@ -57,8 +57,7 @@ void initLoadingScreen() {
     {
         JSUMemoryInputStream stream(sLoadingScreenBlo, sizeof(sLoadingScreenBlo));
         sLoadingScreen = new J2DScreen();
-        sLoadingScreen->makeHiearachyPanes(sLoadingScreen, &stream, false, true, false,
-                                               nullptr);
+        sLoadingScreen->makeHiearachyPanes(sLoadingScreen, &stream, false, true, false, nullptr);
     }
 
     sLoadingIconTexture.mTexObj2.val[2] = 0;
@@ -66,8 +65,7 @@ void initLoadingScreen() {
     sLoadingIconTexture._50 = false;
 
     {
-        J2DPicture *loadingIcon =
-            reinterpret_cast<J2DPicture *>(sLoadingScreen->search('icon'));
+        J2DPicture *loadingIcon = reinterpret_cast<J2DPicture *>(sLoadingScreen->search('icon'));
         if (loadingIcon) {
             JUTRect rect = loadingIcon->mRect;
             loadingIcon->insert(&sLoadingIconTexture, 0, 1.0);

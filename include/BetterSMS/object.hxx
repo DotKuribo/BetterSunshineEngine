@@ -24,4 +24,4 @@ namespace BetterSMS {
 
         bool deregisterObject(const char *name);
     }  // namespace Objects
-}  // namespace BetterSMS::Objects
+}  // namespace BetterSMS

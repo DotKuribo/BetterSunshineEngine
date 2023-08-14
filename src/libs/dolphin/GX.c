@@ -3,7 +3,7 @@
 #include <Dolphin/VI_types.h>
 #include <Dolphin/math.h>
 
-//#define _GP_DEBUG
+// #define _GP_DEBUG
 #define TEXCACHE_TESTING
 
 #define GX_FINISH 2

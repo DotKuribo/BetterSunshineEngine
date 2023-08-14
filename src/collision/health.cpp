@@ -2,10 +2,10 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/System/Application.hxx>
-#include <SMS/Manager/MarioParticleManager.hxx>
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/Manager/MarioParticleManager.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "libs/triangle.hxx"
 #include "logging.hxx"

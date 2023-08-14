@@ -17,7 +17,8 @@ public:
     }
 
     TParticleBox(const char *name)
-        : TActor(name), mID(-1), mSpawnRate(10), mSpawnScale(1.0f), mShape(BoundingType::Box), mIsStrict(false), mSpawnTimer() {}
+        : TActor(name), mID(-1), mSpawnRate(10), mSpawnScale(1.0f), mShape(BoundingType::Box),
+          mIsStrict(false), mSpawnTimer() {}
     virtual ~TParticleBox() override {}
 
     void load(JSUMemoryInputStream &in) override;

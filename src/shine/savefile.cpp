@@ -5,7 +5,7 @@
 
 #include "module.hxx"
 
-//static void resetGame(TFlagManager *flagManager) { memset(this + 0xE4, 0, 0xD); }
+// static void resetGame(TFlagManager *flagManager) { memset(this + 0xE4, 0, 0xD); }
 
 // 0x80294EF4
 // extern -> SMS.cpp

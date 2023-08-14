@@ -1,11 +1,11 @@
 #include <Dolphin/string.h>
 
-#include <SMS/Map/BGCheck.hxx>
-#include <SMS/System/MarDirector.hxx>
-#include <SMS/macros.h>
 #include <SMS/Manager/FlagManager.hxx>
+#include <SMS/Map/BGCheck.hxx>
 #include <SMS/Map/Map.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/System/MarDirector.hxx>
+#include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
 #include "memory.hxx"
@@ -18,12 +18,13 @@
 static bool sIsSeaBMDPresent = false;
 
 static bool isSeaBMDPresent(TMarDirector *director) {
-    const u8 area = director->mAreaID;
+    const u8 area    = director->mAreaID;
     sIsSeaBMDPresent = JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
     if (BetterSMS::areBugsPatched())
         return sIsSeaBMDPresent;
     else
-        return (area <= 1 || area == 4 || area == 3 || area == 14 || area == 9 || area == 5 || area == 6 || area == 20);
+        return (area <= 1 || area == 4 || area == 3 || area == 14 || area == 9 || area == 5 ||
+                area == 6 || area == 20);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8018A064, 0, 0, 0), isSeaBMDPresent);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A068, 0, 0, 0), 0x2C030000);

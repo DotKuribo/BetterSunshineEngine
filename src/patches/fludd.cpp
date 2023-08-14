@@ -4,23 +4,22 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/Player/Mario.hxx>
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/Player/Mario.hxx>
 
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
-#include <SMS/macros.h>
-#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/System/CardManager.hxx>
+#include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
-
 #include "libs/constmath.hxx"
-#include "module.hxx"
-#include "player.hxx"
-#include "p_settings.hxx"
 #include "libs/geometry.hxx"
+#include "module.hxx"
+#include "p_settings.hxx"
+#include "player.hxx"
 
 #if BETTER_SMS_BUGFIXES
 
@@ -59,7 +58,8 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
     if (lookAtRatio < 0.0f) {
         player->mForwardSpeed =
             Max(player->mForwardSpeed,
-                -10.0f * clamp(scaleLinearAtAnchor(slopeStrength, fabsf(lookAtRatio), 1.0f), 0.0f, 1.0f));
+                -10.0f * clamp(scaleLinearAtAnchor(slopeStrength, fabsf(lookAtRatio), 1.0f), 0.0f,
+                               1.0f));
     } else {
         player->mForwardSpeed =
             Min(player->mForwardSpeed,
@@ -157,8 +157,9 @@ static void killTriggerNozzle() {
     if (!BetterSMS::areExploitsPatched())
         return;
 
-    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Hover || nozzle->mFludd->mCurrentNozzle == TWaterGun::Rocket) {
-        auto *playerData     = Player::getData(nozzle->mFludd->mMario);
+    if (nozzle->mFludd->mCurrentNozzle == TWaterGun::Hover ||
+        nozzle->mFludd->mCurrentNozzle == TWaterGun::Rocket) {
+        auto *playerData = Player::getData(nozzle->mFludd->mMario);
         playerData->setCanSprayFludd(false);
     }
 }
@@ -173,11 +174,13 @@ static bool checkAirNozzle() {
     if (!BetterSMS::areExploitsPatched())
         return player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
 
-    if (player->mFludd->mCurrentNozzle != TWaterGun::Hover && player->mFludd->mCurrentNozzle != TWaterGun::Rocket)
+    if (player->mFludd->mCurrentNozzle != TWaterGun::Hover &&
+        player->mFludd->mCurrentNozzle != TWaterGun::Rocket)
         return player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
 
     auto *playerData = Player::getData(player);
-    return (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) || playerData->getCanSprayFludd()) &&
+    return (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) ||
+            playerData->getCanSprayFludd()) &&
            player->mState != static_cast<u32>(TMario::STATE_HOVER_F);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80262580, 0x8025A30C, 0, 0), checkAirNozzle);

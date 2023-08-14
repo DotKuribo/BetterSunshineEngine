@@ -62,8 +62,8 @@ namespace BetterSMS {
 
         private:
             const TBGCheckData *mColTriangle;  // 0x0000
-            u8 mTargetID;                // 0x0004
-            u8 mHomeID;                  // 0x0005
+            u8 mTargetID;                      // 0x0004
+            u8 mHomeID;                        // 0x0005
             SearchMode mSearchMode;
         };
 

@@ -2,10 +2,10 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/System/Application.hxx>
-#include <SMS/Manager/MarioParticleManager.hxx>
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/Manager/MarioParticleManager.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "libs/triangle.hxx"
 #include "logging.hxx"
@@ -26,7 +26,8 @@ BETTER_SMS_FOR_CALLBACK void boostPadCol(TMario *player, const TBGCheckData *dat
                        player->mState == static_cast<u32>(TMario::STATE_GOOPSLIDE))
                           ? player->mState
                           : static_cast<u32>(TMario::STATE_RUNNING);
-    if ((flags & Player::InteractionFlags::ON_ENTER) || (flags & Player::InteractionFlags::ON_CONTACT)) {
+    if ((flags & Player::InteractionFlags::ON_ENTER) ||
+        (flags & Player::InteractionFlags::ON_CONTACT)) {
         player->changePlayerStatus(targetState, 0, false);
         player->startVoice(TMario::VOICE_JUMP);
     }

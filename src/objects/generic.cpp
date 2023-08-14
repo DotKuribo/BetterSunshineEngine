@@ -4,20 +4,20 @@
 
 #include <JSystem/J3D/J3DModel.hxx>
 #include <JSystem/J3D/J3DModelLoaderDataBase.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
+#include <SMS/Enemy/Conductor.hxx>
 #include <SMS/M3DUtil/MActor.hxx>
 #include <SMS/M3DUtil/MActorKeeper.hxx>
-#include <SMS/Player/Mario.hxx>
-#include <SMS/Camera/PolarSubCamera.hxx>
-#include <SMS/Map/BGCheck.hxx>
-#include <SMS/Enemy/Conductor.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Manager/ModelWaterManager.hxx>
+#include <SMS/Map/BGCheck.hxx>
+#include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/MapObj/MapObjBall.hxx>
 #include <SMS/MapObj/MapObjInit.hxx>
+#include <SMS/MarioUtil/ShadowUtil.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/Player/Watergun.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSoundSESystem.hxx>
-#include <SMS/MarioUtil/ShadowUtil.hxx>
-#include <SMS/Map/MapCollisionData.hxx>
 
 #include "libs/constmath.hxx"
 #include "objects/generic.hxx"
@@ -106,7 +106,7 @@ void TGenericRailObj::initMapCollisionData() {
 
 void TGenericRailObj::initMapObj() {
     TRailMapObj::initMapObj();
-    //mActorData->setLightType(2);
+    // mActorData->setLightType(2);
 
     if (mCollisionManager) {
         mCollisionManager->changeCollision(0);
@@ -152,15 +152,17 @@ void TGenericRailObj::control() {
     if (mCurrentSound) {
         // TODO: add when exp2f is resolved
         //
-        // mCurrentSound->setVolume(powf(0.01f, PSVECDistance(mTranslation, gpCamera->mTranslation) /
+        // mCurrentSound->setVolume(powf(0.01f, PSVECDistance(mTranslation, gpCamera->mTranslation)
+        // /
         //                                          (8000.0f * mSoundStrength)),
         //                          0, 0);
 
-        mCurrentSound->setVolume(lerp<f32>(1.0f, 0.0f,
-                                           clamp(PSVECDistance(mTranslation, gpCamera->mTranslation) /
-                                                     (8000.0f * mSoundStrength),
-                                                 0.0f, 1.0f)),
-                                 0, 0);
+        mCurrentSound->setVolume(
+            lerp<f32>(1.0f, 0.0f,
+                      clamp(PSVECDistance(mTranslation, gpCamera->mTranslation) /
+                                (8000.0f * mSoundStrength),
+                            0.0f, 1.0f)),
+            0, 0);
     }
 
     TGraphWeb *graph = mGraphTracer->mGraph;
@@ -245,7 +247,7 @@ void TGenericRailObj::readRailFlag() {
 
 void TGenericRailObj::resetPosition() {
     mTranslation = mInitialPosition;
-    mRotation = mInitialRotation;
+    mRotation    = mInitialRotation;
     mGraphTracer->setTo(mGraphTracer->mGraph->findNearestNodeIndex(mTranslation, -1));
     readRailFlag();
 }
@@ -261,9 +263,7 @@ void TGenericRailObj::requestShadow() {
     gpBindShadowManager->request(request, mObjectID);*/
 }
 
-u32 TGenericRailObj::getShadowType() {
-    return 0;
-}
+u32 TGenericRailObj::getShadowType() { return 0; }
 
 bool TGenericRailObj::checkMarioRiding() {
     if (gpMarioAddress->mFloorTriangle->mOwner != this)

@@ -99,7 +99,7 @@ BETTER_SMS_FOR_CALLBACK void updateDebugStateMonitor(TApplication *app) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE || !gpMarioAddress || !sIsInitialized)
         return;
 
-    if (director->mCurState == TMarDirector::STATE_INTRO_INIT|| !BetterSMS::isDebugMode())
+    if (director->mCurState == TMarDirector::STATE_INTRO_INIT || !BetterSMS::isDebugMode())
         return;
 
     if (gDebugState == NONE) {

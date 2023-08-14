@@ -2,10 +2,10 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/System/Application.hxx>
-#include <SMS/Manager/MarioParticleManager.hxx>
 #include <SMS/GC2D/SMSFader.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/Manager/MarioParticleManager.hxx>
+#include <SMS/System/Application.hxx>
 
 #include "libs/triangle.hxx"
 #include "logging.hxx"
@@ -14,7 +14,8 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 
-static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd, bool showFill) {
+static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd,
+                         bool showFill) {
     TWaterGun *fludd = player->mFludd;
     if (!fludd)
         return;
@@ -38,7 +39,7 @@ static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFl
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleSpray(TMario *player, const TBGCheckData *data,
-                                                      u32 flags) {
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -53,7 +54,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleSpray(TMario *player, const TBGCheckDat
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleHover(TMario *player, const TBGCheckData *data,
-                                                      u32 flags) {
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -68,7 +69,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleHover(TMario *player, const TBGCheckDat
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleTurbo(TMario *player, const TBGCheckData *data,
-                                                      u32 flags) {
+                                               u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -83,7 +84,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleTurbo(TMario *player, const TBGCheckDat
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleRocket(TMario *player, const TBGCheckData *data,
-                                                       u32 flags) {
+                                                u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::GROUNDED))
@@ -98,7 +99,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleRocket(TMario *player, const TBGCheckDa
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleSprayOnTouch(TMario *player, const TBGCheckData *data,
-                                               u32 flags) {
+                                                      u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
@@ -112,7 +113,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleSprayOnTouch(TMario *player, const TBGC
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleHoverOnTouch(TMario *player, const TBGCheckData *data,
-                                               u32 flags) {
+                                                      u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
@@ -126,7 +127,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleHoverOnTouch(TMario *player, const TBGC
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleTurboOnTouch(TMario *player, const TBGCheckData *data,
-                                               u32 flags) {
+                                                      u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))
@@ -140,7 +141,7 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleTurboOnTouch(TMario *player, const TBGC
 }
 
 BETTER_SMS_FOR_CALLBACK void changeNozzleRocketOnTouch(TMario *player, const TBGCheckData *data,
-                                                u32 flags) {
+                                                       u32 flags) {
     auto *playerData = Player::getData(player);
 
     if (!(flags & Player::InteractionFlags::ON_ENTER))

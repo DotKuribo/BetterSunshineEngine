@@ -1,14 +1,13 @@
 #include <Dolphin/types.h>
 
 #include <SMS/Camera/CameraMarioData.hxx>
-#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/Camera/LensFlare.hxx>
 #include <SMS/Camera/LensGlow.hxx>
+#include <SMS/Camera/PolarSubCamera.hxx>
 #include <SMS/Camera/SunModel.hxx>
 #include <SMS/Manager/ModelWaterManager.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-
 
 #include "libs/constmath.hxx"
 #include "module.hxx"
@@ -58,7 +57,8 @@ static bool sunFollowCameraAndScaleLightness(TCameraMarioData *cam) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002EB34, 0x8002EBEC, 0, 0), sunFollowCameraAndScaleLightness);
 
 static f32 scaleFlareToLightness(f32 a, f32 b, f32 c) {
-    return CLBEaseOutInbetween_f(a, BetterSMS::areBugsPatched() ? static_cast<f32>(gpModelWaterManager->mDarkLevel) : b, c);
+    return CLBEaseOutInbetween_f(
+        a, BetterSMS::areBugsPatched() ? static_cast<f32>(gpModelWaterManager->mDarkLevel) : b, c);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002D358, 0x8002D410, 0, 0), scaleFlareToLightness);
 

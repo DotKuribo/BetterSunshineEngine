@@ -29,7 +29,7 @@ namespace BetterSMS {
         const char *mFunction;
         OSStopwatch mStopwatch;
     };
-}
+}  // namespace BetterSMS
 
 #define BETTERSMS_START_PROFILE BetterSMS::TProfiler __profiler = BetterSMS::TProfiler(SMS_FUNC_SIG)
 #define BETTERSMS_STOP_PROFILE  __profiler.~TProfiler()

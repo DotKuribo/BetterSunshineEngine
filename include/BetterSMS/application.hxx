@@ -12,5 +12,5 @@ namespace BetterSMS {
         bool registerContextCallback(u8 context, ContextCallback cb);
         void deregisterContextCallback(u8 context);
         void setIntroStage(u8 area, u8 episode);
-    }  // namespace Game
+    }  // namespace Application
 };     // namespace BetterSMS

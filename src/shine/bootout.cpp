@@ -2,13 +2,13 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 
 #include <SMS/Camera/PolarSubCamera.hxx>
-#include <SMS/System/GameSequence.hxx>
-#include <SMS/MoveBG/Shine.hxx>
 #include <SMS/Enemy/Conductor.hxx>
-#include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSBGM.hxx>
+#include <SMS/MoveBG/Shine.hxx>
 #include <SMS/Player/Mario.hxx>
+#include <SMS/System/GameSequence.hxx>
 #include <SMS/System/MarDirector.hxx>
+#include <SMS/raw_fn.hxx>
 
 #include "music.hxx"
 
@@ -113,7 +113,8 @@ SMS_NO_INLINE static void restoreMario(TMarDirector *director, u32 nextState) {
     if (!shine || !(shine->mType & 0x10))
         return;
 
-    if (gSavePromptSetting.getInt() == SavePromptsSetting::NONE || gSavePromptSetting.getInt() == SavePromptsSetting::AUTO_SAVE) {
+    if (gSavePromptSetting.getInt() == SavePromptsSetting::NONE ||
+        gSavePromptSetting.getInt() == SavePromptsSetting::AUTO_SAVE) {
         if (gpCamera->getRestDemoFrames() != 0) {
             return;
         }

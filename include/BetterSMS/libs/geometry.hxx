@@ -130,7 +130,7 @@ namespace BetterSMS {
                 TVec3f euler;
 
                 // Assuming the order is Yaw-Pitch-Roll (Y-X-Z)
-                //if (rotMtx[0][2] > 0.998f) {  // singularity at north pole
+                // if (rotMtx[0][2] > 0.998f) {  // singularity at north pole
                 //    euler.x = atan2f(rotMtx[2][0], rotMtx[0][0]);
                 //    euler.y = M_PI / 2;
                 //    euler.z = 0;
@@ -145,15 +145,15 @@ namespace BetterSMS {
                 //}
 
                 //// Yaw (y rotation)
-                //float sinY = -rotMtx[2][0];
-                //float cosY = sqrtf(rotMtx[0][0] * rotMtx[0][0] + rotMtx[1][0] * rotMtx[1][0]);
-                //euler.y    = atan2f(sinY, cosY);
+                // float sinY = -rotMtx[2][0];
+                // float cosY = sqrtf(rotMtx[0][0] * rotMtx[0][0] + rotMtx[1][0] * rotMtx[1][0]);
+                // euler.y    = atan2f(sinY, cosY);
 
                 //// Pitch (x rotation)
-                //euler.x = atan2f(rotMtx[1][2], -rotMtx[2][2]);
+                // euler.x = atan2f(rotMtx[1][2], -rotMtx[2][2]);
 
                 //// Roll (z rotation)
-                //euler.z = atan2f(-rotMtx[1][0], -rotMtx[0][0]);
+                // euler.z = atan2f(-rotMtx[1][0], -rotMtx[0][0]);
 
                 const float PI_OVER_2 = 1.57079632679f;  // Pi/2
                 const float EPSILON   = 0.0001f;         // For precision checking

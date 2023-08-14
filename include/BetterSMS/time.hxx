@@ -11,4 +11,4 @@ namespace BetterSMS {
         void calendarToDate(char *dst, const OSCalendarTime &calendar);
         void calendarToTime(char *dst, const OSCalendarTime &calendar);
     }  // namespace Time
-}  // namespace BetterSMS::Time
+}  // namespace BetterSMS

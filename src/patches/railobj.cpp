@@ -1,8 +1,8 @@
 #include <JSystem/J3D/J3DTransform.hxx>
 
+#include "module.hxx"
 #include <SMS/MapObj/MapObjRailBlock.hxx>
 #include <SMS/macros.h>
-#include "module.hxx"
 
 static void checkResetCollisionMtx(TGraphTracer *tracer, int index) {
     TRailBlock *block;

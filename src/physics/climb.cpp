@@ -3,32 +3,31 @@
 #include <Dolphin/types.h>
 
 #include <SMS/Enemy/EnemyMario.hxx>
-#include <SMS/Player/Mario.hxx>
 #include <SMS/Map/MapCollisionData.hxx>
-#include <SMS/macros.h>
 #include <SMS/MapObj/MapObjTree.hxx>
 #include <SMS/NPC/NpcBase.hxx>
-
+#include <SMS/Player/Mario.hxx>
+#include <SMS/macros.h>
 
 #include "libs/constmath.hxx"
 #include "module.hxx"
-#include "player.hxx"
 #include "p_settings.hxx"
+#include "player.hxx"
 
 using namespace BetterSMS;
 
-//static void climbSometimes(TMario *player) {
-//    auto playerData = Player::getData(player);
+// static void climbSometimes(TMario *player) {
+//     auto playerData = Player::getData(player);
 //
-//    const bool isMarioClimb = isMarioClimb__16TCameraMarioDataCFUl(player->mState);
-//    if (playerData->mIsOnFire) {
-//        if (isMarioClimb)
-//            player->changePlayerStatus(TMario::STATE_FALL, 0, false);
-//        return;
-//    }
-//    player->barProcess();
-//}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
+//     const bool isMarioClimb = isMarioClimb__16TCameraMarioDataCFUl(player->mState);
+//     if (playerData->mIsOnFire) {
+//         if (isMarioClimb)
+//             player->changePlayerStatus(TMario::STATE_FALL, 0, false);
+//         return;
+//     }
+//     player->barProcess();
+// }
+//  SMS_PATCH_BL(SMS_PORT_REGION(0x8025D354, 0, 0, 0), climbSometimes);
 
 BETTER_SMS_FOR_CALLBACK void updateClimbContext(TMario *player, bool isMario) {
     if (!BetterSMS::areExploitsPatched()) {
@@ -47,7 +46,8 @@ BETTER_SMS_FOR_CALLBACK void updateClimbContext(TMario *player, bool isMario) {
 
 // static void overrideTreeClimbFromFloor(TMario *player) {
 //     const TBGCheckData *data;
-//     f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
+//     f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x,
+//     player->mTranslation.y,
 //                                                        player->mTranslation.z, 1, &data);
 
 //     player->mHolderHeightDiff = Min(player->mHolderHeightDiff, player->mTranslation.y -
@@ -64,8 +64,8 @@ static f32 getTreeWaitParameters() {
     SMS_FROM_GPR(31, player);
 
     const TBGCheckData *data;
-    f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
-                                                       player->mTranslation.z, 1, &data);
+    f32 groundHeight = gpMapCollisionData->checkGround(
+        player->mTranslation.x, player->mTranslation.y, player->mTranslation.z, 1, &data);
 
     const f32 padding = Max(player->mHolderHeightDiff - (player->mTranslation.y - groundHeight), 0);
 
@@ -83,8 +83,8 @@ static bool getTreeClimbParameters(TMapObjTree *tree) {
     SMS_FROM_GPR(31, player);
 
     const TBGCheckData *data;
-    f32 groundHeight = gpMapCollisionData->checkGround(player->mTranslation.x, player->mTranslation.y,
-                                                       player->mTranslation.z, 1, &data);
+    f32 groundHeight = gpMapCollisionData->checkGround(
+        player->mTranslation.x, player->mTranslation.y, player->mTranslation.z, 1, &data);
 
     const f32 receiveHeight = tree->mReceiveHeight;
     const f32 treeScaleY    = scaleLinearAtAnchor(tree->mScale.y, 0.2f, 0.0f);
@@ -178,27 +178,27 @@ static SMS_ASM_FUNC void scaleRoofMoveDiff() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80261824, 0x802595B0, 0, 0), scaleRoofMoveDiff);
 
-//static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
-//    TMario *player;
-//    SMS_FROM_GPR(30, player);
+// static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
+//     TMario *player;
+//     SMS_FROM_GPR(30, player);
 //
-//    u16 colType;
-//    SMS_FROM_GPR(4, colType);
+//     u16 colType;
+//     SMS_FROM_GPR(4, colType);
 //
-//    auto playerData = Player::getData(player);
+//     auto playerData = Player::getData(player);
 //
-//    if (playerData->isMario() && playerData->getParams()->mCanClimbWalls.get())
-//        return true;
+//     if (playerData->isMario() && playerData->getParams()->mCanClimbWalls.get())
+//         return true;
 //
-//    return colType == 266;
-//}
-//SMS_WRITE_32(SMS_PORT_REGION(0x802617C0, 0x8025954C, 0, 0), 0xA0830000);
-//SMS_PATCH_BL(SMS_PORT_REGION(0x802617C4, 0x80259550, 0, 0), canHangOnRoof);
-//SMS_WRITE_32(SMS_PORT_REGION(0x802617C8, 0x80259554, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x802617CC, 0x80259558, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x802617D0, 0x8025955C, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x802617D4, 0x80259560, 0, 0), 0x60000000);
-//SMS_WRITE_32(SMS_PORT_REGION(0x802617D8, 0x80259564, 0, 0), 0x2C030000);
+//     return colType == 266;
+// }
+// SMS_WRITE_32(SMS_PORT_REGION(0x802617C0, 0x8025954C, 0, 0), 0xA0830000);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x802617C4, 0x80259550, 0, 0), canHangOnRoof);
+// SMS_WRITE_32(SMS_PORT_REGION(0x802617C8, 0x80259554, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x802617CC, 0x80259558, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x802617D0, 0x8025955C, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x802617D4, 0x80259560, 0, 0), 0x60000000);
+// SMS_WRITE_32(SMS_PORT_REGION(0x802617D8, 0x80259564, 0, 0), 0x2C030000);
 
 /* WALL CLIMB CODE */
 

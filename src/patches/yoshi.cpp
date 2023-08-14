@@ -1,8 +1,7 @@
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSoundSESystem.hxx>
-
 
 #include "module.hxx"
 #include "player.hxx"
@@ -60,7 +59,7 @@ static void restoreNozzles(TMario *player) {
                                       ->mEmitParams.mAmountMax.get());
     changeNozzle__9TWaterGunFQ29TWaterGun11TNozzleTypeb(player->mFludd,
                                                         playerData->mFluddHistory.mSecondNozzle, 1);
-    //player->normalizeNozzle();
+    // player->normalizeNozzle();
     player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
                                         ->mEmitParams.mAmountMax.get() *
                                     factor;
@@ -77,21 +76,21 @@ static void killYoshi(TYoshi *yoshi) {
     if (gpMSound->gateCheck(31000))
         MSoundSE::startSoundActor(31000, yoshi->mTranslation, 0, nullptr, 0, 4);
 
-	if (yoshi->mState == TYoshi::MOUNTED)
-		yoshi->mMario->getOffYoshi(true);
+    if (yoshi->mState == TYoshi::MOUNTED)
+        yoshi->mMario->getOffYoshi(true);
 
-	yoshi->mState = TYoshi::DROWNING;
+    yoshi->mState = TYoshi::DROWNING;
 
-	MActor *actor = yoshi->mActor;
+    MActor *actor = yoshi->mActor;
     if (actor->getCurAnmIdx(MActor::BCK) != 25) {
-		if (!actor->checkCurBckFromIndex(25))
-			actor->setBckFromIndex(25);
-		thinkBtp__6TYoshiFi(yoshi, 25);
-		initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
-            									   ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
-	}
+        if (!actor->checkCurBckFromIndex(25))
+            actor->setBckFromIndex(25);
+        thinkBtp__6TYoshiFi(yoshi, 25);
+        initAnmSound__9MAnmSoundFPvUlf(((u32 *)yoshi)[0x118 / 4],
+                                       ((u32 **)yoshi)[0x11C / 4][0x64 / 4], 1, 0.0f);
+    }
 
-    yoshi->mType = 0;
+    yoshi->mType     = 0;
     yoshi->mSubState = 30;
 }
 
@@ -107,8 +106,8 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
     f32 roofHeight = gpMapCollisionData->checkRoof(yoshi->mTranslation.x, yoshi->mTranslation.y,
                                                    yoshi->mTranslation.z, 0, &roof);
     const TBGCheckData *water;
-    f32 waterY = gpMapCollisionData->checkGround(yoshi->mTranslation.x, roofHeight - 10.0f, yoshi->mTranslation.z, 0,
-                                                 &water);
+    f32 waterY = gpMapCollisionData->checkGround(yoshi->mTranslation.x, roofHeight - 10.0f,
+                                                 yoshi->mTranslation.z, 0, &water);
 
     if (waterY - yoshi->mTranslation.y < 100)
         return;
@@ -122,7 +121,7 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
 
 static void checkForOOBDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
     if (!BetterSMS::isCollisionRepaired())
-		  return;
+        return;
 
     if (yoshi->mState != TYoshi::UNMOUNTED)
         return;
@@ -142,9 +141,9 @@ BETTER_SMS_FOR_CALLBACK void checkForYoshiDeath(TMario *player, bool isMario) {
 
     // Check for water death
     const TBGCheckData *ground;
-    f32 groundY = gpMapCollisionData->checkGround(player->mYoshi->mTranslation.x, player->mYoshi->mTranslation.y,
-                                    player->mYoshi->mTranslation.z, 0,
-                                    &ground);
+    f32 groundY = gpMapCollisionData->checkGround(player->mYoshi->mTranslation.x,
+                                                  player->mYoshi->mTranslation.y,
+                                                  player->mYoshi->mTranslation.z, 0, &ground);
 
     checkForWaterDeath(player->mYoshi, ground, groundY);
     checkForOOBDeath(player->mYoshi, ground, groundY);
@@ -156,10 +155,10 @@ BETTER_SMS_FOR_CALLBACK void forceValidRidingAnimation(TMario *player, bool isMa
         return;
 
     // Force valid animation
-    if (yoshi->mState == TYoshi::MOUNTED && player->mState != TMario::STATE_SHINE_C && BetterSMS::areExploitsPatched())
+    if (yoshi->mState == TYoshi::MOUNTED && player->mState != TMario::STATE_SHINE_C &&
+        BetterSMS::areExploitsPatched())
         player->setAnimation(TMario::ANIMATION_IDLE, 1.0f);
 }
-
 
 static bool isFixShallowWaterBug(TBGCheckData *data) {
     return data->isWaterSurface() && !BetterSMS::areBugsPatched();

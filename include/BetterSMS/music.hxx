@@ -6,8 +6,8 @@
 #include <Dolphin/types.h>
 #include <JSystem/JKernel/JKRHeap.hxx>
 #include <JSystem/JSupport/JSUStream.hxx>
-#include <SMS/System/Params.hxx>
 #include <SMS/MSound/MSBGM.hxx>
+#include <SMS/System/Params.hxx>
 
 namespace BetterSMS {
     namespace Music {
@@ -202,4 +202,4 @@ namespace BetterSMS {
         bool isWeakBGM(u32 id);
         bool isWeakBGM(MSStageInfo id);
     }  // namespace Music
-}  // namespace BetterSMS::Music
+}  // namespace BetterSMS

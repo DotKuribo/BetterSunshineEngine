@@ -1,9 +1,9 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGeometry/JGMVec.hxx>
-#include <SMS/MoveBG/Shine.hxx>
 #include <SMS/Enemy/Conductor.hxx>
-#include <SMS/Manager/FlagManager.hxx>
 #include <SMS/MSound/MSBGM.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/MoveBG/Shine.hxx>
 
 #include "module.hxx"
 

@@ -1,7 +1,7 @@
 #include <SMS/SPC/SpcBinary.hxx>
 
-#include "p_sunscript.hxx"
 #include "module.hxx"
+#include "p_sunscript.hxx"
 
 #define BIND_SYMBOL(binary, symbol, func)                                                          \
     (binary)->bindSystemDataToSymbol((symbol), reinterpret_cast<u32>(&(func)))

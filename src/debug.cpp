@@ -9,8 +9,8 @@
 
 #include "debug.hxx"
 
-#include "libs/global_unordered_map.hxx"
 #include "libs/container.hxx"
+#include "libs/global_unordered_map.hxx"
 #include "libs/string.hxx"
 
 #include "module.hxx"
@@ -21,21 +21,24 @@ static TGlobalUnorderedMap<TGlobalString, Debug::InitCallback> sDebugInitCBs(32)
 static TGlobalUnorderedMap<TGlobalString, Debug::UpdateCallback> sDebugUpdateCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Debug::DrawCallback> sDebugDrawCBs(32);
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerInitCallback(const char *name, InitCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerInitCallback(const char *name,
+                                                                  InitCallback cb) {
     if (sDebugInitCBs.find(name) != sDebugInitCBs.end())
         return false;
     sDebugInitCBs[name] = cb;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerUpdateCallback(const char *name, UpdateCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerUpdateCallback(const char *name,
+                                                                    UpdateCallback cb) {
     if (sDebugUpdateCBs.find(name) != sDebugUpdateCBs.end())
         return false;
     sDebugUpdateCBs[name] = cb;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerDrawCallback(const char *name, DrawCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerDrawCallback(const char *name,
+                                                                  DrawCallback cb) {
     if (sDebugDrawCBs.find(name) != sDebugDrawCBs.end())
         return false;
     sDebugDrawCBs[name] = cb;

@@ -3,9 +3,8 @@
 #include <Dolphin/OS.h>
 #include <Dolphin/types.h>
 
-#include <JSystem/JUtility/JUTTexture.hxx>
 #include <JSystem/J2D/J2DPicture.hxx>
-
+#include <JSystem/JUtility/JUTTexture.hxx>
 
 class SimpleTexAnimator {
 public:
@@ -16,8 +15,8 @@ public:
         : mTextures(textures), mTexCount(texCount), mRotation(0.0f), mSpin(0.0f), mLastTime(0),
           mCurrentFrame(0.0f), mFrameRate(30.0f) {}
     SimpleTexAnimator(const u8 **textures, size_t texCount)
-        : mTexCount(texCount), mRotation(0.0f), mSpin(0.0f), mLastTime(0),
-          mCurrentFrame(0.0f), mFrameRate(30.0f) {
+        : mTexCount(texCount), mRotation(0.0f), mSpin(0.0f), mLastTime(0), mCurrentFrame(0.0f),
+          mFrameRate(30.0f) {
         mTextures = reinterpret_cast<const ResTIMG **>(textures);
     }
     ~SimpleTexAnimator() {}

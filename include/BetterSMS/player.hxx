@@ -7,8 +7,8 @@
 #include <JSystem/JGeometry/JGMVec.hxx>
 #include <JSystem/JSupport/JSUMemoryStream.hxx>
 #include <JSystem/JUtility/JUTColor.hxx>
-#include <SMS/Player/Mario.hxx>
 #include <SMS/Camera/PolarSubCamera.hxx>
+#include <SMS/Player/Mario.hxx>
 #include <SMS/raw_fn.hxx>
 
 #include "libs/container.hxx"
@@ -22,7 +22,7 @@ using namespace BetterSMS::Collision;
 namespace BetterSMS {
     namespace Player {
         struct TPlayerData;
-        
+
         // Get the specialized BetterSMS info of a player
         void *getRegisteredData(TMario *, const char *);
 
@@ -79,13 +79,10 @@ namespace BetterSMS {
 
         struct TPlayerParams : public TParams {
             TPlayerParams()
-                : TParams(), SMS_TPARAM_INIT(mMaxHealth, 8),
-                  SMS_TPARAM_INIT(mCanRideYoshi, true),
-                  SMS_TPARAM_INIT(mCanUseFludd, true),
-                  SMS_TPARAM_INIT(mPlayerHasHelmet, false),
+                : TParams(), SMS_TPARAM_INIT(mMaxHealth, 8), SMS_TPARAM_INIT(mCanRideYoshi, true),
+                  SMS_TPARAM_INIT(mCanUseFludd, true), SMS_TPARAM_INIT(mPlayerHasHelmet, false),
                   SMS_TPARAM_INIT(mPlayerHasGlasses, false),
-                  SMS_TPARAM_INIT(mPlayerHasShirt, false),
-                  SMS_TPARAM_INIT(mScaleMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mPlayerHasShirt, false), SMS_TPARAM_INIT(mScaleMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mThrowPowerMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mUnderwaterHealthMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mFallDamageMinMultiplier, 1.0f) {

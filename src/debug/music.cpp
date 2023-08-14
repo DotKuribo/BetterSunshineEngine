@@ -1,18 +1,18 @@
 #include <Dolphin/MTX.h>
 #include <Dolphin/types.h>
 
-#include <JSystem/JKernel/JKRHeap.hxx>
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/J2D/J2DPane.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
+#include <JSystem/JKernel/JKRHeap.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Player/Mario.hxx>
 
-#include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
-#include <SMS/System/Application.hxx>
 #include <SMS/Map/MapCollisionData.hxx>
+#include <SMS/System/Application.hxx>
+#include <SMS/raw_fn.hxx>
 
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
@@ -54,7 +54,8 @@ void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
         return;
 
-    if (!director || !sIsInitialized || gDebugUIPage == 0 || gDebugUIPage > 4 || !BetterSMS::isDebugMode())
+    if (!director || !sIsInitialized || gDebugUIPage == 0 || gDebugUIPage > 4 ||
+        !BetterSMS::isDebugMode())
         return;
 
     if (director->mCurState != TMarDirector::STATE_INTRO_PLAYING &&

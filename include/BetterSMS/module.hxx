@@ -58,7 +58,7 @@
 #endif
 
 #define BETTER_SMS_FOR_CALLBACK SMS_NO_INLINE
-#define BETTER_SMS_FOR_EXPORT SMS_NO_INLINE
+#define BETTER_SMS_FOR_EXPORT   SMS_NO_INLINE
 
 namespace BetterSMS {
 
@@ -77,7 +77,8 @@ namespace BetterSMS {
 
     class BugsSetting final : public Settings::SwitchSetting {
     public:
-        BugsSetting(const char *name) : SwitchSetting(name, &mBugsValue), mBugsValue(true), mIsUnlocked(true) {}
+        BugsSetting(const char *name)
+            : SwitchSetting(name, &mBugsValue), mBugsValue(true), mIsUnlocked(true) {}
         ~BugsSetting() override {}
 
         bool isUnlocked() const override { return mIsUnlocked; }

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Dolphin/types.h>
-#include <SMS/assert.h>
 #include <SMS/SPC/SpcInterp.hxx>
 #include <SMS/SPC/SpcSlice.hxx>
+#include <SMS/assert.h>
 
 #include "sunscript.hxx"
 

@@ -6,11 +6,11 @@
 #include <JSystem/JSupport/JSUStream.hxx>
 #include <SMS/Player/Mario.hxx>
 
-#include <SMS/System/Application.hxx>
 #include <SMS/Camera/PolarSubCamera.hxx>
+#include <SMS/MSound/MSBGM.hxx>
+#include <SMS/System/Application.hxx>
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSBGM.hxx>
 
 #include "libs/constmath.hxx"
 #include "logging.hxx"
@@ -22,7 +22,7 @@ using namespace BetterSMS;
 
 // Name of the song to play, e.g. "BeachTheme"
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Music::queueSong(const char *name) {
-    auto *streamer           = AudioStreamer::getInstance();
+    auto *streamer                    = AudioStreamer::getInstance();
     AudioStreamer::AudioPacket packet = AudioStreamer::AudioPacket(name);
 
     return streamer->queueAudio(packet);
@@ -66,7 +66,7 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setMaxVolume(u8 max) {
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setLoopPoint(f32 start, f32 length) {
-    auto *streamer            = AudioStreamer::getInstance();
+    auto *streamer                     = AudioStreamer::getInstance();
     AudioStreamer::AudioPacket &packet = streamer->getCurrentAudio();
 
     packet.setLoopPoint(start, length);
@@ -141,16 +141,16 @@ static void volumeAlarm(OSAlarm *alarm, OSContext *context) {
 }
 
 static void cbForGetStreamErrorStatusAsync_(u32 result, DVDCommandBlock *cmdBlock) {
-    auto *streamer = Music::AudioStreamer::getInstance();
-    streamer->mErrorStatus         = result;
+    auto *streamer         = Music::AudioStreamer::getInstance();
+    streamer->mErrorStatus = result;
     if (streamer->mErrorStatus != 1) {
         streamer->stop_();
     }
 }
 
 static void cbForGetStreamPlayAddrAsync_(u32 result, DVDCommandBlock *cmdBlock) {
-    auto *streamer = Music::AudioStreamer::getInstance();
-    streamer->mCurrentPlayAddress  = result;
+    auto *streamer                = Music::AudioStreamer::getInstance();
+    streamer->mCurrentPlayAddress = result;
     DVDGetStreamErrorStatusAsync(&streamer->mStatusCmd, cbForGetStreamErrorStatusAsync_);
 }
 
@@ -230,7 +230,7 @@ Music::AudioStreamer::~AudioStreamer() {
 
 void Music::AudioStreamer::initThread(OSPriority threadPrio) {
     JKRHeap *heap = JKRHeap::sSystemHeap;
-    mAudioStack = static_cast<u8 *>(heap->alloc(AudioStackSize, 32));
+    mAudioStack   = static_cast<u8 *>(heap->alloc(AudioStackSize, 32));
     OSInitMessageQueue(&mMessageQueue, mMessageList, AudioMessageQueueSize);
     OSCreateAlarm(&mVolumeFadeAlarm);
     OSSetPeriodicAlarm(&mVolumeFadeAlarm, OSGetTime(), OSMillisecondsToTicks(16), volumeAlarm);
@@ -382,7 +382,6 @@ bool Music::AudioStreamer::play_() {
         }
     }
 
-    
     if (!BetterSMS::isMusicStreamingAllowed()) {
         OSPanic(__FILE__, __LINE__,
                 "A music stream attempted to play, but music streaming is disabled! Set byte 8 of "
@@ -479,7 +478,6 @@ bool Music::AudioStreamer::seek_() {
         return DVDPrepareStreamAsync(mAudioHandle, getLoopEnd() - streamPos, streamPos,
                                      cbForPrepareStreamAsync_);
     }
-
 }
 
 void Music::AudioStreamer::update_() {
@@ -501,7 +499,7 @@ void Music::AudioStreamer::update_() {
             AISetStreamPlayState(false);
         else if (!_mIsPlaying) {
             AISetStreamPlayState(false);
-            //if (mStopCmd.mCurCommand != 7)
+            // if (mStopCmd.mCurCommand != 7)
             DVDCancelStreamAsync(&mStopCmd, cbForCancelStreamAsync_);
         }
         return;
@@ -509,7 +507,6 @@ void Music::AudioStreamer::update_() {
 
     if (!isPlaying())
         return;
-
 
     AudioPacket &packet = getCurrentAudio();
 
@@ -671,7 +668,7 @@ static void initSoundBank(u8 areaID, u8 episodeID) {
     setMSoundEnterStage__10MSMainProcFUcUc(areaID, episodeID);
     Console::debugLog("Initializing the sound bank... DONE!\n");
 }
-//SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
 
 constexpr f32 PauseFadeSpeed = 0.2f;
 

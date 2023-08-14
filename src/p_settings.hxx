@@ -1,15 +1,15 @@
 #pragma once
 
-#include <Dolphin/types.h>
 #include <Dolphin/CARD.h>
 #include <Dolphin/printf.h>
 #include <Dolphin/string.h>
+#include <Dolphin/types.h>
 
 #include <JSystem/JDrama/JDRDirector.hxx>
 #include <JSystem/JKernel/JKRHeap.hxx>
 
-#include <SMS/Manager/FlagManager.hxx>
 #include <SMS/GC2D/SelectGrad.hxx>
+#include <SMS/Manager/FlagManager.hxx>
 #include <SMS/MarioUtil/DrawUtil.hxx>
 #include <SMS/MarioUtil/gd-reinit-gx.hxx>
 #include <SMS/System/CardManager.hxx>
@@ -19,9 +19,9 @@
 #include "libs/container.hxx"
 #include "libs/global_vector.hxx"
 #include "memory.hxx"
-#include "settings.hxx"
 #include "module.hxx"
 #include "p_icons.hxx"
+#include "settings.hxx"
 
 using namespace BetterSMS;
 
@@ -404,8 +404,7 @@ const u8 SMS_ALIGN(32) gSaveIcon[] = {
     0xa8, 0x46, 0x43, 0x35, 0x69, 0x53, 0x23, 0x32, 0x5a, 0x64, 0xb9, 0x8e, 0xa9, 0x4c, 0xfd, 0x86,
     0x45, 0x56, 0x66, 0x57, 0x32, 0x23, 0x33, 0x35, 0x54, 0x37, 0x57, 0x67, 0xa0, 0x84, 0x44, 0x37,
     0x56, 0x57, 0xcd, 0xcc, 0xd6, 0x73, 0xb9, 0x4a, 0x35, 0x34, 0x48, 0x54, 0xc4, 0x82, 0x57, 0x43,
-    0x24, 0x33, 0x6b, 0x87, 0x6b, 0x64, 0x58, 0x53, 0x34, 0x32
-};
+    0x24, 0x33, 0x6b, 0x87, 0x6b, 0x64, 0x58, 0x53, 0x34, 0x32};
 
 static const u8 *sLoadingIconTIMGs[] = {
     gShineSpriteIconFrame1,  gShineSpriteIconFrame2,  gShineSpriteIconFrame3,
@@ -413,8 +412,7 @@ static const u8 *sLoadingIconTIMGs[] = {
     gShineSpriteIconFrame7,  gShineSpriteIconFrame8,  gShineSpriteIconFrame9,
     gShineSpriteIconFrame10, gShineSpriteIconFrame11, gShineSpriteIconFrame12,
     gShineSpriteIconFrame13, gShineSpriteIconFrame14, gShineSpriteIconFrame15,
-    gShineSpriteIconFrame16
-};
+    gShineSpriteIconFrame16};
 
 void getSettingsGroups(TGlobalVector<Settings::SettingsGroup *> &out);
 
@@ -476,9 +474,8 @@ public:
     friend class SettingsDirector;
 
     SettingsScreen(TMarioGamePad *controller)
-        : TViewObj("<SettingsScreen>"),
-          mScreen(nullptr), mController(controller), mShineIcon(nullptr), mCurrentTextBox(nullptr), mGroupID(0),
-          mSettingID(0), mGroups() {
+        : TViewObj("<SettingsScreen>"), mScreen(nullptr), mController(controller),
+          mShineIcon(nullptr), mCurrentTextBox(nullptr), mGroupID(0), mSettingID(0), mGroups() {
         mShineAnimator = SimpleTexAnimator(sLoadingIconTIMGs, 16);
     }
 
@@ -496,12 +493,12 @@ public:
                 return;
 
             if (groupPane->mChildrenList.mSize == 0) {
-                //mShineIcon->mIsVisible = false;
-                mCurrentTextBox        = nullptr;
+                // mShineIcon->mIsVisible = false;
+                mCurrentTextBox = nullptr;
                 return;
             }
 
-            //mShineIcon->mIsVisible = true;
+            // mShineIcon->mIsVisible = true;
 
             const u32 settingMagic = ('s' << 24) | mSettingID;
             J2DPane *settingPane   = groupPane->search(settingMagic);
@@ -520,13 +517,12 @@ public:
                     mCurrentTextBox->mGradientBottom = {255, 255, 255, 255};
                 }
 
-                mCurrentTextBox                  = reinterpret_cast<J2DTextBox *>(settingPane);
+                mCurrentTextBox = reinterpret_cast<J2DTextBox *>(settingPane);
                 if (mCurrentSettingInfo && mCurrentSettingInfo->mSettingData->isUserEditable()) {
                     mCurrentTextBox->mGradientTop    = {180, 230, 10, 255};
                     mCurrentTextBox->mGradientBottom = {240, 170, 10, 255};
                 }
             }
-
 
             /*mShineAnimator.process(mShineIcon);*/
         }
@@ -547,7 +543,8 @@ private:
         {
             auto currentID = mSettingID;
 
-            if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
+            if ((mController->mButtons.mRapidInput &
+                 (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
                 for (int i = mSettingID + 1; i < mCurrentGroupInfo->mSettingInfos.size(); ++i) {
                     auto *settingInfo = getSettingInfo(i);
                     if (settingInfo->mSettingData->isUserEditable()) {
@@ -557,8 +554,8 @@ private:
                     }
                 }
             }
-            if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_UP |
-                 TMarioGamePad::MAINSTICK_UP))) {
+            if ((mController->mButtons.mRapidInput &
+                 (TMarioGamePad::DPAD_UP | TMarioGamePad::MAINSTICK_UP))) {
                 for (int i = mSettingID - 1; i >= 0; --i) {
                     auto *settingInfo = getSettingInfo(i);
                     if (settingInfo->mSettingData->isUserEditable()) {
@@ -612,7 +609,7 @@ private:
 
             if (oldID != mGroupID) {
                 mCurrentGroupInfo->mGroupPane->mIsVisible = false;
-                mCurrentGroupInfo = getGroupInfo(mGroupID);
+                mCurrentGroupInfo                         = getGroupInfo(mGroupID);
                 mCurrentGroupInfo->mGroupPane->mIsVisible = true;
 
                 // We intentionally loop past the end to get a nullptr
@@ -659,9 +656,9 @@ public:
     enum Choice { NO, YES };
 
     SaveErrorPanel(SettingsDirector *director, TMarioGamePad *controller)
-        : TViewObj("<SettingsScreen>"), mChoice(0), mWhichScreen(0), mDirector(director), mScreen(nullptr),
-          mErrorHandlerPane(nullptr), mSaveTryingPane(nullptr), mErrorTextBox(nullptr), mChoiceBoxes(), mController(controller) {
-    }
+        : TViewObj("<SettingsScreen>"), mChoice(0), mWhichScreen(0), mDirector(director),
+          mScreen(nullptr), mErrorHandlerPane(nullptr), mSaveTryingPane(nullptr),
+          mErrorTextBox(nullptr), mChoiceBoxes(), mController(controller) {}
 
     ~SaveErrorPanel() override {}
 
@@ -674,8 +671,8 @@ public:
             J2DTextBox *selectedTB   = mChoiceBoxes[mChoice];
             J2DTextBox *unselectedTB = mChoiceBoxes[mChoice ^ 1];
 
-            selectedTB->mGradientTop    = {180, 230, 10, 255};
-            selectedTB->mGradientBottom = {240, 170, 10, 255};
+            selectedTB->mGradientTop      = {180, 230, 10, 255};
+            selectedTB->mGradientBottom   = {240, 170, 10, 255};
             unselectedTB->mGradientTop    = {255, 255, 255, 255};
             unselectedTB->mGradientBottom = {255, 255, 255, 255};
         }
@@ -707,7 +704,7 @@ public:
     bool isWithinScreen() const { return mAnimatedPane->mRect.mY1 >= 480; }
 
 private:
-    void switchScreen() { 
+    void switchScreen() {
         mWhichScreen ^= 1;
         if (mWhichScreen == 0) {
             mErrorHandlerPane->mIsVisible = false;
@@ -737,12 +734,12 @@ private:
             }
         }
 
-        if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_RIGHT |
-             TMarioGamePad::MAINSTICK_RIGHT)))
+        if ((mController->mButtons.mRapidInput &
+             (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT)))
             mChoice ^= 1;
 
-        if ((mController->mButtons.mRapidInput & (TMarioGamePad::DPAD_LEFT |
-             TMarioGamePad::MAINSTICK_LEFT)))
+        if ((mController->mButtons.mRapidInput &
+             (TMarioGamePad::DPAD_LEFT | TMarioGamePad::MAINSTICK_LEFT)))
             mChoice ^= 1;
     }
 
@@ -795,14 +792,14 @@ public:
     enum Kind { MONO, STEREO, SURROUND };
 
     SoundSetting(const char *name) : IntSetting(name, &mSoundValue), mSoundValue(MONO) {
-        mValueRange = {0, 2, 1};
+        mValueRange     = {0, 2, 1};
         mValueChangedCB = SoundSetting::valueChanged;
     }
     ~SoundSetting() override {}
 
     void getValueName(char *dst) const override {
         switch (getInt()) {
-        case Kind::MONO: 
+        case Kind::MONO:
             strncpy(dst, "MONO", 5);
             break;
         case Kind::STEREO:
@@ -832,7 +829,7 @@ public:
 
     AspectRatioSetting(const char *name)
         : IntSetting(name, &mAspectRatioValue), mAspectRatioValue(FULL) {
-        mValueRange     = {0, 3, 1};
+        mValueRange = {0, 3, 1};
     }
     ~AspectRatioSetting() override {}
 
@@ -918,7 +915,8 @@ class SavePromptsSetting final : public Settings::IntSetting {
 public:
     enum Kind { ALL, NO_BLUE, NONE, AUTO_SAVE };
 
-    SavePromptsSetting(const char *name) : IntSetting(name, &mPromptsValue), mPromptsValue(NO_BLUE) {
+    SavePromptsSetting(const char *name)
+        : IntSetting(name, &mPromptsValue), mPromptsValue(NO_BLUE) {
         mValueRange = {0, 3, 1};
     }
     ~SavePromptsSetting() override {}
@@ -935,7 +933,7 @@ public:
         case Kind::NONE:
             strncpy(dst, "NONE", 10);
             break;
-		case Kind::AUTO_SAVE:
+        case Kind::AUTO_SAVE:
             strncpy(dst, "AUTO SAVE", 10);
             break;
         }
@@ -951,4 +949,4 @@ namespace BetterSMS {
     bool isCollisionRepaired();
     bool isCameraInvertedX();
     bool isCameraInvertedY();
-}
+}  // namespace BetterSMS

@@ -12,5 +12,5 @@ namespace BetterSMS {
 
         bool registerBMGCommandCallback(u8 identifier, BMGCommandCallback cb);
         void deregisterBMGCommandCallback(u8 identifier);
-    }
-};  // namespace BetterSMS::BMG
+    }  // namespace BMG
+};     // namespace BetterSMS

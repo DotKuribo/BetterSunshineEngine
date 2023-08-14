@@ -1,8 +1,7 @@
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
-#include <SMS/macros.h>
 #include <SMS/System/CardManager.hxx>
-
+#include <SMS/macros.h>
 
 #include "module.hxx"
 

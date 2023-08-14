@@ -31,7 +31,7 @@ bool BetterSMS::isMusicStreamingAllowed() { return *reinterpret_cast<bool *>(0x8
 void BetterSMS::setDebugMode(bool active) {
     const bool isDebugStarted = !sIsDebugMode && active;
 
-	sIsDebugMode = active;
+    sIsDebugMode = active;
 
     if (isDebugStarted)
         initDebugCallbacks(&gpApplication);
@@ -67,7 +67,9 @@ int BetterSMS::getScreenOrthoWidth() {
     }
 }
 
-f32 BetterSMS::getScreenToFullScreenRatio() { return static_cast<f32>(getScreenRenderWidth()) / 600.0f; }
+f32 BetterSMS::getScreenToFullScreenRatio() {
+    return static_cast<f32>(getScreenRenderWidth()) / 600.0f;
+}
 f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
 
 f32 BetterSMS::getFrameRate() {

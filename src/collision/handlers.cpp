@@ -1,22 +1,28 @@
 #include <Dolphin/GX.h>
 #include <Dolphin/OS.h>
 
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/macros.h>
-#include <SMS/MSound/MSoundSESystem.hxx>
 
 #include "logging.hxx"
 #include "module.hxx"
-#include "player.hxx"
 #include "p_warp.hxx"
+#include "player.hxx"
 
 using namespace BetterSMS;
 
 /* Collision State Resetters */
 
-#define EXPAND_WARP_SET(base) (base) : case ((base) + 10) : case ((base) + 20) : case ((base) + 30)
+#define EXPAND_WARP_SET(base)                                                                      \
+    (base) : case ((base) + 10) :                                                                  \
+    case ((base) + 20):                                                                            \
+    case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1) : case ((base) + 2) : case ((base) + 3) : case ((base) + 4)
+    (base) : case ((base) + 1) :                                                                   \
+    case ((base) + 2):                                                                             \
+    case ((base) + 3):                                                                             \
+    case ((base) + 4)
 
 static void resetValuesOnStateChange(TMario *player) {
     auto playerData = Player::getData(player);
@@ -37,7 +43,7 @@ static void resetValuesOnStateChange(TMario *player) {
         playerData->mCollisionFlags.mIsSpinBounce = false;
 
     if (playerData->mCollisionFlags.mIsDisableInput)
-        // Patches pausing/map escaping the controller lock
+    // Patches pausing/map escaping the controller lock
     {
         player->mController->mState.mReadInput = false;
         player->mController->mState.mDisable   = true;
@@ -101,19 +107,19 @@ static void resetValuesOnCollisionChange(TMario *player) {
 
 using namespace BetterSMS;
 
-//static void slipperyCatchingSoundCheck(u32 sound, const Vec *pos, u32 unk_1, JAISound **out,
-//                                       u32 unk_2, u8 unk_3) {
-//    TMario *player;
-//    SMS_FROM_GPR(31, player);
+// static void slipperyCatchingSoundCheck(u32 sound, const Vec *pos, u32 unk_1, JAISound **out,
+//                                        u32 unk_2, u8 unk_3) {
+//     TMario *player;
+//     SMS_FROM_GPR(31, player);
 //
-//    if (player->mFloorTriangle->mType == 16081 ||
-//        player->mFloorTriangle->mType == 17081)
-//        sound = 4105;
+//     if (player->mFloorTriangle->mType == 16081 ||
+//         player->mFloorTriangle->mType == 17081)
+//         sound = 4105;
 //
-//    MSoundSE::startSoundActor(sound, pos, unk_1, out, unk_2, unk_3);
-//}
-//SMS_PATCH_BL(SMS_PORT_REGION(0x8025932C, 0x802510B8, 0, 0), slipperyCatchingSoundCheck);
-//SMS_WRITE_32(SMS_PORT_REGION(0x802596C0, 0x8025144C, 0, 0), 0x60000000);
+//     MSoundSE::startSoundActor(sound, pos, unk_1, out, unk_2, unk_3);
+// }
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8025932C, 0x802510B8, 0, 0), slipperyCatchingSoundCheck);
+// SMS_WRITE_32(SMS_PORT_REGION(0x802596C0, 0x8025144C, 0, 0), 0x60000000);
 
 // extern -> generic.cpp
 void updateCollisionContext(TMario *player, bool isMario) {

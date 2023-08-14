@@ -58,7 +58,7 @@ BETTER_SMS_FOR_CALLBACK void drawMonitor(TApplication *app, const J2DOrthoGraph 
     auto *currentHeap = JKRHeap::sCurrentHeap;
     auto *rootHeap    = JKRHeap::sRootHeap;
 
-    if (!systemHeap || !currentHeap || !rootHeap || gDebugUIPage == 0|| !BetterSMS::isDebugMode())
+    if (!systemHeap || !currentHeap || !rootHeap || gDebugUIPage == 0 || !BetterSMS::isDebugMode())
         return;
 
     if (currentHeap != gCurrentHeap) {

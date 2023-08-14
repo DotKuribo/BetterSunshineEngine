@@ -1,12 +1,12 @@
 #include <Dolphin/MTX.h>
 #include <JSystem/JGeometry/JGMVec.hxx>
-#include <SMS/Player/Mario.hxx>
-#include <SMS/raw_fn.hxx>
 #include <SMS/MSound/MSound.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
+#include <SMS/Player/Mario.hxx>
+#include <SMS/raw_fn.hxx>
 
-#include "player.hxx"
 #include "module.hxx"
+#include "player.hxx"
 
 #if BETTER_SMS_EXTRA_COLLISION
 

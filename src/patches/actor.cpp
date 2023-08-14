@@ -2,17 +2,17 @@
 #include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/macros.h>
 
-#include "p_settings.hxx"
 #include "module.hxx"
+#include "p_settings.hxx"
 
 #if defined(BETTER_SMS_BUGFIXES) || defined(BETTER_SMS_CRASHFIXES)
 
 static SMS_ASM_FUNC void shadowCrashPatch() {
     SMS_ASM_BLOCK("cmpwi       4, 0            \n\t"
-                 "li          0, 0            \n\t"
-                 "beqlr-                      \n\t"
-                 "lhz         0, 0x18 (4)     \n\t"
-                 "blr                         \n\t");
+                  "li          0, 0            \n\t"
+                  "beqlr-                      \n\t"
+                  "lhz         0, 0x18 (4)     \n\t"
+                  "blr                         \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802320E0, 0x8022A034, 0, 0), shadowCrashPatch);
 

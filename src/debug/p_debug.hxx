@@ -30,8 +30,8 @@ constexpr auto gControlToggleDebugUI     = TMarioGamePad::DPAD_DOWN;  // Seconda
 constexpr auto gControlToggleGameUI      = TMarioGamePad::DPAD_DOWN;
 
 constexpr auto gControlToggleFastMovement = TMarioGamePad::START;
-constexpr auto gControlXYZMoveUp   = TMarioGamePad::A;
-constexpr auto gControlXYZMoveDown = TMarioGamePad::B;
+constexpr auto gControlXYZMoveUp          = TMarioGamePad::A;
+constexpr auto gControlXYZMoveDown        = TMarioGamePad::B;
 
 constexpr auto gControlToggleCameraFrozen  = TMarioGamePad::A;
 constexpr auto gControlToggleCameraTrack   = TMarioGamePad::X;
@@ -46,12 +46,13 @@ constexpr auto gControlDecreaseAnimationID    = TMarioGamePad::DPAD_LEFT;
 constexpr auto gControlIncreaseAnimationSpeed = TMarioGamePad::DPAD_RIGHT;  // Secondary
 constexpr auto gControlDecreaseAnimationSpeed = TMarioGamePad::DPAD_LEFT;   // Secondary
 
-#define GetMarioYVelocity(controller) ((controller)->mButtons.mAnalogR - (controller)->mButtons.mAnalogL)
+#define GetMarioYVelocity(controller)                                                              \
+    ((controller)->mButtons.mAnalogR - (controller)->mButtons.mAnalogL)
 
 #define GetCameraPan(controller) ((controller)->mButtons.mAnalogR - (controller)->mButtons.mAnalogL)
 #define GetCameraRoll(controller)                                                                  \
     ((controller)->mButtons.mAnalogR - (controller)->mButtons.mAnalogL)  // Secondary
-#define GetCameraFOV(controller) ((controller)->mCStick.mStickY)  // Secondary
+#define GetCameraFOV(controller) ((controller)->mCStick.mStickY)         // Secondary
 
 #define ButtonsFramePressed(controller, buttons)                                                   \
     (((controller->mButtons.mFrameInput) & (buttons)) == (buttons))
@@ -59,8 +60,9 @@ constexpr auto gControlDecreaseAnimationSpeed = TMarioGamePad::DPAD_LEFT;   // S
     (((controller->mButtons.mInput) & (buttons)) == (buttons))
 #define ButtonsRapidPressed(controller, buttons)                                                   \
     (((controller->mButtons.mRapidInput) & (buttons)) == (buttons))
-#define ButtonsFramePressedEx(controller, buttons) ((controller->mButtons.mFrameInput & 0x7FFF) == (buttons))
-#define ButtonsPressedEx(controller, buttons)      ((controller->mButtons.mInput & 0x7FFF) == (buttons))
+#define ButtonsFramePressedEx(controller, buttons)                                                 \
+    ((controller->mButtons.mFrameInput & 0x7FFF) == (buttons))
+#define ButtonsPressedEx(controller, buttons) ((controller->mButtons.mInput & 0x7FFF) == (buttons))
 #define ButtonsRapidPressedEx(controller, buttons)                                                 \
     ((controller->mButtons.mRapidInput & 0x7FFF) == (buttons))
 

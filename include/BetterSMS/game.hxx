@@ -23,5 +23,5 @@ namespace BetterSMS {
         void deregisterLoopCallback(const char *name);
         void deregisterPostDrawCallback(const char *name);
         void deregisterChangeCallback(const char *name);
-    }  // namespace Debug
+    }  // namespace Game
 };     // namespace BetterSMS

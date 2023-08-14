@@ -5,19 +5,19 @@
 #include <JSystem/J2D/J2DPane.hxx>
 #include <JSystem/J2D/J2DTextBox.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
+#include <SMS/MSound/MSound.hxx>
+#include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/raw_fn.hxx>
-#include <SMS/MSound/MSound.hxx>
-#include <SMS/MSound/MSoundSESystem.hxx>
 
+#include "debug.hxx"
 #include "libs/cheathandler.hxx"
 #include "libs/constmath.hxx"
-#include "debug.hxx"
 #include "logging.hxx"
 #include "module.hxx"
-#include "p_settings.hxx"
 #include "p_debug.hxx"
+#include "p_settings.hxx"
 
 using namespace BetterSMS;
 
@@ -52,7 +52,7 @@ BETTER_SMS_FOR_CALLBACK void initFPSMonitor(TApplication *app) {
 extern FPSSetting gFPSSetting;
 
 BETTER_SMS_FOR_CALLBACK void updateFPSMonitor(TApplication *app) {
-    if (!app->mDirector || !sIsInitialized|| !BetterSMS::isDebugMode())
+    if (!app->mDirector || !sIsInitialized || !BetterSMS::isDebugMode())
         return;
 
     sFPSCounter += 1.0f;
@@ -97,5 +97,4 @@ BETTER_SMS_FOR_CALLBACK void drawFPSMonitor(TApplication *app, const J2DOrthoGra
         gpFPSStringB->draw(monitorX + 1, gBaseMonitorY + 2);
         gpFPSStringW->draw(monitorX, gBaseMonitorY);
     }
-
 }

@@ -17,8 +17,8 @@ public:
     }
 
     TSoundBox(const char *name)
-        : TActor(name), mID(-1), mVolume(1.0f), mPitch(1.0f), mSpawnRate(1), mShape(BoundingType::Box),
-          mSpawnTimer(), mSoundPos() {}
+        : TActor(name), mID(-1), mVolume(1.0f), mPitch(1.0f), mSpawnRate(1),
+          mShape(BoundingType::Box), mSpawnTimer(), mSoundPos() {}
     virtual ~TSoundBox() override {}
 
     void load(JSUMemoryInputStream &in) override;

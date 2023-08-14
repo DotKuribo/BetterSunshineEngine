@@ -160,8 +160,8 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, const TMap *map, const TBGChec
             potentialY = map->mCollisionData->checkGround(samplePosition.x, roofY - 10.0f,
                                                           samplePosition.z, 8, &potential);
             if (potential != &TMapCollisionData::mIllegalCheckData) {
-                // Since there is water below the roof, check if there is ground between the player and
-                // the water
+                // Since there is water below the roof, check if there is ground between the player
+                // and the water
                 roofY = map->mCollisionData->checkGround(samplePosition.x, potentialY - 10.0f,
                                                          samplePosition.z, 0, &abovePlane);
                 if (roofY <= samplePosition.y) {

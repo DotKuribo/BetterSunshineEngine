@@ -7,13 +7,13 @@
 #include <SMS/macros.h>
 
 #include "module.hxx"
-#include "player.hxx"
 #include "p_warp.hxx"
+#include "player.hxx"
 
 using namespace BetterSMS;
 
 static SMS_ASM_FUNC void checkGrabHeight() {
-    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(                                                \
+    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(
         SMS_PORT_REGION(-0xED4, -0x105c, 0, 0)) "(2)\n\t"
                                                 "lfs 4, 0x28(29)                     \n\t"
                                                 "fmuls 0, 0, 4                       \n\t"
@@ -22,7 +22,7 @@ static SMS_ASM_FUNC void checkGrabHeight() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80256D34, 0x8024EAC0, 0, 0), checkGrabHeight);
 
 static SMS_ASM_FUNC void setCollisionHeight1() {
-    SMS_ASM_BLOCK("lfs 1, " SMS_STRINGIZE(                                       \
+    SMS_ASM_BLOCK("lfs 1, " SMS_STRINGIZE(
         SMS_PORT_REGION(-0xEDC, -0x1064, 0, 0)) "(2)                  \n\t"
                                                 "lfs 0, 0x28(22)            \n\t"
                                                 "fmuls 1, 0, 1              \n\t"
@@ -31,7 +31,7 @@ static SMS_ASM_FUNC void setCollisionHeight1() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8025696C, 0x8024E6F8, 0, 0), setCollisionHeight1);
 
 static SMS_ASM_FUNC void setCollisionHeight2() {
-    SMS_ASM_BLOCK("lfs 2, " SMS_STRINGIZE(                                       \
+    SMS_ASM_BLOCK("lfs 2, " SMS_STRINGIZE(
         SMS_PORT_REGION(-0xEDC, -0x1064, 0, 0)) "(2)                        \n\t"
                                                 "lfs 0, 0x28(29)            \n\t"
                                                 "fmuls 2, 0, 2              \n\t"
@@ -40,7 +40,7 @@ static SMS_ASM_FUNC void setCollisionHeight2() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80256D14, 0x8024EAA0, 0, 0), setCollisionHeight2);
 
 static SMS_ASM_FUNC void setCollisionHeight3() {
-    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(                                       \
+    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(
         SMS_PORT_REGION(-0xEDC, -0x1064, 0, 0)) "(2)                        \n\t"
                                                 "lfs 2, 0x28(30)            \n\t"
                                                 "fmuls 0, 2, 0              \n\t"

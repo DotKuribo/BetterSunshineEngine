@@ -2,9 +2,9 @@
 
 #include <JSystem/J2D/J2DOrthoGraph.hxx>
 #include <JSystem/JDrama/JDRNameRef.hxx>
+#include <SMS/MapObj/MapObjInit.hxx>
 #include <SMS/System/Application.hxx>
 #include <SMS/System/MarDirector.hxx>
-#include <SMS/MapObj/MapObjInit.hxx>
 #include <SMS/System/Params.hxx>
 
 namespace BetterSMS {
@@ -64,8 +64,7 @@ namespace BetterSMS {
 
             static TStageParams *sStageConfig;
 
-            static char *stageNameToParamPath(char *dst, const char *stage,
-                                              bool global = false);
+            static char *stageNameToParamPath(char *dst, const char *stage, bool global = false);
 
             bool isCustomConfig() const { return mIsCustomConfigLoaded; }
             void load(const char *stageName);

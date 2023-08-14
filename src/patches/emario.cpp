@@ -3,10 +3,9 @@
 #include <SMS/Enemy/EnemyMario.hxx>
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
-#include <SMS/macros.h>
 #include <SMS/System/CardManager.hxx>
+#include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-
 
 #include "libs/constmath.hxx"
 #include "module.hxx"

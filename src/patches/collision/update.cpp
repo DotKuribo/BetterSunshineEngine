@@ -91,13 +91,13 @@ static void addAfterPreNode_(int cellx, int cellz, TBGCheckList *addlist, TBGChe
 }
 
 // Skip wall padding (new collision)
-//SMS_WRITE_32(0x8019295C, 0x60000000);
-//SMS_WRITE_32(0x80192960, 0x60000000);
-//SMS_WRITE_32(0x80192964, 0x60000000);
-//SMS_WRITE_32(0x80192968, 0x60000000);
-//SMS_WRITE_32(0x8019296C, 0x60000000);
-//SMS_WRITE_32(0x80192970, 0x60000000);
-//SMS_WRITE_32(0x80192974, 0x60000000);
+// SMS_WRITE_32(0x8019295C, 0x60000000);
+// SMS_WRITE_32(0x80192960, 0x60000000);
+// SMS_WRITE_32(0x80192964, 0x60000000);
+// SMS_WRITE_32(0x80192968, 0x60000000);
+// SMS_WRITE_32(0x8019296C, 0x60000000);
+// SMS_WRITE_32(0x80192970, 0x60000000);
+// SMS_WRITE_32(0x80192974, 0x60000000);
 
 // Skip safety checks
 // SMS_WRITE_32(0x80192994, 0x60000000);
@@ -189,11 +189,11 @@ void addCheckDataToGridAll(TMapCollisionData *collision, TBGCheckData *data, s32
         }
     }
 }
-//SMS_PATCH_BL(0x8018E210, addCheckDataToGridAll);
-//SMS_PATCH_BL(0x80191568, addCheckDataToGridAll);
-//SMS_PATCH_BL(0x801917BC, addCheckDataToGridAll);
-//SMS_PATCH_BL(0x80191A58, addCheckDataToGridAll);
-//SMS_PATCH_BL(0x80191AAC, addCheckDataToGridAll);
+// SMS_PATCH_BL(0x8018E210, addCheckDataToGridAll);
+// SMS_PATCH_BL(0x80191568, addCheckDataToGridAll);
+// SMS_PATCH_BL(0x801917BC, addCheckDataToGridAll);
+// SMS_PATCH_BL(0x80191A58, addCheckDataToGridAll);
+// SMS_PATCH_BL(0x80191AAC, addCheckDataToGridAll);
 
 bool isActiveFromGroup(TIdxGroupObj *group, THitActor *target, f32 range) {
     for (auto &obj : group->mViewObjList) {
@@ -273,4 +273,4 @@ static void profileMoveReset(TMapCollisionData *data) {
     profiler.stop();
     profiler.report();
 }
-//SMS_PATCH_BL(0x80189758, profileMoveReset);
+// SMS_PATCH_BL(0x80189758, profileMoveReset);

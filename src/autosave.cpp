@@ -46,25 +46,25 @@ BETTER_SMS_FOR_CALLBACK void initAutoSaveIcon(TApplication *app) {
     /*sAutoSaveScreen = new J2DScreen(8, 'ROOT', {0, 0, 900, 480});
     OSReport("AutoSaveIcon: %p\n", sAutoSaveScreen);*/
     //{
-        texture.mTexObj2.val[2] = 0;
-        texture.storeTIMG(GetResourceTextureHeader(sAutoSaveIconTIMGs[0]));
-        texture._50 = false;
+    texture.mTexObj2.val[2] = 0;
+    texture.storeTIMG(GetResourceTextureHeader(sAutoSaveIconTIMGs[0]));
+    texture._50 = false;
 
-        {
-            const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
+    {
+        const int screenAdjustX = BetterSMS::getScreenRatioAdjustX();
 
-            sAutoSavePicture.insert(&texture, 0, 1.0f);
-            sAutoSavePicture.mRect  = {0, 0, 32, 32};
-            sAutoSavePicture.mAlpha = 255;
+        sAutoSavePicture.insert(&texture, 0, 1.0f);
+        sAutoSavePicture.mRect  = {0, 0, 32, 32};
+        sAutoSavePicture.mAlpha = 255;
 
-            /*sAutoSavePicture.mColorOverlay = {0, 0, 0, 255};
-            sAutoSavePicture.mVertexColors[0] = {0, 0, 0, 100};
-            sAutoSavePicture.mVertexColors[1] = {0, 0, 0, 100};
-            sAutoSavePicture.mVertexColors[2] = {0, 0, 0, 255};
-            sAutoSavePicture.mVertexColors[3] = {0, 0, 0, 255};*/
-        }
-        /*sAutoSaveScreen->mChildrenList.append(&sAutoSavePicture.mPtrLink);
-    }*/
+        /*sAutoSavePicture.mColorOverlay = {0, 0, 0, 255};
+        sAutoSavePicture.mVertexColors[0] = {0, 0, 0, 100};
+        sAutoSavePicture.mVertexColors[1] = {0, 0, 0, 100};
+        sAutoSavePicture.mVertexColors[2] = {0, 0, 0, 255};
+        sAutoSavePicture.mVertexColors[3] = {0, 0, 0, 255};*/
+    }
+    /*sAutoSaveScreen->mChildrenList.append(&sAutoSavePicture.mPtrLink);
+}*/
 
     sAutoSaveAnimator.setFrameRate(20.0f);
 

@@ -5,16 +5,15 @@
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
-#include <SMS/Player/Mario.hxx>
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/Player/Mario.hxx>
 
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
-#include <SMS/macros.h>
 #include <SMS/System/CardManager.hxx>
+#include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
-
 
 #include "module.hxx"
 

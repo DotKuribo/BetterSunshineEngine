@@ -22,7 +22,7 @@
 void DebugMoveMarioXYZ(TMario *player) {
     constexpr f32 baseSpeed             = 15.0f;
     const JUTGamePad::CStick &mainStick = player->mController->mControlStick;
-    const f32 speedMultiplier           = baseSpeed * (gIsFastMovement ? 3 : 1)  ;
+    const f32 speedMultiplier           = baseSpeed * (gIsFastMovement ? 3 : 1);
 
     const f32 cameraRotY = convertAngleS16ToFloat(gpCamera->mHorizontalAngle);
 
@@ -31,11 +31,9 @@ void DebugMoveMarioXYZ(TMario *player) {
     player->mTranslation.z +=
         (-cosf(angleToRadians(cameraRotY)) * speedMultiplier) * mainStick.mStickY;
     player->mTranslation.x -=
-        (-sinf(angleToRadians(cameraRotY + 90.0f)) * speedMultiplier) *
-        mainStick.mStickX;
+        (-sinf(angleToRadians(cameraRotY + 90.0f)) * speedMultiplier) * mainStick.mStickX;
     player->mTranslation.z -=
-        (-cosf(angleToRadians(cameraRotY + 90.0f)) * speedMultiplier) *
-        mainStick.mStickX;
+        (-cosf(angleToRadians(cameraRotY + 90.0f)) * speedMultiplier) * mainStick.mStickX;
 
     player->mTranslation.y += GetMarioYVelocity(player->mController) * speedMultiplier;
 

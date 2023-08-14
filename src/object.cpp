@@ -6,7 +6,6 @@
 #include <SMS/macros.h>
 #include <SMS/raw_fn.hxx>
 
-
 #include "libs/container.hxx"
 #include "libs/global_unordered_map.hxx"
 #include "libs/string.hxx"
@@ -48,8 +47,9 @@ BETTER_SMS_FOR_EXPORT size_t BetterSMS::Objects::getRemainingCapacity() {
 }
 
 // Map objects (coins, blocks, etc)
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
-                                                              Objects::NameRefInitializer initFn) {
+BETTER_SMS_FOR_EXPORT bool
+BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
+                                           Objects::NameRefInitializer initFn) {
     if (sCustomMapObjList.find(name) != sCustomMapObjList.end())
         return false;
     sCustomMapObjList[name] = initFn;
@@ -62,8 +62,9 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsMapObj(const char
 }
 
 // Enemys (Strollin' Stus, Electrokoopas, etc)
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
-                                                             Objects::NameRefInitializer initFn) {
+BETTER_SMS_FOR_EXPORT bool
+BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
+                                          Objects::NameRefInitializer initFn) {
     if (sCustomEnemyObjList.find(name) != sCustomEnemyObjList.end())
         return false;
     sCustomEnemyObjList[name] = initFn;
@@ -76,8 +77,8 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsEnemy(const char 
 }
 
 // Misc (Managers, tables, etc)
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::registerObjectAsMisc(const char *name,
-                                                            Objects::NameRefInitializer initFn) {
+BETTER_SMS_FOR_EXPORT bool
+BetterSMS::Objects::registerObjectAsMisc(const char *name, Objects::NameRefInitializer initFn) {
     if (sCustomMiscObjList.find(name) != sCustomMiscObjList.end())
         return false;
     sCustomMiscObjList[name] = initFn;

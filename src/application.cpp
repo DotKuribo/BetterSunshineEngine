@@ -2,16 +2,16 @@
 #include <Dolphin/types.h>
 
 #include <SMS/GC2D/SelectDir.hxx>
+#include <SMS/Manager/FlagManager.hxx>
+#include <SMS/Manager/RumbleManager.hxx>
 #include <SMS/Player/MarioGamePad.hxx>
+#include <SMS/System/Application.hxx>
+#include <SMS/System/CardManager.hxx>
 #include <SMS/System/GCLogoDir.hxx>
 #include <SMS/System/MenuDirector.hxx>
 #include <SMS/System/MovieDirector.hxx>
 #include <SMS/System/RenderModeObj.hxx>
 #include <SMS/System/Resolution.hxx>
-#include <SMS/System/Application.hxx>
-#include <SMS/Manager/FlagManager.hxx>
-#include <SMS/Manager/RumbleManager.hxx>
-#include <SMS/System/CardManager.hxx>
 
 #include "application.hxx"
 #include "libs/container.hxx"
@@ -19,7 +19,6 @@
 #include "module.hxx"
 #include "music.hxx"
 #include "p_settings.hxx"
-
 
 using namespace BetterSMS;
 
@@ -31,7 +30,8 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::isContextRegistered(u8 contex
     return sContextCBs.find(context) != sContextCBs.end();
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 context, ContextCallback cb) {
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 context,
+                                                                           ContextCallback cb) {
     if (sContextCBs.find(context) != sContextCBs.end())
         return false;
     sContextCBs[context] = cb;
@@ -43,7 +43,7 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Application::deregisterContextCallback(u8 
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Application::setIntroStage(u8 area, u8 episode) {
-    sIntroArea = area;
+    sIntroArea    = area;
     sIntroEpisode = episode;
 }
 
@@ -93,8 +93,9 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectStage(TApplication *app) {
         auto *director = new TMarDirector();
         app->mDirector = director;
 
-        bool skipLoop = director->setup(app->mDisplay, &app->mGamePads[0], app->mCurrentScene.mAreaID,
-                                        app->mCurrentScene.mEpisodeID) != 0;
+        bool skipLoop =
+            director->setup(app->mDisplay, &app->mGamePads[0], app->mCurrentScene.mAreaID,
+                            app->mCurrentScene.mEpisodeID) != 0;
 
         if (skipLoop)
             app->mContext = TApplication::CONTEXT_GAME_INTRO;
@@ -159,7 +160,8 @@ void BetterApplicationProcess(TApplication *app) {
     u8 delayContext = 1;
     do {
         Application::ContextCallback cb = sContextCBs[app->mContext];
-        SMS_ASSERT(cb, "Application attempted to fetch context handler %u but it wasn't found!", app->mContext);
+        SMS_ASSERT(cb, "Application attempted to fetch context handler %u but it wasn't found!",
+                   app->mContext);
 
         exitLoop = (*cb)(app);
         if (!exitLoop) {
@@ -174,10 +176,10 @@ void BetterApplicationProcess(TApplication *app) {
         if (app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
                 app->initialize_nlogoAfter();
-                #if 1
+#if 1
                 if (BetterSMS::isDebugMode())
                     delayContext = TApplication::CONTEXT_DIRECT_LEVEL_SELECT;
-                #endif
+#endif
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
@@ -205,23 +207,23 @@ void BetterApplicationProcess(TApplication *app) {
                     app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
                     app->mContext = TApplication::CONTEXT_GAME_SHUTDOWN;
                 } else if (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN) {
-                    #if 1
+#if 1
                     delayContext = BetterSMS::isDebugMode()
-                                        ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
-                                        : TApplication::CONTEXT_GAME_INTRO;
-                    #else
+                                       ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
+                                       : TApplication::CONTEXT_GAME_INTRO;
+#else
                     delayContext = TApplication::CONTEXT_GAME_INTRO;
-                    #endif
+#endif
                     gpCardManager->unmount();
                 }
             }
         }
 
-        app->mContext      = delayContext;
+        app->mContext = delayContext;
 
         // This fixes the secret area movies destroying previous scene data
         if (sIsAdditionalMovie) {
-			sIsAdditionalMovie = false;
+            sIsAdditionalMovie = false;
         } else {
             app->mPrevScene    = app->mCurrentScene;
             app->mCurrentScene = app->mNextScene;

@@ -1,7 +1,6 @@
-#include <SMS/macros.h>
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/Manager/ItemManager.hxx>
-
+#include <SMS/macros.h>
 
 #include "module.hxx"
 
@@ -37,8 +36,9 @@ static size_t maybeSpawn100CoinShine(TFlagManager *manager) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80294664, 0, 0, 0), maybeSpawn100CoinShine);
 SMS_WRITE_32(SMS_PORT_REGION(0x801BED44, 0, 0, 0), 0x4800004C);
 
-
 // STATIC RESETTER
-BETTER_SMS_FOR_EXPORT void patches_staticResetter(TMarDirector *director) { sIs100ShineSpawned = TFlagManager::smInstance->getFlag(0x40002) > 99; }
+BETTER_SMS_FOR_EXPORT void patches_staticResetter(TMarDirector *director) {
+    sIs100ShineSpawned = TFlagManager::smInstance->getFlag(0x40002) > 99;
+}
 
 #endif

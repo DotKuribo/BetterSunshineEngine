@@ -1,10 +1,10 @@
 #include <Dolphin/types.h>
+#include <SMS/Map/BGCheck.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/Player/MarioGamePad.hxx>
-#include <SMS/Map/BGCheck.hxx>
 
-#include "p_globals.hxx"
 #include "module.hxx"
+#include "p_globals.hxx"
 
 static u8 sHomeID   = 0;
 static u8 sTargetID = 254;

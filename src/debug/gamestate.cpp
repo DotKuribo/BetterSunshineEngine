@@ -164,7 +164,8 @@ BETTER_SMS_FOR_CALLBACK void updateGameStateMonitor(TApplication *app) {
              gpMarioAddress->mRotation.y, gpMarioAddress->mRotation.z, gpMarioAddress->mSpeed.x,
              gpMarioAddress->mSpeed.y, gpMarioAddress->mSpeed.z, gpMarioAddress->mForwardSpeed,
              gpMarioAddress->mState, gpMarioAddress->mActionState,
-             *reinterpret_cast<u32 *>(&gpMarioAddress->mAttributes), gpMarioAddress->mAnimationID, gpMarioAddress->mModelData->mFrameCtrl->mFrameRate);
+             *reinterpret_cast<u32 *>(&gpMarioAddress->mAttributes), gpMarioAddress->mAnimationID,
+             gpMarioAddress->mModelData->mFrameCtrl->mFrameRate);
 
     snprintf(sWorldStringBuffer, 300,
              "World Stats:\n"
@@ -199,7 +200,7 @@ BETTER_SMS_FOR_CALLBACK void updateGameStateMonitor(TApplication *app) {
              "Camera Stats:\n"
              "  Position:   %.02f, %.02f, %.02f\n"
              "  Rotation:   %.02f, %.02f, %.02f\n"
-             "  Aspect:     %.02f\n" 
+             "  Aspect:     %.02f\n"
              "  FOV:        %.02f\n",
              gpCamera->mTranslation.x, gpCamera->mTranslation.y, gpCamera->mTranslation.z,
              camRotation.x, camRotation.y, camRotation.z, gpCamera->mProjectionAspect,
