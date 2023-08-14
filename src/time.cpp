@@ -11,62 +11,8 @@ BETTER_SMS_FOR_EXPORT const char *BetterSMS::Time::buildDate() { return __DATE__
 BETTER_SMS_FOR_EXPORT const char *BetterSMS::Time::buildTime() { return __TIME__; }
 BETTER_SMS_FOR_EXPORT OSTime BetterSMS::Time::ostime() { return OSGetTime(); }
 
-BETTER_SMS_FOR_EXPORT void BetterSMS::Time::calendarTime(OSCalendarTime &result) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Time::getCalendar(OSCalendarTime &result) {
     return OSTicksToCalendarTime(ostime(), &result);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Time::date(char *dst) {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    calendarToDate(dst, sCalendar);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Time::time(char *dst) {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    calendarToTime(dst, sCalendar);
-}
-
-BETTER_SMS_FOR_EXPORT u16 BetterSMS::Time::nanosecond() {
-    return OSTicksToNanoseconds(OSGetTime());
-}
-
-BETTER_SMS_FOR_EXPORT u16 BetterSMS::Time::microsecond() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.usec;
-}
-
-BETTER_SMS_FOR_EXPORT u16 BetterSMS::Time::millisecond() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.msec;
-}
-
-BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::second() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.sec;
-}
-
-BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::minute() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.usec;
-}
-
-BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::hour() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.hour;
-}
-
-BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::day() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.mday;
-}
-
-BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::month() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.mon;
-}
-
-BETTER_SMS_FOR_EXPORT u8 BetterSMS::Time::year() {
-    OSTicksToCalendarTime(OSGetTime(), &sCalendar);
-    return sCalendar.year;
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Time::calendarToDate(char *dst, const OSCalendarTime &calendar) {

@@ -70,13 +70,6 @@ bool BetterSMS::registerModule(const ModuleInfo *info) {
 }
 void BetterSMS::deregisterModule(const ModuleInfo *info) { gModuleInfos.erase(info->mName); }
 
-// mario.cpp
-extern "C" s16 mario_shadowCrashPatch();
-
-// shine.cpp
-extern "C" void shine_animationFreezeCheck();
-extern "C" void shine_thinkCloseCamera();
-
 // ================================= //
 
 using namespace BetterSMS;
@@ -380,16 +373,18 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(
             BetterSMS::Settings::getGroupName,
             "getGroupName__Q29BetterSMS8SettingsFRCQ39BetterSMS8Settings13SettingsGroup");
+        KURIBO_EXPORT_AS(BetterSMS::Settings::mountCard, "mountCard__Q29BetterSMS8SettingsFv");
+        KURIBO_EXPORT_AS(BetterSMS::Settings::unmountCard, "unmountCard__Q29BetterSMS8SettingsFv");
         KURIBO_EXPORT_AS(
-            BetterSMS::Settings::LoadSettingsGroup,
-            "LoadSettingsGroup__Q29BetterSMS8SettingsFRQ39BetterSMS8Settings13SettingsGroup");
+            BetterSMS::Settings::loadSettingsGroup,
+            "loadSettingsGroup__Q29BetterSMS8SettingsFRQ39BetterSMS8Settings13SettingsGroup");
         KURIBO_EXPORT_AS(
-            BetterSMS::Settings::SaveSettingsGroup,
-            "SaveSettingsGroup__Q29BetterSMS8SettingsFRQ39BetterSMS8Settings13SettingsGroup");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::LoadAllSettings,
-                         "LoadAllSettings__Q29BetterSMS8SettingsFv");
-        KURIBO_EXPORT_AS(BetterSMS::Settings::SaveAllSettings,
-                         "SaveAllSettings__Q29BetterSMS8SettingsFv");
+            BetterSMS::Settings::saveSettingsGroup,
+            "saveSettingsGroup__Q29BetterSMS8SettingsFRQ39BetterSMS8Settings13SettingsGroup");
+        KURIBO_EXPORT_AS(BetterSMS::Settings::loadAllSettings,
+                         "loadAllSettings__Q29BetterSMS8SettingsFv");
+        KURIBO_EXPORT_AS(BetterSMS::Settings::saveAllSettings,
+                         "saveAllSettings__Q29BetterSMS8SettingsFv");
 
         /* APPLICATION */
         KURIBO_EXPORT_AS(BetterSMS::Application::isContextRegistered,
@@ -553,24 +548,13 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         /* TIME */
         KURIBO_EXPORT_AS(BetterSMS::Time::buildDate, "buildDate__Q29BetterSMS4TimeFv");
         KURIBO_EXPORT_AS(BetterSMS::Time::buildTime, "buildTime__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::calendarTime,
-                         "calendarTime__Q29BetterSMS4TimeFR14OSCalendarTime");
+        KURIBO_EXPORT_AS(BetterSMS::Time::getCalendar,
+                         "getCalendar__Q29BetterSMS4TimeFR14OSCalendarTime");
         KURIBO_EXPORT_AS(BetterSMS::Time::calendarToDate,
                          "calendarToDate__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
         KURIBO_EXPORT_AS(BetterSMS::Time::calendarToTime,
                          "calendarToTime__Q29BetterSMS4TimeFPcRC14OSCalendarTime");
-        KURIBO_EXPORT_AS(BetterSMS::Time::date, "date__Q29BetterSMS4TimeFPc");
-        KURIBO_EXPORT_AS(BetterSMS::Time::day, "day__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::hour, "hour__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::microsecond, "microsecond__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::millisecond, "millisecond__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::minute, "minute__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::month, "month__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::nanosecond, "nanosecond__Q29BetterSMS4TimeFv");
         KURIBO_EXPORT_AS(BetterSMS::Time::ostime, "ostime__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::second, "second__Q29BetterSMS4TimeFv");
-        KURIBO_EXPORT_AS(BetterSMS::Time::time, "time__Q29BetterSMS4TimeFPc");
-        KURIBO_EXPORT_AS(BetterSMS::Time::year, "year__Q29BetterSMS4TimeFv");
 
         /* CTYPE */
         KURIBO_EXPORT(isxdigit);
@@ -586,6 +570,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT(isalnum);
 
         /* MATH */
+        KURIBO_EXPORT(log);
         KURIBO_EXPORT(sqrtf);
 
         /* STRLIB */

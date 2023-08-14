@@ -62,9 +62,10 @@ namespace BetterSMS {
             virtual ~SingleSetting() {}
 
             virtual bool isUnlocked() const { return true; }
+            virtual bool getValueDescription(char *dst) { return false; }
 
             virtual ValueKind getKind() const             = 0;
-            virtual void getValueStr(char *dst) const     = 0;
+            virtual void getValueName(char *dst) const    = 0;
             virtual void setValue(const void *val) const  = 0;
             virtual void prevValue()                      = 0;
             virtual void nextValue()                      = 0;
@@ -138,7 +139,7 @@ namespace BetterSMS {
             ~BoolSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::BOOL; }
-            void getValueStr(char *dst) const override {
+            void getValueName(char *dst) const override {
                 getBool() ? strncpy(dst, "TRUE", 5) : strncpy(dst, "FALSE", 6);
             }
             void setValue(const void *val) const override {
@@ -160,7 +161,7 @@ namespace BetterSMS {
             SwitchSetting(const char *name, void *valuePtr) : BoolSetting(name, valuePtr) {}
             ~SwitchSetting() override {}
 
-            void getValueStr(char *dst) const override {
+            void getValueName(char *dst) const override {
                 getBool() ? strncpy(dst, "ON", 3) : strncpy(dst, "OFF", 4);
             }
         };
@@ -173,7 +174,7 @@ namespace BetterSMS {
             ~IntSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::INT; }
-            void getValueStr(char *dst) const override { snprintf(dst, 11, "%i", getInt()); }
+            void getValueName(char *dst) const override { snprintf(dst, 11, "%i", getInt()); }
             void setValue(const void *val) const override {
                 *reinterpret_cast<int *>(mValuePtr) = *reinterpret_cast<const int *>(val);
             }
@@ -217,7 +218,7 @@ namespace BetterSMS {
             ~FloatSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::FLOAT; }
-            void getValueStr(char *dst) const override { snprintf(dst, 16, "%f", getFloat()); }
+            void getValueName(char *dst) const override { snprintf(dst, 16, "%f", getFloat()); }
             void setValue(const void *val) const override {
                 *reinterpret_cast<float *>(mValuePtr) = *reinterpret_cast<const float *>(val);
             }
@@ -338,12 +339,12 @@ namespace BetterSMS {
             Priority mOrderPriority;
         };
 
-        s32 MountCard();
-        s32 UnmountCard();
-        s32 SaveSettingsGroup(SettingsGroup &group);
-        s32 LoadSettingsGroup(SettingsGroup &group);
-        bool SaveAllSettings();
-        bool LoadAllSettings();
+        s32 mountCard();
+        s32 unmountCard();
+        s32 saveSettingsGroup(SettingsGroup &group);
+        s32 loadSettingsGroup(SettingsGroup &group);
+        bool saveAllSettings();
+        bool loadAllSettings();
 #pragma endregion
     }  // namespace Settings
 }  // namespace BetterSMS

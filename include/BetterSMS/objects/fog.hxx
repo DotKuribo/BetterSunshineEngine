@@ -1,5 +1,5 @@
-#include <Dolphin/types.h>
 #include <Dolphin/GX.h>
+#include <Dolphin/types.h>
 
 #include <JSystem/JAudio/JAISound.hxx>
 #include <JSystem/JDrama/JDRActor.hxx>
@@ -14,13 +14,11 @@ public:
     }
 
     TSimpleFog(const char *name)
-        : TActor(name), mType(1), mColor(), mStartZ(0.0f), mEndZ(20000.0f),
-          mNearZ(10.0f), mFarZ(300000.0f) {
+        : TActor(name), mType(1), mColor(), mStartZ(0.0f), mEndZ(20000.0f), mNearZ(10.0f),
+          mFarZ(300000.0f) {
         mColor = {255, 255, 255, 255};
     }
-    virtual ~TSimpleFog() override {
-
-    }
+    virtual ~TSimpleFog() override {}
 
     void load(JSUMemoryInputStream &in) override;
     void perform(u32 flags, JDrama::TGraphics *) override;

@@ -576,7 +576,7 @@ private:
                 mCurrentSettingInfo->mSettingData->nextValue();
                 {
                     char valueTextBuf[40];
-                    mCurrentSettingInfo->mSettingData->getValueStr(valueTextBuf);
+                    mCurrentSettingInfo->mSettingData->getValueName(valueTextBuf);
 
                     snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
                              mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
@@ -588,7 +588,7 @@ private:
                 mCurrentSettingInfo->mSettingData->prevValue();
                 {
                     char valueTextBuf[40];
-                    mCurrentSettingInfo->mSettingData->getValueStr(valueTextBuf);
+                    mCurrentSettingInfo->mSettingData->getValueName(valueTextBuf);
 
                     snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
                              mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
@@ -800,7 +800,7 @@ public:
     }
     ~SoundSetting() override {}
 
-    void getValueStr(char *dst) const override {
+    void getValueName(char *dst) const override {
         switch (getInt()) {
         case Kind::MONO: 
             strncpy(dst, "MONO", 5);
@@ -836,7 +836,7 @@ public:
     }
     ~AspectRatioSetting() override {}
 
-    void getValueStr(char *dst) const override {
+    void getValueName(char *dst) const override {
         switch (getInt()) {
         default:
         case Kind::FULL:
@@ -867,7 +867,7 @@ public:
     }
     ~ViewportSetting() override {}
 
-    void getValueStr(char *dst) const override {
+    void getValueName(char *dst) const override {
         switch (getInt()) {
         default:
         case Kind::SMS:
@@ -895,7 +895,7 @@ public:
     }
     ~FPSSetting() override {}
 
-    void getValueStr(char *dst) const override {
+    void getValueName(char *dst) const override {
         switch (getInt()) {
         default:
         case Kind::FPS_30:
@@ -918,12 +918,12 @@ class SavePromptsSetting final : public Settings::IntSetting {
 public:
     enum Kind { ALL, NO_BLUE, NONE, AUTO_SAVE };
 
-    SavePromptsSetting(const char *name) : IntSetting(name, &mPromptsValue), mPromptsValue(AUTO_SAVE) {
+    SavePromptsSetting(const char *name) : IntSetting(name, &mPromptsValue), mPromptsValue(NO_BLUE) {
         mValueRange = {0, 3, 1};
     }
     ~SavePromptsSetting() override {}
 
-    void getValueStr(char *dst) const override {
+    void getValueName(char *dst) const override {
         switch (getInt()) {
         default:
         case Kind::ALL:

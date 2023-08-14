@@ -55,7 +55,7 @@ BETTER_SMS_FOR_EXPORT const char *Settings::getGroupName(const Settings::Setting
     return group.mModule->mName;
 }
 
-BETTER_SMS_FOR_EXPORT s32 Settings::MountCard() {
+BETTER_SMS_FOR_EXPORT s32 Settings::mountCard() {
     sIsMounted = true;
 
     s32 check;
@@ -88,12 +88,12 @@ BETTER_SMS_FOR_EXPORT s32 Settings::MountCard() {
     return check;
 }
 
-BETTER_SMS_FOR_EXPORT s32 Settings::UnmountCard() {
+BETTER_SMS_FOR_EXPORT s32 Settings::unmountCard() {
     sIsMounted = false;
     return CARDUnmount(sChannel);
 }
 
-BETTER_SMS_FOR_EXPORT s32 Settings::SaveSettingsGroup(Settings::SettingsGroup &group) {
+BETTER_SMS_FOR_EXPORT s32 Settings::saveSettingsGroup(Settings::SettingsGroup &group) {
     CARDFileInfo finfo;
     s32 ret = OpenSavedSettings(group, finfo);
     if (ret < CARD_ERROR_READY) {
@@ -113,7 +113,7 @@ BETTER_SMS_FOR_EXPORT s32 Settings::SaveSettingsGroup(Settings::SettingsGroup &g
     return CloseSavedSettings(group, &finfo);
 }
 
-BETTER_SMS_FOR_EXPORT s32 Settings::LoadSettingsGroup(Settings::SettingsGroup &group) {
+BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &group) {
     CARDFileInfo finfo;
 
     int ret = OpenSavedSettings(group, finfo);
@@ -134,24 +134,24 @@ BETTER_SMS_FOR_EXPORT s32 Settings::LoadSettingsGroup(Settings::SettingsGroup &g
     return CloseSavedSettings(group, &finfo);
 }
 
-BETTER_SMS_FOR_EXPORT bool Settings::SaveAllSettings() {
+BETTER_SMS_FOR_EXPORT bool Settings::saveAllSettings() {
     TGlobalVector<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        if (SaveSettingsGroup(*group) < CARD_ERROR_READY)
+        if (saveSettingsGroup(*group) < CARD_ERROR_READY)
             return false;
     }
 
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool Settings::LoadAllSettings() {
+BETTER_SMS_FOR_EXPORT bool Settings::loadAllSettings() {
     TGlobalVector<Settings::SettingsGroup *> groups;
     getSettingsGroups(groups);
 
     for (auto &group : groups) {
-        if (LoadSettingsGroup(*group) < CARD_ERROR_READY)
+        if (loadSettingsGroup(*group) < CARD_ERROR_READY)
             return false;
     }
 
@@ -213,7 +213,7 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     sSunshineSettingsGroup.addSetting(&sSubtitleSetting);
 
     InitCard();
-    if (Settings::MountCard() < CARD_ERROR_READY)
+    if (Settings::mountCard() < CARD_ERROR_READY)
         return;
 
     for (auto &init : gModuleInfos) {
@@ -221,10 +221,10 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
         if (!settingsGroup)  // No settings registered
             continue;
 
-        Settings::LoadSettingsGroup(*settingsGroup);
+        Settings::loadSettingsGroup(*settingsGroup);
     }
 
-    Settings::UnmountCard();
+    Settings::unmountCard();
 }
 
 void InitCard() { CARDInit(); }
@@ -418,15 +418,15 @@ s32 SaveAllSettings() {
     }
 
     {
-        s32 cardStatus = Settings::MountCard();
+        s32 cardStatus = Settings::mountCard();
 
         if (cardStatus < CARD_ERROR_READY) {
             return cardStatus;
         }
 
-        Settings::SaveAllSettings();
+        Settings::saveAllSettings();
 
-        Settings::UnmountCard();
+        Settings::unmountCard();
     }
 
     return CARD_ERROR_READY;
@@ -756,7 +756,7 @@ void SettingsDirector::initializeSettingsLayout() {
                 "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
                 char valueTextbuf[40];
-                setting->getValueStr(valueTextbuf);
+                setting->getValueName(valueTextbuf);
 
                 char *settingTextBuf = new char[100];
                 memset(settingTextBuf, 0, 100);
@@ -945,7 +945,7 @@ void SettingsDirector::saveSettings_() {
     }
 
     {
-        s32 cardStatus = Settings::MountCard();
+        s32 cardStatus = Settings::mountCard();
 
         if (cardStatus < CARD_ERROR_READY) {
             failSave(cardStatus);
@@ -957,9 +957,9 @@ void SettingsDirector::saveSettings_() {
         TGlobalVector<Settings::SettingsGroup *> groups;
         getSettingsGroups(groups);
 
-        Settings::SaveAllSettings();
+        Settings::saveAllSettings();
 
-        Settings::UnmountCard();
+        Settings::unmountCard();
     }
 
     mState     = State::SAVE_SUCCESS;
@@ -968,7 +968,7 @@ void SettingsDirector::saveSettings_() {
 }
 
 void SettingsDirector::failSave(int errorcode) {
-    Settings::UnmountCard();
+    Settings::unmountCard();
     mSaveErrorPanel->switchScreen();
     mErrorCode = errorcode;
     strncpy(sErrorTag, getErrorString(errorcode), 64);
