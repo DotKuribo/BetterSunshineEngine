@@ -38,10 +38,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x800066E4, 0x800066E4, 0, 0), setBoidSpeed);
 static f32 getAnimalBirdSpeed() {
     return BetterSMS::getFrameRate() / SMS_PORT_REGION(30.0f, 25.0f, 30.0f, 30.0f);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8000ceb0, 0, 0, 0), getAnimalBirdSpeed);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8000d1d8, 0, 0, 0), getAnimalBirdSpeed);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8000d1f8, 0, 0, 0), getAnimalBirdSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8000CEB0, 0, 0, 0), getAnimalBirdSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8000D1D8, 0, 0, 0), getAnimalBirdSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8000D1F8, 0, 0, 0), getAnimalBirdSpeed);
 
 // Sandbird has the same problem
-SMS_PATCH_BL(SMS_PORT_REGION(0x801f76a8, 0, 0, 0), getAnimalBirdSpeed);
-SMS_PATCH_BL(SMS_PORT_REGION(0x801f76c4, 0, 0, 0), getAnimalBirdSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F76A8, 0, 0, 0), getAnimalBirdSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F76C4, 0, 0, 0), getAnimalBirdSpeed);
