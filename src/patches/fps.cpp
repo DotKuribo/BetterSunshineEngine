@@ -41,3 +41,7 @@ static f32 getAnimalBirdSpeed() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000ceb0, 0, 0, 0), getAnimalBirdSpeed);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000d1d8, 0, 0, 0), getAnimalBirdSpeed);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000d1f8, 0, 0, 0), getAnimalBirdSpeed);
+
+// Sandbird has the same problem
+SMS_PATCH_BL(SMS_PORT_REGION(0x801f76a8, 0, 0, 0), getAnimalBirdSpeed);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801f76c4, 0, 0, 0), getAnimalBirdSpeed);
