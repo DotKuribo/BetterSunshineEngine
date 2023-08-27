@@ -13,7 +13,11 @@ static TMapObjTree *getLeafCount(TMapObjTree *tree) {
     char cacheBuffer[128];
     char buffer[128];
 
-    snprintf(cacheBuffer, 96, "/scene/MapObj/%sLeaf", tree->mRegisterName);
+    if (strcmp(tree->mRegisterName, "palmleaf")) {
+      snprintf(cacheBuffer, 90, "/scene/mapobj/palmleaf");
+    } else {
+      snprintf(cacheBuffer, 90, "/scene/mapobj/%sleaf", tree->mRegisterName);
+    }
     strcat(cacheBuffer, "%02d.col");
 
     s32 num             = 0;
