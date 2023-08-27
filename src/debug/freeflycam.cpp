@@ -206,7 +206,7 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
 
  static bool isSimpleCamera(u32 r3, bool isSimple) {
      if (gDebugState != DebugState::CAM_MODE)
-         return false;
-     return isSimple;
+         return isSimple;
+     return false;
  }
  SMS_PATCH_B(SMS_PORT_REGION(0x80032934, 0, 0, 0), isSimpleCamera);
