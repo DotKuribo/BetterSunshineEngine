@@ -171,8 +171,9 @@ namespace BetterSMS {
     BugsSetting *getExploitFixesSetting();
     CollisionFixesSetting *getCollisionFixesSetting();
 
-    // Necessary for dynamic linking (If a declaration is used instead, it crashes when the module isn't present)
+    // Necessary for dynamic linking (If a declaration is used instead, it crashes when the module
+    // isn't present)
     template <typename T = void> inline T getExportedFunctionPointer(const char *symbol) {
-        return pp::Import(symbol);
+        return reinterpret_cast<T>(pp::Import(symbol));
     }
 }  // namespace BetterSMS
