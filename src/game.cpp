@@ -94,9 +94,7 @@ void gameInitCallbackHandler(TApplication *app) {
 
 // extern -> custom app proc
 void gameBootCallbackHandler(TApplication *app) {
-    OSReport("Auuugh! I'm hit!\n");
     for (auto &item : sGameBootCBs) {
-        OSReport("Name: %s\n", item.first.c_str());
         item.second(&gpApplication);
     }
 }
@@ -122,8 +120,6 @@ s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), gameLoopCallbackHandler);
 
 void gameDrawCallbackHandler() {
-    ReInitializeGX();
-
     J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), 448);
     ortho.setup2D();
 
