@@ -407,6 +407,7 @@ s32 SaveAllSettings() {
         while (gpCardManager->mCommand == TCardManager::GETBOOKMARKS) {
             SMS_ASM_BLOCK("");  // Wait for save to finish
         }
+
         JSUMemoryOutputStream out(nullptr, 0);
         gpCardManager->getWriteStream(&out);
         TFlagManager::smInstance->save(out);
@@ -415,18 +416,27 @@ s32 SaveAllSettings() {
             SMS_ASM_BLOCK("");  // Wait for save to finish
         }
         gpCardManager->unmount();
+        TFlagManager::smInstance->saveSuccess();
     }
 
     {
         s32 cardStatus = Settings::mountCard();
-
-        if (cardStatus < CARD_ERROR_READY) {
-            return cardStatus;
+        {
+            if (cardStatus < CARD_ERROR_READY) {
+                return cardStatus;
+            }
+            Settings::saveAllSettings();
+            Settings::unmountCard();
         }
 
-        Settings::saveAllSettings();
+        gpCardManager->mount_(true);
+    }
 
-        Settings::unmountCard();
+    {
+        JSUMemoryOutputStream out(nullptr, 0);
+        gpCardManager->getOptionWriteStream(&out);
+        TFlagManager::smInstance->saveOption(out);
+        gpCardManager->writeOptionBlock();
     }
 
     return CARD_ERROR_READY;
@@ -913,8 +923,6 @@ void *SettingsDirector::saveThreadFunc(void *data) {
     return nullptr;
 }
 
-static char sSaveThreadStack[0x4000];
-
 void SettingsDirector::saveSettings() {
     OSCreateThread(&gSetupThread, saveThreadFunc, this, gpSetupThreadStack + 0x10000, 0x10000, 17,
                    0);
@@ -961,6 +969,8 @@ void SettingsDirector::saveSettings_() {
 
         Settings::unmountCard();
     }
+
+    gpCardManager->mount_(true);
 
     mState     = State::SAVE_SUCCESS;
     mErrorCode = CARD_ERROR_READY;

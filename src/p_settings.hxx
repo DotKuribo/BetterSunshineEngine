@@ -916,7 +916,7 @@ public:
     enum Kind { ALL, NO_BLUE, NONE, AUTO_SAVE };
 
     SavePromptsSetting(const char *name)
-        : IntSetting(name, &mPromptsValue), mPromptsValue(NO_BLUE) {
+        : IntSetting(name, &mPromptsValue), mPromptsValue(AUTO_SAVE) {
         mValueRange = {0, 3, 1};
     }
     ~SavePromptsSetting() override {}
