@@ -34,8 +34,8 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
     {
         auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
-        const u32 scenePaneIDs[] = {-1,     -1,     'bh_0', 'rc_0', 'mm_0',
-                                    'yi_0', 'sr_0', 'mo_0', 'mr_0', -1};
+        const u32 scenePaneIDs[] = {0xFFFFFFFF, 0xFFFFFFFF, 'bh_0', 'rc_0', 'mm_0',
+                                    'yi_0',     'sr_0',     'mo_0', 'mr_0', 0xFFFFFFFF};
 
         for (int i = 0; i < 10; ++i) {
             auto info                = new BetterSMS::Stage::AreaInfo;
@@ -119,8 +119,8 @@ static TBoundPane *constructBoundPaneForSelectScreen(TBoundPane *pane, J2DScreen
     return (TBoundPane *)__ct__10TBoundPaneFP9J2DScreenUl(
         pane, screen, sAreaInfos[menu->mAreaID].mShineSelectPaneID);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80174D88, 0, 0, 0), getShineFlagForSelectScreen);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80174DD0, 0, 0, 0), getShineFlagForSelectScreen);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80174D88, 0, 0, 0), constructBoundPaneForSelectScreen);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80174DD0, 0, 0, 0), constructBoundPaneForSelectScreen);
 
 static bool getShineFlagForSelectScreen() {
     TSelectMenu *menu;
