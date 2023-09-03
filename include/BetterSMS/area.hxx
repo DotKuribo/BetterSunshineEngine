@@ -15,6 +15,7 @@ namespace BetterSMS {
             JGadget::TVector<u8> mExScenarioIDs;
             JGadget::TVector<u8> mScenarioNameIDs;
             JGadget::TVector<u8> mExScenarioNameIDs;
+            u32 mShineSelectPaneID;
         };
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);

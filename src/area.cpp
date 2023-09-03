@@ -34,8 +34,11 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
     {
         auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
+        const u32 scenePaneIDs[] = {-1, -1, 'bh_0', 'rc_0', 'mm_0', 'yi_0', 'sr_0', 'mo_0', 'mr_0', -1};
+
         for (int i = 0; i < 10; ++i) {
             auto info = new BetterSMS::Stage::AreaInfo;
+            info->mShineSelectPaneID = scenePaneIDs[i];
             if (baseGameShineTable[i]) {
                 info->mShineStageID  = baseGameStageTable[i];
                 info->mNormalStageID = baseGameNormalStageTable[i];
@@ -99,11 +102,17 @@ static s32 SMS_getShineStage(u32 stageID) {
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x80175AF8, 0, 0, 0), SMS_getShineID);
 
+static void* constructPaneForSelectScreen(void *pane, J2DScreen *screen) {
+    TSelectMenu *menu;
+    SMS_FROM_GPR(31, menu);
+
+
+}
+
 static bool getShineFlagForSelectScreen() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
- 
     int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), menu->mEpisodeID, false);
     if (shineID == -1) {
         return false;
@@ -111,7 +120,11 @@ static bool getShineFlagForSelectScreen() {
 
     return TFlagManager::smInstance->getShineFlag(shineID);
 }
+SMS_WRITE_32(SMS_PORT_REGION(0x80174B40, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174B44, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174B48, 0, 0, 0), getShineFlagForSelectScreen);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174B8C, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174B90, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174B94, 0, 0, 0), getShineFlagForSelectScreen);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174E58, 0, 0, 0), getShineFlagForSelectScreen);
 
@@ -124,8 +137,8 @@ static const char *getScenarioNameForSelectScreen() {
         return nullptr;
     }
 
-    return (const char *)SMSGetMessageData__FPvUl(menu->mScenarioBMGData,
-                                                  sAreaInfos[stageID].mScenarioNameIDs[menu->mEpisodeID]);
+    return (const char *)SMSGetMessageData__FPvUl(
+        menu->mScenarioBMGData, sAreaInfos[stageID].mScenarioNameIDs[menu->mEpisodeID]);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017539C, 0, 0, 0), getScenarioNameForSelectScreen);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017398c, 0, 0, 0), getScenarioNameForSelectScreen);

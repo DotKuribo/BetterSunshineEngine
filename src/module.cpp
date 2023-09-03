@@ -8,6 +8,7 @@
 
 // BetterSMS API
 #include "application.hxx"
+#include "area.hxx"
 #include "bmg.hxx"
 #include "cstd/ctype.h"
 #include "cstd/stdlib.h"
@@ -533,6 +534,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "deregisterChangeCallback__Q29BetterSMS4GameFPCc");
 
         /* STAGE */
+        KURIBO_EXPORT_AS(BetterSMS::Stage::registerStageInfo,
+                         "registerStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterStageInfo,
+                         "deregisterStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageConfiguration,
                          "getStageConfiguration__Q29BetterSMS5StageFv");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerInitCallback,
