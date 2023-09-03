@@ -9,9 +9,12 @@
 namespace BetterSMS {
     namespace Stage {
         struct AreaInfo {
-            //u8 mShineStageID;
+            s32 mShineStageID;
+            s32 mNormalStageID;
             JGadget::TVector<u8> mScenarioIDs;
             JGadget::TVector<u8> mExScenarioIDs;
+            JGadget::TVector<u8> mScenarioNameIDs;
+            JGadget::TVector<u8> mExScenarioNameIDs;
         };
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);

@@ -179,6 +179,9 @@ extern void initAutoSaveIcon(TApplication *);
 extern void updateAutoSaveIcon(TApplication *);
 extern void drawAutoSaveIcon(TApplication *, const J2DOrthoGraph *);
 
+// STAGES
+extern void initAreaInfo(TApplication *);
+
 extern void patches_staticResetter(TMarDirector *);
 
 // ================================= //
@@ -329,6 +332,9 @@ static void initLib() {
 
     // PATCHES
     Stage::registerInitCallback("__init_shine_100_resetter", patches_staticResetter);
+
+    // STAGE
+    Game::registerBootCallback("__init_area_info", initAreaInfo);
 
     PowerPC::writeU32(
         reinterpret_cast<u32 *>(0x802A7454),
