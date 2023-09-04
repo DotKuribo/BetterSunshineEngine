@@ -539,9 +539,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterStageInfo,
                          "deregisterStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerExStageInfo,
-                         "registerExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
+                         "registerExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterExStageInfo,
-                         "deregisterExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
+                         "deregisterExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageConfiguration,
                          "getStageConfiguration__Q29BetterSMS5StageFv");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerInitCallback,
