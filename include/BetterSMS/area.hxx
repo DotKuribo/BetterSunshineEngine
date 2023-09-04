@@ -11,16 +11,16 @@ namespace BetterSMS {
         struct AreaInfo {
             u8 mShineStageID;
             u8 mNormalStageID;
-            JGadget::TVector<u8> mScenarioIDs;
-            JGadget::TVector<u8> mExScenarioIDs;
-            JGadget::TVector<u8> mScenarioNameIDs;
-            JGadget::TVector<u8> mExScenarioNameIDs;
+            JGadget::TVector<s32> mScenarioIDs;
+            JGadget::TVector<s32> mExScenarioIDs;
+            JGadget::TVector<s32> mScenarioNameIDs;
+            JGadget::TVector<s32> mExScenarioNameIDs;
             u32 mShineSelectPaneID;
         };
 
         struct ExAreaInfo {
             u8 mParentStageID;
-            u8 mShineID;
+            s32 mShineID;
         };
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);

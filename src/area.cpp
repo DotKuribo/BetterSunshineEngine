@@ -118,9 +118,9 @@ SMS_PATCH_B(SMS_PORT_REGION(0x8016FAC0, 0, 0, 0), SMS_getShineID);
 SMS_PATCH_B(SMS_PORT_REGION(0x80175AF8, 0, 0, 0), SMS_getShineID);
 SMS_PATCH_B(SMS_PORT_REGION(0x8017CC6C, 0, 0, 0), SMS_getShineID);
 
-static u8 SMS_getShineIDofExStage(u32 exStageID) {
+static s32 SMS_getShineIDofExStage(u32 exStageID) {
     if (!sExAreaInfos[exStageID])
-        return 0xFF;
+        return -1;
     return sExAreaInfos[exStageID]->mShineID;
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x802a8a98, 0, 0, 0), SMS_getShineIDofExStage);

@@ -12,7 +12,7 @@ using namespace BetterSMS;
 #if BETTER_SMS_EXTRA_SHINES
 
 // 0x80293B10
-static u32 extendShineIDLogic(TFlagManager *flagManager, u32 flagID) {
+static bool extendShineIDLogic(TFlagManager *flagManager, u32 flagID) {
     if ((flagID & 0xFFFF) > 0x77)
         flagID += (0x60040 - 0x78);
     if (flagID > 0x60334)
@@ -59,9 +59,9 @@ SMS_WRITE_32(SMS_PORT_REGION(0x803DEE7C, 0x803D665C, 0, 0), shineFlagGetter);
 
 // 0x802946D4
 static u32 shineSetClamper(TFlagManager *flagManager, u32 flag) {
-    flag &= 0x7FFFF;
-    if (flag >= 0x10078)
-        flag -= 0x10000;
+    flag &= 0xFFFF;
+    if (flag > 0x77)
+        flag += (0x60040 - 0x78);
 
     return flag;
 }
@@ -69,9 +69,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802946D4, 0x8028C4EC, 0, 0), shineSetClamper);
 
 // 0x8029474C
 static u32 shineGetClamper(TFlagManager *flagManager, u32 flag) {
-    flag &= 0x7FFFF;
-    if (flag >= 0x10078)
-        flag -= 0x10000;
+    flag &= 0xFFFF;
+    if (flag > 0x77)
+        flag += (0x60040 - 0x78);
 
     return flagManager->getFlag(flag);
 }
