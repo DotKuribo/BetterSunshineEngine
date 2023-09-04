@@ -5,16 +5,17 @@
 #include <SMS/Manager/FlagManager.hxx>
 
 #include "libs/cheathandler.hxx"
+#include "libs/global_vector.hxx"
 
 namespace BetterSMS {
     namespace Stage {
         struct AreaInfo {
             u8 mShineStageID;
             u8 mNormalStageID;
-            JGadget::TVector<s32> mScenarioIDs;
-            JGadget::TVector<s32> mExScenarioIDs;
-            JGadget::TVector<s32> mScenarioNameIDs;
-            JGadget::TVector<s32> mExScenarioNameIDs;
+            TGlobalVector<s32> mScenarioIDs;
+            TGlobalVector<s32> mExScenarioIDs;
+            TGlobalVector<s32> mScenarioNameIDs;
+            TGlobalVector<s32> mExScenarioNameIDs;
             u32 mShineSelectPaneID;
         };
 
