@@ -161,11 +161,11 @@ static TBoundPane *constructBoundPaneForSelectScreenB(TBoundPane *pane, J2DScree
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174DD0, 0, 0, 0), constructBoundPaneForSelectScreenB);
 
-static bool getShineFlagForSelectScreen() {
+static bool getShineFlagForSelectScreen1() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), menu->mEpisodeID, false);
+    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), 0, false);
     if (shineID == -1) {
         return false;
     }
@@ -174,11 +174,25 @@ static bool getShineFlagForSelectScreen() {
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80174B40, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x80174B44, 0, 0, 0), 0x60000000);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80174B48, 0, 0, 0), getShineFlagForSelectScreen);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80174B48, 0, 0, 0), getShineFlagForSelectScreen1);
+
+static bool getShineFlagForSelectScreen2() {
+    int episodeID;
+    SMS_FROM_GPR(26, episodeID);
+
+    TSelectMenu *menu;
+    SMS_FROM_GPR(31, menu);
+
+    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), episodeID, false);
+    if (shineID == -1) {
+        return false;
+    }
+
+    return TFlagManager::smInstance->getShineFlag(shineID);
+}
 SMS_WRITE_32(SMS_PORT_REGION(0x80174B8C, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x80174B90, 0, 0, 0), 0x60000000);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80174B94, 0, 0, 0), getShineFlagForSelectScreen);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80174E58, 0, 0, 0), getShineFlagForSelectScreen);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80174B94, 0, 0, 0), getShineFlagForSelectScreen2);
 
 static const char *getScenarioNameForSelectScreen() {
     TSelectMenu *menu;

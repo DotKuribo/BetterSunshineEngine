@@ -62,16 +62,21 @@ static u32 shineSetClamper(TFlagManager *flagManager, u32 flag) {
     flag &= 0xFFFF;
     if (flag > 0x77)
         flag += (0x60040 - 0x78);
+    else
+        flag |= 0x10000;
 
     return flag;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802946D4, 0x8028C4EC, 0, 0), shineSetClamper);
+SMS_WRITE_32(SMS_PORT_REGION(0x802946D8, 0x8028C4EC, 0, 0), 0x3BE30000);
 
 // 0x8029474C
 static u32 shineGetClamper(TFlagManager *flagManager, u32 flag) {
     flag &= 0xFFFF;
     if (flag > 0x77)
         flag += (0x60040 - 0x78);
+    else
+        flag |= 0x10000;
 
     return flagManager->getFlag(flag);
 }
