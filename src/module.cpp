@@ -111,6 +111,9 @@ extern void initGameStateMonitor(TApplication *);
 extern void updateGameStateMonitor(TApplication *);
 extern void drawGameStateMonitor(TApplication *, const J2DOrthoGraph *);
 
+// GAME
+extern void extendLightEffectToShineCount(TApplication *app);
+
 // PLAYER WARP
 extern void processWarp(TMario *, bool);
 extern void updateDebugCollision(TMario *, bool);
@@ -244,6 +247,9 @@ static void initLib() {
     Game::registerLoopCallback("__update_auto_save", updateAutoSaveIcon);
     Game::registerPostDrawCallback("__draw_auto_save", drawAutoSaveIcon);
 
+    //// GAME
+    Game::registerBootCallback("__init_shine_state", extendLightEffectToShineCount);
+
 #if 0
     Player::registerUpdateCallback("__debug_warp_collision", updateDebugCollision);
 #endif
@@ -349,6 +355,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         initLib();
 
         // Generate exports
+
+        /* GAME CRITICAL */
+        KURIBO_EXPORT_AS(BetterSMS::Game::getMaxShines, "getMaxShines__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::Game::setMaxShines, "setMaxShines__9BetterSMSFUl");
 
         /* MODULE */
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");

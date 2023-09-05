@@ -7,6 +7,9 @@
 
 namespace BetterSMS {
     namespace Game {
+        size_t getMaxShines();
+        void setMaxShines(size_t maxShines);
+
         typedef void (*InitCallback)(TApplication *);
         typedef void (*BootCallback)(TApplication *);
         typedef void (*LoopCallback)(TApplication *);

@@ -4,12 +4,18 @@
 #include <SMS/MSound/MSBGM.hxx>
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/MoveBG/Shine.hxx>
+#include <SMS/raw_fn.hxx>
 
+#include "game.hxx"
 #include "module.hxx"
 
 using namespace BetterSMS;
 
 #if BETTER_SMS_EXTRA_SHINES
+
+// THIS IS A HACK SINCE BETTERSMS CHANGES THE U8 ARG TO U16
+extern "C" bool getShineFlag__12TFlagManagerFUc(TFlagManager *flagManager, u16 flag);
+extern "C" void setShineFlag__12TFlagManagerFUc(TFlagManager *flagManager, u16 flag);
 
 // 0x80293B10
 static bool extendShineIDLogic(TFlagManager *flagManager, u32 flagID) {
@@ -32,7 +38,7 @@ static void shineFlagSetter(TFlagManager *flagManager, u32 flag, s32 val) {
             const u32 mask = (flag & 7);
             u8 *flagField  = &((u8 *)(&flagManager->Type6Flag) + 0x100)[flag >> 3];
 
-            *flagField &= 1 << mask;
+            *flagField &= ~(1 << mask);
             *flagField |= (val & 1) << mask;
         }
     }
@@ -53,7 +59,7 @@ static u32 shineFlagGetter(TFlagManager *flagManager, u32 flag) {
             return (*flagField >> mask) & 1;
         }
     }
-    return false;
+    return 0;
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x803DEE7C, 0x803D665C, 0, 0), shineFlagGetter);
 
@@ -97,9 +103,18 @@ static void extendFlagManagerSave(JSUMemoryOutputStream &stream) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802939B8, 0x8028B7D0, 0, 0), extendFlagManagerSave);
 
-/*Shine casts, fix light*/
-SMS_WRITE_32(SMS_PORT_REGION(0x80412548, 0x80409A90, 0, 0),
-             static_cast<f32>(BETTER_SMS_MAX_SHINES));
+static void extendLevelSelectReset(TFlagManager *flagManager) {
+    for (u32 i = 0; i < BetterSMS::Game::getMaxShines(); i++) {
+        setShineFlag__12TFlagManagerFUc(flagManager, i);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802A2EDC, 0x8028B7D0, 0, 0), extendLevelSelectReset);
+
+void extendLightEffectToShineCount(TApplication *app) {
+    PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x80412548, 0x80409A90, 0, 0)),
+                      BetterSMS::Game::getMaxShines());
+}
+
 SMS_WRITE_32(SMS_PORT_REGION(0x80293AF8, 0x8028B910, 0, 0), 0x3BFF03E7);
 SMS_WRITE_32(SMS_PORT_REGION(0x802946B8, 0x8028C4D0, 0, 0), 0x280003E7);
 SMS_WRITE_32(SMS_PORT_REGION(0x8017BE78, 0x80171EA8, 0, 0), 0x5464037E);

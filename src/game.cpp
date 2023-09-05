@@ -14,11 +14,20 @@
 
 using namespace BetterSMS;
 
+static size_t sMaxShines = 120;
 static TGlobalUnorderedMap<TGlobalString, Game::InitCallback> sGameInitCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::BootCallback> sGameBootCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::LoopCallback> sGameLoopCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::DrawCallback> sGameDrawCBs(32);
 static TGlobalUnorderedMap<TGlobalString, Game::ChangeCallback> sGameChangeCBs(32);
+
+BETTER_SMS_FOR_EXPORT size_t BetterSMS::Game::getMaxShines() {
+    return sMaxShines;
+}
+
+BETTER_SMS_FOR_EXPORT void BetterSMS::Game::setMaxShines(size_t maxShines) {
+    sMaxShines = maxShines;
+}
 
 // Register a function to be called on game init
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerInitCallback(const char *name,
