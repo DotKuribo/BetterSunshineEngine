@@ -357,8 +357,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         // Generate exports
 
         /* GAME CRITICAL */
-        KURIBO_EXPORT_AS(BetterSMS::Game::getMaxShines, "getMaxShines__9BetterSMSFv");
-        KURIBO_EXPORT_AS(BetterSMS::Game::setMaxShines, "setMaxShines__9BetterSMSFUl");
+        KURIBO_EXPORT_AS(BetterSMS::Game::getMaxShines, "getMaxShines__Q29BetterSMS4GameFv");
+        KURIBO_EXPORT_AS(BetterSMS::Game::setMaxShines, "setMaxShines__Q29BetterSMS4GameFUl");
 
         /* MODULE */
         KURIBO_EXPORT_AS(BetterSMS::getModuleInfo, "getModuleInfo__9BetterSMSFPCc");

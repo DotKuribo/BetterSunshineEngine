@@ -103,9 +103,9 @@ static void extendFlagManagerSave(JSUMemoryOutputStream &stream) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802939B8, 0x8028B7D0, 0, 0), extendFlagManagerSave);
 
-static void extendLevelSelectReset(TFlagManager *flagManager) {
+static void extendLevelSelectReset() {
     for (u32 i = 0; i < BetterSMS::Game::getMaxShines(); i++) {
-        setShineFlag__12TFlagManagerFUc(flagManager, i);
+        setShineFlag__12TFlagManagerFUc(TFlagManager::smInstance, i);
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A2EDC, 0x8028B7D0, 0, 0), extendLevelSelectReset);
