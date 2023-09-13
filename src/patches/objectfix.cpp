@@ -8,5 +8,3 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801b7660, 0, 0, 0), 0x60000000);
 
 //"/scene/mapObj/cogwheel_rope.bti"
 SMS_WRITE_32(SMS_PORT_REGION(0x801b7644, 0, 0, 0), 0x60000000);
-
-
