@@ -341,7 +341,9 @@ static void initLib() {
     Stage::registerInitCallback("__init_shine_100_resetter", patches_staticResetter);
 
     // STAGE
+#if BETTER_SMS_EXTRA_AREAS
     Game::registerBootCallback("__init_area_info", initAreaInfo);
+#endif
 
     PowerPC::writeU32(
         reinterpret_cast<u32 *>(0x802A7454),
@@ -548,10 +550,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "registerStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterStageInfo,
                          "deregisterStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
-        KURIBO_EXPORT_AS(BetterSMS::Stage::registerExStageInfo,
-                         "registerExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
-        KURIBO_EXPORT_AS(BetterSMS::Stage::deregisterExStageInfo,
-                         "deregisterExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Stage::registerExStageInfo,
+            "registerExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Stage::deregisterExStageInfo,
+            "deregisterExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageConfiguration,
                          "getStageConfiguration__Q29BetterSMS5StageFv");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerInitCallback,

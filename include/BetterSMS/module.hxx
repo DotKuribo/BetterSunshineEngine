@@ -18,16 +18,8 @@
 #define BETTER_SMS_VERSION "(unknown version)"
 #endif
 
-#ifndef BETTER_SMS_MAX_SHINES
-#define BETTER_SMS_MAX_SHINES 120
-#else
-#if BETTER_SMS_MAX_SHINES < 1
-#undef BETTER_SMS_MAX_SHINES
-#define BETTER_SMS_MAX_SHINES 1
-#elif BETTER_SMS_MAX_SHINES > 999
-#undef BETTER_SMS_MAX_SHINES
-#define BETTER_SMS_MAX_SHINES 999
-#endif
+#ifndef BETTER_SMS_EXTRA_AREAS
+#define BETTER_SMS_EXTRA_AREAS 1
 #endif
 
 /* Misc compiler info */
