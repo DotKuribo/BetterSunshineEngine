@@ -326,14 +326,14 @@ BETTER_SMS_FOR_CALLBACK void updateFluddNozzle(TApplication *app) {
     sNozzleKind %= 7;
 }
 
-static bool shouldUpdateMarDirector() {
+static bool shouldNotUpdateMarDirector() {
     TMarDirector *director;
     SMS_FROM_GPR(31, director);
 
-    return director->mAreaID != 15 && !BetterSMS::isDebugMode();
+    return director->mAreaID == 15 || (gDebugState != NONE);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80297A48, 0, 0, 0), shouldUpdateMarDirector);
-SMS_WRITE_32(SMS_PORT_REGION(0x80297A4C, 0, 0, 0), 0x28030000);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80297A48, 0, 0, 0), shouldNotUpdateMarDirector);
+SMS_WRITE_32(SMS_PORT_REGION(0x80297A4C, 0, 0, 0), 0x28030001);
 
 static SMS_ASM_FUNC void flagConditionalGameUI() {
     SMS_ASM_BLOCK("lis 12, gIsGameUIActive@ha      \n\t"
