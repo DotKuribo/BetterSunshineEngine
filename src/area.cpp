@@ -342,10 +342,10 @@ const char *loadStageNameFromBMG(void *global_bmg, u32 index) {
     void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
     const char *message;
     if (stage_bmg) {
-        OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
-                                "back to default stage name loading\n");
         message = (const char *)SMSGetMessageData__FPvUl(stage_bmg, 0);
     } else {
+        OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
+                 "back to default stage name loading\n");
         message = (const char *)SMSGetMessageData__FPvUl(global_bmg, index);
     }
     return message ? message : "NO DATA";
