@@ -16,15 +16,10 @@ namespace BetterSMS {
         typedef void (*DrawCallback)(TApplication *, const J2DOrthoGraph *);
         typedef void (*ChangeCallback)(TApplication *);
 
-        bool registerInitCallback(const char *name, InitCallback cb);
-        bool registerBootCallback(const char *name, BootCallback cb);
-        bool registerLoopCallback(const char *name, LoopCallback cb);
-        bool registerPostDrawCallback(const char *name, DrawCallback cb);
-        bool registerChangeCallback(const char *name, ChangeCallback cb);
-        void deregisterInitCallback(const char *name);
-        void deregisterBootCallback(const char *name);
-        void deregisterLoopCallback(const char *name);
-        void deregisterPostDrawCallback(const char *name);
-        void deregisterChangeCallback(const char *name);
+        bool addInitCallback(InitCallback cb);
+        bool addBootCallback(BootCallback cb);
+        bool addLoopCallback(LoopCallback cb);
+        bool addPostDrawCallback(DrawCallback cb);
+        bool addChangeCallback(ChangeCallback cb);
     }  // namespace Game
 };     // namespace BetterSMS

@@ -36,9 +36,9 @@ using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
 static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
-static TGlobalUnorderedMap<TGlobalString, Player::InitCallback> sPlayerInitializers(32);
-static TGlobalUnorderedMap<TGlobalString, Player::LoadAfterCallback> sPlayerLoadAfterCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Player::UpdateCallback> sPlayerUpdaters(32);
+static TGlobalVector<Player::InitCallback> sPlayerInitializers;
+static TGlobalVector<Player::LoadAfterCallback> sPlayerLoadAfterCBs;
+static TGlobalVector<Player::UpdateCallback> sPlayerUpdaters;
 static TGlobalUnorderedMap<u32, Player::MachineCallback> sPlayerStateMachines(32);
 static TGlobalUnorderedMap<u16, Player::CollisionCallback> sPlayerCollisionHandlers(32);
 
@@ -81,27 +81,18 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, con
     dataDict.erase(key);
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerInitCallback(const char *key,
-                                                                   InitCallback process) {
-    if (sPlayerInitializers.find(key) != sPlayerInitializers.end())
-        return false;
-    sPlayerInitializers[key] = process;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addInitCallback(InitCallback process) {
+    sPlayerInitializers.push_back(process);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerLoadAfterCallback(const char *key,
-                                                                        LoadAfterCallback process) {
-    if (sPlayerLoadAfterCBs.find(key) != sPlayerLoadAfterCBs.end())
-        return false;
-    sPlayerLoadAfterCBs[key] = process;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addLoadAfterCallback(LoadAfterCallback process) {
+    sPlayerLoadAfterCBs.push_back(process);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerUpdateCallback(const char *key,
-                                                                     UpdateCallback process) {
-    if (sPlayerUpdaters.find(key) != sPlayerUpdaters.end())
-        return false;
-    sPlayerUpdaters[key] = process;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addUpdateCallback(UpdateCallback process) {
+    sPlayerUpdaters.push_back(process);
     return true;
 }
 
@@ -127,26 +118,6 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerCollisionHandler(u16 colTy
         return false;
     sPlayerCollisionHandlers[colType] = process;
     return true;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterInitCallback(const char *key) {
-    sPlayerInitializers.erase(key);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterLoadAfterCallback(const char *key) {
-    sPlayerLoadAfterCBs.erase(key);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterUpdateCallback(const char *key) {
-    sPlayerUpdaters.erase(key);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterStateMachine(u32 state) {
-    sPlayerStateMachines.erase(state);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterCollisionHandler(u16 colType) {
-    sPlayerCollisionHandlers.erase(colType);
 }
 
 static bool sIsWiping = false;
@@ -677,7 +648,7 @@ static TMario *playerInitHandler(TMario *player) {
     initMario(player, true);
 
     for (auto &item : sPlayerInitializers) {
-        item.second(player, true);
+        item(player, true);
     }
 
     return player;
@@ -693,7 +664,7 @@ static bool shadowMarioInitHandler() {
     initMario(player, false);
 
     for (auto &item : sPlayerInitializers) {
-        item.second(player, false);
+        item(player, false);
     }
 
     return SMS_isMultiPlayerMap__Fv();
@@ -704,14 +675,14 @@ static void playerLoadAfterHandler(TMario *player) {
     player->initMirrorModel();
 
     for (auto &item : sPlayerLoadAfterCBs) {
-        item.second(player);
+        item(player);
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80276BB8, 0, 0, 0), playerLoadAfterHandler);
 
 static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {
-        item.second(player, true);
+        item(player, true);
     }
 
     player->playerControl(graphics);
@@ -720,7 +691,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler)
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {
-        item.second(player, false);
+        item(player, false);
     }
 
     player->playerControl(graphics);

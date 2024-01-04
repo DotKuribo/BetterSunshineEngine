@@ -11,11 +11,8 @@ namespace BetterSMS {
         typedef void (*UpdateCallback)(TApplication *);
         typedef void (*DrawCallback)(TApplication *, const J2DOrthoGraph *);
 
-        bool registerInitCallback(const char *name, InitCallback cb);
-        bool registerUpdateCallback(const char *name, UpdateCallback cb);
-        bool registerDrawCallback(const char *name, DrawCallback cb);
-        void deregisterInitCallback(const char *name);
-        void deregisterUpdateCallback(const char *name);
-        void deregisterDrawCallback(const char *name);
+        bool addInitCallback(InitCallback cb);
+        bool addUpdateCallback(UpdateCallback cb);
+        bool addDrawCallback(DrawCallback cb);
     }  // namespace Debug
 };     // namespace BetterSMS

@@ -11,7 +11,7 @@
 #include <SMS/macros.h>
 
 #include "libs/container.hxx"
-#include "libs/global_unordered_map.hxx"
+#include "libs/global_vector.hxx"
 #include "libs/profiler.hxx"
 #include "libs/string.hxx"
 
@@ -22,10 +22,10 @@
 
 using namespace BetterSMS;
 
-static TGlobalUnorderedMap<TGlobalString, Stage::InitCallback> sStageInitCBs(64);
-static TGlobalUnorderedMap<TGlobalString, Stage::UpdateCallback> sStageUpdateCBs(64);
-static TGlobalUnorderedMap<TGlobalString, Stage::Draw2DCallback> sStageDrawCBs(64);
-static TGlobalUnorderedMap<TGlobalString, Stage::ExitCallback> sStageExitCBs(64);
+static TGlobalVector<Stage::InitCallback> sStageInitCBs;
+static TGlobalVector<Stage::UpdateCallback> sStageUpdateCBs;
+static TGlobalVector<Stage::Draw2DCallback> sStageDrawCBs;
+static TGlobalVector<Stage::ExitCallback> sStageExitCBs;
 
 Stage::TStageParams *Stage::TStageParams::sStageConfig = nullptr;
 
@@ -33,52 +33,24 @@ BETTER_SMS_FOR_EXPORT Stage::TStageParams *BetterSMS::Stage::getStageConfigurati
     return TStageParams::sStageConfig;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerInitCallback(const char *name,
-                                                                  InitCallback cb) {
-    if (sStageInitCBs.find(name) != sStageInitCBs.end())
-        return false;
-    sStageInitCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::addInitCallback(InitCallback cb) {
+    sStageInitCBs.push_back(cb);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerUpdateCallback(const char *name,
-                                                                    UpdateCallback cb) {
-    if (sStageUpdateCBs.find(name) != sStageUpdateCBs.end())
-        return false;
-    sStageUpdateCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::addUpdateCallback(UpdateCallback cb) {
+    sStageUpdateCBs.push_back(cb);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerDraw2DCallback(const char *name,
-                                                                    Draw2DCallback cb) {
-    if (sStageDrawCBs.find(name) != sStageDrawCBs.end())
-        return false;
-    sStageDrawCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::addDraw2DCallback(Draw2DCallback cb) {
+    sStageDrawCBs.push_back(cb);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExitCallback(const char *name,
-                                                                  ExitCallback cb) {
-    if (sStageExitCBs.find(name) != sStageExitCBs.end())
-        return false;
-    sStageExitCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::addExitCallback(ExitCallback cb) {
+    sStageExitCBs.push_back(cb);
     return true;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterInitCallback(const char *name) {
-    sStageDrawCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterUpdateCallback(const char *name) {
-    sStageDrawCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterDraw2DCallback(const char *name) {
-    sStageDrawCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterExitCallback(const char *name) {
-    sStageExitCBs.erase(name);
 }
 
 BETTER_SMS_FOR_EXPORT const char *BetterSMS::Stage::getStageName(u8 area, u8 episode) {
@@ -258,7 +230,7 @@ void initStageCallbacks(TMarDirector *director) {
     loadStageConfig(director);
 
     for (auto &item : sStageInitCBs) {
-        item.second(director);
+        item(director);
     }
 
     director->setupObjects();
@@ -278,7 +250,7 @@ void updateStageCallbacks(TApplication *app) {
 
     if (gpMarDirector && app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         for (auto &item : sStageUpdateCBs) {
-            item.second(gpMarDirector);
+            item(gpMarDirector);
         }
     }
 }
@@ -287,7 +259,7 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
     ortho->setup2D();
 
     for (auto &item : sStageDrawCBs) {
-        item.second(gpMarDirector, ortho);
+        item(gpMarDirector, ortho);
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
@@ -299,7 +271,7 @@ void exitStageCallbacks(TApplication *app) {
         return;
 
     for (auto &item : sStageExitCBs) {
-        item.second(app);
+        item(app);
     }
 
     resetPlayerDatas(app);

@@ -175,8 +175,8 @@ void getSettingsGroups(TGlobalVector<Settings::SettingsGroup *> &out) {
     TGlobalVector<Settings::SettingsGroup *> tempMode;
 
     for (auto &item : gModuleInfos) {
-        Settings::SettingsGroup *group = item.second->mSettings;
-        if (strcmp(item.first.data(), "Better Sunshine Engine") == 0) {
+        Settings::SettingsGroup *group = item.mSettings;
+        if (strcmp(item.mName, "Better Sunshine Engine") == 0) {
             tempCore.insert(tempCore.begin(), group);
             continue;
         }
@@ -217,7 +217,7 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
         return;
 
     for (auto &init : gModuleInfos) {
-        auto settingsGroup = init.second->mSettings;
+        auto settingsGroup = init.mSettings;
         if (!settingsGroup)  // No settings registered
             continue;
 

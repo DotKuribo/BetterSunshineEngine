@@ -5,5 +5,4 @@
 
 #include "module.hxx"
 
-extern BetterSMS::TGlobalUnorderedMap<BetterSMS::TGlobalString, const BetterSMS::ModuleInfo *>
-    gModuleInfos;
+extern BetterSMS::TGlobalVector<BetterSMS::ModuleInfo> gModuleInfos;

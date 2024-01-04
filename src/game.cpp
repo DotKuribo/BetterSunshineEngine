@@ -6,7 +6,7 @@
 #include <SMS/raw_fn.hxx>
 
 #include "libs/container.hxx"
-#include "libs/global_unordered_map.hxx"
+#include "libs/global_vector.hxx"
 #include "libs/string.hxx"
 
 #include "game.hxx"
@@ -15,11 +15,11 @@
 using namespace BetterSMS;
 
 static size_t sMaxShines = 120;
-static TGlobalUnorderedMap<TGlobalString, Game::InitCallback> sGameInitCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Game::BootCallback> sGameBootCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Game::LoopCallback> sGameLoopCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Game::DrawCallback> sGameDrawCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Game::ChangeCallback> sGameChangeCBs(32);
+static TGlobalVector<Game::InitCallback> sGameInitCBs;
+static TGlobalVector<Game::BootCallback> sGameBootCBs;
+static TGlobalVector<Game::LoopCallback> sGameLoopCBs;
+static TGlobalVector<Game::DrawCallback> sGameDrawCBs;
+static TGlobalVector<Game::ChangeCallback> sGameChangeCBs;
 
 BETTER_SMS_FOR_EXPORT size_t BetterSMS::Game::getMaxShines() {
     return sMaxShines;
@@ -30,81 +30,46 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Game::setMaxShines(size_t maxShines) {
 }
 
 // Register a function to be called on game init
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerInitCallback(const char *name,
-                                                                 InitCallback cb) {
-    if (sGameInitCBs.find(name) != sGameInitCBs.end())
-        return false;
-    sGameInitCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::addInitCallback(InitCallback cb) {
+    sGameInitCBs.push_back(cb);
     return true;
 }
 
 // Register a function to be called on game boot
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerBootCallback(const char *name,
-                                                                 BootCallback cb) {
-    if (sGameBootCBs.find(name) != sGameBootCBs.end())
-        return false;
-    sGameBootCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::addBootCallback(BootCallback cb) {
+    sGameBootCBs.push_back(cb);
     return true;
 }
 
 // Register a function to be called every game loop
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerLoopCallback(const char *name,
-                                                                 LoopCallback cb) {
-    if (sGameLoopCBs.find(name) != sGameLoopCBs.end())
-        return false;
-    sGameLoopCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::addLoopCallback(LoopCallback cb) {
+    sGameLoopCBs.push_back(cb);
     return true;
 }
 
 // Register a function to be called after the game draws graphics
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerPostDrawCallback(const char *name,
-                                                                     DrawCallback cb) {
-    if (sGameDrawCBs.find(name) != sGameDrawCBs.end())
-        return false;
-    sGameDrawCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::addPostDrawCallback(DrawCallback cb) {
+    sGameDrawCBs.push_back(cb);
     return true;
 }
 
 // Register a function to be called on game context change
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::registerChangeCallback(const char *name,
-                                                                   ChangeCallback cb) {
-    if (sGameChangeCBs.find(name) != sGameChangeCBs.end())
-        return false;
-    sGameChangeCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Game::addChangeCallback(ChangeCallback cb) {
+    sGameChangeCBs.push_back(cb);
     return true;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterInitCallback(const char *name) {
-    sGameInitCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterBootCallback(const char *name) {
-    sGameBootCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterLoopCallback(const char *name) {
-    sGameLoopCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterPostDrawCallback(const char *name) {
-    sGameDrawCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Game::deregisterChangeCallback(const char *name) {
-    sGameChangeCBs.erase(name);
 }
 
 // extern -> custom app proc
 void gameInitCallbackHandler(TApplication *app) {
     for (auto &item : sGameInitCBs) {
-        item.second(&gpApplication);
+        item(&gpApplication);
     }
 }
 
 // extern -> custom app proc
 void gameBootCallbackHandler(TApplication *app) {
     for (auto &item : sGameBootCBs) {
-        item.second(&gpApplication);
+        item(&gpApplication);
     }
 }
 
@@ -116,7 +81,7 @@ extern void drawDebugCallbacks(TApplication *, const J2DOrthoGraph *);
 // extern -> custom app proc
 s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
     for (auto &item : sGameLoopCBs) {
-        item.second(&gpApplication);
+        item(&gpApplication);
     }
 
     updateStageCallbacks(&gpApplication);
@@ -142,7 +107,7 @@ void gameDrawCallbackHandler() {
 
     {
         for (auto &item : sGameDrawCBs) {
-            item.second(&gpApplication, &ortho);
+            item(&gpApplication, &ortho);
         }
     }
 
@@ -158,7 +123,7 @@ extern void exitStageCallbacks(TApplication *);
 // extern -> custom app proc
 void gameChangeCallbackHandler(TApplication *app) {
     for (auto &item : sGameChangeCBs) {
-        item.second(&gpApplication);
+        item(&gpApplication);
     }
 
     exitStageCallbacks(app);

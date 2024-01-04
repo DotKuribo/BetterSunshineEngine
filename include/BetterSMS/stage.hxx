@@ -17,14 +17,10 @@ namespace BetterSMS {
         struct TStageParams;
         TStageParams *getStageConfiguration();
 
-        bool registerInitCallback(const char *name, InitCallback cb);
-        bool registerUpdateCallback(const char *name, UpdateCallback cb);
-        bool registerDraw2DCallback(const char *name, Draw2DCallback cb);
-        bool registerExitCallback(const char *name, ExitCallback cb);
-        void deregisterInitCallback(const char *name);
-        void deregisterUpdateCallback(const char *name);
-        void deregisterDraw2DCallback(const char *name);
-        void deregisterExitCallback(const char *name);
+        bool addInitCallback(InitCallback cb);
+        bool addUpdateCallback(UpdateCallback cb);
+        bool addDraw2DCallback(Draw2DCallback cb);
+        bool addExitCallback(ExitCallback cb);
 
         const char *getStageName(u8 area, u8 episode);
         bool isDivingStage(u8 area, u8 episode);

@@ -17,8 +17,4 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::BMG::registerBMGCommandCallback(u8 identif
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT void BetterSMS::BMG::deregisterBMGCommandCallback(u8 identifier) {
-    sBMGCommandCBs.erase(identifier);
-}
-
 static void formatCustomBMGCommands() {}

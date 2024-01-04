@@ -25,9 +25,6 @@ namespace BetterSMS {
         };
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);
-        void deregisterStageInfo(u8 stageID);
-
         bool registerExStageInfo(u8 stageID, ExAreaInfo *info);
-        void deregisterExStageInfo(u8 stageID);
     }  // namespace BMG
 };     // namespace BetterSMS

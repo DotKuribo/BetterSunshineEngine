@@ -2,6 +2,7 @@
 
 #include <JSystem/JDrama/JDRNameRef.hxx>
 #include <SMS/MapObj/MapObjInit.hxx>
+#include <Player/Mario.hxx>
 
 namespace BetterSMS {
     namespace Objects {
@@ -21,7 +22,5 @@ namespace BetterSMS {
         bool registerObjectCollideInteractor(u32 objectID, ObjectInteractor colHandler);
         // Register a function to be called when an object is being grabbed by the player
         bool registerObjectGrabInteractor(u32 objectID, ObjectInteractor grabHandler);
-
-        bool deregisterObject(const char *name);
     }  // namespace Objects
 }  // namespace BetterSMS

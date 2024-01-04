@@ -10,6 +10,7 @@
 
 #include "memory.hxx"
 #include "settings.hxx"
+#include "libs/optional.hxx"
 
 #define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
 #define BETTER_SMS_AUTHOR_NAME "JoshuaMK"
@@ -146,11 +147,10 @@ namespace BetterSMS {
     bool isDebugMode();
     void setDebugMode(bool);
 
-    const ModuleInfo *getModuleInfo(const char *key);
+    optional<ModuleInfo> getModuleInfo(const char *key);
 
     bool isModuleRegistered(const char *key);
-    bool registerModule(const ModuleInfo *info);
-    void deregisterModule(const ModuleInfo *key);
+    bool registerModule(const ModuleInfo &info);
 
     bool triggerAutoSave();
 

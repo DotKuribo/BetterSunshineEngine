@@ -103,22 +103,6 @@ BetterSMS::Objects::registerObjectGrabInteractor(u32 objectID,
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Objects::deregisterObject(const char *name) {
-    if (sCustomMapObjList.erase(name)) {
-        sOBJNewCount -= 1;
-        return true;
-    }
-    if (sCustomEnemyObjList.erase(name)) {
-        sOBJNewCount -= 1;
-        return true;
-    }
-    if (sCustomMiscObjList.erase(name)) {
-        sOBJNewCount -= 1;
-        return true;
-    }
-    return false;
-}
-
 // ---------------------------------------- //
 
 // extern -> SME.cpp

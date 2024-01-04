@@ -10,51 +10,30 @@
 #include "debug.hxx"
 
 #include "libs/container.hxx"
-#include "libs/global_unordered_map.hxx"
+#include "libs/global_vector.hxx"
 #include "libs/string.hxx"
 
 #include "module.hxx"
 
 using namespace BetterSMS;
 
-static TGlobalUnorderedMap<TGlobalString, Debug::InitCallback> sDebugInitCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Debug::UpdateCallback> sDebugUpdateCBs(32);
-static TGlobalUnorderedMap<TGlobalString, Debug::DrawCallback> sDebugDrawCBs(32);
+static TGlobalVector<Debug::InitCallback> sDebugInitCBs;
+static TGlobalVector<Debug::UpdateCallback> sDebugUpdateCBs;
+static TGlobalVector<Debug::DrawCallback> sDebugDrawCBs;
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerInitCallback(const char *name,
-                                                                  InitCallback cb) {
-    if (sDebugInitCBs.find(name) != sDebugInitCBs.end())
-        return false;
-    sDebugInitCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::addInitCallback(InitCallback cb) {
+    sDebugInitCBs.push_back(cb);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerUpdateCallback(const char *name,
-                                                                    UpdateCallback cb) {
-    if (sDebugUpdateCBs.find(name) != sDebugUpdateCBs.end())
-        return false;
-    sDebugUpdateCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::addUpdateCallback(UpdateCallback cb) {
+    sDebugUpdateCBs.push_back(cb);
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::registerDrawCallback(const char *name,
-                                                                  DrawCallback cb) {
-    if (sDebugDrawCBs.find(name) != sDebugDrawCBs.end())
-        return false;
-    sDebugDrawCBs[name] = cb;
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Debug::addDrawCallback(DrawCallback cb) {
+    sDebugDrawCBs.push_back(cb);
     return true;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Debug::deregisterInitCallback(const char *name) {
-    sDebugInitCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Debug::deregisterUpdateCallback(const char *name) {
-    sDebugUpdateCBs.erase(name);
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Debug::deregisterDrawCallback(const char *name) {
-    sDebugDrawCBs.erase(name);
 }
 
 #pragma region CallbackHandlers
@@ -66,7 +45,7 @@ BETTER_SMS_FOR_CALLBACK void initDebugCallbacks(TApplication *app) {
     auto *currentHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
     for (auto &item : sDebugInitCBs) {
-        item.second(app);
+        item(app);
     }
 
     currentHeap->becomeCurrentHeap();
@@ -77,7 +56,7 @@ BETTER_SMS_FOR_CALLBACK void updateDebugCallbacks(TApplication *app) {
         return;
 
     for (auto &item : sDebugUpdateCBs) {
-        item.second(app);
+        item(app);
     }
 }
 
@@ -86,7 +65,7 @@ BETTER_SMS_FOR_CALLBACK void drawDebugCallbacks(TApplication *app, const J2DOrth
         return;
 
     for (auto &item : sDebugDrawCBs) {
-        item.second(app, ortho);
+        item(app, ortho);
     }
 }
 

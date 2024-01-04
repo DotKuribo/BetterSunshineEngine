@@ -75,7 +75,7 @@ static void *handleDebugCheat(void *GCLogoDir) {
         gDebugTextBoxB->mGradientBottom = {0, 0, 0, 255};
         currentHeap->becomeCurrentHeap();
 
-        BetterSMS::Debug::registerDrawCallback("__better_sms_draw_debug", drawCheatText);
+        BetterSMS::Debug::addDrawCallback(drawCheatText);
     }
     gDebugHandler.advanceInput();
     return GCLogoDir;

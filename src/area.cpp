@@ -81,20 +81,12 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerStageInfo(u8 stageID, AreaI
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterStageInfo(u8 stageID) {
-    sAreaInfos[stageID] = nullptr;
-}
-
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExStageInfo(u8 stageID, ExAreaInfo *info) {
     if (sExAreaInfos[stageID]) {
         return false;
     }
     sExAreaInfos[stageID] = info;
     return true;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Stage::deregisterExStageInfo(u8 stageID) {
-    sExAreaInfos[stageID] = nullptr;
 }
 
 #if BETTER_SMS_EXTRA_AREAS

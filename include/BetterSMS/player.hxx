@@ -49,21 +49,16 @@ namespace BetterSMS {
         typedef bool (*MachineCallback)(TMario *);
         typedef void (*CollisionCallback)(TMario *, const TBGCheckData *, u32 /*InteractionFlags*/);
 
-        // Register a function to call on player init
-        bool registerInitCallback(const char *, InitCallback);
-        // Register a function to call after the player loads and initializes
-        bool registerLoadAfterCallback(const char *, LoadAfterCallback);
-        // Register a function to call on player update
-        bool registerUpdateCallback(const char *, UpdateCallback);
+        // Add a function to call on player init
+        bool addInitCallback(InitCallback);
+        // Add a function to call after the player loads and initializes
+        bool addLoadAfterCallback(LoadAfterCallback);
+        // Add a function to call on player update
+        bool addUpdateCallback(UpdateCallback);
         // Register a function to call for a specific player state
         bool registerStateMachine(u32, MachineCallback);
         // Register a function to call for a specific collision type
         bool registerCollisionHandler(u16, CollisionCallback);
-        void deregisterInitCallback(const char *);
-        void deregisterLoadAfterCallback(const char *);
-        void deregisterUpdateCallback(const char *);
-        void deregisterStateMachine(u32);
-        void deregisterCollisionHandler(u16);
 
         // Warps the player to a collision face
         void warpToCollisionFace(TMario *player, const TBGCheckData *face, bool isFluid);

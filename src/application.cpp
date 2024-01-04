@@ -22,24 +22,16 @@
 
 using namespace BetterSMS;
 
-static TGlobalUnorderedMap<u8, Application::ContextCallback> sContextCBs(16);
+static TGlobalVector<Application::ContextCallback> sContextCBs(256);
 static bool sIsAdditionalMovie = false;
 static u8 sIntroArea = 15, sIntroEpisode = 0;
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::isContextRegistered(u8 context) {
-    return sContextCBs.find(context) != sContextCBs.end();
-}
-
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 context,
                                                                            ContextCallback cb) {
-    if (sContextCBs.find(context) != sContextCBs.end())
+    if (sContextCBs[context] != nullptr)
         return false;
     sContextCBs[context] = cb;
     return true;
-}
-
-BETTER_SMS_FOR_EXPORT void BetterSMS::Application::deregisterContextCallback(u8 context) {
-    sContextCBs.erase(context);
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Application::setIntroStage(u8 area, u8 episode) {
@@ -183,7 +175,6 @@ void BetterApplicationProcess(TApplication *app) {
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
-                OSReport("Game Boot\n");
                 gameInitCallbackHandler(app);
                 app->initialize_bootAfter();
                 gameBootCallbackHandler(app);
