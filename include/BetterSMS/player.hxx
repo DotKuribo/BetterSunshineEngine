@@ -33,6 +33,11 @@ namespace BetterSMS {
         bool registerData(TMario *, const char *, void *);
         void deregisterData(TMario *, const char *);
 
+        u16 addAnimationData(const char *anm_name, bool fludd_use, bool jiggle_phys = false,
+                             u8 tex_anm_id = 0, u8 hand = 0);
+        bool addAnimationDataEx(u16 anm_idx, const char *anm_name, bool fludd_use,
+                                bool jiggle_phys = false, u8 tex_anm_id = 0, u8 hand = 0);
+
         enum InteractionFlags {
             ON_ENTER       = 1 << 0,
             ON_EXIT        = 1 << 1,

@@ -35,17 +35,6 @@ J2DTextBox *gDebugTextBoxW;
 J2DTextBox *gDebugTextBoxB;
 TCheatHandler gDebugHandler;
 
-static void debugModeNotify(TCheatHandler *) {
-    if (gpMSound->gateCheck(MSD_SE_MV_CHAO)) {
-        auto *sound = MSoundSESystem::MSoundSE::startSoundSystemSE(MSD_SE_MV_CHAO, 0, 0, 0);
-        if (sound)
-            sound->setPitch(1.25f, 0, 0);
-    }
-
-    BetterSMS::setDebugMode(true);
-    Console::debugLog("Debug mode activated!\n");
-}
-
 // extern -> debug callback
 void drawCheatText(TApplication *app, const J2DOrthoGraph *graph) {
     if (!gDebugTextBoxW || !gDebugTextBoxW->getStringPtr())
@@ -57,10 +46,24 @@ void drawCheatText(TApplication *app, const J2DOrthoGraph *graph) {
     }
 }
 
+static void debugModeNotify(TCheatHandler *) {
+    if (gpMSound->gateCheck(MSD_SE_MV_CHAO)) {
+        auto *sound = MSoundSESystem::MSoundSE::startSoundSystemSE(MSD_SE_MV_CHAO, 0, 0, 0);
+        if (sound)
+            sound->setPitch(1.25f, 0, 0);
+    }
+
+    BetterSMS::Debug::addDrawCallback(drawCheatText);
+    BetterSMS::setDebugMode(true);
+    Console::debugLog("Debug mode activated!\n");
+}
+
 static void *handleDebugCheat(void *GCLogoDir) {
     if (!gDebugHandler.isInitialized()) {
+        gDebugHandler.setGamePad(gpApplication.mGamePads[0]);
 #if SMS_DEBUG
         gDebugHandler.succeed();
+        BetterSMS::Debug::addDrawCallback(drawCheatText);
 #else
         gDebugHandler.setGamePad(gpApplication.mGamePads[0]);
         gDebugHandler.setInputList(gDebugModeCheatCode);
@@ -74,8 +77,6 @@ static void *handleDebugCheat(void *GCLogoDir) {
         gDebugTextBoxB->mGradientTop    = {0, 0, 0, 255};
         gDebugTextBoxB->mGradientBottom = {0, 0, 0, 255};
         currentHeap->becomeCurrentHeap();
-
-        BetterSMS::Debug::addDrawCallback(drawCheatText);
     }
     gDebugHandler.advanceInput();
     return GCLogoDir;

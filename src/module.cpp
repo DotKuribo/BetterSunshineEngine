@@ -468,6 +468,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "registerData__Q29BetterSMS6PlayerFP6TMarioPCcPv");
         KURIBO_EXPORT_AS(BetterSMS::Player::deregisterData,
                          "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
+        KURIBO_EXPORT_AS(BetterSMS::Player::addAnimationData,
+                         "addAnimationData__Q29BetterSMS6PlayerFPCcbbUcUc");
+        KURIBO_EXPORT_AS(BetterSMS::Player::addAnimationDataEx,
+                         "addAnimationDataEx__Q29BetterSMS6PlayerFUsPCcbbUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Player::addInitCallback,
                          "addInitCallback__Q29BetterSMS6PlayerFPFP6TMariob_v");
         KURIBO_EXPORT_AS(BetterSMS::Player::addLoadAfterCallback,

@@ -11,6 +11,7 @@
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
 #include <SMS/Player/Mario.hxx>
+#include <SMS/Player/MarioDraw.hxx>
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/System/Application.hxx>
@@ -79,6 +80,64 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerData(TMario *player, const
 BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, const char *key) {
     auto &dataDict = sPlayerDict[player];
     dataDict.erase(key);
+}
+
+constexpr size_t MarioAnimeDataSize = 336;
+constexpr size_t MarioAnimeInfoSize = 199;
+
+static TMarioAnimeData sPlayerAnimeDatas[512];
+static size_t sPlayerAnimeDatasSize = MarioAnimeDataSize;
+
+struct InternalAnimInfo {
+    int m_unk;
+    const char *m_name;
+};
+static InternalAnimInfo sPlayerAnimeInfos[512];
+static size_t sPlayerAnimeInfosSize = MarioAnimeInfoSize;
+
+BETTER_SMS_FOR_EXPORT u16 BetterSMS::Player::addAnimationData(const char *anm_name, bool fludd_use,
+                                                              bool jiggle_phys, u8 tex_anm_id,
+                                                              u8 hand) {
+    TMarioAnimeData new_data                   = {static_cast<u16>(sPlayerAnimeDatasSize),
+                                                  static_cast<u16>(fludd_use ? 68 : 200),
+                                                  tex_anm_id,
+                                                  hand,
+                                                  static_cast<u8>(jiggle_phys ? 6 : 4),
+                                                  0x16};
+    sPlayerAnimeDatas[sPlayerAnimeDatasSize++] = new_data;
+
+    InternalAnimInfo new_info                  = {1, anm_name};
+    sPlayerAnimeInfos[sPlayerAnimeInfosSize++] = new_info;
+
+    sPlayerAnimeDatasSize++;
+    return sPlayerAnimeDatasSize - 1;
+}
+
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, const char *anm_name,
+                                                                 bool fludd_use, bool jiggle_phys,
+                                                                 u8 tex_anm_id, u8 hand) {
+    if (anm_idx >= sPlayerAnimeDatasSize) {
+        if (anm_idx >= 512)
+            return false;
+        sPlayerAnimeDatasSize = anm_idx + 1;
+    }
+
+    u16 info_idx = sPlayerAnimeDatas[anm_idx].mAnimID;
+
+    if (info_idx >= sPlayerAnimeInfosSize) {
+        if (info_idx >= 512)
+            return false;
+        sPlayerAnimeInfosSize = info_idx + 1;
+    }
+
+    TMarioAnimeData new_data   = {info_idx, static_cast<u16>(fludd_use ? 68 : 200), tex_anm_id,
+                                  hand,     static_cast<u8>(jiggle_phys ? 6 : 4),   0x16};
+    sPlayerAnimeDatas[anm_idx] = new_data;
+
+    InternalAnimInfo new_info   = {1, anm_name};
+    sPlayerAnimeInfos[info_idx] = new_info;
+
+    return true;
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addInitCallback(InitCallback process) {
@@ -259,7 +318,8 @@ static void patchRideMovementUpWarp(Mtx out, Vec *ride, Vec *pos) {
     TMario *player;
     SMS_FROM_GPR(30, player);
 
-    if (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) || !BetterSMS::areExploitsPatched()) {
+    if (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) ||
+        !BetterSMS::areExploitsPatched()) {
         PSMTXMultVec(out, ride, pos);
     }
 }
@@ -769,3 +829,40 @@ static u32 collisionHandler(TMario *player) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8025059C, 0x80248328, 0, 0), collisionHandler);
 SMS_WRITE_32(SMS_PORT_REGION(0x802505A0, 0x8024832C, 0, 0), 0x546004E7);
+
+extern InternalAnimInfo marioAnimeFiles[199];
+
+BETTER_SMS_FOR_CALLBACK void initExtendedPlayerAnims() {
+
+    for (size_t i = 0; i < MarioAnimeDataSize; ++i) {
+        sPlayerAnimeDatas[i] = gMarioAnimeData[i];
+    }
+
+    for (size_t i = 0; i < MarioAnimeInfoSize; ++i) {
+        sPlayerAnimeInfos[i] = marioAnimeFiles[i];
+    }
+}
+
+static SMS_ASM_FUNC void getExtendedPlayerAnimData() {
+    SMS_ASM_BLOCK("lis       28, sPlayerAnimeDatas@h     \n\t"
+                  "ori       28, 28, sPlayerAnimeDatas@l \n\t"
+                  "add       28, 28, 30                  \n\t"
+                  "lhz       6, 0 (28)                   \n\t"
+                  "blr                                   \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024786C, 0, 0, 0), getExtendedPlayerAnimData);
+
+static SMS_ASM_FUNC void getExtendedPlayerAnimInfo() {
+    SMS_ASM_BLOCK("lis       25, sPlayerAnimeInfos@h     \n\t"
+                  "ori       25, 25, sPlayerAnimeInfos@l \n\t"
+                  "blr                                   \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80246B00, 0, 0, 0), getExtendedPlayerAnimInfo);
+
+static SMS_ASM_FUNC void getExtendedPlayerAnimInfoSize() {
+    SMS_ASM_BLOCK("lis       3, sPlayerAnimeInfosSize@ha    \n\t"
+                  "lwz       3, sPlayerAnimeInfosSize@l (3) \n\t"
+                  "cmpw      20, 3                          \n\t"
+                  "blr                                      \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80246B90, 0, 0, 0), getExtendedPlayerAnimInfoSize);
