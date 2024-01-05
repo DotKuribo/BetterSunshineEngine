@@ -21,8 +21,6 @@
 #include "p_settings.hxx"
 #include "player.hxx"
 
-#if BETTER_SMS_BUGFIXES
-
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
 
@@ -67,8 +65,6 @@ static void normalizeHoverSlopeSpeed(f32 floorPos) {
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802568F0, 0x8024E67C, 0, 0), normalizeHoverSlopeSpeed);
-
-#endif
 
 static bool hasWaterCardOpen() {
     TGCConsole2 *gcConsole;

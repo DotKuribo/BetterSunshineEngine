@@ -8,8 +8,6 @@
 
 using namespace BetterSMS;
 
-#if defined(BETTER_SMS_BUGFIXES) || defined(BETTER_SMS_CRASHFIXES)
-
 static void initBinaryNullptrPatch(TSpcBinary *binary) {
     if (binary || !BetterSMS::areBugsPatched()) {
         binary->init();
@@ -18,5 +16,3 @@ static void initBinaryNullptrPatch(TSpcBinary *binary) {
     Console::debugLog("Warning: SPC binary is nullptr! \n");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80289098, 0x80280E24, 0, 0), initBinaryNullptrPatch);
-
-#endif

@@ -11,6 +11,8 @@
 #include "logging.hxx"
 #include "player.hxx"
 
+#if BETTER_SMS_EXTRA_COLLISION
+
 BETTER_SMS_FOR_CALLBACK void boostPadCol(TMario *player, const TBGCheckData *data, u32 flags) {
     auto playerData = Player::getData(player);
 
@@ -32,3 +34,5 @@ BETTER_SMS_FOR_CALLBACK void boostPadCol(TMario *player, const TBGCheckData *dat
         player->startVoice(TMario::VOICE_JUMP);
     }
 }
+
+#endif

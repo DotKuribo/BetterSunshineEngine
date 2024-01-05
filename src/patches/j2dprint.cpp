@@ -19,8 +19,6 @@
 
 #if 0
 
-#if BETTER_SMS_BUGFIXES
-
 #if 0
 static u8 sLineBuffer[sizeof(String) * 64];
 static JKRSolidHeap sLineHeap(&sLineBuffer, 64, JKRHeap::sRootHeap, false);
@@ -165,8 +163,6 @@ static void J2D_BenchMarkPrint(J2DTextBox *printer, int x, int y) {
     }
 }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x80144010, 0, 0, 0), J2D_BenchMarkPrint);
-
-#endif
 
 #endif
 

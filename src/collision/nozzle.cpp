@@ -14,6 +14,8 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 
+#if BETTER_SMS_EXTRA_COLLISION
+
 static void changeNozzle(TMario *player, TWaterGun::TNozzleType kind, bool hasFludd,
                          bool showFill) {
     TWaterGun *fludd = player->mFludd;
@@ -153,3 +155,5 @@ BETTER_SMS_FOR_CALLBACK void changeNozzleRocketOnTouch(TMario *player, const TBG
     changeNozzle(player, TWaterGun::Rocket, data->mValue == 1, true);
     playerData->mCollisionFlags.mIsFaceUsed = true;
 }
+
+#endif

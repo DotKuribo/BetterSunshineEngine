@@ -19,6 +19,8 @@ using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 using namespace BetterSMS::Geometry;
 
+#if BETTER_SMS_EXTRA_COLLISION
+
 #define EXPAND_WARP_SET(base)                                                                      \
     (base) : case ((base) + 10) :                                                                  \
     case ((base) + 20):                                                                            \
@@ -648,3 +650,5 @@ BETTER_SMS_FOR_CALLBACK void portalFreeWarpHandler(TMario *player, const TBGChec
     warpPlayerToPoint(player, center);
     redirectPlayerWithNormal(player, *linkedCol->getNormal(), 50.0f);
 }
+
+#endif

@@ -50,3 +50,10 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
 #undef VT_MAP_OBJ_GENERAL
 #undef VT_MAP_OBJ_BALL
 #undef VT_MAP_OBJ_ITEM
+
+#if BETTER_SMS_NO_DOWNWARP
+
+// Remove sticky downwarp
+SMS_WRITE_32(SMS_PORT_REGION(0x8018D08C, 0, 0, 0), 0x60000000);
+
+#endif

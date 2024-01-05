@@ -13,8 +13,6 @@
 #include "module.hxx"
 #include "p_settings.hxx"
 
-#if BETTER_SMS_BUGFIXES
-
 using namespace BetterSMS;
 
 static TVec3f sSunBasePos(0.0f, 0.0f, 0.0f);
@@ -74,5 +72,3 @@ static bool scaleGlowToLightness(f32 a, f32 b, f32 c) {
     return CLBLinearInbetween_f(a * factor, b * factor, c);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002DB60, 0x8002DC18, 0, 0), scaleGlowToLightness);
-
-#endif

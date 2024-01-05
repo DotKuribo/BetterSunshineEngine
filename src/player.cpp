@@ -242,8 +242,6 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::rotateRelativeToCamera(TMario *pla
 
 #pragma region Patches
 
-#if BETTER_SMS_BUGFIXES
-
 static u32 patchYStorage() {
     TMario *player;
     SMS_FROM_GPR(31, player);
@@ -261,13 +259,11 @@ static void patchRideMovementUpWarp(Mtx out, Vec *ride, Vec *pos) {
     TMario *player;
     SMS_FROM_GPR(30, player);
 
-    if (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN))) {
+    if (!(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) || !BetterSMS::areExploitsPatched()) {
         PSMTXMultVec(out, ride, pos);
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpWarp);
-
-#endif
 
 #pragma endregion
 

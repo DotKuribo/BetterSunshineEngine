@@ -3,8 +3,7 @@
 #include <SMS/macros.h>
 
 #include "module.hxx"
-
-#if BETTER_SMS_BUGFIXES
+#include <p_settings.hxx>
 
 constexpr static const char *sShineKey =
     "\x83\x56\x83\x83\x83\x43\x83\x93\x81\x69\x82\x50\x82\x4F\x82\x4F\x96\x87\x83"
@@ -27,9 +26,13 @@ static void spawn100CoinShine(const TVec3f &position) {
 static bool sIs100ShineSpawned = false;
 static size_t maybeSpawn100CoinShine(TFlagManager *manager) {
     size_t coins = manager->getFlag(0x40002);
-    if (!sIs100ShineSpawned && manager->getFlag(0x40002) > 99) {
+    if (BetterSMS::areExploitsPatched()) {
+        if (!sIs100ShineSpawned && manager->getFlag(0x40002) > 99) {
+            spawn100CoinShine(*gpMarioPos);
+            sIs100ShineSpawned = true;
+        }
+    } else if (manager->getFlag(0x40002) == 100) {
         spawn100CoinShine(*gpMarioPos);
-        sIs100ShineSpawned = true;
     }
     return coins;
 }
@@ -40,5 +43,3 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801BED44, 0, 0, 0), 0x4800004C);
 BETTER_SMS_FOR_EXPORT void patches_staticResetter(TMarDirector *director) {
     sIs100ShineSpawned = TFlagManager::smInstance->getFlag(0x40002) > 99;
 }
-
-#endif

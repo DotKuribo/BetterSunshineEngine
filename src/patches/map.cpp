@@ -13,8 +13,6 @@
 #include "module.hxx"
 #include "p_settings.hxx"
 
-// TODO: Account for BetterSMS::areBugsPatched()
-
 static bool sIsSeaBMDPresent = false;
 
 static bool isSeaBMDPresent(TMarDirector *director) {

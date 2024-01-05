@@ -23,8 +23,6 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_WIDESCREEN
-
 static f32 getScreenWidthf() { return static_cast<f32>(getScreenRenderWidth()); }
 
 static f32 getScreenWidthTranslated() {
@@ -614,5 +612,3 @@ static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     PSMTXScale(mtx, x, y, z);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801ea96c, 0x801E2844, 0, 0), scaleUnderWaterMask);
-
-#endif

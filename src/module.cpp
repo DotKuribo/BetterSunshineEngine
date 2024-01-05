@@ -262,10 +262,7 @@ static void initLib() {
     //// GAME
     Game::addBootCallback(extendLightEffectToShineCount);
 
-#if 0
-    Player::registerUpdateCallback(updateDebugCollision);
-#endif
-
+#if BETTER_SMS_EXTRA_COLLISION
     // Set up player map collisions
     Player::addInitCallback(initializeWarpCallback);
     Player::addUpdateCallback(processWarpCallback);
@@ -290,6 +287,7 @@ static void initLib() {
     Player::registerCollisionHandler(3063, instantScreenWipeWarpHandler);
     Player::registerCollisionHandler(3064, portalWarpHandler);
     Player::registerCollisionHandler(3065, portalFreeWarpHandler);
+#endif
 
     //// PLAYER STATE
     // Player::addUpdateCallback("__update_collision_context", updateCollisionContext);

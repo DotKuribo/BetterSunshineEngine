@@ -18,8 +18,6 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_BUGFIXES || 1
-
 static inline bool isColTypeWater(u16 type) { return (type > 255 && type < 261) || type == 16644; }
 
 static void patchWaterDownWarp(f32 y) {
@@ -219,5 +217,3 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024F12C, 0x80246EB8, 0, 0), enhanceWaterCheck);
 //     return colType;
 // }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8024F134, 0, 0, 0), checkWaterStanding);
-
-#endif

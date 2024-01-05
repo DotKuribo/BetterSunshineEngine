@@ -11,8 +11,6 @@
 
 using namespace BetterSMS;
 
-#if BETTER_SMS_YOSHI_SAVE_NOZZLES
-
 static bool isYoshiMaintainFluddModel() {
     TMario *player;
     SMS_FROM_GPR(31, player);
@@ -67,10 +65,6 @@ static void restoreNozzles(TMario *player) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024EC18, 0x802469A4, 0, 0), restoreNozzles);
 SMS_WRITE_32(SMS_PORT_REGION(0x8024EC2C, 0x802469A8, 0, 0), 0x60000000);
-
-#endif
-
-#if BETTER_SMS_GREEN_YOSHI
 
 static void killYoshi(TYoshi *yoshi) {
     if (gpMSound->gateCheck(31000))
@@ -207,5 +201,3 @@ static void checkForYoshiGrabFludd(TWaterGun *fludd, int nozzle, bool unk_1) {
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80283334, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80283370, 0, 0, 0), checkForYoshiGrabFludd);
-
-#endif
