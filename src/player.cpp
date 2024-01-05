@@ -85,15 +85,22 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, con
 constexpr size_t MarioAnimeDataSize = 336;
 constexpr size_t MarioAnimeInfoSize = 199;
 
-static TMarioAnimeData sPlayerAnimeDatas[512];
+static TMarioAnimeData sPlayerAnimeDatas[MAX_PLAYER_ANIMATIONS];
 static size_t sPlayerAnimeDatasSize = MarioAnimeDataSize;
 
 struct InternalAnimInfo {
     int m_unk;
     const char *m_name;
 };
-static InternalAnimInfo sPlayerAnimeInfos[512];
+static InternalAnimInfo sPlayerAnimeInfos[MAX_PLAYER_ANIMATIONS];
 static size_t sPlayerAnimeInfosSize = MarioAnimeInfoSize;
+
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::isAnimationValid(u16 anm_idx) {
+    if (anm_idx >= sPlayerAnimeDatasSize)
+        return false;
+
+    return sPlayerAnimeDatas[anm_idx].mAnimID != MAX_PLAYER_ANIMATIONS;
+}
 
 BETTER_SMS_FOR_EXPORT u16 BetterSMS::Player::addAnimationData(const char *anm_name, bool fludd_use,
                                                               bool jiggle_phys, u8 tex_anm_id,
@@ -117,7 +124,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, co
                                                                  bool fludd_use, bool jiggle_phys,
                                                                  u8 tex_anm_id, u8 hand) {
     if (anm_idx >= sPlayerAnimeDatasSize) {
-        if (anm_idx >= 512)
+        if (anm_idx >= MAX_PLAYER_ANIMATIONS)
             return false;
         sPlayerAnimeDatasSize = anm_idx + 1;
     }
@@ -125,7 +132,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, co
     u16 info_idx = sPlayerAnimeDatas[anm_idx].mAnimID;
 
     if (info_idx >= sPlayerAnimeInfosSize) {
-        if (info_idx >= 512)
+        if (info_idx >= MAX_PLAYER_ANIMATIONS)
             return false;
         sPlayerAnimeInfosSize = info_idx + 1;
     }
@@ -836,6 +843,9 @@ BETTER_SMS_FOR_CALLBACK void initExtendedPlayerAnims() {
 
     for (size_t i = 0; i < MarioAnimeDataSize; ++i) {
         sPlayerAnimeDatas[i] = gMarioAnimeData[i];
+        if (sPlayerAnimeDatas[i].mAnimID == 200) {
+            sPlayerAnimeDatas[i].mAnimID = MAX_PLAYER_ANIMATIONS;
+        }
     }
 
     for (size_t i = 0; i < MarioAnimeInfoSize; ++i) {

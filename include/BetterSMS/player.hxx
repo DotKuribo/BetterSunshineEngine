@@ -19,6 +19,8 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
 
+#define MAX_PLAYER_ANIMATIONS 512
+
 namespace BetterSMS {
     namespace Player {
         struct TPlayerData;
@@ -33,6 +35,7 @@ namespace BetterSMS {
         bool registerData(TMario *, const char *, void *);
         void deregisterData(TMario *, const char *);
 
+        bool isAnimationValid(u16 anm_idx);
         u16 addAnimationData(const char *anm_name, bool fludd_use, bool jiggle_phys = false,
                              u8 tex_anm_id = 0, u8 hand = 0);
         bool addAnimationDataEx(u16 anm_idx, const char *anm_name, bool fludd_use,

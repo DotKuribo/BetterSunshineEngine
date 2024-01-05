@@ -19,6 +19,7 @@
 #include "raw_fn.hxx"
 
 #include "p_debug.hxx"
+#include <player.hxx>
 
 using namespace BetterSMS;
 using namespace BetterSMS::Geometry;
@@ -215,7 +216,7 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
     }
 
     int prevAnimation = gAnimationID;
-    while (gMarioAnimeData[gAnimationID].mAnimID == 200 || gAnimationID == prevAnimation) {
+    while (gMarioAnimeData[gAnimationID].mAnimID == MAX_PLAYER_ANIMATIONS || gAnimationID == prevAnimation) {
         if (shouldIncreaseAnimationID)
             gAnimationID += 1;
         else if (shouldDecreaseAnimationID)
@@ -240,7 +241,7 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
 
     gAnimationSpeed = clamp(gAnimationSpeed, 0.0f, 1000.0f);
 
-    if (gMarioAnimeData[gAnimationID].mAnimID != 200)
+    if (gMarioAnimeData[gAnimationID].mAnimID != MAX_PLAYER_ANIMATIONS)
         player->setAnimation(gAnimationID, gAnimationSpeed);
 
     return false;
