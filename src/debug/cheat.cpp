@@ -216,7 +216,7 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
     }
 
     int prevAnimation = gAnimationID;
-    while (gMarioAnimeData[gAnimationID].mAnimID == MAX_PLAYER_ANIMATIONS || gAnimationID == prevAnimation) {
+    while (!Player::isAnimationValid(gAnimationID) || gAnimationID == prevAnimation) {
         if (shouldIncreaseAnimationID)
             gAnimationID += 1;
         else if (shouldDecreaseAnimationID)
@@ -241,7 +241,7 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
 
     gAnimationSpeed = clamp(gAnimationSpeed, 0.0f, 1000.0f);
 
-    if (gMarioAnimeData[gAnimationID].mAnimID != MAX_PLAYER_ANIMATIONS)
+    if (Player::isAnimationValid(gAnimationID))
         player->setAnimation(gAnimationID, gAnimationSpeed);
 
     return false;
