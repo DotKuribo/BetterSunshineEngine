@@ -13770,6 +13770,7 @@ __vt__15SampleCtrlShape=0x803DBEF8
 __vt__19SampleCtrlModelData=0x803DBF08
 __vt__13M3UModelMario=0x803DBF18
 __vt__9TMarioCap=0x803DBF40
+marioAnimeFiles=0x803DBF88
 gMarioAnimeData=0x803DC5C0
 __vt__15TWarpInCallBack=0x803DD29C
 __vt__15TBubbleCallBack=0x803DD2D4

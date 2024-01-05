@@ -85,15 +85,15 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, con
 constexpr size_t MarioAnimeDataSize = 336;
 constexpr size_t MarioAnimeInfoSize = 199;
 
-static TMarioAnimeData sPlayerAnimeDatas[MAX_PLAYER_ANIMATIONS];
-static size_t sPlayerAnimeDatasSize = MarioAnimeDataSize;
+TMarioAnimeData sPlayerAnimeDatas[MAX_PLAYER_ANIMATIONS] = {};
+size_t sPlayerAnimeDatasSize                             = MarioAnimeDataSize;
 
 struct InternalAnimInfo {
     int m_unk;
     const char *m_name;
 };
-static InternalAnimInfo sPlayerAnimeInfos[MAX_PLAYER_ANIMATIONS];
-static size_t sPlayerAnimeInfosSize = MarioAnimeInfoSize;
+InternalAnimInfo sPlayerAnimeInfos[MAX_PLAYER_ANIMATIONS] = {};
+size_t sPlayerAnimeInfosSize                              = MarioAnimeInfoSize;
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::isAnimationValid(u16 anm_idx) {
     if (anm_idx >= sPlayerAnimeDatasSize)
@@ -132,9 +132,11 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, co
     u16 info_idx = sPlayerAnimeDatas[anm_idx].mAnimID;
 
     if (info_idx >= sPlayerAnimeInfosSize) {
-        if (info_idx >= MAX_PLAYER_ANIMATIONS)
-            return false;
-        sPlayerAnimeInfosSize = info_idx + 1;
+        if (info_idx >= MAX_PLAYER_ANIMATIONS) {
+            info_idx = sPlayerAnimeInfosSize++;
+        } else {
+            sPlayerAnimeInfosSize = info_idx + 1;
+        }
     }
 
     TMarioAnimeData new_data   = {info_idx, static_cast<u16>(fludd_use ? 68 : 200), tex_anm_id,
@@ -840,7 +842,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802505A0, 0x8024832C, 0, 0), 0x546004E7);
 extern InternalAnimInfo marioAnimeFiles[199];
 
 BETTER_SMS_FOR_CALLBACK void initExtendedPlayerAnims() {
-
     for (size_t i = 0; i < MarioAnimeDataSize; ++i) {
         sPlayerAnimeDatas[i] = gMarioAnimeData[i];
         if (sPlayerAnimeDatas[i].mAnimID == 200) {
@@ -852,6 +853,9 @@ BETTER_SMS_FOR_CALLBACK void initExtendedPlayerAnims() {
         sPlayerAnimeInfos[i] = marioAnimeFiles[i];
     }
 }
+
+SMS_WRITE_32(SMS_PORT_REGION(0x80246AE4, 0, 0, 0), 0x38600800);
+SMS_WRITE_32(SMS_PORT_REGION(0x80246AF0, 0, 0, 0), 0x38600800);
 
 static SMS_ASM_FUNC void getExtendedPlayerAnimData() {
     SMS_ASM_BLOCK("lis       28, sPlayerAnimeDatas@h     \n\t"
@@ -876,3 +880,11 @@ static SMS_ASM_FUNC void getExtendedPlayerAnimInfoSize() {
                   "blr                                      \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80246B90, 0, 0, 0), getExtendedPlayerAnimInfoSize);
+
+static SMS_ASM_FUNC void isExtendedPumpOk() {
+    SMS_ASM_BLOCK("lis       3, sPlayerAnimeDatas@h    \n\t"
+                  "ori       0, 3, sPlayerAnimeDatas@l \n\t"
+                  "blr                                 \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802624E8, 0, 0, 0), isExtendedPumpOk);
+

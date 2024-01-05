@@ -139,6 +139,9 @@ extern void updateCollisionContext(TMario *, bool);
 extern void updateClimbContext(TMario *, bool);
 extern void checkForForceDropOnDeadActor(TMario *, bool);
 
+// PLAYER ANIM
+extern void initExtendedPlayerAnims();
+
 // PLAYER COLLISION
 extern void initializeWarpCallback(TMario *, bool);
 extern void processWarpCallback(TMario *, bool);
@@ -207,6 +210,7 @@ extern "C" void __cxa_pure_virtual();
 static void initLib() {
     makeExtendedObjDataTable();
     initLoadingScreen();
+    initExtendedPlayerAnims();
 
     // SETTINGS
     sSettingsGroup.addSetting(&gBugFixesSetting);
