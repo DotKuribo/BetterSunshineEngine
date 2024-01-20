@@ -474,6 +474,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "deregisterData__Q29BetterSMS6PlayerFP6TMarioPCc");
         KURIBO_EXPORT_AS(BetterSMS::Player::isAnimationValid,
                          "isAnimationValid__Q29BetterSMS6PlayerFUs");
+        KURIBO_EXPORT_AS(BetterSMS::Player::setAnimationData,
+                         "setAnimationData__Q29BetterSMS6PlayerFUsPbPbPUcPUc");
         KURIBO_EXPORT_AS(BetterSMS::Player::addAnimationData,
                          "addAnimationData__Q29BetterSMS6PlayerFPCcbbUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Player::addAnimationDataEx,

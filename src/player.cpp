@@ -102,6 +102,24 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::isAnimationValid(u16 anm_idx) {
     return sPlayerAnimeDatas[anm_idx].mAnimID != MAX_PLAYER_ANIMATIONS;
 }
 
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::setAnimationData(u16 anm_idx, bool *fludd_use,
+                                                               bool *jiggle_phys, u8 *tex_anm_id,
+                                                               u8 *hand) {
+    if (!isAnimationValid(anm_idx))
+        return false;
+
+    if (fludd_use)
+        sPlayerAnimeDatas[anm_idx].mFluddEnabled = *fludd_use ? 68 : 200;
+    if (jiggle_phys)
+        sPlayerAnimeDatas[anm_idx].mBodyFlags = *jiggle_phys ? 6 : 4;
+    if (tex_anm_id)
+        sPlayerAnimeDatas[anm_idx].mAnmTexPattern = *tex_anm_id;
+    if (hand)
+        sPlayerAnimeDatas[anm_idx].mMarioHand = *hand;
+
+    return true;
+}
+
 BETTER_SMS_FOR_EXPORT u16 BetterSMS::Player::addAnimationData(const char *anm_name, bool fludd_use,
                                                               bool jiggle_phys, u8 tex_anm_id,
                                                               u8 hand) {
@@ -887,4 +905,3 @@ static SMS_ASM_FUNC void isExtendedPumpOk() {
                   "blr                                 \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802624E8, 0, 0, 0), isExtendedPumpOk);
-

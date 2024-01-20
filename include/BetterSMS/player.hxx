@@ -36,6 +36,8 @@ namespace BetterSMS {
         void deregisterData(TMario *, const char *);
 
         bool isAnimationValid(u16 anm_idx);
+        bool setAnimationData(u16 anm_idx, bool *fludd_use, bool *jiggle_phys, u8 *tex_anm_id,
+                              u8 *hand);
         u16 addAnimationData(const char *anm_name, bool fludd_use, bool jiggle_phys = false,
                              u8 tex_anm_id = 0, u8 hand = 0);
         bool addAnimationDataEx(u16 anm_idx, const char *anm_name, bool fludd_use,
