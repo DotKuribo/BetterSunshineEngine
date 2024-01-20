@@ -192,6 +192,8 @@ BETTER_SMS_FOR_CALLBACK void updateDeadTriggerState(TMario *player, bool isMario
     auto *playerData = Player::getData(player);
     bool isAlive     = playerData->getCanSprayFludd();
     isAlive |= SMS_IsMarioTouchGround4cm__Fv();
+    isAlive |= (player->mState == TMario::STATE_G_POUND);
+    isAlive |= (player->mState == TMario::STATE_DIVE);
     isAlive |= (player->mState & TMario::STATE_WATERBORN);
     isAlive |= (player->mState == TMario::STATE_NPC_BOUNCE);
     isAlive |= (player->mState == 0x350 || player->mState == 0x10000357 ||
