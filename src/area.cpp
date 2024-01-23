@@ -48,14 +48,14 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
                 info->mNormalStageID = baseGameNormalStageTable[i];
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
                     auto scenarioID = baseGameShineTable[i][j];
-                    info->mScenarioIDs.push_back(baseGameShineTable[i][j]);
+                    info->mScenarioIDs.push_back(scenarioID);
                     info->mScenarioNameIDs.push_back(baseGameScenarioNameTable[scenarioID]);
                 }
             }
             if (baseGameExShineTable[i]) {
                 for (int j = 0; j < getExScenariosForScene(i); ++j) {
                     auto scenarioID = baseGameExShineTable[i][j];
-                    info->mExScenarioIDs.push_back(baseGameExShineTable[i][j]);
+                    info->mExScenarioIDs.push_back(scenarioID);
                     info->mExScenarioNameIDs.push_back(baseGameScenarioNameTable[scenarioID]);
                 }
             }
@@ -187,6 +187,25 @@ static bool getShineFlagForSelectScreen2() {
 SMS_WRITE_32(SMS_PORT_REGION(0x80174B8C, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x80174B90, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174B94, 0, 0, 0), getShineFlagForSelectScreen2);
+
+static void clampSelectScreenEpisodesVisible() {
+    TSelectMenu *menu;
+    SMS_FROM_GPR(31, menu);
+
+    int stageID = SMS_getShineStage(menu->mAreaID);
+    if (stageID == -1) {
+        // Default behavior
+        menu->mEpisodeCount = Min(menu->mEpisodeCount, 8);
+        return;
+    }
+
+    menu->mEpisodeCount = Min(menu->mEpisodeCount, sAreaInfos[stageID]->mScenarioIDs.size());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80174E8C, 0, 0, 0), clampSelectScreenEpisodesVisible);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174E90, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174E94, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174E98, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80174E9C, 0, 0, 0), 0x60000000);
 
 static const char *getScenarioNameForSelectScreen() {
     TSelectMenu *menu;
@@ -338,7 +357,8 @@ SMS_PATCH_B(SMS_PORT_REGION(0x80297584, 0, 0, 0), moveStage_override);
 
 #endif
 
-const char *loadStageNameFromBMG(void *global_bmg, u32 index) {
+const char *loadStageNameFromBMG(void *global_bmg) {
+    s32 area_id     = SMS_getShineStage(gpMarDirector->mAreaID);
     void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
     const char *message;
     if (stage_bmg) {
@@ -346,27 +366,65 @@ const char *loadStageNameFromBMG(void *global_bmg, u32 index) {
     } else {
         OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
                  "back to default stage name loading\n");
-        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, index);
+        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
     }
     return message ? message : "NO DATA";
 }
+SMS_PATCH_BL(SMS_PORT_REGION(0x80172704, 0x802A0C00, 0, 0), loadStageNameFromBMG);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG);
 
-const char *loadScenarioNameFromBMG(void *global_bmg, u32 index) {
-    void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
-
+const char *loadScenarioNameFromBMG(void *global_bmg) {
     const char *message;
+
+    s32 area_id     = SMS_getShineStage(gpMarDirector->mAreaID);
+    if (area_id > 255 || sAreaInfos[area_id] == nullptr) {
+        return "";
+    }
+
+    s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
+    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
+        return "";
+    }
+
+    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
+
+    void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
     if (stage_bmg) {
         message = (const char *)SMSGetMessageData__FPvUl(stage_bmg, 1);
     } else {
         OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
                                 "back to default scenario name loading\n");
-        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, index);
+        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
     }
     return message ? message : "NO DATA";
 }
-
-SMS_PATCH_BL(SMS_PORT_REGION(0x80172704, 0x802A0C00, 0, 0), loadStageNameFromBMG);
+SMS_WRITE_32(SMS_PORT_REGION(0x80172734, 0, 0, 0), 0x4800006C);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFromBMG);
 
-SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFromBMG);
+const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
+    const char *message;
+
+    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
+    if (area_id > 255 || sAreaInfos[area_id] == nullptr) {
+        return "";
+    }
+
+    s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
+    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
+        return "";
+    }
+
+    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
+
+    void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
+    if (stage_bmg) {
+        message = (const char *)SMSGetMessageData__FPvUl(stage_bmg, 1);
+    } else {
+        OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
+                 "back to default scenario name loading\n");
+        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+    }
+    return message ? message : "NO DATA";
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x80156D5C, 0, 0, 0), 0x480000A8);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFromBMGAfter);
