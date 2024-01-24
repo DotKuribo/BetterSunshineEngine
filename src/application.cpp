@@ -19,6 +19,7 @@
 #include "module.hxx"
 #include "music.hxx"
 #include "p_settings.hxx"
+#include "level_select/p_level_select.hxx"
 
 using namespace BetterSMS;
 
@@ -115,7 +116,7 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
 
-    auto *director = new TMenuDirector();
+    auto *director = new LevelSelectDirector();
     app->mDirector = director;
 
     director->setup(app->mDisplay, app->mGamePads[0]);

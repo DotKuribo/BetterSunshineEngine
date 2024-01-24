@@ -71,6 +71,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "src/cstd/*.cpp"
         "src/debug/*.c"
         "src/debug/*.cpp"
+        "src/level_select/*.c"
+        "src/level_select/*.cpp"
         "src/libs/*.cpp"
         "src/libs/dolphin/*.c"
         "src/moveset/*.c"

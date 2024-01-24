@@ -4,16 +4,25 @@
 #include <SMS/GC2D/SelectMenu.hxx>
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/raw_fn.hxx>
+using namespace BetterSMS::Stage;
 
-// TODO: Initialize AreaInfo structs for each stage in base game.
-// Custom registration should overwrite these defaults.
+namespace BetterSMS {
 
-static BetterSMS::Stage::AreaInfo *sAreaInfos[256];
-static BetterSMS::Stage::ExAreaInfo *sExAreaInfos[256];
+    namespace Stage {
+
+        static BetterSMS::Stage::AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX];
+        static BetterSMS::Stage::ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX];
+
+        BetterSMS::Stage::AreaInfo **getAreaInfos() { return sAreaInfos; }
+        BetterSMS::Stage::ExAreaInfo **getExAreaInfos() { return sExAreaInfos; }
+
+    }  // namespace Stage
+
+}  // namespace BetterSMS
 
 static size_t getScenariosForScene(int sceneID) {
-    if (sceneID == 0)
-        return 4;
+    if (sceneID == 0 || sceneID == 1)
+        return 0;
 
     return 8;
 }
@@ -63,7 +72,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
         }
 
         for (int i = 0; i < 32; ++i) {
-            auto exInfo = new BetterSMS::Stage::ExAreaInfo;
+            auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
             exInfo->mParentStageID = -1;
             exInfo->mShineID       = baseGameExShineTable2[i];
             BetterSMS::Stage::registerExStageInfo(i + 21, exInfo);
@@ -359,16 +368,7 @@ SMS_PATCH_B(SMS_PORT_REGION(0x80297584, 0, 0, 0), moveStage_override);
 
 const char *loadStageNameFromBMG(void *global_bmg) {
     s32 area_id     = SMS_getShineStage(gpMarDirector->mAreaID);
-    void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
-    const char *message;
-    if (stage_bmg) {
-        message = (const char *)SMSGetMessageData__FPvUl(stage_bmg, 0);
-    } else {
-        OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
-                 "back to default stage name loading\n");
-        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
-    }
-    return message ? message : "NO DATA";
+    return (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80172704, 0x802A0C00, 0, 0), loadStageNameFromBMG);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG);
@@ -376,8 +376,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG
 const char *loadScenarioNameFromBMG(void *global_bmg) {
     const char *message;
 
-    s32 area_id     = SMS_getShineStage(gpMarDirector->mAreaID);
-    if (area_id > 255 || sAreaInfos[area_id] == nullptr) {
+    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
+    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
         return "";
     }
 
@@ -387,16 +387,7 @@ const char *loadScenarioNameFromBMG(void *global_bmg) {
     }
 
     s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
-
-    void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
-    if (stage_bmg) {
-        message = (const char *)SMSGetMessageData__FPvUl(stage_bmg, 1);
-    } else {
-        OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
-                                "back to default scenario name loading\n");
-        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
-    }
-    return message ? message : "NO DATA";
+    return (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80172734, 0, 0, 0), 0x4800006C);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFromBMG);
@@ -405,7 +396,7 @@ const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
     const char *message;
 
     s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
-    if (area_id > 255 || sAreaInfos[area_id] == nullptr) {
+    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
         return "";
     }
 
@@ -415,16 +406,7 @@ const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
     }
 
     s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
-
-    void *stage_bmg = JKRFileLoader::getGlbResource("/scene/map/stagename.bmg");
-    if (stage_bmg) {
-        message = (const char *)SMSGetMessageData__FPvUl(stage_bmg, 1);
-    } else {
-        OSReport("[WARNING] /scene/map/stagename.bmg missing from archive, falling "
-                 "back to default scenario name loading\n");
-        message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
-    }
-    return message ? message : "NO DATA";
+    return (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80156D5C, 0, 0, 0), 0x480000A8);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFromBMGAfter);

@@ -7,6 +7,9 @@
 #include "libs/cheathandler.hxx"
 #include "libs/global_vector.hxx"
 
+#define BETTER_SMS_AREA_MAX   256
+#define BETTER_SMS_EXAREA_MAX 256
+
 namespace BetterSMS {
     namespace Stage {
         struct AreaInfo {
@@ -26,5 +29,5 @@ namespace BetterSMS {
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);
         bool registerExStageInfo(u8 stageID, ExAreaInfo *info);
-    }  // namespace BMG
+    }  // namespace Stage
 };     // namespace BetterSMS
