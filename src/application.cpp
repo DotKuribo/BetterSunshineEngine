@@ -123,7 +123,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app
 
     TFlagManager::smInstance->setFlag(0x20001, 3);
 
-    app->mCurrentScene.set(1, 0, 0);
+    app->mCurrentScene.set(sIntroArea, sIntroEpisode, 0);
+    app->mNextScene.set(sIntroArea, sIntroEpisode, 0);
     return false;
 }
 

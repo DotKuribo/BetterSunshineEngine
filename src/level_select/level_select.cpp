@@ -130,6 +130,7 @@ void LevelSelectScreen::processInput() {
             if (selectingEpisode) {
                 // Tell director to load the scene
                 mSelectedEpisodeID = mScrollEpisodeID;
+                mShouldExit        = true;
             } else {
                 mSelectedAreaID = mScrollAreaID;
             }
@@ -140,7 +141,7 @@ void LevelSelectScreen::processInput() {
                 mSelectedAreaID    = -1;
                 mSelectedEpisodeID = -1;
             } else {
-                // Potentially handle leave back to title screen
+                mShouldExit = true;
             }
         }
     }
@@ -452,10 +453,12 @@ s32 LevelSelectDirector::direct() {
         mSelectScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
 
         // The area and episode have been selected, enter the stage.
-        if (mSelectScreen->mSelectedAreaID != -1 && mSelectScreen->mSelectedEpisodeID != -1) {
-            gpApplication.mNextScene.mAreaID =
-                mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]->mStageID;
-            gpApplication.mNextScene.mEpisodeID = mSelectScreen->mSelectedEpisodeID;
+        if (mSelectScreen->mShouldExit) {
+            if (mSelectScreen->mSelectedAreaID != -1 && mSelectScreen->mSelectedEpisodeID != -1) {
+                gpApplication.mNextScene.mAreaID =
+                    mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]->mStageID;
+                gpApplication.mNextScene.mEpisodeID = mSelectScreen->mSelectedEpisodeID;
+            }
             mState                              = State::EXIT;
         }
         break;

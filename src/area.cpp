@@ -42,7 +42,6 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
         reinterpret_cast<const u8 *>(SMS_PORT_REGION(0x803DF498, 0, 0, 0));
     const u8 *baseGameExShineTable2 =
         reinterpret_cast<const u8 *>(SMS_PORT_REGION(0x803DF4D8, 0, 0, 0));
-
     {
         auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
@@ -52,9 +51,9 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
         for (int i = 0; i < 10; ++i) {
             auto info                = new BetterSMS::Stage::AreaInfo;
             info->mShineSelectPaneID = scenePaneIDs[i];
+            info->mNormalStageID     = baseGameNormalStageTable[i];
+            info->mShineStageID      = baseGameStageTable[info->mNormalStageID];
             if (baseGameShineTable[i]) {
-                info->mShineStageID  = baseGameStageTable[i];
-                info->mNormalStageID = baseGameNormalStageTable[i];
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
                     auto scenarioID = baseGameShineTable[i][j];
                     info->mScenarioIDs.push_back(scenarioID);
@@ -367,8 +366,13 @@ SMS_PATCH_B(SMS_PORT_REGION(0x80297584, 0, 0, 0), moveStage_override);
 #endif
 
 const char *loadStageNameFromBMG(void *global_bmg) {
-    s32 area_id     = SMS_getShineStage(gpMarDirector->mAreaID);
-    return (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
+    const char *message;
+
+    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+
+    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
+    message     = (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
+    return message ? message : errMessage;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80172704, 0x802A0C00, 0, 0), loadStageNameFromBMG);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG);
@@ -376,18 +380,22 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG
 const char *loadScenarioNameFromBMG(void *global_bmg) {
     const char *message;
 
+    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+
     s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
     if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
-        return "";
+        return errMessage;
     }
 
     s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
     if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
-        return "";
+        return errMessage;
     }
 
     s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
-    return (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+
+    message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+    return message ? message : errMessage;
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80172734, 0, 0, 0), 0x4800006C);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFromBMG);
@@ -395,18 +403,22 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFrom
 const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
     const char *message;
 
+    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+
     s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
     if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
-        return "";
+        return errMessage;
     }
 
     s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
     if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
-        return "";
+        return errMessage;
     }
 
     s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
-    return (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+
+    message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+    return message ? message : errMessage;
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80156D5C, 0, 0, 0), 0x480000A8);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFromBMGAfter);

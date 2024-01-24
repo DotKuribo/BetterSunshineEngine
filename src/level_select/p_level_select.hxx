@@ -37,7 +37,7 @@ public:
     LevelSelectScreen(TMarioGamePad *controller)
         : TViewObj("<LevelSelectScreen>"), mScreen(nullptr), mController(controller),
           mScrollAreaID(0), mScrollEpisodeID(0), mSelectedAreaID(-1), mSelectedEpisodeID(-1),
-          mAreaInfos() {}
+          mAreaInfos(), mShouldExit(false) {}
 
     ~LevelSelectScreen() override {}
 
@@ -50,6 +50,7 @@ protected:
     void processInput();
 
 private:
+    bool mShouldExit;
     s32 mColumnSize;
     s32 mColumnCount;
     s32 mScrollAreaID;
