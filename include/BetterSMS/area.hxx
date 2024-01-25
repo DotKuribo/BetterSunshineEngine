@@ -23,7 +23,8 @@ namespace BetterSMS {
         };
 
         struct ExAreaInfo {
-            u8 mParentStageID;
+            u8 mShineStageID;
+            u8 mNormalStageID;
             s32 mShineID;
         };
 

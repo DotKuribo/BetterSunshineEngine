@@ -16,6 +16,33 @@
 #include "p_area.hxx"
 #include "p_level_select.hxx"
 #include <raw_fn.hxx>
+#include <DVD.h>
+
+static bool sceneExists(u32 areaID, u32 episodeID) {
+    if (areaID >= gpApplication.mStageArchiveAry->mChildren.size())
+        return false;
+
+    auto *areaInfo = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
+        gpApplication.mStageArchiveAry->mChildren[areaID]);
+
+    if (episodeID >= areaInfo->mChildren.size())
+        return false;
+
+    TScenarioArchiveName episodeInfo = areaInfo->mChildren[episodeID];
+    char stageName[128];
+    snprintf(stageName, 128, "/data/scene/%s", episodeInfo.mArchiveName);
+    char *loc = strstr(stageName, ".arc");
+    if (loc) {
+        strncpy(loc, ".szs", 4);
+    }
+
+    if (DVDConvertPathToEntrynum(stageName) >= 0) {
+        return true;
+    } else {
+        OSReport("Area ID %d, Episode ID %d, Name %s NOT FOUND\n", areaID, episodeID, stageName);
+        return false;
+    }
+}
 
 void LevelSelectScreen::perform(u32 flags, JDrama::TGraphics *graphics) {
     if ((flags & 0x1)) {
@@ -182,7 +209,13 @@ void LevelSelectDirector::setup(JDrama::TDisplay *display, TMarioGamePad *contro
     OSResumeThread(&gSetupThread);
 }
 
+static JKRMemArchive *s_title_archive = nullptr;
+
 void LevelSelectDirector::initialize() {
+    void *archive   = SMSLoadArchive("/data/title.arc", nullptr, 0, nullptr);
+    s_title_archive = new JKRMemArchive();
+    s_title_archive->mountFixed(archive, JKRMemBreakFlag::UNK_0);
+
     initializeDramaHierarchy();
     initializeLevelsLayout();
 }
@@ -265,8 +298,30 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
     mSelectScreen->mScreen = new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
     {
+        const ResTIMG *bg_timg = reinterpret_cast<const ResTIMG *>(
+            JKRFileLoader::getGlbResource("/title/timg/title_test.bti"));
+        if (bg_timg) {
+            JUTTexture *bg_texture      = new JUTTexture();
+            bg_texture->mTexObj2.val[2] = 0;
+            bg_texture->storeTIMG(bg_timg);
+            bg_texture->_50 = false;
+
+            J2DPicture *background =
+                new J2DPicture('BG_0', {0, 0, screenOrthoWidth, screenRenderHeight});
+            background->insert(bg_texture, 0, 1.0f);
+
+            // Darken bg
+            background->mColorOverlay    = {0, 0, 0, 128};
+            background->mVertexColors[0] = {100, 100, 100, 128};
+            background->mVertexColors[1] = {100, 100, 100, 128};
+            background->mVertexColors[2] = {100, 100, 100, 128};
+            background->mVertexColors[3] = {100, 100, 100, 128};
+
+            mSelectScreen->mScreen->mChildrenList.append(&background->mPtrLink);
+        }
+
         J2DTextBox *label = new J2DTextBox(
-            'logo', {0, screenRenderHeight - 90, 600, screenRenderHeight}, gpSystemFont->mFont,
+            'logo', {0, screenRenderHeight - 110, 600, screenRenderHeight}, gpSystemFont->mFont,
             "Level Select", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         label->mCharSizeX   = 24;
         label->mCharSizeY   = 24;
@@ -275,17 +330,21 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
         J2DTextBox *exitLabel = new J2DTextBox(
             'exit',
-            {static_cast<int>(20 - BetterSMS::getScreenRatioAdjustX()), screenRenderHeight - 90,
+            {static_cast<int>(20 - BetterSMS::getScreenRatioAdjustX()), screenRenderHeight - 110,
              static_cast<int>(100 - BetterSMS::getScreenRatioAdjustX()), screenRenderHeight},
             gpSystemFont->mFont, "# Exit", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
         mSelectScreen->mScreen->mChildrenList.append(&exitLabel->mPtrLink);
     }
 
-    BetterSMS::Stage::AreaInfo **areaInfos = BetterSMS::Stage::getAreaInfos();
+    BetterSMS::Stage::AreaInfo **areaInfos     = BetterSMS::Stage::getAreaInfos();
+    BetterSMS::Stage::ExAreaInfo **exAreaInfos = BetterSMS::Stage::getExAreaInfos();
 
     size_t areaCount = 0;
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
         if (!areaInfos[i]) {
+            continue;
+        }
+        if (!sceneExists(areaInfos[i]->mNormalStageID, 0)) {
             continue;
         }
         areaCount += 1;
@@ -302,7 +361,6 @@ void LevelSelectDirector::initializeLevelsLayout() {
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
         auto *info = areaInfos[i];
         if (!info) {
-            OSReport("Skipping area index %d\n", i);
             continue;
         }
 
@@ -323,19 +381,21 @@ void LevelSelectDirector::initializeLevelsLayout() {
             snprintf(groupTextBuf, 64, "%s", stageName);
 
             J2DTextBox *label = new J2DTextBox(
-                ('l' << 24) | info->mNormalStageID, {0, 0, 600, 90}, gpSystemFont->mFont,
+                ('l' << 24) | info->mNormalStageID, {0, 30, 600, 120}, gpSystemFont->mFont,
                 groupTextBuf, J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-            label->mCharSizeX   = 24;
-            label->mCharSizeY   = 24;
-            label->mNewlineSize = 24;
+            label->mCharSizeX      = 26;
+            label->mCharSizeY      = 26;
+            label->mNewlineSize    = 26;
+            label->mGradientTop    = {240, 10, 170, 255};
+            label->mGradientBottom = {180, 10, 230, 255};
             areaPane->mChildrenList.append(&label->mPtrLink);
         }
 
         OSReport("Stagename %d: %s\n", i, stageName);
 
-        int textWidth = 560 / columns;
-        int textX     = 20 + (flatRow / rowsPerColumn) * textWidth;
-        int textY     = 50 + (flatRow % rowsPerColumn) * (areaFontSize + 2);
+        int textWidth = 500 / columns;
+        int textX     = 50 + (flatRow / rowsPerColumn) * (textWidth + 4);
+        int textY     = 70 + (flatRow % rowsPerColumn) * (areaFontSize + 2);
 
         // Area listing
         J2DTextBox *areaText = new J2DTextBox(
@@ -365,6 +425,10 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
         s32 en = 0, eny = 0;
         for (s32 j = 0; j < info->mScenarioNameIDs.size(); ++j) {
+            if (!sceneExists(info->mNormalStageID, j)) {
+                continue;
+            }
+
             if (info->mScenarioIDs.size() != info->mScenarioNameIDs.size()) {
                 OSReport("[WARNING] Scenario count mismatches name count! %lu / %lu\n",
                          info->mScenarioIDs.size(), info->mScenarioNameIDs.size());
@@ -372,9 +436,6 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
             u8 scenarioID      = info->mScenarioIDs[j];
             s32 scenarioNameID = info->mScenarioNameIDs[j];
-
-            OSReport("[%s] Index %d, ID: %u, Name ID: %d\n", stageName, j, scenarioID,
-                     scenarioNameID);
 
             J2DTextBox *episodeText = new J2DTextBox(
                 ('e' << 24) | scenarioID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
@@ -403,10 +464,55 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
             EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
             episodeInfo->mTextBox        = episodeText;
-            episodeInfo->mScenarioID     = scenarioID;
+            episodeInfo->mNormalStageID  = info->mNormalStageID;
+            episodeInfo->mScenarioID     = j;
             areaMenuInfo->mEpisodeInfos.insert(areaMenuInfo->mEpisodeInfos.end(), episodeInfo);
 
             en += 1;
+        }
+
+        size_t exrow = 0;
+        for (s32 j = 0; j < BETTER_SMS_EXAREA_MAX; ++j) {
+            auto *exinfo = exAreaInfos[j];
+            if (!exinfo) {
+                continue;
+            }
+
+            if (info->mShineStageID != exinfo->mShineStageID) {
+                continue;
+            }
+
+            if (!sceneExists(exinfo->mNormalStageID, 0)) {
+                continue;
+            }
+
+            s32 exareaNameID = info->mExScenarioNameIDs[exrow];
+
+            J2DTextBox *episodeText = new J2DTextBox(
+                ('e' << 24) | exinfo->mNormalStageID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
+                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+            {
+                char *episodeTextBuf = new char[50];
+                memset(episodeTextBuf, 0, 50);
+                snprintf(episodeTextBuf, 50, "Secret Course %ld", j);
+
+                episodeText->mStrPtr         = episodeTextBuf;
+                episodeText->mCharSizeX      = 21;
+                episodeText->mCharSizeY      = 21;
+                episodeText->mNewlineSize    = 21;
+                episodeText->mGradientBottom = {255, 255, 255, 255};
+                episodeText->mGradientTop    = {255, 255, 255, 255};
+            }
+            areaPane->mChildrenList.append(&episodeText->mPtrLink);
+
+            EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+            episodeInfo->mTextBox        = episodeText;
+            episodeInfo->mNormalStageID  = exinfo->mNormalStageID;
+            episodeInfo->mScenarioID     = 0;
+            areaMenuInfo->mEpisodeInfos.insert(areaMenuInfo->mEpisodeInfos.end(), episodeInfo);
+
+            eny += 1;
+            exrow += 1;
         }
 
         mSelectScreen->mScreen->mChildrenList.append(&areaPane->mPtrLink);
@@ -455,11 +561,12 @@ s32 LevelSelectDirector::direct() {
         // The area and episode have been selected, enter the stage.
         if (mSelectScreen->mShouldExit) {
             if (mSelectScreen->mSelectedAreaID != -1 && mSelectScreen->mSelectedEpisodeID != -1) {
-                gpApplication.mNextScene.mAreaID =
-                    mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]->mStageID;
-                gpApplication.mNextScene.mEpisodeID = mSelectScreen->mSelectedEpisodeID;
+                EpisodeMenuInfo *info = mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]
+                                            ->mEpisodeInfos[mSelectScreen->mSelectedEpisodeID];
+                gpApplication.mNextScene.mAreaID = info->mNormalStageID;
+                gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
             }
-            mState                              = State::EXIT;
+            mState = State::EXIT;
         }
         break;
     case State::EXIT: {

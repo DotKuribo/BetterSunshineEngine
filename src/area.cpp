@@ -72,7 +72,8 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
 
         for (int i = 0; i < 32; ++i) {
             auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
-            exInfo->mParentStageID = -1;
+            exInfo->mNormalStageID = i + 0x14;
+            exInfo->mShineStageID  = baseGameStageTable[i + 0x14];
             exInfo->mShineID       = baseGameExShineTable2[i];
             BetterSMS::Stage::registerExStageInfo(i + 21, exInfo);
         }

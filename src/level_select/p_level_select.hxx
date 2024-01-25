@@ -19,6 +19,7 @@
 
 struct EpisodeMenuInfo {
     J2DTextBox *mTextBox;
+    s32 mNormalStageID;
     s32 mScenarioID;
 };
 
