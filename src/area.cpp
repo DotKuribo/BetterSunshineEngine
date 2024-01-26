@@ -70,6 +70,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
             BetterSMS::Stage::registerStageInfo(i, info);
         }
 
+
         for (int i = 0; i < 32; ++i) {
             auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
             exInfo->mNormalStageID = i + 0x14;

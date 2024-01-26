@@ -116,7 +116,12 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
 
+    #if 1
     auto *director = new LevelSelectDirector();
+    #else
+    auto *director = new TMenuDirector();
+    #endif
+
     app->mDirector = director;
 
     director->setup(app->mDisplay, app->mGamePads[0]);

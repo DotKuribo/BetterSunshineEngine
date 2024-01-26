@@ -15,8 +15,8 @@
 #include "module.hxx"
 #include "p_area.hxx"
 #include "p_level_select.hxx"
-#include <raw_fn.hxx>
 #include <DVD.h>
+#include <raw_fn.hxx>
 
 static bool sceneExists(u32 areaID, u32 episodeID) {
     if (areaID >= gpApplication.mStageArchiveAry->mChildren.size())
@@ -155,9 +155,12 @@ void LevelSelectScreen::processInput() {
     {
         if ((mController->mButtons.mFrameInput & TMarioGamePad::A)) {
             if (selectingEpisode) {
-                // Tell director to load the scene
-                mSelectedEpisodeID = mScrollEpisodeID;
-                mShouldExit        = true;
+                // Check if there are any episodes to select
+                if (mAreaInfos[mSelectedAreaID]->mEpisodeInfos.size() > 0) {
+                    // Tell director to load the scene
+                    mSelectedEpisodeID = mScrollEpisodeID;
+                    mShouldExit        = true;
+                }
             } else {
                 mSelectedAreaID = mScrollAreaID;
             }
@@ -173,6 +176,193 @@ void LevelSelectScreen::processInput() {
         }
     }
 }
+
+void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo &info, void *scenarioNameData) {
+    s32 en = 0, eny = 0;
+    for (s32 j = 0; j < info.mScenarioIDs.size(); ++j) {
+        if (!sceneExists(info.mNormalStageID, j)) {
+            continue;
+        }
+
+        if (info.mScenarioIDs.size() > info.mScenarioNameIDs.size()) {
+            OSReport("[WARNING] Scenario count mismatches name count! %lu / %lu\n",
+                     info.mScenarioIDs.size(), info.mScenarioNameIDs.size());
+        }
+
+        u8 scenarioID      = info.mScenarioIDs[j];
+        s32 scenarioNameID = j >= info.mScenarioNameIDs.size() ? -1 : info.mScenarioNameIDs[j];
+
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | scenarioID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[100];
+            memset(episodeTextBuf, 0, 100);
+
+            if (scenarioNameID != -1) {
+                const char *scenarioName =
+                    (const char *)SMSGetMessageData__FPvUl(scenarioNameData, scenarioNameID);
+                SMS_ASSERT(scenarioName,
+                           "Missing episode name for scenario ID %u (%X) [name ID %d (%X)]",
+                           scenarioID, scenarioID, scenarioNameID, scenarioNameID);
+                snprintf(episodeTextBuf, 100, "%s", scenarioName);
+            } else {
+                snprintf(episodeTextBuf, 100, "Scenario %ld", j);
+            }
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 21;
+            episodeText->mNewlineSize    = 21;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+
+            eny += 1;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = info.mNormalStageID;
+        episodeInfo->mScenarioID     = j;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        en += 1;
+    }
+
+    size_t exrow = 0;
+    for (s32 j = 0; j < BETTER_SMS_EXAREA_MAX; ++j) {
+        auto *exinfo = Stage::getExAreaInfos()[j];
+        if (!exinfo) {
+            continue;
+        }
+
+        if (info.mShineStageID != exinfo->mShineStageID) {
+            continue;
+        }
+
+        if (!sceneExists(exinfo->mNormalStageID, 0)) {
+            continue;
+        }
+
+        s32 exareaNameID = info.mExScenarioNameIDs[exrow];
+
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | exinfo->mNormalStageID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[50];
+            memset(episodeTextBuf, 0, 50);
+            snprintf(episodeTextBuf, 50, "Secret Course %ld", j);
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 21;
+            episodeText->mNewlineSize    = 21;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = exinfo->mNormalStageID;
+        episodeInfo->mScenarioID     = 0;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        eny += 1;
+        exrow += 1;
+    }
+}
+
+void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Stage::AreaInfo &info,
+                                                   void *scenarioNameData) {
+    auto *areaInfoAry = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
+        gpApplication.mStageArchiveAry->mChildren[1]);
+
+    s32 en = 0, eny = 0;
+    for (s32 j = 0; j < areaInfoAry->mChildren.size(); ++j) {
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | ('d' << 16) | j, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[100];
+            memset(episodeTextBuf, 0, 100);
+            snprintf(episodeTextBuf, 100, "Scenario %ld", j);
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 16;
+            episodeText->mNewlineSize    = 16;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+
+            eny += 1;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = info.mNormalStageID;
+        episodeInfo->mScenarioID     = j;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        en += 1;
+    }
+
+    size_t exrow = 0;
+    for (s32 j = 0; j < BETTER_SMS_EXAREA_MAX; ++j) {
+        auto *exinfo = Stage::getExAreaInfos()[j];
+        if (!exinfo) {
+            continue;
+        }
+
+        if (info.mShineStageID != exinfo->mShineStageID) {
+            continue;
+        }
+
+        if (!sceneExists(exinfo->mNormalStageID, 0)) {
+            continue;
+        }
+
+        s32 exareaNameID = info.mExScenarioNameIDs[exrow];
+
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | exinfo->mNormalStageID, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[50];
+            memset(episodeTextBuf, 0, 50);
+            snprintf(episodeTextBuf, 50, "Secret Course %ld", j);
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 16;
+            episodeText->mNewlineSize    = 16;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = exinfo->mNormalStageID;
+        episodeInfo->mScenarioID     = 0;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        eny += 1;
+        exrow += 1;
+    }
+}
+
+void LevelSelectScreen::genEpisodeTextTest1(AreaMenuInfo &menu, const Stage::AreaInfo &info,
+                                            void *scenarioNameData) {}
+
+void LevelSelectScreen::genEpisodeTextTest2(AreaMenuInfo &menu, const Stage::AreaInfo &info,
+                                            void *scenarioNameData) {}
+
+void LevelSelectScreen::genEpisodeTextScale(AreaMenuInfo &menu, const Stage::AreaInfo &info,
+                                            void *scenarioNameData) {}
 
 AreaMenuInfo *LevelSelectScreen::getAreaInfo(u32 index) {
     if (index >= mAreaInfos.size())
@@ -422,97 +612,10 @@ void LevelSelectDirector::initializeLevelsLayout() {
         areaMenuInfo->mEpisodeListPane = areaPane;
         areaMenuInfo->mTextBox         = areaText;
         areaMenuInfo->mStageID         = info->mNormalStageID;
-
-        s32 en = 0, eny = 0;
-        for (s32 j = 0; j < info->mScenarioNameIDs.size(); ++j) {
-            if (!sceneExists(info->mNormalStageID, j)) {
-                continue;
-            }
-
-            if (info->mScenarioIDs.size() != info->mScenarioNameIDs.size()) {
-                OSReport("[WARNING] Scenario count mismatches name count! %lu / %lu\n",
-                         info->mScenarioIDs.size(), info->mScenarioNameIDs.size());
-            }
-
-            u8 scenarioID      = info->mScenarioIDs[j];
-            s32 scenarioNameID = info->mScenarioNameIDs[j];
-
-            J2DTextBox *episodeText = new J2DTextBox(
-                ('e' << 24) | scenarioID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
-                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-            {
-                const char *scenarioName = (const char *)SMSGetMessageData__FPvUl(
-                    scenarioNameData, info->mScenarioNameIDs[j]);
-                SMS_ASSERT(scenarioName,
-                           "Missing episode name for scenario ID %u (%X) [name ID %d (%X)]",
-                           scenarioID, scenarioID, scenarioNameID, scenarioNameID);
-
-                char *episodeTextBuf = new char[100];
-                memset(episodeTextBuf, 0, 100);
-                snprintf(episodeTextBuf, 100, "%s", scenarioName);
-
-                episodeText->mStrPtr         = episodeTextBuf;
-                episodeText->mCharSizeX      = 21;
-                episodeText->mCharSizeY      = 21;
-                episodeText->mNewlineSize    = 21;
-                episodeText->mGradientBottom = {255, 255, 255, 255};
-                episodeText->mGradientTop    = {255, 255, 255, 255};
-
-                eny += 1;
-            }
-            areaPane->mChildrenList.append(&episodeText->mPtrLink);
-
-            EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-            episodeInfo->mTextBox        = episodeText;
-            episodeInfo->mNormalStageID  = info->mNormalStageID;
-            episodeInfo->mScenarioID     = j;
-            areaMenuInfo->mEpisodeInfos.insert(areaMenuInfo->mEpisodeInfos.end(), episodeInfo);
-
-            en += 1;
-        }
-
-        size_t exrow = 0;
-        for (s32 j = 0; j < BETTER_SMS_EXAREA_MAX; ++j) {
-            auto *exinfo = exAreaInfos[j];
-            if (!exinfo) {
-                continue;
-            }
-
-            if (info->mShineStageID != exinfo->mShineStageID) {
-                continue;
-            }
-
-            if (!sceneExists(exinfo->mNormalStageID, 0)) {
-                continue;
-            }
-
-            s32 exareaNameID = info->mExScenarioNameIDs[exrow];
-
-            J2DTextBox *episodeText = new J2DTextBox(
-                ('e' << 24) | exinfo->mNormalStageID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
-                gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-            {
-                char *episodeTextBuf = new char[50];
-                memset(episodeTextBuf, 0, 50);
-                snprintf(episodeTextBuf, 50, "Secret Course %ld", j);
-
-                episodeText->mStrPtr         = episodeTextBuf;
-                episodeText->mCharSizeX      = 21;
-                episodeText->mCharSizeY      = 21;
-                episodeText->mNewlineSize    = 21;
-                episodeText->mGradientBottom = {255, 255, 255, 255};
-                episodeText->mGradientTop    = {255, 255, 255, 255};
-            }
-            areaPane->mChildrenList.append(&episodeText->mPtrLink);
-
-            EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-            episodeInfo->mTextBox        = episodeText;
-            episodeInfo->mNormalStageID  = exinfo->mNormalStageID;
-            episodeInfo->mScenarioID     = 0;
-            areaMenuInfo->mEpisodeInfos.insert(areaMenuInfo->mEpisodeInfos.end(), episodeInfo);
-
-            eny += 1;
-            exrow += 1;
+        if (i == 1) {
+            mSelectScreen->genEpisodeTextDelfinoPlaza(*areaMenuInfo, *info, scenarioNameData);
+        } else {
+            mSelectScreen->genEpisodeText(*areaMenuInfo, *info, scenarioNameData);
         }
 
         mSelectScreen->mScreen->mChildrenList.append(&areaPane->mPtrLink);
@@ -563,7 +666,7 @@ s32 LevelSelectDirector::direct() {
             if (mSelectScreen->mSelectedAreaID != -1 && mSelectScreen->mSelectedEpisodeID != -1) {
                 EpisodeMenuInfo *info = mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]
                                             ->mEpisodeInfos[mSelectScreen->mSelectedEpisodeID];
-                gpApplication.mNextScene.mAreaID = info->mNormalStageID;
+                gpApplication.mNextScene.mAreaID    = info->mNormalStageID;
                 gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
             }
             mState = State::EXIT;

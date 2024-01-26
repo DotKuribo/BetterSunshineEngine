@@ -17,6 +17,8 @@
 #include "p_area.hxx"
 #include <GC2D/SelectGrad.hxx>
 
+using namespace BetterSMS;
+
 struct EpisodeMenuInfo {
     J2DTextBox *mTextBox;
     s32 mNormalStageID;
@@ -49,6 +51,11 @@ public:
 
 protected:
     void processInput();
+    void genEpisodeText(AreaMenuInfo &, const Stage::AreaInfo &, void *);
+    void genEpisodeTextDelfinoPlaza(AreaMenuInfo &, const Stage::AreaInfo &, void *);
+    void genEpisodeTextTest1(AreaMenuInfo &, const Stage::AreaInfo &, void *);
+    void genEpisodeTextTest2(AreaMenuInfo &, const Stage::AreaInfo &, void *);
+    void genEpisodeTextScale(AreaMenuInfo &, const Stage::AreaInfo &, void *);
 
 private:
     bool mShouldExit;
