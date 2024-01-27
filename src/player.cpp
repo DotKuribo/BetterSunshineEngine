@@ -108,10 +108,22 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::setAnimationData(u16 anm_idx, bool
     if (!isAnimationValid(anm_idx))
         return false;
 
-    if (fludd_use)
-        sPlayerAnimeDatas[anm_idx].mFluddEnabled = *fludd_use ? 68 : 200;
-    if (jiggle_phys)
-        sPlayerAnimeDatas[anm_idx].mBodyFlags = *jiggle_phys ? 6 : 4;
+    if (fludd_use) {
+        if (*fludd_use) {
+            sPlayerAnimeDatas[anm_idx].mAnimFluddID = 68;
+            sPlayerAnimeDatas[anm_idx].mBodyFlags |= TMarioAnimeData::FLUDD_GRIP;
+        } else {
+            sPlayerAnimeDatas[anm_idx].mAnimFluddID = sPlayerAnimeInfosSize + 1;
+            sPlayerAnimeDatas[anm_idx].mBodyFlags &= ~TMarioAnimeData::FLUDD_GRIP;
+        }
+    }
+    if (jiggle_phys) {
+        if (*jiggle_phys) {
+            sPlayerAnimeDatas[anm_idx].mBodyFlags |= TMarioAnimeData::JIGGLE_PHYS;
+        } else {
+            sPlayerAnimeDatas[anm_idx].mBodyFlags &= ~TMarioAnimeData::JIGGLE_PHYS;
+        }
+    }
     if (tex_anm_id)
         sPlayerAnimeDatas[anm_idx].mAnmTexPattern = *tex_anm_id;
     if (hand)
@@ -123,12 +135,20 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::setAnimationData(u16 anm_idx, bool
 BETTER_SMS_FOR_EXPORT u16 BetterSMS::Player::addAnimationData(const char *anm_name, bool fludd_use,
                                                               bool jiggle_phys, u8 tex_anm_id,
                                                               u8 hand) {
-    TMarioAnimeData new_data                   = {static_cast<u16>(sPlayerAnimeDatasSize),
-                                                  static_cast<u16>(fludd_use ? 68 : 200),
-                                                  tex_anm_id,
-                                                  hand,
-                                                  static_cast<u8>(jiggle_phys ? 6 : 4),
-                                                  0x16};
+    // Update the sentinel ref
+    for (size_t i = 0; i < sPlayerAnimeDatasSize; ++i) {
+        if (sPlayerAnimeDatas[i].mAnimFluddID == sPlayerAnimeInfosSize + 1) {
+            sPlayerAnimeDatas[i].mAnimFluddID += 1;
+        }
+    }
+
+    TMarioAnimeData new_data = {static_cast<u16>(sPlayerAnimeDatasSize),
+                                static_cast<u16>(fludd_use ? 68 : sPlayerAnimeInfosSize + 2),
+                                tex_anm_id,
+                                hand,
+                                static_cast<u8>(jiggle_phys ? 6 : 4),
+                                0x16};
+
     sPlayerAnimeDatas[sPlayerAnimeDatasSize++] = new_data;
 
     InternalAnimInfo new_info                  = {1, anm_name};
@@ -151,14 +171,30 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, co
 
     if (info_idx >= sPlayerAnimeInfosSize) {
         if (info_idx >= MAX_PLAYER_ANIMATIONS) {
+            // Update the sentinel ref
+            for (size_t i = 0; i < sPlayerAnimeDatasSize; ++i) {
+                if (sPlayerAnimeDatas[i].mAnimFluddID == sPlayerAnimeInfosSize + 1) {
+                    sPlayerAnimeDatas[i].mAnimFluddID += 1;
+                }
+            }
             info_idx = sPlayerAnimeInfosSize++;
         } else {
+            // Update the sentinel ref
+            for (size_t i = 0; i < sPlayerAnimeDatasSize; ++i) {
+                if (sPlayerAnimeDatas[i].mAnimFluddID == sPlayerAnimeInfosSize + 1) {
+                    sPlayerAnimeDatas[i].mAnimFluddID = info_idx + 2;
+                }
+            }
             sPlayerAnimeInfosSize = info_idx + 1;
         }
     }
 
-    TMarioAnimeData new_data   = {info_idx, static_cast<u16>(fludd_use ? 68 : 200), tex_anm_id,
-                                  hand,     static_cast<u8>(jiggle_phys ? 6 : 4),   0x16};
+    TMarioAnimeData new_data   = {info_idx,
+                                  static_cast<u16>(fludd_use ? 68 : sPlayerAnimeInfosSize + 1),
+                                  tex_anm_id,
+                                  hand,
+                                  static_cast<u8>(jiggle_phys ? 6 : 4),
+                                  0x16};
     sPlayerAnimeDatas[anm_idx] = new_data;
 
     InternalAnimInfo new_info   = {1, anm_name};
@@ -865,6 +901,9 @@ BETTER_SMS_FOR_CALLBACK void initExtendedPlayerAnims() {
         if (sPlayerAnimeDatas[i].mAnimID == 200) {
             sPlayerAnimeDatas[i].mAnimID = MAX_PLAYER_ANIMATIONS;
         }
+        if (sPlayerAnimeDatas[i].mAnimFluddID == 200) {
+            sPlayerAnimeDatas[i].mAnimFluddID = MAX_PLAYER_ANIMATIONS;
+        }
     }
 
     for (size_t i = 0; i < MarioAnimeInfoSize; ++i) {
@@ -899,9 +938,63 @@ static SMS_ASM_FUNC void getExtendedPlayerAnimInfoSize() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80246B90, 0, 0, 0), getExtendedPlayerAnimInfoSize);
 
-static SMS_ASM_FUNC void isExtendedPumpOk() {
+static SMS_ASM_FUNC void checkExtendedPlayerAnimDataBodyFlags() {
+    SMS_ASM_BLOCK("lis       3, sPlayerAnimeDatas@h      \n\t"
+                  "ori       3, 3, sPlayerAnimeDatas@l   \n\t"
+                  "add       3, 3, 0                     \n\t"
+                  "lbz       0, 6 (3)                    \n\t"
+                  "blr                                   \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80245210, 0, 0, 0), checkExtendedPlayerAnimDataBodyFlags);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802452CC, 0, 0, 0), checkExtendedPlayerAnimDataBodyFlags);
+
+static SMS_ASM_FUNC void checkExtendedPlayerAnimDataFluddUpper() {
+    SMS_ASM_BLOCK("lis       6, sPlayerAnimeDatas@h         \n\t"
+                  "ori       6, 6, sPlayerAnimeDatas@l      \n\t"
+                  "addi      6, 6, 2                        \n\t"
+                  "lhzx      0, 6, 0                        \n\t"
+                  "lis       3, sPlayerAnimeInfosSize@ha    \n\t"  // This part is for sentinel
+                                                                   // check after func
+                  "lwz       3, sPlayerAnimeInfosSize@l (3) \n\t"
+                  "addi      3, 3, 1                        \n\t"
+                  "blr                                      \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80244f00, 0, 0, 0), checkExtendedPlayerAnimDataFluddUpper);
+SMS_WRITE_32(SMS_PORT_REGION(0x80244f04, 0, 0, 0), 0x7C001800);
+
+static SMS_ASM_FUNC void getExtendedPlayerAnimDataTexPattern() {
+    SMS_ASM_BLOCK("lis       3, sPlayerAnimeDatas@h      \n\t"
+                  "ori       3, 3, sPlayerAnimeDatas@l   \n\t"
+                  "add       3, 3, 30                    \n\t"
+                  "lbz       5, 4 (3)                    \n\t"
+                  "blr                                   \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802478BC, 0, 0, 0), getExtendedPlayerAnimDataTexPattern);
+
+static SMS_ASM_FUNC void getExtendedPlayerAnimDataHand() {
+    SMS_ASM_BLOCK("lis       3, sPlayerAnimeDatas@h      \n\t"
+                  "ori       3, 3, sPlayerAnimeDatas@l   \n\t"
+                  "add       3, 3, 30                    \n\t"
+                  "lbz       4, 5 (3)                    \n\t"
+                  "blr                                   \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024794C, 0, 0, 0), getExtendedPlayerAnimDataHand);
+
+static SMS_ASM_FUNC void isPumpOkCallingExt() {
     SMS_ASM_BLOCK("lis       3, sPlayerAnimeDatas@h    \n\t"
                   "ori       0, 3, sPlayerAnimeDatas@l \n\t"
                   "blr                                 \n\t");
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802624E8, 0, 0, 0), isExtendedPumpOk);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802624E8, 0, 0, 0), isPumpOkCallingExt);
+
+static SMS_ASM_FUNC void isPumpOk() {
+    SMS_ASM_BLOCK("lhz       3, 2 (3)                       \n\t"
+                  "lis       4, sPlayerAnimeInfosSize@ha    \n\t"
+                  "lwz       4, sPlayerAnimeInfosSize@l (4) \n\t"
+                  "cmplw     3, 4                           \n\t"
+                  "li 3, 0                                  \n\t"
+                  "bgtlr                                    \n\t"
+                  "li 3, 1                                  \n\t"
+                  "blr                                      \n\t");
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x80248F14, 0, 0, 0), isPumpOk);
