@@ -177,7 +177,305 @@ void LevelSelectScreen::processInput() {
     }
 }
 
+void LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, void *stageNameData,
+                                    void *scenarioNameData) {
+    const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
+    const int screenRenderHeight = 480;
+
+    size_t areaFontSize = 21 - (4 * (mColumnCount - 1));
+
+    const char *stageName = nullptr;
+
+    // Pop up episode list pane
+    J2DPane *areaPane    = new J2DPane(19, ('s' << 24) | info.mNormalStageID,
+                                       {0, 0, screenRenderWidth, screenRenderHeight});
+    areaPane->mIsVisible = false;
+    {
+        char *groupTextBuf = new char[64];
+        memset(groupTextBuf, 0, 64);
+
+        stageName = (const char *)SMSGetMessageData__FPvUl(stageNameData, info.mShineStageID);
+        SMS_ASSERT(stageName, "Missing stage name for area ID %d (%X)", info.mShineStageID,
+                   info.mShineStageID);
+
+        snprintf(groupTextBuf, 64, "%s", stageName);
+
+        J2DTextBox *label   = new J2DTextBox(('l' << 24) | info.mNormalStageID, {0, 30, 600, 120},
+                                             gpSystemFont->mFont, groupTextBuf,
+                                             J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        label->mCharSizeX   = 26;
+        label->mCharSizeY   = 26;
+        label->mNewlineSize = 26;
+        label->mGradientTop = {240, 10, 170, 255};
+        label->mGradientBottom = {180, 10, 230, 255};
+        areaPane->mChildrenList.append(&label->mPtrLink);
+    }
+
+    OSReport("Stagename %d: %s\n", flatRow, stageName);
+
+    int textWidth = 500 / mColumnCount;
+    int textX     = 50 + (flatRow / mColumnSize) * (textWidth + 4);
+    int textY     = 70 + (flatRow % mColumnSize) * (areaFontSize + 2);
+
+    // Area listing
+    J2DTextBox *areaText = new J2DTextBox(
+        ('a' << 24) | info.mNormalStageID, {textX, textY, textX + textWidth, textY + 48},
+        gpSystemFont->mFont, "", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+    {
+        char *areaTextBuf = new char[100];
+        memset(areaTextBuf, 0, 100);
+        snprintf(areaTextBuf, 100, "%s", stageName);
+
+        size_t nameLen           = strlen(areaTextBuf);
+        size_t adjustedFontWidth = nameLen > 16 ? areaFontSize - (nameLen - 16) : areaFontSize;
+
+        areaText->mStrPtr         = areaTextBuf;
+        areaText->mCharSizeX      = adjustedFontWidth;
+        areaText->mCharSizeY      = areaFontSize;
+        areaText->mNewlineSize    = areaFontSize;
+        areaText->mGradientBottom = {255, 255, 255, 255};
+        areaText->mGradientTop    = {255, 255, 255, 255};
+    }
+    mScreen->mChildrenList.append(&areaText->mPtrLink);
+
+    AreaMenuInfo *areaMenuInfo     = new AreaMenuInfo();
+    areaMenuInfo->mEpisodeListPane = areaPane;
+    areaMenuInfo->mTextBox         = areaText;
+    areaMenuInfo->mStageID         = info.mNormalStageID;
+    if (flatRow == 1) {
+        genEpisodeTextDelfinoPlaza(*areaMenuInfo, info, scenarioNameData);
+    } else {
+        genEpisodeText(*areaMenuInfo, info, scenarioNameData);
+    }
+
+    mScreen->mChildrenList.append(&areaPane->mPtrLink);
+    mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+}
+
+void LevelSelectScreen::genAreaTextTest1(s32 flatRow) {
+    const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
+    const int screenRenderHeight = 480;
+
+    size_t areaFontSize = 21 - (4 * (mColumnCount - 1));
+
+    const char *stageName = nullptr;
+
+    // Pop up episode list pane
+    J2DPane *areaPane    = new J2DPane(19, ('s' << 24) | ('t' << 16) | ('1' << 8),
+                                       {0, 0, screenRenderWidth, screenRenderHeight});
+    areaPane->mIsVisible = false;
+    {
+        char *groupTextBuf = new char[64];
+        memset(groupTextBuf, 0, 64);
+
+        stageName = "TEST MAP 1X";
+        snprintf(groupTextBuf, 64, "%s", stageName);
+
+        J2DTextBox *label   = new J2DTextBox(('l' << 24) | ('t' << 16) | ('1' << 8), {0, 30, 600, 120},
+                                             gpSystemFont->mFont, groupTextBuf,
+                                             J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        label->mCharSizeX   = 26;
+        label->mCharSizeY   = 26;
+        label->mNewlineSize = 26;
+        label->mGradientTop = {240, 10, 170, 255};
+        label->mGradientBottom = {180, 10, 230, 255};
+        areaPane->mChildrenList.append(&label->mPtrLink);
+    }
+
+    int textWidth = 500 / mColumnCount;
+    int textX     = 50 + (flatRow / mColumnSize) * (textWidth + 4);
+    int textY     = 70 + (flatRow % mColumnSize) * (areaFontSize + 2);
+
+    // Area listing
+    J2DTextBox *areaText = new J2DTextBox(
+        ('a' << 24) | ('t' << 16) | ('1' << 8), {textX, textY, textX + textWidth, textY + 48},
+        gpSystemFont->mFont, "", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+    {
+        char *areaTextBuf = new char[100];
+        memset(areaTextBuf, 0, 100);
+        snprintf(areaTextBuf, 100, "%s", stageName);
+
+        size_t nameLen           = strlen(areaTextBuf);
+        size_t adjustedFontWidth = nameLen > 16 ? areaFontSize - (nameLen - 16) : areaFontSize;
+
+        areaText->mStrPtr         = areaTextBuf;
+        areaText->mCharSizeX      = adjustedFontWidth;
+        areaText->mCharSizeY      = areaFontSize;
+        areaText->mNewlineSize    = areaFontSize;
+        areaText->mGradientBottom = {255, 255, 255, 255};
+        areaText->mGradientTop    = {255, 255, 255, 255};
+    }
+    mScreen->mChildrenList.append(&areaText->mPtrLink);
+
+    AreaMenuInfo *areaMenuInfo     = new AreaMenuInfo();
+    areaMenuInfo->mEpisodeListPane = areaPane;
+    areaMenuInfo->mTextBox         = areaText;
+    areaMenuInfo->mStageID         = 12;
+    genEpisodeTextTest1(*areaMenuInfo);
+
+    mScreen->mChildrenList.append(&areaPane->mPtrLink);
+    mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+}
+
+void LevelSelectScreen::genAreaTextTest2(s32 flatRow) {
+    const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
+    const int screenRenderHeight = 480;
+
+    size_t areaFontSize = 21 - (4 * (mColumnCount - 1));
+
+    const char *stageName = nullptr;
+
+    // Pop up episode list pane
+    J2DPane *areaPane    = new J2DPane(19, ('s' << 24) | ('t' << 16) | ('1' << 8),
+                                       {0, 0, screenRenderWidth, screenRenderHeight});
+    areaPane->mIsVisible = false;
+    {
+        char *groupTextBuf = new char[64];
+        memset(groupTextBuf, 0, 64);
+
+        stageName = "TEST MAP 2X";
+        snprintf(groupTextBuf, 64, "%s", stageName);
+
+        J2DTextBox *label      = new J2DTextBox(('l' << 24) | ('t' << 16) | ('1' << 8),
+                                                {0, 30, 600, 120}, gpSystemFont->mFont, groupTextBuf,
+                                                J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        label->mCharSizeX      = 26;
+        label->mCharSizeY      = 26;
+        label->mNewlineSize    = 26;
+        label->mGradientTop    = {240, 10, 170, 255};
+        label->mGradientBottom = {180, 10, 230, 255};
+        areaPane->mChildrenList.append(&label->mPtrLink);
+    }
+
+    int textWidth = 500 / mColumnCount;
+    int textX     = 50 + (flatRow / mColumnSize) * (textWidth + 4);
+    int textY     = 70 + (flatRow % mColumnSize) * (areaFontSize + 2);
+
+    // Area listing
+    J2DTextBox *areaText = new J2DTextBox(
+        ('a' << 24) | ('t' << 16) | ('1' << 8), {textX, textY, textX + textWidth, textY + 48},
+        gpSystemFont->mFont, "", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+    {
+        char *areaTextBuf = new char[100];
+        memset(areaTextBuf, 0, 100);
+        snprintf(areaTextBuf, 100, "%s", stageName);
+
+        size_t nameLen           = strlen(areaTextBuf);
+        size_t adjustedFontWidth = nameLen > 16 ? areaFontSize - (nameLen - 16) : areaFontSize;
+
+        areaText->mStrPtr         = areaTextBuf;
+        areaText->mCharSizeX      = adjustedFontWidth;
+        areaText->mCharSizeY      = areaFontSize;
+        areaText->mNewlineSize    = areaFontSize;
+        areaText->mGradientBottom = {255, 255, 255, 255};
+        areaText->mGradientTop    = {255, 255, 255, 255};
+    }
+    mScreen->mChildrenList.append(&areaText->mPtrLink);
+
+    AreaMenuInfo *areaMenuInfo     = new AreaMenuInfo();
+    areaMenuInfo->mEpisodeListPane = areaPane;
+    areaMenuInfo->mTextBox         = areaText;
+    areaMenuInfo->mStageID         = 17;
+    genEpisodeTextTest2(*areaMenuInfo);
+
+    mScreen->mChildrenList.append(&areaPane->mPtrLink);
+    mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+}
+
+void LevelSelectScreen::genAreaTextScale(s32 flatRow) {
+    const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
+    const int screenRenderHeight = 480;
+
+    size_t areaFontSize = 21 - (4 * (mColumnCount - 1));
+
+    const char *stageName = nullptr;
+
+    // Pop up episode list pane
+    J2DPane *areaPane    = new J2DPane(19, ('s' << 24) | ('t' << 16) | ('1' << 8),
+                                       {0, 0, screenRenderWidth, screenRenderHeight});
+    areaPane->mIsVisible = false;
+    {
+        char *groupTextBuf = new char[64];
+        memset(groupTextBuf, 0, 64);
+
+        stageName = "SCALE MAP";
+        snprintf(groupTextBuf, 64, "%s", stageName);
+
+        J2DTextBox *label      = new J2DTextBox(('l' << 24) | ('t' << 16) | ('1' << 8),
+                                                {0, 30, 600, 120}, gpSystemFont->mFont, groupTextBuf,
+                                                J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        label->mCharSizeX      = 26;
+        label->mCharSizeY      = 26;
+        label->mNewlineSize    = 26;
+        label->mGradientTop    = {240, 10, 170, 255};
+        label->mGradientBottom = {180, 10, 230, 255};
+        areaPane->mChildrenList.append(&label->mPtrLink);
+    }
+
+    int textWidth = 500 / mColumnCount;
+    int textX     = 50 + (flatRow / mColumnSize) * (textWidth + 4);
+    int textY     = 70 + (flatRow % mColumnSize) * (areaFontSize + 2);
+
+    // Area listing
+    J2DTextBox *areaText = new J2DTextBox(
+        ('a' << 24) | ('t' << 16) | ('1' << 8), {textX, textY, textX + textWidth, textY + 48},
+        gpSystemFont->mFont, "", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+    {
+        char *areaTextBuf = new char[100];
+        memset(areaTextBuf, 0, 100);
+        snprintf(areaTextBuf, 100, "%s", stageName);
+
+        size_t nameLen           = strlen(areaTextBuf);
+        size_t adjustedFontWidth = nameLen > 16 ? areaFontSize - (nameLen - 16) : areaFontSize;
+
+        areaText->mStrPtr         = areaTextBuf;
+        areaText->mCharSizeX      = adjustedFontWidth;
+        areaText->mCharSizeY      = areaFontSize;
+        areaText->mNewlineSize    = areaFontSize;
+        areaText->mGradientBottom = {255, 255, 255, 255};
+        areaText->mGradientTop    = {255, 255, 255, 255};
+    }
+    mScreen->mChildrenList.append(&areaText->mPtrLink);
+
+    AreaMenuInfo *areaMenuInfo     = new AreaMenuInfo();
+    areaMenuInfo->mEpisodeListPane = areaPane;
+    areaMenuInfo->mTextBox         = areaText;
+    areaMenuInfo->mStageID         = 11;
+    genEpisodeTextScale(*areaMenuInfo);
+
+    mScreen->mChildrenList.append(&areaPane->mPtrLink);
+    mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+}
+
 void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo &info, void *scenarioNameData) {
+    size_t rows = 0;
+    for (s32 j = 0; j < info.mScenarioIDs.size(); ++j) {
+        if (!sceneExists(info.mNormalStageID, j)) {
+            continue;
+        }
+        rows += 1;
+    }
+
+    for (s32 j = 0; j < BETTER_SMS_EXAREA_MAX; ++j) {
+        auto *exinfo = Stage::getExAreaInfos()[j];
+        if (!exinfo) {
+            continue;
+        }
+
+        if (info.mShineStageID != exinfo->mShineStageID) {
+            continue;
+        }
+
+        if (!sceneExists(exinfo->mNormalStageID, 0)) {
+            continue;
+        }
+
+        rows += 1;
+    }
+
+    size_t textBaseHeight = 21;
+    size_t textHeight     = rows < 10 ? textBaseHeight : (textBaseHeight - (rows - 10));
+
     s32 en = 0, eny = 0;
     for (s32 j = 0; j < info.mScenarioIDs.size(); ++j) {
         if (!sceneExists(info.mNormalStageID, j)) {
@@ -211,9 +509,9 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
             }
 
             episodeText->mStrPtr         = episodeTextBuf;
-            episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 21;
-            episodeText->mNewlineSize    = 21;
+            episodeText->mCharSizeX      = textHeight;
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
             episodeText->mGradientBottom = {255, 255, 255, 255};
             episodeText->mGradientTop    = {255, 255, 255, 255};
 
@@ -253,12 +551,12 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
         {
             char *episodeTextBuf = new char[50];
             memset(episodeTextBuf, 0, 50);
-            snprintf(episodeTextBuf, 50, "Secret Course %ld", j);
+            snprintf(episodeTextBuf, 50, "Secret Course %ld", exrow);
 
             episodeText->mStrPtr         = episodeTextBuf;
-            episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 21;
-            episodeText->mNewlineSize    = 21;
+            episodeText->mCharSizeX      = textHeight;
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
             episodeText->mGradientBottom = {255, 255, 255, 255};
             episodeText->mGradientTop    = {255, 255, 255, 255};
         }
@@ -280,15 +578,46 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
     auto *areaInfoAry = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
         gpApplication.mStageArchiveAry->mChildren[1]);
 
+    size_t rows = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(1, i)) {
+            continue;
+        }
+        rows += 1;
+    }
+    
+    for (s32 i = 0; i < BETTER_SMS_EXAREA_MAX; ++i) {
+        auto *exinfo = Stage::getExAreaInfos()[i];
+        if (!exinfo) {
+            continue;
+        }
+
+        if (info.mShineStageID != exinfo->mShineStageID) {
+            continue;
+        }
+
+        if (!sceneExists(exinfo->mNormalStageID, 0)) {
+            continue;
+        }
+        rows += 1;
+    }
+
+    size_t textBaseHeight = 21;
+    size_t textHeight     = rows < 10 ? textBaseHeight : (textBaseHeight - (rows - 10));
+
     s32 en = 0, eny = 0;
-    for (s32 j = 0; j < areaInfoAry->mChildren.size(); ++j) {
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(1, i)) {
+            continue;
+        }
+
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | ('d' << 16) | j, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[100];
             memset(episodeTextBuf, 0, 100);
-            snprintf(episodeTextBuf, 100, "Scenario %ld", j);
+            snprintf(episodeTextBuf, 100, "Scenario %ld", i);
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
@@ -304,15 +633,15 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
         EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
         episodeInfo->mTextBox        = episodeText;
         episodeInfo->mNormalStageID  = info.mNormalStageID;
-        episodeInfo->mScenarioID     = j;
+        episodeInfo->mScenarioID     = i;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         en += 1;
     }
 
     size_t exrow = 0;
-    for (s32 j = 0; j < BETTER_SMS_EXAREA_MAX; ++j) {
-        auto *exinfo = Stage::getExAreaInfos()[j];
+    for (s32 i = 0; i < BETTER_SMS_EXAREA_MAX; ++i) {
+        auto *exinfo = Stage::getExAreaInfos()[i];
         if (!exinfo) {
             continue;
         }
@@ -333,7 +662,7 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
         {
             char *episodeTextBuf = new char[50];
             memset(episodeTextBuf, 0, 50);
-            snprintf(episodeTextBuf, 50, "Secret Course %ld", j);
+            snprintf(episodeTextBuf, 50, "Secret Course %ld", exrow);
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
@@ -355,14 +684,152 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
     }
 }
 
-void LevelSelectScreen::genEpisodeTextTest1(AreaMenuInfo &menu, const Stage::AreaInfo &info,
-                                            void *scenarioNameData) {}
+void LevelSelectScreen::genEpisodeTextTest1(AreaMenuInfo &menu) {
+    auto *areaInfoAry = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
+        gpApplication.mStageArchiveAry->mChildren[12]);
 
-void LevelSelectScreen::genEpisodeTextTest2(AreaMenuInfo &menu, const Stage::AreaInfo &info,
-                                            void *scenarioNameData) {}
+    size_t rows = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(12, i)) {
+            continue;
+        }
+        rows += 1;
+    }
 
-void LevelSelectScreen::genEpisodeTextScale(AreaMenuInfo &menu, const Stage::AreaInfo &info,
-                                            void *scenarioNameData) {}
+    size_t textBaseHeight = 21;
+    size_t textHeight     = rows < 10 ? textBaseHeight : (textBaseHeight - (rows - 10));
+
+    s32 en = 0, eny = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(12, i)) {
+            continue;
+        }
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[100];
+            memset(episodeTextBuf, 0, 100);
+            snprintf(episodeTextBuf, 100, "Test %ld", 10 + i);
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 16;
+            episodeText->mNewlineSize    = 16;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+
+            eny += 1;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = 17;
+        episodeInfo->mScenarioID     = i;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        en += 1;
+    }
+}
+
+void LevelSelectScreen::genEpisodeTextTest2(AreaMenuInfo &menu) {
+    auto *areaInfoAry = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
+        gpApplication.mStageArchiveAry->mChildren[17]);
+
+    size_t rows = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(17, i)) {
+            continue;
+        }
+        rows += 1;
+    }
+
+    size_t textBaseHeight = 21;
+    size_t textHeight     = rows < 10 ? textBaseHeight : (textBaseHeight - (rows - 10));
+
+    s32 en = 0, eny = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(17, i)) {
+            continue;
+        }
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[100];
+            memset(episodeTextBuf, 0, 100);
+            snprintf(episodeTextBuf, 100, "Test %ld", 20 + i);
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 16;
+            episodeText->mNewlineSize    = 16;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+
+            eny += 1;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = 17;
+        episodeInfo->mScenarioID     = i;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        en += 1;
+    }
+}
+
+void LevelSelectScreen::genEpisodeTextScale(AreaMenuInfo &menu) {
+    auto *areaInfoAry = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
+        gpApplication.mStageArchiveAry->mChildren[11]);
+
+    size_t rows = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(11, i)) {
+            continue;
+        }
+        rows += 1;
+    }
+
+    size_t textBaseHeight = 21;
+    size_t textHeight     = rows < 10 ? textBaseHeight : (textBaseHeight - (rows - 10));
+
+    s32 en = 0, eny = 0;
+    for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
+        if (!sceneExists(11, i)) {
+            continue;
+        }
+        J2DTextBox *episodeText = new J2DTextBox(
+            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeTextBuf = new char[100];
+            memset(episodeTextBuf, 0, 100);
+            snprintf(episodeTextBuf, 100, "Scale %ld", i);
+
+            episodeText->mStrPtr         = episodeTextBuf;
+            episodeText->mCharSizeX      = 21;
+            episodeText->mCharSizeY      = 16;
+            episodeText->mNewlineSize    = 16;
+            episodeText->mGradientBottom = {255, 255, 255, 255};
+            episodeText->mGradientTop    = {255, 255, 255, 255};
+
+            eny += 1;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
+        episodeInfo->mTextBox        = episodeText;
+        episodeInfo->mNormalStageID  = 11;
+        episodeInfo->mScenarioID     = i;
+        menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
+
+        en += 1;
+    }
+}
 
 AreaMenuInfo *LevelSelectScreen::getAreaInfo(u32 index) {
     if (index >= mAreaInfos.size())
@@ -425,16 +892,6 @@ void LevelSelectDirector::initializeDramaHierarchy() {
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), group2D);
     }
 
-    // auto *groupGrad = new JDrama::TViewObjPtrListT<JDrama::TViewObj>("Group Grad");
-    //{
-    //     mGradBG = new TSelectGrad("<TSelectGrad>");
-    //     mGradBG->setStageColor(1);
-
-    //    groupGrad->mViewObjList.insert(groupGrad->mViewObjList.end(), mGradBG);
-
-    //    rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), groupGrad);
-    //}
-
     {
         auto *stageDisp = new JDrama::TDStageDisp("<DStageDisp>", {0});
 
@@ -444,20 +901,6 @@ void LevelSelectDirector::initializeDramaHierarchy() {
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), stageDisp);
         stageObjGroup->mViewObjList.insert(stageObjGroup->mViewObjList.end(), stageDisp);
     }
-
-    //{
-    //    auto *screen = new JDrama::TScreen(screenRect, "Screen Grad");
-
-    //    auto *orthoProj                = new JDrama::TOrthoProj();
-    //    orthoProj->mProjectionField[0] = -BetterSMS::getScreenRatioAdjustX();
-    //    orthoProj->mProjectionField[2] = BetterSMS::getScreenRenderWidth();
-    //    screen->assignCamera(orthoProj);
-
-    //    screen->assignViewObj(groupGrad);
-
-    //    rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), screen);
-    //    stageObjGroup->mViewObjList.insert(stageObjGroup->mViewObjList.end(), screen);
-    //}
 
     {
         auto *screen = new JDrama::TScreen(screenRect, "Screen 2D");
@@ -529,12 +972,9 @@ void LevelSelectDirector::initializeLevelsLayout() {
     BetterSMS::Stage::AreaInfo **areaInfos     = BetterSMS::Stage::getAreaInfos();
     BetterSMS::Stage::ExAreaInfo **exAreaInfos = BetterSMS::Stage::getExAreaInfos();
 
-    size_t areaCount = 0;
+    size_t areaCount = 3;  // Account for test maps and scale map
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
         if (!areaInfos[i]) {
-            continue;
-        }
-        if (!sceneExists(areaInfos[i]->mNormalStageID, 0)) {
             continue;
         }
         areaCount += 1;
@@ -542,84 +982,30 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
     size_t rowsPerColumn = 14;
     size_t columns       = (areaCount / rowsPerColumn) + 1;
-    size_t areaFontSize  = 21 - (4 * (columns - 1));
 
     mSelectScreen->mColumnSize  = rowsPerColumn;
     mSelectScreen->mColumnCount = columns;
 
     s32 flatRow = 0;
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
-        auto *info = areaInfos[i];
-        if (!info) {
-            continue;
+        switch(i) {
+        case 11:
+            mSelectScreen->genAreaTextScale(flatRow);
+            break;
+        case 12:
+            mSelectScreen->genAreaTextTest1(flatRow);
+            break;
+        case 17:
+            mSelectScreen->genAreaTextTest2(flatRow);
+            break;
+        default:
+            auto *info = areaInfos[i];
+            if (!info) {
+                continue;
+            }
+            mSelectScreen->genAreaText(flatRow, *info, stageNameData, scenarioNameData);
+            break;
         }
-
-        const char *stageName = nullptr;
-
-        // Pop up episode list pane
-        J2DPane *areaPane    = new J2DPane(19, ('s' << 24) | info->mNormalStageID,
-                                           {0, 0, screenRenderWidth, screenRenderHeight});
-        areaPane->mIsVisible = false;
-        {
-            char *groupTextBuf = new char[64];
-            memset(groupTextBuf, 0, 64);
-
-            stageName = (const char *)SMSGetMessageData__FPvUl(stageNameData, info->mShineStageID);
-            SMS_ASSERT(stageName, "Missing stage name for area ID %d (%X)", info->mShineStageID,
-                       info->mShineStageID);
-
-            snprintf(groupTextBuf, 64, "%s", stageName);
-
-            J2DTextBox *label = new J2DTextBox(
-                ('l' << 24) | info->mNormalStageID, {0, 30, 600, 120}, gpSystemFont->mFont,
-                groupTextBuf, J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-            label->mCharSizeX      = 26;
-            label->mCharSizeY      = 26;
-            label->mNewlineSize    = 26;
-            label->mGradientTop    = {240, 10, 170, 255};
-            label->mGradientBottom = {180, 10, 230, 255};
-            areaPane->mChildrenList.append(&label->mPtrLink);
-        }
-
-        OSReport("Stagename %d: %s\n", i, stageName);
-
-        int textWidth = 500 / columns;
-        int textX     = 50 + (flatRow / rowsPerColumn) * (textWidth + 4);
-        int textY     = 70 + (flatRow % rowsPerColumn) * (areaFontSize + 2);
-
-        // Area listing
-        J2DTextBox *areaText = new J2DTextBox(
-            ('a' << 24) | info->mNormalStageID, {textX, textY, textX + textWidth, textY + 48},
-            gpSystemFont->mFont, "", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
-        {
-            char *areaTextBuf = new char[100];
-            memset(areaTextBuf, 0, 100);
-            snprintf(areaTextBuf, 100, "%s", stageName);
-
-            size_t nameLen           = strlen(areaTextBuf);
-            size_t adjustedFontWidth = nameLen > 16 ? areaFontSize - (nameLen - 16) : areaFontSize;
-
-            areaText->mStrPtr         = areaTextBuf;
-            areaText->mCharSizeX      = adjustedFontWidth;
-            areaText->mCharSizeY      = areaFontSize;
-            areaText->mNewlineSize    = areaFontSize;
-            areaText->mGradientBottom = {255, 255, 255, 255};
-            areaText->mGradientTop    = {255, 255, 255, 255};
-        }
-        mSelectScreen->mScreen->mChildrenList.append(&areaText->mPtrLink);
-
-        AreaMenuInfo *areaMenuInfo     = new AreaMenuInfo();
-        areaMenuInfo->mEpisodeListPane = areaPane;
-        areaMenuInfo->mTextBox         = areaText;
-        areaMenuInfo->mStageID         = info->mNormalStageID;
-        if (i == 1) {
-            mSelectScreen->genEpisodeTextDelfinoPlaza(*areaMenuInfo, *info, scenarioNameData);
-        } else {
-            mSelectScreen->genEpisodeText(*areaMenuInfo, *info, scenarioNameData);
-        }
-
-        mSelectScreen->mScreen->mChildrenList.append(&areaPane->mPtrLink);
-        mSelectScreen->mAreaInfos.insert(mSelectScreen->mAreaInfos.end(), areaMenuInfo);
 
         flatRow += 1;
     }

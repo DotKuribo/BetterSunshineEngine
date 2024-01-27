@@ -51,11 +51,15 @@ public:
 
 protected:
     void processInput();
+    void genAreaText(s32, const Stage::AreaInfo &, void *, void *);
+    void genAreaTextTest1(s32);
+    void genAreaTextTest2(s32);
+    void genAreaTextScale(s32);
     void genEpisodeText(AreaMenuInfo &, const Stage::AreaInfo &, void *);
     void genEpisodeTextDelfinoPlaza(AreaMenuInfo &, const Stage::AreaInfo &, void *);
-    void genEpisodeTextTest1(AreaMenuInfo &, const Stage::AreaInfo &, void *);
-    void genEpisodeTextTest2(AreaMenuInfo &, const Stage::AreaInfo &, void *);
-    void genEpisodeTextScale(AreaMenuInfo &, const Stage::AreaInfo &, void *);
+    void genEpisodeTextTest1(AreaMenuInfo &);
+    void genEpisodeTextTest2(AreaMenuInfo &);
+    void genEpisodeTextScale(AreaMenuInfo &);
 
 private:
     bool mShouldExit;
@@ -94,5 +98,4 @@ private:
     JDrama::TDisplay *mDisplay;
     TMarioGamePad *mController;
     LevelSelectScreen *mSelectScreen;
-    TSelectGrad *mGradBG;
 };
