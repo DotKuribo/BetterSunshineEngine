@@ -18,6 +18,15 @@
 #include <DVD.h>
 #include <raw_fn.hxx>
 
+#define TEXT_COLOR_DEFAULT_SCENARIO                                                                \
+    { 255, 255, 255, 255 }
+#define TEXT_COLOR_DEFAULT_FILENAME                                                                \
+    { 200, 255, 200, 255 }
+#define TEXT_COLOR_TOP_SELECTED                                                                    \
+    { 180, 230, 10, 255 }
+#define TEXT_COLOR_BOTTOM_SELECTED                                                                 \
+    { 240, 170, 10, 255 }
+
 static bool sceneExists(u32 areaID, u32 episodeID) {
     if (areaID >= gpApplication.mStageArchiveAry->mChildren.size())
         return false;
@@ -44,6 +53,37 @@ static bool sceneExists(u32 areaID, u32 episodeID) {
     }
 }
 
+static bool sceneFilename(char *out, size_t buf_size, u32 areaID, u32 episodeID) {
+    if (areaID >= gpApplication.mStageArchiveAry->mChildren.size())
+        return false;
+
+    auto *areaInfo = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
+        gpApplication.mStageArchiveAry->mChildren[areaID]);
+
+    if (episodeID >= areaInfo->mChildren.size())
+        return false;
+
+    TScenarioArchiveName episodeInfo = areaInfo->mChildren[episodeID];
+    char stageName[128];
+    snprintf(stageName, 128, "/data/scene/%s", episodeInfo.mArchiveName);
+    char *loc = strstr(stageName, ".arc");
+    if (loc) {
+        strncpy(loc, ".szs", 4);
+    }
+
+    if (DVDConvertPathToEntrynum(stageName) >= 0) {
+        snprintf(out, buf_size, "%s", episodeInfo.mArchiveName);
+        char *loc = strstr(out, ".arc");
+        if (loc) {
+            strncpy(loc, ".szs", 4);
+        }
+        return true;
+    } else {
+        OSReport("Area ID %d, Episode ID %d, Name %s NOT FOUND\n", areaID, episodeID, out);
+        return false;
+    }
+}
+
 void LevelSelectScreen::perform(u32 flags, JDrama::TGraphics *graphics) {
     if ((flags & 0x1)) {
         processInput();
@@ -54,8 +94,10 @@ void LevelSelectScreen::perform(u32 flags, JDrama::TGraphics *graphics) {
 
         // Reset selection colors
         for (auto &areaInfo : mAreaInfos) {
-            areaInfo->mTextBox->mGradientTop       = {255, 255, 255, areaAlpha};
-            areaInfo->mTextBox->mGradientBottom    = {255, 255, 255, areaAlpha};
+            areaInfo->mTextBox->mGradientTop       = TEXT_COLOR_DEFAULT_SCENARIO;
+            areaInfo->mTextBox->mGradientBottom    = TEXT_COLOR_DEFAULT_SCENARIO;
+            areaInfo->mTextBox->mGradientTop.a     = areaAlpha;
+            areaInfo->mTextBox->mGradientBottom.a  = areaAlpha;
             areaInfo->mEpisodeListPane->mIsVisible = false;
         }
 
@@ -63,21 +105,27 @@ void LevelSelectScreen::perform(u32 flags, JDrama::TGraphics *graphics) {
 
         // Reset selection colors
         for (auto &episodeInfo : curAreaInfo->mEpisodeInfos) {
-            episodeInfo->mTextBox->mGradientTop    = {255, 255, 255, 255};
-            episodeInfo->mTextBox->mGradientBottom = {255, 255, 255, 255};
+            episodeInfo->mScenarioTextBox->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeInfo->mScenarioTextBox->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeInfo->mFilenameTextBox->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeInfo->mFilenameTextBox->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
         }
 
         // Tint the current selection
-        curAreaInfo->mTextBox->mGradientTop    = {180, 230, 10, areaAlpha};
-        curAreaInfo->mTextBox->mGradientBottom = {240, 170, 10, areaAlpha};
+        curAreaInfo->mTextBox->mGradientTop      = TEXT_COLOR_TOP_SELECTED;
+        curAreaInfo->mTextBox->mGradientBottom   = TEXT_COLOR_BOTTOM_SELECTED;
+        curAreaInfo->mTextBox->mGradientTop.a    = areaAlpha;
+        curAreaInfo->mTextBox->mGradientBottom.a = areaAlpha;
 
         if (mSelectedAreaID != -1) {
             if (curAreaInfo->mEpisodeInfos.size() > 0) {
                 EpisodeMenuInfo *curEpisodeInfo = curAreaInfo->mEpisodeInfos[mScrollEpisodeID];
 
                 // Tint the current selection
-                curEpisodeInfo->mTextBox->mGradientTop    = {180, 230, 10, 255};
-                curEpisodeInfo->mTextBox->mGradientBottom = {240, 170, 10, 255};
+                curEpisodeInfo->mScenarioTextBox->mGradientTop    = TEXT_COLOR_TOP_SELECTED;
+                curEpisodeInfo->mScenarioTextBox->mGradientBottom = TEXT_COLOR_BOTTOM_SELECTED;
+                curEpisodeInfo->mFilenameTextBox->mGradientTop    = TEXT_COLOR_TOP_SELECTED;
+                curEpisodeInfo->mFilenameTextBox->mGradientBottom = TEXT_COLOR_BOTTOM_SELECTED;
             }
 
             curAreaInfo->mEpisodeListPane->mIsVisible = true;
@@ -151,6 +199,31 @@ void LevelSelectScreen::processInput() {
         }
     }
 
+    // Check for filename select
+    if ((mController->mButtons.mInput & TMarioGamePad::Z)) {
+        for (auto &areaInfo : mAreaInfos) {
+            for (auto &episodeInfo : areaInfo->mEpisodeInfos) {
+                if (episodeInfo->mScenarioTextBox) {
+                    episodeInfo->mScenarioTextBox->mIsVisible = false;
+                }
+                if (episodeInfo->mFilenameTextBox) {
+                    episodeInfo->mFilenameTextBox->mIsVisible = true;
+                }
+            }
+        }
+    } else {
+        for (auto &areaInfo : mAreaInfos) {
+            for (auto &episodeInfo : areaInfo->mEpisodeInfos) {
+                if (episodeInfo->mScenarioTextBox) {
+                    episodeInfo->mScenarioTextBox->mIsVisible = true;
+                }
+                if (episodeInfo->mFilenameTextBox) {
+                    episodeInfo->mFilenameTextBox->mIsVisible = false;
+                }
+            }
+        }
+    }
+
     // Select item
     {
         if ((mController->mButtons.mFrameInput & TMarioGamePad::A)) {
@@ -163,6 +236,7 @@ void LevelSelectScreen::processInput() {
                 }
             } else {
                 mSelectedAreaID = mScrollAreaID;
+                mScrollEpisodeID = 0;
             }
         }
 
@@ -233,8 +307,8 @@ void LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, vo
         areaText->mCharSizeX      = adjustedFontWidth;
         areaText->mCharSizeY      = areaFontSize;
         areaText->mNewlineSize    = areaFontSize;
-        areaText->mGradientBottom = {255, 255, 255, 255};
-        areaText->mGradientTop    = {255, 255, 255, 255};
+        areaText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+        areaText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
     }
     mScreen->mChildrenList.append(&areaText->mPtrLink);
 
@@ -271,13 +345,13 @@ void LevelSelectScreen::genAreaTextTest1(s32 flatRow) {
         stageName = "TEST MAP 1X";
         snprintf(groupTextBuf, 64, "%s", stageName);
 
-        J2DTextBox *label   = new J2DTextBox(('l' << 24) | ('t' << 16) | ('1' << 8), {0, 30, 600, 120},
-                                             gpSystemFont->mFont, groupTextBuf,
-                                             J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
-        label->mCharSizeX   = 26;
-        label->mCharSizeY   = 26;
-        label->mNewlineSize = 26;
-        label->mGradientTop = {240, 10, 170, 255};
+        J2DTextBox *label      = new J2DTextBox(('l' << 24) | ('t' << 16) | ('1' << 8),
+                                                {0, 30, 600, 120}, gpSystemFont->mFont, groupTextBuf,
+                                                J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        label->mCharSizeX      = 26;
+        label->mCharSizeY      = 26;
+        label->mNewlineSize    = 26;
+        label->mGradientTop    = {240, 10, 170, 255};
         label->mGradientBottom = {180, 10, 230, 255};
         areaPane->mChildrenList.append(&label->mPtrLink);
     }
@@ -302,8 +376,8 @@ void LevelSelectScreen::genAreaTextTest1(s32 flatRow) {
         areaText->mCharSizeX      = adjustedFontWidth;
         areaText->mCharSizeY      = areaFontSize;
         areaText->mNewlineSize    = areaFontSize;
-        areaText->mGradientBottom = {255, 255, 255, 255};
-        areaText->mGradientTop    = {255, 255, 255, 255};
+        areaText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+        areaText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
     }
     mScreen->mChildrenList.append(&areaText->mPtrLink);
 
@@ -367,8 +441,8 @@ void LevelSelectScreen::genAreaTextTest2(s32 flatRow) {
         areaText->mCharSizeX      = adjustedFontWidth;
         areaText->mCharSizeY      = areaFontSize;
         areaText->mNewlineSize    = areaFontSize;
-        areaText->mGradientBottom = {255, 255, 255, 255};
-        areaText->mGradientTop    = {255, 255, 255, 255};
+        areaText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+        areaText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
     }
     mScreen->mChildrenList.append(&areaText->mPtrLink);
 
@@ -432,8 +506,8 @@ void LevelSelectScreen::genAreaTextScale(s32 flatRow) {
         areaText->mCharSizeX      = adjustedFontWidth;
         areaText->mCharSizeY      = areaFontSize;
         areaText->mNewlineSize    = areaFontSize;
-        areaText->mGradientBottom = {255, 255, 255, 255};
-        areaText->mGradientTop    = {255, 255, 255, 255};
+        areaText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+        areaText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
     }
     mScreen->mChildrenList.append(&areaText->mPtrLink);
 
@@ -447,7 +521,8 @@ void LevelSelectScreen::genAreaTextScale(s32 flatRow) {
     mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
 }
 
-void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo &info, void *scenarioNameData) {
+void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo &info,
+                                       void *scenarioNameData) {
     size_t rows = 0;
     for (s32 j = 0; j < info.mScenarioIDs.size(); ++j) {
         if (!sceneExists(info.mNormalStageID, j)) {
@@ -478,7 +553,8 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
 
     s32 en = 0, eny = 0;
     for (s32 j = 0; j < info.mScenarioIDs.size(); ++j) {
-        if (!sceneExists(info.mNormalStageID, j)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, info.mNormalStageID, j)) {
             continue;
         }
 
@@ -490,42 +566,64 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
         u8 scenarioID      = info.mScenarioIDs[j];
         s32 scenarioNameID = j >= info.mScenarioNameIDs.size() ? -1 : info.mScenarioNameIDs[j];
 
-        J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | scenarioID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
+        J2DTextBox *scenarioText = new J2DTextBox(
+            ('e' << 24) | scenarioID,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
-            char *episodeTextBuf = new char[100];
-            memset(episodeTextBuf, 0, 100);
+            char *scenarioTextBuf = new char[100];
+            memset(scenarioTextBuf, 0, 100);
 
             if (scenarioNameID != -1) {
                 const char *scenarioName =
                     (const char *)SMSGetMessageData__FPvUl(scenarioNameData, scenarioNameID);
                 SMS_ASSERT(scenarioName,
-                           "Missing episode name for scenario ID %u (%X) [name ID %d (%X)]",
+                           "Missing scenario name for scenario ID %u (%X) [name ID %d (%X)]",
                            scenarioID, scenarioID, scenarioNameID, scenarioNameID);
-                snprintf(episodeTextBuf, 100, "%s", scenarioName);
+                snprintf(scenarioTextBuf, 100, "%s", scenarioName);
             } else {
-                snprintf(episodeTextBuf, 100, "Scenario %ld", j);
+                snprintf(scenarioTextBuf, 100, "Scenario %ld", j);
             }
 
-            episodeText->mStrPtr         = episodeTextBuf;
-            episodeText->mCharSizeX      = textHeight;
-            episodeText->mCharSizeY      = textHeight;
-            episodeText->mNewlineSize    = textHeight;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
-
-            eny += 1;
+            scenarioText->mStrPtr         = scenarioTextBuf;
+            scenarioText->mCharSizeX      = 21;
+            scenarioText->mCharSizeY      = textHeight;
+            scenarioText->mNewlineSize    = textHeight;
+            scenarioText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            scenarioText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
-        menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
+        menu.mEpisodeListPane->mChildrenList.append(&scenarioText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = info.mNormalStageID;
-        episodeInfo->mScenarioID     = j;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('e' << 24) | scenarioID,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = scenarioText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = info.mNormalStageID;
+        episodeInfo->mScenarioID      = j;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         en += 1;
+        eny += 1;
     }
 
     size_t exrow = 0;
@@ -539,14 +637,17 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
             continue;
         }
 
-        if (!sceneExists(exinfo->mNormalStageID, 0)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, exinfo->mNormalStageID, 0)) {
             continue;
         }
 
         s32 exareaNameID = info.mExScenarioNameIDs[exrow];
 
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | exinfo->mNormalStageID, {0, 110 + (23 * eny), 600, 158 + (23 * eny)},
+            ('f' << 24) | exinfo->mNormalStageID,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[50];
@@ -554,18 +655,39 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
             snprintf(episodeTextBuf, 50, "Secret Course %ld", exrow);
 
             episodeText->mStrPtr         = episodeTextBuf;
-            episodeText->mCharSizeX      = textHeight;
+            episodeText->mCharSizeX      = 21;
             episodeText->mCharSizeY      = textHeight;
             episodeText->mNewlineSize    = textHeight;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
+            episodeText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
         menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = exinfo->mNormalStageID;
-        episodeInfo->mScenarioID     = 0;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('f' << 24) | exinfo->mNormalStageID,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = episodeText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = exinfo->mNormalStageID;
+        episodeInfo->mScenarioID      = 0;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         eny += 1;
@@ -585,7 +707,7 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
         }
         rows += 1;
     }
-    
+
     for (s32 i = 0; i < BETTER_SMS_EXAREA_MAX; ++i) {
         auto *exinfo = Stage::getExAreaInfos()[i];
         if (!exinfo) {
@@ -607,12 +729,15 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
 
     s32 en = 0, eny = 0;
     for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
-        if (!sceneExists(1, i)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, 1, i)) {
             continue;
         }
 
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            ('e' << 24) | ('d' << 16) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[100];
@@ -621,22 +746,42 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 16;
-            episodeText->mNewlineSize    = 16;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
-
-            eny += 1;
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
+            episodeText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
         menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = info.mNormalStageID;
-        episodeInfo->mScenarioID     = i;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('f' << 24) | ('d' << 16) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = episodeText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = info.mNormalStageID;
+        episodeInfo->mScenarioID      = i;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         en += 1;
+        eny += 1;
     }
 
     size_t exrow = 0;
@@ -650,14 +795,17 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
             continue;
         }
 
-        if (!sceneExists(exinfo->mNormalStageID, 0)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, exinfo->mNormalStageID, 0)) {
             continue;
         }
 
         s32 exareaNameID = info.mExScenarioNameIDs[exrow];
 
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | exinfo->mNormalStageID, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            ('e' << 24) | exinfo->mNormalStageID,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[50];
@@ -666,17 +814,38 @@ void LevelSelectScreen::genEpisodeTextDelfinoPlaza(AreaMenuInfo &menu, const Sta
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 16;
-            episodeText->mNewlineSize    = 16;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
+            episodeText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
         menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = exinfo->mNormalStageID;
-        episodeInfo->mScenarioID     = 0;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('f' << 24) | exinfo->mNormalStageID,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = episodeText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = exinfo->mNormalStageID;
+        episodeInfo->mScenarioID      = 0;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         eny += 1;
@@ -701,11 +870,15 @@ void LevelSelectScreen::genEpisodeTextTest1(AreaMenuInfo &menu) {
 
     s32 en = 0, eny = 0;
     for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
-        if (!sceneExists(12, i)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, 12, i)) {
             continue;
         }
+
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            ('e' << 24) | ('t' << 16) | ('1' << 8) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[100];
@@ -714,22 +887,42 @@ void LevelSelectScreen::genEpisodeTextTest1(AreaMenuInfo &menu) {
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 16;
-            episodeText->mNewlineSize    = 16;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
-
-            eny += 1;
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
+            episodeText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
         menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = 17;
-        episodeInfo->mScenarioID     = i;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('f' << 24) | ('t' << 16) | ('1' << 8) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = episodeText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = 17;
+        episodeInfo->mScenarioID      = i;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         en += 1;
+        eny += 1;
     }
 }
 
@@ -750,11 +943,15 @@ void LevelSelectScreen::genEpisodeTextTest2(AreaMenuInfo &menu) {
 
     s32 en = 0, eny = 0;
     for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
-        if (!sceneExists(17, i)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, 17, i)) {
             continue;
         }
+
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            ('e' << 24) | ('t' << 16) | ('1' << 8) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[100];
@@ -763,22 +960,42 @@ void LevelSelectScreen::genEpisodeTextTest2(AreaMenuInfo &menu) {
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 16;
-            episodeText->mNewlineSize    = 16;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
-
-            eny += 1;
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
+            episodeText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
         menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = 17;
-        episodeInfo->mScenarioID     = i;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('f' << 24) | ('t' << 16) | ('2' << 8) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = episodeText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = 17;
+        episodeInfo->mScenarioID      = i;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         en += 1;
+        eny += 1;
     }
 }
 
@@ -799,11 +1016,15 @@ void LevelSelectScreen::genEpisodeTextScale(AreaMenuInfo &menu) {
 
     s32 en = 0, eny = 0;
     for (s32 i = 0; i < areaInfoAry->mChildren.size(); ++i) {
-        if (!sceneExists(11, i)) {
+        char filename[128];
+        if (!sceneFilename(filename, 128, 11, i)) {
             continue;
         }
+
         J2DTextBox *episodeText = new J2DTextBox(
-            ('e' << 24) | ('d' << 16) | i, {0, 110 + (18 * eny), 600, 158 + (18 * eny)},
+            ('e' << 24) | ('s' << 16) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
         {
             char *episodeTextBuf = new char[100];
@@ -812,22 +1033,42 @@ void LevelSelectScreen::genEpisodeTextScale(AreaMenuInfo &menu) {
 
             episodeText->mStrPtr         = episodeTextBuf;
             episodeText->mCharSizeX      = 21;
-            episodeText->mCharSizeY      = 16;
-            episodeText->mNewlineSize    = 16;
-            episodeText->mGradientBottom = {255, 255, 255, 255};
-            episodeText->mGradientTop    = {255, 255, 255, 255};
-
-            eny += 1;
+            episodeText->mCharSizeY      = textHeight;
+            episodeText->mNewlineSize    = textHeight;
+            episodeText->mGradientBottom = TEXT_COLOR_DEFAULT_SCENARIO;
+            episodeText->mGradientTop    = TEXT_COLOR_DEFAULT_SCENARIO;
         }
         menu.mEpisodeListPane->mChildrenList.append(&episodeText->mPtrLink);
 
-        EpisodeMenuInfo *episodeInfo = new EpisodeMenuInfo();
-        episodeInfo->mTextBox        = episodeText;
-        episodeInfo->mNormalStageID  = 11;
-        episodeInfo->mScenarioID     = i;
+        J2DTextBox *episodeFileNameText = new J2DTextBox(
+            ('f' << 24) | ('s' << 16) | i,
+            {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
+             static_cast<int>(158 + ((textHeight + 2) * eny))},
+            gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+        {
+            char *episodeFileNameTextBuf = new char[100];
+            memset(episodeFileNameTextBuf, 0, 100);
+            snprintf(episodeFileNameTextBuf, 100, "%s", filename);
+
+            episodeFileNameText->mStrPtr         = episodeFileNameTextBuf;
+            episodeFileNameText->mCharSizeX      = 21;
+            episodeFileNameText->mCharSizeY      = textHeight;
+            episodeFileNameText->mNewlineSize    = textHeight;
+            episodeFileNameText->mGradientBottom = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mGradientTop    = TEXT_COLOR_DEFAULT_FILENAME;
+            episodeFileNameText->mIsVisible      = false;
+        }
+        menu.mEpisodeListPane->mChildrenList.append(&episodeFileNameText->mPtrLink);
+
+        EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
+        episodeInfo->mScenarioTextBox = episodeText;
+        episodeInfo->mFilenameTextBox = episodeFileNameText;
+        episodeInfo->mNormalStageID   = 11;
+        episodeInfo->mScenarioID      = i;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
         en += 1;
+        eny += 1;
     }
 }
 
@@ -988,7 +1229,7 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
     s32 flatRow = 0;
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
-        switch(i) {
+        switch (i) {
         case 11:
             mSelectScreen->genAreaTextScale(flatRow);
             break;
@@ -1030,6 +1271,11 @@ s32 LevelSelectDirector::direct() {
         OSJoinThread(&gSetupThread, (void **)joinBuf);
 
         fader->startFadeinT(0.3f);
+
+        if (!TFlagManager::smInstance->getBool(0x30007)) {
+            TFlagManager::smInstance->setBool(true, 0x30007);
+            gpMSound->loadWave(MS_WAVE_DEFAULT);
+        }
 
         gpMSound->initSound();
         gpMSound->enterStage((MS_SCENE_WAVE)517, 10, 0);

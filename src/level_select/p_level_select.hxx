@@ -20,7 +20,8 @@
 using namespace BetterSMS;
 
 struct EpisodeMenuInfo {
-    J2DTextBox *mTextBox;
+    J2DTextBox *mScenarioTextBox;
+    J2DTextBox *mFilenameTextBox;
     s32 mNormalStageID;
     s32 mScenarioID;
 };
