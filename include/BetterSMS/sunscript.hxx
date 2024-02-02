@@ -17,8 +17,7 @@ namespace Spc {
             if (!(interp->mSlicesCount > 0)) {
                 SpcTrace("TSpcStack : stack overflow\n");
             }
-            interp->mSlicesCount -= 1;
-            return interp->mSlices[interp->mSlicesCount];
+            return interp->mSlices[interp->mSlicesCount--];
         }
 
         inline void pushItem(TSpcInterp *interp, u32 value, Spc::ValueType type) {
@@ -28,8 +27,7 @@ namespace Spc {
             TSpcSlice slice;
             slice.mValue                          = value;
             slice.mType                           = static_cast<u32>(type);
-            interp->mSlices[interp->mSlicesCount] = slice;
-            interp->mSlicesCount += 1;
+            interp->mSlices[interp->mSlicesCount++] = slice;
         }
 
     }  // namespace Stack

@@ -13,6 +13,7 @@
 #include <J2D/J2DOrthoGraph.hxx>
 
 #include "module.hxx"
+#include "game.hxx"
 #include "p_area.hxx"
 #include "p_level_select.hxx"
 #include <DVD.h>
@@ -917,7 +918,7 @@ void LevelSelectScreen::genEpisodeTextTest1(AreaMenuInfo &menu) {
         EpisodeMenuInfo *episodeInfo  = new EpisodeMenuInfo();
         episodeInfo->mScenarioTextBox = episodeText;
         episodeInfo->mFilenameTextBox = episodeFileNameText;
-        episodeInfo->mNormalStageID   = 17;
+        episodeInfo->mNormalStageID   = 12;
         episodeInfo->mScenarioID      = i;
         menu.mEpisodeInfos.insert(menu.mEpisodeInfos.end(), episodeInfo);
 
@@ -1257,8 +1258,6 @@ s32 LevelSelectDirector::direct() {
 
     int *joinBuf[2];
 
-    // mController->read();
-    // mController->updateMeaning();
     TSMSFader *fader = gpApplication.mFader;
     if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
         mSelectScreen->mController->mState.mReadInput = false;
@@ -1301,6 +1300,18 @@ s32 LevelSelectDirector::direct() {
                 gpApplication.mNextScene.mAreaID    = info->mNormalStageID;
                 gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
             }
+
+            if ((mController->mButtons.mInput & TMarioGamePad::X)) {
+                TFlagManager::smInstance->firstStart();
+                for (u32 shine = 0; shine < BetterSMS::Game::getMaxShines(); ++shine) {
+                    TFlagManager::smInstance->setShineFlag(shine);
+                }
+                for (u32 bluec = 0x10366; bluec < 0x103B4; ++bluec) {
+                    TFlagManager::smInstance->setBool(true, bluec);
+                }
+                TFlagManager::smInstance->saveSuccess();
+            }
+
             mState = State::EXIT;
         }
         break;

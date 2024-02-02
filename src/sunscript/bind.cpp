@@ -6,7 +6,7 @@
 #define BIND_SYMBOL(binary, symbol, func)                                                          \
     (binary)->bindSystemDataToSymbol((symbol), reinterpret_cast<u32>(&(func)))
 static void initCustomFunctions(TSpcBinary *spcBinary, const char *symbol, u32 address) {
-    spcBinary->bindSystemDataToSymbol(symbol, address);
+    BIND_SYMBOL(spcBinary, symbol, address);
     BIND_SYMBOL(spcBinary, "spawnObjByID", Spc::spawnObjByID);
     BIND_SYMBOL(spcBinary, "getPlayerInputByIndex", Spc::getPlayerInputByIndex);
     BIND_SYMBOL(spcBinary, "getStageBGM", Spc::getStageBGM);
