@@ -14,18 +14,20 @@
 #include <SMS/System/Resolution.hxx>
 
 #include "application.hxx"
+#include "level_select/p_level_select.hxx"
 #include "libs/container.hxx"
 #include "libs/global_unordered_map.hxx"
 #include "module.hxx"
 #include "music.hxx"
 #include "p_settings.hxx"
-#include "level_select/p_level_select.hxx"
 
 using namespace BetterSMS;
 
 static TGlobalVector<Application::ContextCallback> sContextCBs(256);
 static bool sIsAdditionalMovie = false;
 static u8 sIntroArea = 15, sIntroEpisode = 0;
+
+#define SMS_CHECK_RESET_FLAG(gamepad) (((1 << (gamepad)->mPort) & TMarioGamePad::mResetFlag) == 1)
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 context,
                                                                            ContextCallback cb) {
@@ -68,10 +70,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectMovie(TApplication *app) {
 }
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBootIntro(TApplication *app) {
-    app->mCutSceneID           = 9;
-    app->mNextScene.mAreaID    = sIntroArea;
-    app->mNextScene.mEpisodeID = sIntroEpisode;
-    app->mNextScene.mFlag.mVal = 0;
+    app->mCutSceneID = 9;
+    app->mNextScene.set(sIntroArea, sIntroEpisode, 0);
     BetterAppContextDirectMovie(app);
     return false;
 }
@@ -116,11 +116,11 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
 
-    #if 1
+#if 1
     auto *director = new LevelSelectDirector();
-    #else
+#else
     auto *director = new TMenuDirector();
-    #endif
+#endif
 
     app->mDirector = director;
 
@@ -148,8 +148,6 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectSettingsMenu(TApplication *ap
     return false;
 }
 
-#define SMS_CHECK_RESET_FLAG(gamepad) (((1 << (gamepad)->mPort) & TMarioGamePad::mResetFlag) == 1)
-
 extern void gameInitCallbackHandler(TApplication *app);
 extern void gameBootCallbackHandler(TApplication *app);
 extern void gameChangeCallbackHandler(TApplication *app);
@@ -175,12 +173,23 @@ void BetterApplicationProcess(TApplication *app) {
         if (app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
             if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
                 app->initialize_nlogoAfter();
+
+                bool introSceneMatchesExpected = app->mNextScene.mAreaID == sIntroArea &&
+                                                 app->mNextScene.mEpisodeID == sIntroEpisode;
 #if 1
-                if (BetterSMS::isDebugMode())
+                if (BetterSMS::isDebugMode()) {
                     delayContext = TApplication::CONTEXT_DIRECT_LEVEL_SELECT;
+                }
+
+                // If external tools like Junior's Toolbox hijack the scene, we should permiss
+                // it.
+                if (!introSceneMatchesExpected) {
+                    delayContext = TApplication::CONTEXT_DIRECT_STAGE;
+                }
 #endif
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
+            app->mNextScene.set(sIntroArea, sIntroEpisode, 0);
             if (!SMS_CHECK_RESET_FLAG(app->mGamePads[0])) {
                 gameInitCallbackHandler(app);
                 app->initialize_bootAfter();
