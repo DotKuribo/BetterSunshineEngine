@@ -529,6 +529,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "registerObjectAsMisc__Q29BetterSMS7ObjectsFPCcPFv_PQ26JDrama8TNameRef");
         KURIBO_EXPORT_AS(BetterSMS::Objects::getRemainingCapacity,
                          "getRemainingCapacity__Q29BetterSMS7ObjectsFv");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Objects::registerObjectCollideInteractor,
+            "registerObjectCollideInteractor__Q29BetterSMS7ObjectsFUlPFP9THitActorP6TMario_v");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Objects::registerObjectGrabInteractor,
+            "registerObjectGrabInteractor__Q29BetterSMS7ObjectsFUlPFP9THitActorP6TMario_v");
 #endif
 
         /* GAME */
