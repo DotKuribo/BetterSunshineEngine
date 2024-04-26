@@ -203,6 +203,11 @@ extern void initAreaInfo(TApplication *);
 
 extern void patches_staticResetter(TMarDirector *);
 
+// TOOLBOX
+
+extern void initializeTaskBuffers();
+extern void processCurrentTask(TApplication *app);
+
 // ================================= //
 
 extern "C" void __cxa_pure_virtual();
@@ -211,6 +216,9 @@ static void initLib() {
     makeExtendedObjDataTable();
     initLoadingScreen();
     initExtendedPlayerAnims();
+
+    initializeTaskBuffers();
+    Game::addLoopCallback(processCurrentTask);
 
     // SETTINGS
     sSettingsGroup.addSetting(&gBugFixesSetting);

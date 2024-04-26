@@ -89,6 +89,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "src/shine/*.cpp"
         "src/sunscript/*.c"
         "src/sunscript/*.cpp"
+        "src/toolbox/*.c"
+        "src/toolbox/*.cpp"
         "src/yoshi/*.c"
         "src/yoshi/*.cpp"
         "include/BetterSMS/*.h"
