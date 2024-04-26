@@ -130,26 +130,18 @@ static f32 enhanceWaterCheck(f32 x, f32 y, f32 z, const TMap *map, const TBGChec
             }
         }
 
-        // Passing 8, filters to just water when collision is fixed
-        // Check for water above the player
-        f32 waterY = map->mCollisionData->checkGround(x, y, z, 8, &abovePlane);
-        if (abovePlane == &TMapCollisionData::mIllegalCheckData) {
-            // There is no water above the player, so do sanity checks for air swimming (cave
-            // setting, roof above player)
-            roofY = checkAnyPlaneAbove(samplePosition, *map->mCollisionData, abovePlane);
-
-            if (abovePlane == &TMapCollisionData::mIllegalCheckData) {
-                return player->mWaterHeight;
-            } else if (roofY <= player->mWaterHeight) {
-                return player->mWaterHeight;
-            }
-
-            /**water = player->mFloorTriangle;
-            return player->mTranslation.y;*/
-            waterY = roofY;
+        // There is no water above the player, so do sanity checks for air swimming (cave
+        // setting, roof above player)
+        const TBGCheckData *roofPlane;
+        roofY      = checkAnyPlaneAbove(samplePosition, *map->mCollisionData, roofPlane);
+        f32 waterY = map->mCollisionData->checkGround(x, roofY - 1.0f, z, 4, &abovePlane);
+        if (isColTypeWater(abovePlane->mType)) {
+            *water = abovePlane;
+            return waterY;
+        } else {
+            *water = roofPlane;
+            return roofY;
         }
-        *water = abovePlane;
-        return waterY;
     }
 
     if (BetterSMS::isCollisionRepaired() && !SMS_isDivingMap__Fv()) {
