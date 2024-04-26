@@ -302,7 +302,7 @@ static void initLib() {
 #endif
 
     //// PLAYER STATE
-    // Player::addUpdateCallback("__update_collision_context", updateCollisionContext);
+    Player::addUpdateCallback(updateCollisionContext);
     Player::addUpdateCallback(updateClimbContext);
     Player::addUpdateCallback(checkForForceDropOnDeadActor);
 

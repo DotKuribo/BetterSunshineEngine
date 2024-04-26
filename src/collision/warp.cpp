@@ -388,7 +388,7 @@ BETTER_SMS_FOR_CALLBACK void instantWarpHandler(TMario *player, const TBGCheckDa
             warpPlayerToPoint(player, center);
             playerData->mWarpState          = 0xFF;
             playerData->mPrevCollisionFloor = player->mFloorTriangle;
-            playerData->mPrevCollisionType  = player->mFloorTriangle->mType;
+            playerData->mPrevCollisionFloorType  = player->mFloorTriangle->mType;
         }
     }
 }

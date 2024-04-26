@@ -87,7 +87,7 @@ namespace BetterSMS {
                 : TParams(), SMS_TPARAM_INIT(mMaxHealth, 8), SMS_TPARAM_INIT(mCanRideYoshi, true),
                   SMS_TPARAM_INIT(mCanUseFludd, true), SMS_TPARAM_INIT(mPlayerHasHelmet, false),
                   SMS_TPARAM_INIT(mPlayerHasGlasses, false),
-                  SMS_TPARAM_INIT(mPlayerHasShirt, false), SMS_TPARAM_INIT(mScaleMultiplier, 1.0f),
+                  SMS_TPARAM_INIT(mPlayerHasShirt, false),
                   SMS_TPARAM_INIT(mThrowPowerMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mUnderwaterHealthMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mFallDamageMinMultiplier, 1.0f) {
@@ -102,7 +102,6 @@ namespace BetterSMS {
             TParamRT<bool> mPlayerHasHelmet;
             TParamRT<bool> mPlayerHasGlasses;
             TParamRT<bool> mPlayerHasShirt;
-            TParamRT<f32> mScaleMultiplier;
             TParamRT<f32> mThrowPowerMultiplier;
             TParamRT<f32> mUnderwaterHealthMultiplier;
             TParamRT<f32> mFallDamageMinMultiplier;
@@ -189,7 +188,6 @@ namespace BetterSMS {
             bool loadPrm(const char *prm);
             bool loadPrm(JSUMemoryInputStream &stream);
             void resetPlayer() { mDefaultAttrs.applyHistoryTo(mPlayer); };
-            void scalePlayerAttrs(f32 scale);
 
         private:
             TMario *mPlayer;
@@ -204,8 +202,11 @@ namespace BetterSMS {
             u8 mCurJump;
             bool mIsClimbTired;
             u32 mLastQuarterFrameState;
-            u16 mPrevCollisionType;
+            u16 mPrevCollisionFloorType;
+            u16 mPrevCollisionRoofType;
             const TBGCheckData *mPrevCollisionFloor;
+            const TBGCheckData *mPrevCollisionRoof;
+            f32 mLastRelRoofHeight;
             s32 mCollisionTimer;
             s32 mClimbTiredTimer;
             f32 mSlideSpeedMultiplier;

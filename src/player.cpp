@@ -395,7 +395,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpW
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
     : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCanSprayFludd(true),
       mCurJump(0), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
-      mPrevCollisionType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
+      mPrevCollisionFloorType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
       mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),
       mWarpTimer(-1), mWarpState(0xFF) {
 
@@ -422,152 +422,6 @@ Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool i
 
     if (mParams->mPlayerHasGlasses.get() && player->mCap)
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
-
-    scalePlayerAttrs(mParams->mScaleMultiplier.get());
-}
-
-void Player::TPlayerData::scalePlayerAttrs(f32 scale) {
-    scale = Max(scale, 0.1f);
-
-    TVec3f size = {1.0f, 1.0f, 1.0f};
-    size.scale(scale);
-
-    mPlayer->mModelData->mModel->mBaseScale = mPlayer->mScale;
-
-    mDefaultAttrs.applyHistoryTo(getPlayer());
-
-#define SCALE_PARAM(param, scale) param.set(param.get() * scale)
-
-    const TPlayerParams *params = getParams();
-
-    if (mPlayer->onYoshi()) {
-        const f32 yoshiAgility = sigmoid(size.y, 0.0f, 1.2f, 1.321887582486f, -5.0f);
-        SCALE_PARAM(mPlayer->mSwimParams.mAirDec, 1.0f / params->mUnderwaterHealthMultiplier.get());
-        SCALE_PARAM(mPlayer->mSwimParams.mAirDecDive,
-                    1.0f / params->mUnderwaterHealthMultiplier.get());
-        SCALE_PARAM(mPlayer->mYoshiParams.mRunYoshiMult, yoshiAgility);
-        SCALE_PARAM(mPlayer->mYoshiParams.mJumpYoshiMult, yoshiAgility);
-        SCALE_PARAM(mPlayer->mYoshiParams.mRotYoshiMult, yoshiAgility);
-        return;
-    }
-
-    const f32 factor = scaleLinearAtAnchor<f32>(scale, 0.5f, 1.0f);
-    SCALE_PARAM(mPlayer->mDeParams.mRunningMax, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mDashMax, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mShadowSize, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mHoldRadius, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mDamageRadius, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mDamageHeight, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mAttackHeight, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mTrampleRadius, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mPushupRadius, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mPushupHeight, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mHipdropRadius, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mQuakeRadius, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mQuakeHeight, scale);
-    SCALE_PARAM(mPlayer->mDeParams.mJumpWallHeight, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mThrowPower, factor * params->mThrowPowerMultiplier.get());
-    SCALE_PARAM(mPlayer->mDeParams.mFeelDeep, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mDamageFallHeight, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mClashSpeed, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mSleepingCheckDist, factor);
-    SCALE_PARAM(mPlayer->mDeParams.mSleepingCheckHeight, factor);
-    SCALE_PARAM(mPlayer->mPunchFenceParams.mRadius, factor);
-    SCALE_PARAM(mPlayer->mPunchFenceParams.mHeight, factor);
-    SCALE_PARAM(mPlayer->mKickRoofParams.mRadius, factor);
-    SCALE_PARAM(mPlayer->mKickRoofParams.mHeight, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mGravity, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mSpinJumpGravity, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mJumpSpeedAccelControl, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mPopUpSpeedY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mJumpingMax, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mFenceSpeed, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mFireBackVelocity, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForce, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mBroadJumpForceY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mRotateJumpForceY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mBackJumpForce, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mBackJumpForceY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mHipAttackSpeedY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mSuperHipAttackSpeedY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mRotBroadJumpForce, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mRotBroadJumpForceY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mSecJumpForce, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mUltraJumpForce, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mTurnJumpForce, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mTriJumpEnableSp, scale);
-    SCALE_PARAM(mPlayer->mJumpParams.mValleyDepth, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mTremblePower, 1.0f / factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mTrembleTime, static_cast<s16>(1.0f / factor));
-    SCALE_PARAM(mPlayer->mJumpParams.mGetOffYoshiY, factor);
-    SCALE_PARAM(mPlayer->mJumpParams.mSuperHipAttackCt, static_cast<s16>(1.0f / factor));
-    SCALE_PARAM(mPlayer->mRunParams.mMaxSpeed, factor);
-    SCALE_PARAM(mPlayer->mRunParams.mAddBase, factor);
-    SCALE_PARAM(mPlayer->mRunParams.mDecBrake, factor);
-    SCALE_PARAM(mPlayer->mRunParams.mSoft2Walk, factor);
-    SCALE_PARAM(mPlayer->mRunParams.mWalk2Soft, factor);
-    SCALE_PARAM(mPlayer->mRunParams.mSoftStepAnmMult, 1 / factor);
-    SCALE_PARAM(mPlayer->mRunParams.mRunAnmSpeedMult, 1 / factor);
-    SCALE_PARAM(mPlayer->mRunParams.mMotBlendWalkSp, 1 / factor);
-    SCALE_PARAM(mPlayer->mRunParams.mMotBlendRunSp, 1 / factor);
-    SCALE_PARAM(mPlayer->mRunParams.mSwimDepth, factor);
-    SCALE_PARAM(mPlayer->mRunParams.mTurnNeedSp, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mStartSp, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mMoveSp, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mGravity, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mWaitBouyancy, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mMoveBouyancy, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mCanJumpDepth, scale);
-    SCALE_PARAM(mPlayer->mSwimParams.mEndDepth, scale);
-    SCALE_PARAM(mPlayer->mSwimParams.mFloatHeight, scale);
-    SCALE_PARAM(mPlayer->mSwimParams.mRush, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mPaddleSpeedUp, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mPaddleJumpUp, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mFloatUp, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mWaterLevelCheckHeight, 1.0f / scale);
-    SCALE_PARAM(mPlayer->mSwimParams.mPaddleDown, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mCanBreathDepth, scale);
-    SCALE_PARAM(mPlayer->mSwimParams.mWaitSinkSpeed, factor);
-    SCALE_PARAM(mPlayer->mSwimParams.mAirDec, 1.0f / params->mUnderwaterHealthMultiplier.get());
-    SCALE_PARAM(mPlayer->mSwimParams.mAirDecDive, 1.0f / params->mUnderwaterHealthMultiplier.get());
-    SCALE_PARAM(mPlayer->mHangFenceParams.mMoveSp, factor);
-    SCALE_PARAM(mPlayer->mHangFenceParams.mDescentSp, factor);
-    SCALE_PARAM(mPlayer->mPullBGBeakParams.mPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullBGBeakParams.mPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullBGBeakParams.mOilPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullBGBeakParams.mOilPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullBGTentacleParams.mPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullBGTentacleParams.mPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullBGTentacleParams.mOilPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullBGTentacleParams.mOilPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullBGFireWanWanBossTailParams.mPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullBGFireWanWanBossTailParams.mPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullBGFireWanWanBossTailParams.mOilPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullBGFireWanWanBossTailParams.mOilPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullFireWanWanTailParams.mPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullFireWanWanTailParams.mPullRateH, factor);
-    SCALE_PARAM(mPlayer->mPullFireWanWanTailParams.mOilPullRateV, factor);
-    SCALE_PARAM(mPlayer->mPullFireWanWanTailParams.mOilPullRateH, factor);
-    SCALE_PARAM(mPlayer->mDivingParams.mGravity, factor);
-    SCALE_PARAM(mPlayer->mWaterEffectParams.mJumpIntoMinY, factor);
-    SCALE_PARAM(mPlayer->mWaterEffectParams.mJumpIntoMaxY, factor);
-    SCALE_PARAM(mPlayer->mWaterEffectParams.mJumpIntoScaleMin, factor);
-    SCALE_PARAM(mPlayer->mWaterEffectParams.mJumpIntoScaleWidth, factor);
-    SCALE_PARAM(mPlayer->mWaterEffectParams.mRunningRippleDepth, factor);
-    SCALE_PARAM(mPlayer->mGraffitoParams.mSinkHeight, factor);
-    SCALE_PARAM(mPlayer->mGraffitoParams.mSinkMoveMin, factor);
-    SCALE_PARAM(mPlayer->mGraffitoParams.mSinkMoveMax, factor);
-    SCALE_PARAM(mPlayer->mGraffitoParams.mSinkRecover, factor);
-    SCALE_PARAM(mPlayer->mGraffitoParams.mFootEraseSize, scale);
-    SCALE_PARAM(mPlayer->mDirtyParams.mPolSizeSlip, scale);
-    SCALE_PARAM(mPlayer->mDirtyParams.mPolSizeRun, scale);
-    SCALE_PARAM(mPlayer->mDirtyParams.mPolSizeFootPrint, scale);
-    SCALE_PARAM(mPlayer->mDirtyParams.mPolSizeJump, scale);
-    SCALE_PARAM(mPlayer->mDirtyParams.mSlipAnmSpeed, 1 / factor);
-    SCALE_PARAM(mPlayer->mDirtyParams.mSlipRunSp, factor);
-    SCALE_PARAM(mPlayer->mDirtyParams.mSlipCatchSp, factor);
-
-#undef SCALE_PARAM
 }
 
 bool Player::TPlayerData::loadPrm(const char *prm = "/better_sms.prm") {
@@ -727,8 +581,6 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
     Player::deregisterData(player, "__better_sms");
     Player::registerData(player, "__better_sms", params);
 
-    params->scalePlayerAttrs(config->mPlayerSizeMultiplier.get());
-
     bool isGlasses = false;
 
     if (config->isCustomConfig()) {
@@ -840,7 +692,7 @@ static u32 collisionHandler(TMario *player) {
         playerData->mCollisionFlags.mIsSpinBounce = false;
 
     const u16 colType     = player->mFloorTriangle->mType & 0xFFF;
-    const u16 prevColType = playerData->mPrevCollisionType & 0xFFF;
+    const u16 prevColType = playerData->mPrevCollisionFloorType & 0xFFF;
 
     u32 marioFlags = 0;
     if ((player->mState & TMario::STATE_AIRBORN)) {
@@ -867,7 +719,7 @@ static u32 collisionHandler(TMario *player) {
                 item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                             marioFlags | Player::InteractionFlags::ON_ENTER);
         }
-        playerData->mPrevCollisionType          = colType;
+        playerData->mPrevCollisionFloorType          = colType;
         playerData->mPrevCollisionFloor         = player->mFloorTriangle;
         playerData->mCollisionFlags.mIsFaceUsed = false;
         playerData->mCollisionTimer             = 0;

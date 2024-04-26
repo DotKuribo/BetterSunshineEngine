@@ -15,11 +15,11 @@ using namespace BetterSMS;
 /* Collision State Resetters */
 
 #define EXPAND_WARP_SET(base)                                                                      \
-    (base) : case ((base) + 10) :                                                                  \
+    (base) : case ((base) + 10):                                                                   \
     case ((base) + 20):                                                                            \
     case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1) :                                                                   \
+    (base) : case ((base) + 1):                                                                    \
     case ((base) + 2):                                                                             \
     case ((base) + 3):                                                                             \
     case ((base) + 4)
@@ -39,15 +39,12 @@ static void resetValuesOnStateChange(TMario *player) {
     switch (player->mState) {}
 
     if ((player->mState != static_cast<u32>(TMario::STATE_JUMPSPINR) &&
-         player->mState != static_cast<u32>(TMario::STATE_JUMPSPINL)))
+         player->mState != static_cast<u32>(TMario::STATE_JUMPSPINL))) {
         playerData->mCollisionFlags.mIsSpinBounce = false;
-
-    if (playerData->mCollisionFlags.mIsDisableInput)
-    // Patches pausing/map escaping the controller lock
-    {
-        player->mController->mState.mReadInput = false;
-        player->mController->mState.mDisable   = true;
     }
+
+    player->mController->mState.mReadInput = !playerData->mCollisionFlags.mIsDisableInput;
+    player->mController->mState.mDisable   = playerData->mCollisionFlags.mIsDisableInput;
 }
 
 static void resetValuesOnGroundContact(TMario *player) {
@@ -77,8 +74,8 @@ static void resetValuesOnCollisionChange(TMario *player) {
     if (!player->mFloorTriangle || (player->mFloorTriangle == playerData->mPrevCollisionFloor))
         return;
 
-    if (player->mFloorTriangle->mType != playerData->mPrevCollisionType) {
-        playerData->mPrevCollisionType          = player->mFloorTriangle->mType;
+    if (player->mFloorTriangle->mType != playerData->mPrevCollisionFloorType) {
+        playerData->mPrevCollisionFloorType     = player->mFloorTriangle->mType;
         playerData->mPrevCollisionFloor         = player->mFloorTriangle;
         playerData->mCollisionFlags.mIsFaceUsed = false;
         playerData->mCollisionTimer             = 0;
@@ -125,36 +122,43 @@ using namespace BetterSMS;
 void updateCollisionContext(TMario *player, bool isMario) {
     constexpr s16 CrushTimeToDie = 0;
 
-    auto playerData = Player::getData(player);
+    Player::TPlayerData *playerData = Player::getData(player);
 
     resetValuesOnStateChange(player);
     resetValuesOnGroundContact(player);
     resetValuesOnAirborn(player);
     resetValuesOnCollisionChange(player);
 
-    if (!Collision::TCollisionLink::isValidWarpCol(player->mFloorTriangle)) {
-        /*if (playerData->mIsWarpActive) {
-            player->mController->mState.mReadInput      = true;
-            playerData->mCollisionFlags.mIsDisableInput = false;
-            playerData->mIsWarpActive                   = false;
-        }*/
+    if (player->mRoofTriangle) {
+        if (player->mRoofTriangle->mType != playerData->mPrevCollisionRoofType) {
+            playerData->mPrevCollisionRoofType = player->mRoofTriangle->mType;
+            playerData->mPrevCollisionRoof     = player->mRoofTriangle;
+        }
+    } else {
+        playerData->mPrevCollisionRoofType = 0;
+        playerData->mPrevCollisionRoof     = nullptr;
     }
 
-    const f32 marioCollisionHeight = *(f32 *)SMS_PORT_REGION(0x80415CC4, 0x8040D21C, 0, 0) *
-                                     playerData->getParams()->mScaleMultiplier.get();
+    const f32 marioCollisionHeight = *(f32 *)SMS_PORT_REGION(0x80415CC4, 0x8040D21C, 0, 0);
 
     Vec playerPos;
     player->JSGGetTranslation(&playerPos);
 
     TBGCheckData *roofTri;
 
-    f32 roofHeight = player->checkRoofPlane(playerPos, playerPos.y + (marioCollisionHeight / 4),
-                                            (const TBGCheckData **)&roofTri);
+    f32 roofHeight =
+        player->checkRoofPlane(playerPos, playerPos.y, (const TBGCheckData **)&roofTri);
+
+    const f32 currentRelRoofHeight   = roofHeight - playerPos.y;
+    const bool isRoofContextCrushing =
+        playerData->mLastRelRoofHeight >
+        currentRelRoofHeight && currentRelRoofHeight < (marioCollisionHeight - 50.0f);
+    const bool isAirBorn    = player->mState & static_cast<u32>(TMario::STATE_AIRBORN);
+    const bool isUnderWater = player->isUnderWater();
+    const bool isHanging    = player->mState == static_cast<u32>(TMario::STATE_HANG);
 
     if (!player->mAttributes.mIsGameOver) {
-        if (roofHeight - player->mFloorBelow < (marioCollisionHeight - 40.0f) &&
-            !(player->mState & static_cast<u32>(TMario::STATE_AIRBORN)) &&
-            player->mState != static_cast<u32>(TMario::STATE_HANG) && !player->isUnderWater()) {
+        if (isRoofContextCrushing && !isAirBorn && !isHanging && !isUnderWater) {
             playerData->mCollisionFlags.mCrushedTimer += 1;
         } else {
             playerData->mCollisionFlags.mCrushedTimer = 0;
@@ -163,10 +167,12 @@ void updateCollisionContext(TMario *player, bool isMario) {
         if (playerData->mCollisionFlags.mCrushedTimer > CrushTimeToDie) {
             player->loserExec();
             playerData->mCollisionFlags.mCrushedTimer = 0;
-            player->mScale.y                          = 0.2f;
+            player->mScale.y                          = 0.5f;
             player->mModelData->mModel->mBaseScale    = player->mScale;
         }
     }
+
+    playerData->mLastRelRoofHeight = currentRelRoofHeight;
 }
 
 #endif
