@@ -25,12 +25,12 @@ static void patchWaterDownWarp(f32 y) {
     TMario *player;
     SMS_FROM_GPR(31, player);
 
-    if (!BetterSMS::isCollisionRepaired()) {
+    if (!BetterSMS::isCollisionRepaired() || !(player->mState & TMario::STATE_WATERBORN)) {
         player->mTranslation.y = y;
         return;
     }
 
-    if (fabsf(player->mTranslation.y - y) < 10.0f) {
+    if (fabsf(player->mTranslation.y - y) < 100.0f) {
         if (player->mFloorTriangleWater != &TMapCollisionData::mIllegalCheckData &&
             player->mFloorTriangleWater != player->mFloorTriangle) {
             player->mTranslation.y = y;
