@@ -66,7 +66,7 @@ static f32 considerDryGround(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData 
 SMS_PATCH_BL(SMS_PORT_REGION(0x800458F8, 0, 0, 0), considerDryGround);
 
 static f32 considerShadowGround(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **data) {
-    return map->mCollisionData->checkGround(x, y, z, 4, data);
+    return map->mCollisionData->checkGround(x, y, z, 0x5, data);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80231878, 0, 0, 0),
              considerShadowGround);  // Optimize shadow binding

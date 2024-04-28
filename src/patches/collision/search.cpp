@@ -33,7 +33,7 @@ constexpr float CornerThreshold = -0.9f;
 
 // Credits to frameperfection
 static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *record) {
-    TBGCheckData *surf;
+    TBGCheckData *checkData;
     f32 offset;
     f32 radius = record->mRadius;
     f32 positions[3];
@@ -50,31 +50,56 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
 
     // Stay in this loop until out of walls.
     while (list) {
-        surf = list->mColTriangle;
+        checkData = list->mColTriangle;
         list = list->mNextTriangle;
         // Exclude a large number of walls immediately to optimize.
-        if (positions[1] < surf->mMinHeight || positions[1] > surf->mMaxHeight) {
+        if (positions[1] < checkData->mMinHeight || positions[1] > checkData->mMaxHeight) {
             continue;
         }
 
-        offset = surf->mNormal.x * positions[0] + surf->mNormal.y * positions[1] +
-                 surf->mNormal.z * positions[2] + surf->mProjectionFactor;
+        if ((record->mIgnoreFlags & 8)) {
+            const u16 type = checkData->mType;
+            if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
+                continue;
+            }
+        }
+
+        if ((record->mIgnoreFlags & 4) != 0) {  // Pass through Check
+            const u16 type = checkData->mType;
+            if (type == 0x401 || type == 0x801 || type == 0x10A || type == 0x8400) {
+                continue;
+            }
+            if (BetterSMS::isCollisionRepaired()) {
+                if (type == 0x800)
+                    continue;
+            }
+        }
+
+        if ((record->mIgnoreFlags & 1) != 0) {  // Water Check
+            const u16 type = checkData->mType;
+            if ((type >= 0x100 && type < 0x106) || type == 0x4104) {
+                continue;
+            }
+        }
+
+        offset = checkData->mNormal.x * positions[0] + checkData->mNormal.y * positions[1] +
+                 checkData->mNormal.z * positions[2] + checkData->mProjectionFactor;
 
         if (offset < -radius || offset > radius) {
             continue;
         }
 
-        VMatrix[0][0] = (surf->mVertices[1].x - surf->mVertices[0].x);
-        VMatrix[1][0] = (surf->mVertices[2].x - surf->mVertices[0].x);
-        VMatrix[2][0] = record->mPosition.x - surf->mVertices[0].x;
+        VMatrix[0][0] = (checkData->mVertices[1].x - checkData->mVertices[0].x);
+        VMatrix[1][0] = (checkData->mVertices[2].x - checkData->mVertices[0].x);
+        VMatrix[2][0] = record->mPosition.x - checkData->mVertices[0].x;
 
-        VMatrix[0][1] = (surf->mVertices[1].y - surf->mVertices[0].y);
-        VMatrix[1][1] = (surf->mVertices[2].y - surf->mVertices[0].y);
-        VMatrix[2][1] = record->mPosition.y - surf->mVertices[0].y;
+        VMatrix[0][1] = (checkData->mVertices[1].y - checkData->mVertices[0].y);
+        VMatrix[1][1] = (checkData->mVertices[2].y - checkData->mVertices[0].y);
+        VMatrix[2][1] = record->mPosition.y - checkData->mVertices[0].y;
 
-        VMatrix[0][2] = (surf->mVertices[1].z - surf->mVertices[0].z);
-        VMatrix[1][2] = (surf->mVertices[2].z - surf->mVertices[0].z);
-        VMatrix[2][2] = record->mPosition.z - surf->mVertices[0].z;
+        VMatrix[0][2] = (checkData->mVertices[1].z - checkData->mVertices[0].z);
+        VMatrix[1][2] = (checkData->mVertices[2].z - checkData->mVertices[0].z);
+        VMatrix[2][2] = record->mPosition.z - checkData->mVertices[0].z;
 
         DOOD[0]  = PSVECDotProduct(reinterpret_cast<Vec *>(VMatrix[0]),
                                    reinterpret_cast<Vec *>(VMatrix[0]));
@@ -95,8 +120,8 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
         if (w < 0.0f || w > 1.0f || v + w > 1.0f)
             goto edge_1_2;
 
-        positions[0] += surf->mNormal.x * (radius - offset);
-        positions[2] += surf->mNormal.z * (radius - offset);
+        positions[0] += checkData->mNormal.x * (radius - offset);
+        positions[2] += checkData->mNormal.z * (radius - offset);
         goto hasCollision;
 
     edge_1_2:
@@ -118,7 +143,7 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
             positions[2] += (DOOD[1] *= invDenom);
             margin_radius += 0.01f;
 
-            if (DOOD[0] * surf->mNormal.x + DOOD[1] * surf->mNormal.z < CornerThreshold * offset)
+            if (DOOD[0] * checkData->mNormal.x + DOOD[1] * checkData->mNormal.z < CornerThreshold * offset)
                 continue;
             else
                 goto hasCollision;
@@ -141,7 +166,7 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
             positions[2] += (DOOD[1] *= invDenom);
             margin_radius += 0.01f;
 
-            if (DOOD[0] * surf->mNormal.x + DOOD[1] * surf->mNormal.z < CornerThreshold * offset)
+            if (DOOD[0] * checkData->mNormal.x + DOOD[1] * checkData->mNormal.z < CornerThreshold * offset)
                 continue;
             else
                 goto hasCollision;
@@ -149,12 +174,12 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
 
     edge_2_3:
         // Edge 2-3
-        VMatrix[1][0] = (surf->mVertices[2].x - surf->mVertices[1].x);
-        VMatrix[2][0] = record->mPosition.x - surf->mVertices[1].x;
-        VMatrix[1][1] = (surf->mVertices[2].y - surf->mVertices[1].y);
-        VMatrix[2][1] = record->mPosition.y - surf->mVertices[1].y;
-        VMatrix[1][2] = (surf->mVertices[2].z - surf->mVertices[1].z);
-        VMatrix[2][2] = record->mPosition.z - surf->mVertices[1].z;
+        VMatrix[1][0] = (checkData->mVertices[2].x - checkData->mVertices[1].x);
+        VMatrix[2][0] = record->mPosition.x - checkData->mVertices[1].x;
+        VMatrix[1][1] = (checkData->mVertices[2].y - checkData->mVertices[1].y);
+        VMatrix[2][1] = record->mPosition.y - checkData->mVertices[1].y;
+        VMatrix[1][2] = (checkData->mVertices[2].z - checkData->mVertices[1].z);
+        VMatrix[2][2] = record->mPosition.z - checkData->mVertices[1].z;
 
         if (VMatrix[1][1] != 0.0f) {
             v = (VMatrix[2][1] / VMatrix[1][1]);
@@ -170,7 +195,7 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
             positions[0] += (DOOD[0] *= invDenom);
             positions[2] += (DOOD[1] *= invDenom);
             margin_radius += 0.01f;
-            if (DOOD[0] * surf->mNormal.x + DOOD[1] * surf->mNormal.z < CornerThreshold * offset)
+            if (DOOD[0] * checkData->mNormal.x + DOOD[1] * checkData->mNormal.z < CornerThreshold * offset)
                 continue;
             else
                 goto hasCollision;
@@ -182,7 +207,7 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
         //  this can lead to wall interaction being missed. Typically unreferenced walls
         //  come from only using one wall, however.
         if (record->mNumWalls < 4) {
-            record->mWalls[record->mNumWalls++] = surf;
+            record->mWalls[record->mNumWalls++] = checkData;
         }
 
         numCols++;
@@ -281,12 +306,13 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801899E8, 0, 0, 0), checkWallsExotic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189A64, 0, 0, 0), checkWallsExotic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189B04, 0, 0, 0), checkWallsExotic);
 
-static bool checkTouchWallsWithStates(TMap *map, TBGWallCheckRecord *record) {
-    bool isSensitiveState = false;
-    isSensitiveState |= (gpMarioAddress->mState & 0x30000000) != 0;  // Hanging still
-    return checkWallsExotic_(map->mCollisionData, record, !isSensitiveState) > 0;
+static bool enhancePlayerCheckWallPlane(TMap *map, TBGWallCheckRecord *record) {
+    bool isSimpleCollisionState = false;
+    isSimpleCollisionState |= (gpMarioAddress->mState & 0x30000000) != 0;  // Hanging still
+    record->mIgnoreFlags |= 1;  // Ignore water
+    return checkWallsExotic_(map->mCollisionData, record, !isSimpleCollisionState) > 0;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80255664, 0, 0, 0), checkTouchWallsWithStates);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80255664, 0, 0, 0), enhancePlayerCheckWallPlane);
 
 static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckList *list,
                                   const TBGCheckData **out) {
@@ -367,6 +393,79 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
     }
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x8018C334, 0, 0, 0), patchedCheckGroundList);
+
+static f32 patchedCheckRoofList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckList *list,
+                                const TBGCheckData **out) {
+
+    TBGCheckData *checkData;
+    TBGCheckList *bgCheckNode;
+
+    while (true) {
+        if (!list) {
+            *out = &TMapCollisionData::mIllegalCheckData;
+            return 10000000.0f;
+        }
+
+        checkData   = list->mColTriangle;
+        bgCheckNode = list->mNextTriangle;
+        list        = bgCheckNode;
+
+        if (BetterSMS::isCollisionRepaired() && (flags & 8)) {
+            const u16 type = checkData->mType;
+            if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
+                continue;
+            }
+        }
+
+        if ((flags & 4)) {  // Pass through Check
+            const u16 type = checkData->mType;
+            if (type == 0x401 || type == 0x801 || type == 0x10A || type == 0x8400) {
+                continue;
+            }
+            if (BetterSMS::isCollisionRepaired()) {
+                if (type == 0x800)
+                    continue;
+            }
+        }
+
+        if (BetterSMS::isCollisionRepaired() && (flags & 1)) {  // Water Check
+            const u16 type = checkData->mType;
+            if ((type >= 0x100 && type < 0x106) || type == 0x4104) {
+                continue;
+            }
+        }
+
+        const f32 ax = checkData->mVertices[0].x;
+        const f32 az = checkData->mVertices[0].z;
+        const f32 bz = checkData->mVertices[1].z;
+        const f32 bx = checkData->mVertices[1].x;
+
+        const bool abxCheck = (az - z) * (bx - ax) - (ax - x) * (bz - az) <= 1.0f;
+
+        if (!abxCheck)
+            continue;
+
+        const f32 cz = checkData->mVertices[2].z;
+        const f32 cx = checkData->mVertices[2].x;
+
+        const bool bcxCheck = (bz - z) * (cx - bx) - (bx - x) * (cz - bz) <= 1.0f;
+        const bool caxCheck = (cz - z) * (ax - cx) - (cx - x) * (az - cz) <= 1.0f;
+
+        if (!(bcxCheck && caxCheck))
+            continue;
+
+        f32 exactY =
+            -(checkData->mProjectionFactor + x * checkData->mNormal.x + z * checkData->mNormal.z) /
+            checkData->mNormal.y;
+
+        if (y - (exactY + 78.0f) > 0.0f)
+            continue;
+
+        *out = checkData;
+        return exactY;
+    }
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8018C628, 0, 0, 0), patchedCheckRoofList);
 
 // static float removeQuarterFrames() { return 120.0f; }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x80299850, 0, 0, 0), removeQuarterFrames);

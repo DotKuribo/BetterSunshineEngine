@@ -118,6 +118,8 @@ using namespace BetterSMS;
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025932C, 0x802510B8, 0, 0), slipperyCatchingSoundCheck);
 // SMS_WRITE_32(SMS_PORT_REGION(0x802596C0, 0x8025144C, 0, 0), 0x60000000);
 
+static inline bool isColTypeWater(u16 type) { return (type > 255 && type < 261) || type == 16644; }
+
 // extern -> generic.cpp
 void updateCollisionContext(TMario *player, bool isMario) {
     constexpr s16 CrushTimeToDie = 0;
@@ -151,6 +153,7 @@ void updateCollisionContext(TMario *player, bool isMario) {
 
     const f32 currentRelRoofHeight   = roofHeight - playerPos.y;
     const bool isRoofContextCrushing =
+        (roofTri && !isColTypeWater(roofTri->mType)) &&
         playerData->mLastRelRoofHeight >
         currentRelRoofHeight && currentRelRoofHeight < (marioCollisionHeight - 50.0f);
     const bool isAirBorn    = player->mState & static_cast<u32>(TMario::STATE_AIRBORN);
