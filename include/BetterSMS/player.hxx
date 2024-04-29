@@ -201,6 +201,7 @@ namespace BetterSMS {
         public:
             u8 mCurJump;
             bool mIsClimbTired;
+            bool mIsSwimmingWaterSurface;
             u32 mLastQuarterFrameState;
             u16 mPrevCollisionFloorType;
             u16 mPrevCollisionRoofType;

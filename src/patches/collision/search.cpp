@@ -333,6 +333,12 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             list        = bgCheckNode;
         } while (y < checkData->mMinHeight);
 
+        if (BetterSMS::isCollisionRepaired() && (flags & 16)) {
+            if (checkData->isMarioThrough()) {
+                continue;
+            }
+        }
+
         if (BetterSMS::isCollisionRepaired() && (flags & 8)) {
             const u16 type = checkData->mType;
             if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
