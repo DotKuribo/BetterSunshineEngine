@@ -144,47 +144,6 @@ static f32 findAnyGroundLikePlaneBelow(const TVec3f &position, TMapCollisionData
     return aboveY;
 }
 
-static bool isTriOccludedFromPoint(const TBGCheckData *tri, const TVec3f &point, f32 faceY) {
-    if (tri == &TMapCollisionData::mIllegalCheckData) {
-        return false;
-    }
-
-    if (faceY == point.y) {
-        return false;
-    }
-
-    TVec3f projPoint = {point.x, faceY, point.z};
-
-    const TBGCheckData *thePlane;
-    if (faceY < point.y) {
-        f32 roofY = findAnyRoofLikePlaneAbove(projPoint, *gpMapCollisionData, 0, &thePlane);
-
-        if (roofY < point.y) {
-            return true;
-        }
-
-        f32 groundY = findAnyGroundLikePlaneBelow({point.x, point.y - 10.0f, point.z},
-                                                  *gpMapCollisionData, 4, &thePlane);
-        if (groundY > faceY) {
-            return true;
-        }
-    } else {
-        f32 roofY = findAnyRoofLikePlaneAbove(point, *gpMapCollisionData, 0, &thePlane);
-
-        if (roofY < faceY) {
-            return true;
-        }
-
-        f32 groundY = findAnyGroundLikePlaneBelow({projPoint.x, projPoint.y - 10.0f, projPoint.z},
-                                                  *gpMapCollisionData, 4, &thePlane);
-        if (groundY > point.y) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGCheckData **water) {
     TMario *player              = gpMarioAddress;
     const TVec3f samplePosition = {x, player->mTranslation.y + 80.0f, z};
@@ -199,7 +158,8 @@ static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGChe
 
     bool isRoofWater = roofPlane && isColTypeWater(roofPlane->mType) && roofY > samplePosition.y;
     if (isRoofWater) {
-        return findAnyGroundLikePlaneBelow(samplePosition, *map->mCollisionData, 8, water);
+        *water = potential;
+        return potentialY;
     }
 
     if (potential != &TMapCollisionData::mIllegalCheckData) {
