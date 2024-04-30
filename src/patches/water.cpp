@@ -552,6 +552,22 @@ static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjGeneralRoofCollisionIsWater);
 
+void J3DGetTranslateRotateMtx(const J3DTransformInfo &info, Mtx out);
+extern void *gpMapObjWave;
+
+static void fixMarioOceanAnimBug(J3DTransformInfo& info, Mtx out) {
+      TMario *player = gpMarioAddress;
+  
+      if (BetterSMS::isCollisionRepaired()) {
+          info.ty = player->mTranslation.y +
+                    getWaveHeight__11TMapObjWaveCFff(gpMapObjWave, player->mTranslation.x,
+                                                     player->mTranslation.z);
+      }
+  
+      J3DGetTranslateRotateMtx(info, out);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802456B8, 0, 0, 0), fixMarioOceanAnimBug);
+
 static f32 fixBlooperSurfAnimBug(void *objWave, f32 x, f32 y, f32 z) {
     if (!BetterSMS::isCollisionRepaired()) {
         return getHeight__11TMapObjWaveCFfff(objWave, x, y, z);
@@ -578,3 +594,20 @@ static const TBGCheckData *fixBlooperParamDifferentiation() {
     return player->mFloorTriangleWater ? player->mFloorTriangleWater : player->mFloorTriangle;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8025B690, 0, 0, 0), fixBlooperParamDifferentiation);
+
+static f32 fixWaterFilterHeightCalc(void *objWave, f32 x, f32 y, f32 z) {
+    if (!BetterSMS::isCollisionRepaired()) {
+        return getHeight__11TMapObjWaveCFfff(objWave, x, y, z);
+    }
+
+    const TBGCheckData *water;
+    f32 height = enhanceWaterCheck_(x, y, z, gpMap, &water);
+
+    if (gpMarioAddress->mFloorTriangleWater && gpMarioAddress->mFloorTriangleWater->mType == 258 ||
+        gpMarioAddress->mFloorTriangleWater->mType == 259) {
+        return getWaveHeight__11TMapObjWaveCFff(objWave, x, z) + height;
+    }
+    return -32768.0f;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80189DC0, 0, 0, 0), fixWaterFilterHeightCalc);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801EA8F4, 0, 0, 0), fixWaterFilterHeightCalc);
