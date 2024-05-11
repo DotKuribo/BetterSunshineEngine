@@ -26,7 +26,7 @@
 #include "p_debug.hxx"
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
+
 
 extern int gDebugUIPage;
 

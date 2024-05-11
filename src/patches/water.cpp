@@ -14,6 +14,7 @@
 #include <SMS/Player/Mario.hxx>
 #include <SMS/raw_fn.hxx>
 
+#include "libs/geometry.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"
 #include "player.hxx"
@@ -156,7 +157,7 @@ static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGChe
     potentialY = findAnyGroundLikePlaneBelow({samplePosition.x, roofY - 1.0f, samplePosition.z},
                                              *map->mCollisionData, 8, &potential);
 
-    bool isRoofWater = roofPlane && isColTypeWater(roofPlane->mType) && roofY > samplePosition.y;
+    bool isRoofWater = roofPlane && isColTypeWater(roofPlane->mType);
     if (isRoofWater) {
         *water = potential;
         return potentialY;
@@ -174,7 +175,7 @@ static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGChe
             *water = potential;
             return potentialY;
         } else {
-            return map->mCollisionData->checkGround(x, y, z, 8, water);
+            return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
         }
     } else if ((player->mState & TMario::STATE_WATERBORN)) {
         // If there is no water beneath the roof, check if there is water above the player
@@ -274,30 +275,6 @@ static f32 makeFluddHoverNotClipWaterRoof(TMap *map, f32 x, f32 y, f32 z,
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802555E8, 0, 0, 0), makeFluddHoverNotClipWaterRoof);
 
-static void normalToRotationMatrix(Mtx out, const TVec3f &normal) {
-    TVec3f up = TVec3f::up();
-    TVec3f right;
-    up.cross(normal, right);
-    right.normalize();
-
-    TVec3f forward;
-    normal.cross(right, forward);
-    forward.normalize();
-
-    PSMTXIdentity(out);
-    out[0][0] = right.x;
-    out[1][0] = right.y;
-    out[2][0] = right.z;
-
-    out[0][1] = up.x;
-    out[1][1] = up.y;
-    out[2][1] = up.z;
-
-    out[0][2] = forward.x;
-    out[1][2] = forward.y;
-    out[2][2] = forward.z;
-}
-
 static void emitExoticInOutWaterEffect(TMarioParticleManager *manager, s32 effect,
                                        const TVec3f *pos, u8 count, const void *owner) {
     if (!BetterSMS::isCollisionRepaired()) {
@@ -314,17 +291,17 @@ static void emitExoticInOutWaterEffect(TMarioParticleManager *manager, s32 effec
 
     bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
 
-    Mtx44 mtx;
+    Mtx mtx;
     PSMTXIdentity(mtx);
     PSMTXTrans(mtx, pos->x, player->mWaterHeight, pos->z);
 
-    Mtx44 lookMtx;
+    Mtx lookMtx;
     if (isExitingBottom) {
-        normalToRotationMatrix(lookMtx, player->mRoofTriangle->mNormal);
+        Matrix::rotateToNormal(player->mRoofTriangle->mNormal, lookMtx);
     } else if (isExitingTop) {
-        normalToRotationMatrix(lookMtx, player->mFloorTriangleWater->mNormal);
+        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        normalToRotationMatrix(lookMtx, player->mWallTriangle->mNormal);
+        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
     } else {
         return;
     }
@@ -353,15 +330,15 @@ static JPABaseEmitter *emitExoticRippleWaterEffect(TMarioParticleManager *manage
 
     bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
 
-    Mtx44 mtx;
+    Mtx mtx;
     PSMTXIdentity(mtx);
     PSMTXTrans(mtx, player->mTranslation.x, player->mWaterHeight, player->mTranslation.z);
 
-    Mtx44 lookMtx;
+    Mtx lookMtx;
     if (isExitingTop) {
-        normalToRotationMatrix(lookMtx, player->mFloorTriangleWater->mNormal);
+        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        normalToRotationMatrix(lookMtx, player->mWallTriangle->mNormal);
+        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
     } else {
         return manager->emitAndBindToMtxPtr(effect, emitMtx, count, owner);
     }
@@ -387,15 +364,15 @@ static void emitExoticRunningRippleWaterEffect(TMarioParticleManager *manager, s
 
     bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
 
-    Mtx44 mtx;
+    Mtx mtx;
     PSMTXIdentity(mtx);
     PSMTXTrans(mtx, pos->x, pos->y, pos->z);
 
-    Mtx44 lookMtx;
+    Mtx lookMtx;
     if (isExitingTop) {
-        normalToRotationMatrix(lookMtx, player->mFloorTriangleWater->mNormal);
+        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        normalToRotationMatrix(lookMtx, player->mWallTriangle->mNormal);
+        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
     } else {
         return;
     }
@@ -420,11 +397,11 @@ static void updateExoticWaterSplashEffect(Mtx src, Mtx dst) {
 
     bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
 
-    Mtx44 lookMtx;
+    Mtx lookMtx;
     if (isExitingTop) {
-        normalToRotationMatrix(lookMtx, player->mFloorTriangleWater->mNormal);
+        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        normalToRotationMatrix(lookMtx, player->mWallTriangle->mNormal);
+        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
     } else {
         // Make the effect disappear lol xd
         PSMTXTrans(dst, 0, -100000.0f, 0);
@@ -533,7 +510,7 @@ static void checkIfObjBallWallCollisionIsWater(TMapObjBall *obj, TVec3f *out,
 SMS_PATCH_B(SMS_PORT_REGION(0x801E5770, 0, 0, 0), checkIfObjBallWallCollisionIsWater);
 
 static void checkIfObjGeneralRoofCollisionIsWater(TMapObjGeneral *obj, TVec3f *out) {
-    if (BetterSMS::isCollisionRepaired() && isColTypeWater(obj->mWallTouching->mType)) {
+    if (BetterSMS::isCollisionRepaired() && isColTypeWater(obj->mRoofTouching->mType)) {
         return;
     }
     out->y = obj->_03;
@@ -541,12 +518,12 @@ static void checkIfObjGeneralRoofCollisionIsWater(TMapObjGeneral *obj, TVec3f *o
 SMS_PATCH_B(SMS_PORT_REGION(0x801B3DF0, 0, 0, 0), checkIfObjGeneralRoofCollisionIsWater);
 
 static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
-    if (BetterSMS::isCollisionRepaired() && isColTypeWater(obj->mWallTouching->mType)) {
+    if (BetterSMS::isCollisionRepaired() && isColTypeWater(obj->mRoofTouching->mType)) {
         obj->touchWaterSurface();
         return;
     }
     out->y = Max(out->y, obj->_03);
-    obj->calcReflectingVelocity(obj->mWallTouching,
+    obj->calcReflectingVelocity(obj->mRoofTouching,
                                 obj->mObjData->mPhysicalInfo->mPhysicalData->mFloorBounceSpeed,
                                 &obj->mSpeed);
 }
@@ -603,8 +580,12 @@ static f32 fixWaterFilterHeightCalc(void *objWave, f32 x, f32 y, f32 z) {
     const TBGCheckData *water;
     f32 height = enhanceWaterCheck_(x, y, z, gpMap, &water);
 
-    if (gpMarioAddress->mFloorTriangleWater && gpMarioAddress->mFloorTriangleWater->mType == 258 ||
-        gpMarioAddress->mFloorTriangleWater->mType == 259) {
+    if (!objWave) {
+        OSReport("[WARNING] ObjWave is null\n");
+        return -32768.0f;
+    }
+
+    if (water && water->mType == 258 || water->mType == 259) {
         return getWaveHeight__11TMapObjWaveCFff(objWave, x, z) + height;
     }
     return -32768.0f;

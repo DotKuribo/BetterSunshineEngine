@@ -26,7 +26,7 @@ bool gIsCameraFrozen   = false;
 TVec3f gCamPosition = {0, 0, 0}, gCamRotation = {0, 0, 0};
 float gCamFOV = 70.0f;
 
-using namespace BetterSMS::Geometry;
+using namespace BetterSMS;
 
 void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     constexpr f32 baseSpeed = 15.0f;
@@ -160,53 +160,53 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     }
 }
 
- static bool shouldDebugPassThroughCameraPerform() {
-     JDrama::TGraphics *graphics;
-     SMS_FROM_GPR(31, graphics);
+static bool shouldDebugPassThroughCameraPerform() {
+    JDrama::TGraphics *graphics;
+    SMS_FROM_GPR(31, graphics);
 
-     if (gDebugState == DebugState::CAM_MODE && gIsDebugActive)
-         return true;
-     else if (gIsCameraFrozen)
-         return true;
+    if (gDebugState == DebugState::CAM_MODE && gIsDebugActive)
+        return true;
+    else if (gIsCameraFrozen)
+        return true;
 
-     return (graphics->_00[1] & 1);
- }
- SMS_PATCH_BL(SMS_PORT_REGION(0x80023034, 0, 0, 0), shouldDebugPassThroughCameraPerform);
- SMS_WRITE_32(SMS_PORT_REGION(0x80023038, 0, 0, 0), 0x2C030000);
+    return (graphics->_00[1] & 1);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80023034, 0, 0, 0), shouldDebugPassThroughCameraPerform);
+SMS_WRITE_32(SMS_PORT_REGION(0x80023038, 0, 0, 0), 0x2C030000);
 
- static bool shouldDebugControlCameraPerform(const Mtx a, Mtx b) {
-     CPolarSubCamera *camera;
-     SMS_FROM_GPR(29, camera);
+static bool shouldDebugControlCameraPerform(const Mtx a, Mtx b) {
+    CPolarSubCamera *camera;
+    SMS_FROM_GPR(29, camera);
 
-     PSMTXCopy(a, b);
+    PSMTXCopy(a, b);
 
-     if (gDebugState == DebugState::CAM_MODE && gIsDebugActive)
-         return true;
-     else if (gIsCameraFrozen)
-         return true;
+    if (gDebugState == DebugState::CAM_MODE && gIsDebugActive)
+        return true;
+    else if (gIsCameraFrozen)
+        return true;
 
-     camera->mUpVector = {0, 1, 0};
+    camera->mUpVector = {0, 1, 0};
 
-     return false;
- }
- SMS_PATCH_BL(SMS_PORT_REGION(0x800230F8, 0, 0, 0), shouldDebugControlCameraPerform);
- SMS_WRITE_32(SMS_PORT_REGION(0x800230FC, 0, 0, 0), 0x2C030001);
- SMS_WRITE_32(SMS_PORT_REGION(0x80023100, 0, 0, 0), 0x418201F8);
- SMS_WRITE_32(SMS_PORT_REGION(0x80023108, 0, 0, 0), 0x60000000);
- SMS_WRITE_32(SMS_PORT_REGION(0x8002310C, 0, 0, 0), 0x60000000);
- SMS_WRITE_32(SMS_PORT_REGION(0x80023110, 0, 0, 0), 0x60000000);
- SMS_WRITE_32(SMS_PORT_REGION(0x80023114, 0, 0, 0), 0x60000000);
- SMS_WRITE_32(SMS_PORT_REGION(0x80023118, 0, 0, 0), 0x60000000);
+    return false;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x800230F8, 0, 0, 0), shouldDebugControlCameraPerform);
+SMS_WRITE_32(SMS_PORT_REGION(0x800230FC, 0, 0, 0), 0x2C030001);
+SMS_WRITE_32(SMS_PORT_REGION(0x80023100, 0, 0, 0), 0x418201F8);
+SMS_WRITE_32(SMS_PORT_REGION(0x80023108, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8002310C, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80023110, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80023114, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x80023118, 0, 0, 0), 0x60000000);
 
- static void shouldCtrlCamera(CPolarSubCamera *camera) {
-     if (gDebugState != DebugState::CAM_MODE)
-         camera->ctrlNormalOrTowerCamera_();
- }
- SMS_PATCH_BL(SMS_PORT_REGION(0x800238fc, 0, 0, 0), shouldCtrlCamera);
+static void shouldCtrlCamera(CPolarSubCamera *camera) {
+    if (gDebugState != DebugState::CAM_MODE)
+        camera->ctrlNormalOrTowerCamera_();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x800238fc, 0, 0, 0), shouldCtrlCamera);
 
- static bool isSimpleCamera(u32 r3, bool isSimple) {
-     if (gDebugState != DebugState::CAM_MODE)
-         return isSimple;
-     return false;
- }
- SMS_PATCH_B(SMS_PORT_REGION(0x80032934, 0, 0, 0), isSimpleCamera);
+static bool isSimpleCamera(u32 r3, bool isSimple) {
+    if (gDebugState != DebugState::CAM_MODE)
+        return isSimple;
+    return false;
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x80032934, 0, 0, 0), isSimpleCamera);

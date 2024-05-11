@@ -22,7 +22,7 @@
 #include <player.hxx>
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
+
 
 /* CHEAT HANDLER */
 

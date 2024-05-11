@@ -34,7 +34,7 @@
 #include "stage.hxx"
 
 using namespace BetterSMS;
-using namespace BetterSMS::Geometry;
+
 
 static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
 static TGlobalVector<Player::InitCallback> sPlayerInitializers;

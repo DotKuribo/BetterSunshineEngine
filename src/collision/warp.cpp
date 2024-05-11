@@ -17,7 +17,7 @@
 
 using namespace BetterSMS;
 using namespace BetterSMS::Collision;
-using namespace BetterSMS::Geometry;
+
 
 #if BETTER_SMS_EXTRA_COLLISION
 
