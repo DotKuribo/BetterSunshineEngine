@@ -11,9 +11,9 @@
 
 namespace BetterSMS {
 
-    namespace Matrix {
-
-        inline void rotateToNormal(const TVec3f &norm, Mtx &out) {
+    class Matrix {
+    public:
+        static void rotateToNormal(const TVec3f &norm, Mtx &out) {
             TVec3f forward{};
             PSVECNormalize(norm, forward);
 
@@ -38,11 +38,11 @@ namespace BetterSMS {
             out[2][2] = forward.z;
         }
 
-    }  // namespace Matrix
+    };
 
-    namespace Vector3 {
-
-        inline f32 magnitude(const TVec3f &vec) {
+    class Vector3 {
+    public:
+        static inline f32 magnitude(const TVec3f &vec) {
 #if BETTER_SMS_USE_PS_MATH
             return PSVECMag(reinterpret_cast<const Vec *>(&vec));
 #else
@@ -50,7 +50,7 @@ namespace BetterSMS {
 #endif
         }
 
-        inline f32 magnitude(const Vec &vec) {
+        static inline f32 magnitude(const Vec &vec) {
 #if BETTER_SMS_USE_PS_MATH
             return PSVECMag(&vec);
 #else
@@ -58,12 +58,14 @@ namespace BetterSMS {
 #endif
         }
 
-        inline f32 getNormalAngle(const TVec3f &vec) {
+        static inline f32 getNormalAngle(const TVec3f &vec) {
             return radiansToAngle(atan2f(vec.x, vec.z));
         }
-        inline f32 getNormalAngle(const Vec &vec) { return radiansToAngle(atan2f(vec.x, vec.z)); }
+        static inline f32 getNormalAngle(const Vec &vec) {
+            return radiansToAngle(atan2f(vec.x, vec.z));
+        }
 
-        inline void normalized(const TVec3f &vec, TVec3f &out) {
+        static inline void normalized(const TVec3f &vec, TVec3f &out) {
 #if BETTER_SMS_USE_PS_MATH
             PSVECNormalize(reinterpret_cast<const Vec *>(&vec), reinterpret_cast<Vec *>(&out));
 #else
@@ -71,7 +73,7 @@ namespace BetterSMS {
 #endif
         }
 
-        inline void normalized(const Vec &vec, Vec &out) {
+        static inline void normalized(const Vec &vec, Vec &out) {
 #if BETTER_SMS_USE_PS_MATH
             PSVECNormalize(&vec, &out);
 #else
@@ -82,7 +84,7 @@ namespace BetterSMS {
 #endif
         }
 
-        inline f32 dot(const TVec3f &a, const TVec3f &b) {
+        static inline f32 dot(const TVec3f &a, const TVec3f &b) {
 #if BETTER_SMS_USE_PS_MATH
             return PSVECDotProduct(reinterpret_cast<const Vec *>(&a),
                                    reinterpret_cast<const Vec *>(&b));
@@ -91,7 +93,7 @@ namespace BetterSMS {
 #endif
         }
 
-        inline f32 dot(const Vec &a, const Vec &b) {
+        static inline f32 dot(const Vec &a, const Vec &b) {
 #if BETTER_SMS_USE_PS_MATH
             return PSVECDotProduct(&a, &b);
 #else
@@ -99,7 +101,7 @@ namespace BetterSMS {
 #endif
         }
 
-        inline void cross(const TVec3f &a, const TVec3f &b, TVec3f &out) {
+        static inline void cross(const TVec3f &a, const TVec3f &b, TVec3f &out) {
 #if BETTER_SMS_USE_PS_MATH
             PSVECCrossProduct(reinterpret_cast<const Vec *>(&a), reinterpret_cast<const Vec *>(&b),
                               reinterpret_cast<Vec *>(&out));
@@ -110,7 +112,7 @@ namespace BetterSMS {
 #endif
         }
 
-        inline void cross(const Vec &a, const Vec &b, Vec &out) {
+        static inline void cross(const Vec &a, const Vec &b, Vec &out) {
 #if BETTER_SMS_USE_PS_MATH
             PSVECCrossProduct(&a, &b, &out);
 #else
@@ -120,13 +122,13 @@ namespace BetterSMS {
 #endif
         }
 
-        inline f32 getYAngleTo(const TVec3f &a, const TVec3f &b) {
+        static f32 getYAngleTo(const TVec3f &a, const TVec3f &b) {
             TVec3f diff = a;
             diff.sub(b);
             return MsGetRotFromZaxisY(diff);
         }
 
-        inline f32 lookAtRatio(const TVec3f &a, const TVec3f &b) {
+        static f32 lookAtRatio(const TVec3f &a, const TVec3f &b) {
             f32 angle = atan2f(b.z, -b.x) - atan2f(a.z, a.x);
             if (angle > M_PI) {
                 angle -= 2 * M_PI;
@@ -136,7 +138,7 @@ namespace BetterSMS {
             return fabsf(angle) / M_PI;
         }
 
-        inline f32 lookAtRatio(const Vec &a, const Vec &b) {
+        static f32 lookAtRatio(const Vec &a, const Vec &b) {
             f32 angle = atan2f(b.z, -b.x) - atan2f(a.z, a.x);
             if (angle > M_PI) {
                 angle -= 2 * M_PI;
@@ -146,15 +148,15 @@ namespace BetterSMS {
             return fabsf(angle) / M_PI;
         }
 
-        inline f32 angleBetween(const TVec3f &a, const TVec3f &b) {
+        static f32 angleBetween(const TVec3f &a, const TVec3f &b) {
             return dot(a, b) / (magnitude(a) * magnitude(b));
         }
 
-        inline f32 angleBetween(const Vec &a, const Vec &b) {
+        static f32 angleBetween(const Vec &a, const Vec &b) {
             return dot(a, b) / (magnitude(a) * magnitude(b));
         }
 
-        inline TVec3f eulerFromMatrix(Mtx mtx) {
+        static TVec3f eulerFromMatrix(Mtx mtx) {
             // Row-major rotation matrix
             // XYZ extrinsic rotation (ZYX intrinsic)
             // X -> left + clockwise
@@ -189,6 +191,6 @@ namespace BetterSMS {
             return out;
         }
 
-    }  // namespace Vector3
+    };
 
 }  // namespace BetterSMS
