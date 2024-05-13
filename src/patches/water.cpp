@@ -23,6 +23,47 @@ using namespace BetterSMS;
 
 static inline bool isColTypeWater(u16 type) { return (type > 255 && type < 261) || type == 16644; }
 
+static void normalToRotationMatrix(const TVec3f &normal, Mtx out) {
+    TVec3f up = fabsf(normal.y) < 0.999f ? TVec3f::up() : TVec3f::forward();
+    TVec3f forward = normal;
+
+    TVec3f right;
+    PSVECNormalize(forward, forward);
+    PSVECCrossProduct(forward, up, right);
+    PSVECNormalize(right, right);
+
+    PSVECCrossProduct(forward, right, up);
+    PSVECNormalize(up, up);
+
+    PSMTXIdentity(out);
+
+    #if 0
+    out[0][0] = right.x;
+    out[0][1] = right.y;
+    out[0][2] = right.z;
+
+    out[1][0] = up.x;
+    out[1][1] = up.y;
+    out[1][2] = up.z;
+
+    out[2][0] = forward.x;
+    out[2][1] = forward.y;
+    out[2][2] = forward.z;
+    #else
+    out[0][0] = right.x;
+    out[1][0] = right.y;
+    out[2][0] = right.z;
+
+    out[0][1] = up.x;
+    out[1][1] = up.y;
+    out[2][1] = up.z;
+
+    out[0][2] = forward.x;
+    out[1][2] = forward.y;
+    out[2][2] = forward.z;
+    #endif
+}
+
 static void patchWaterDownWarp(f32 y) {
     TMario *player;
     SMS_FROM_GPR(31, player);
@@ -252,6 +293,7 @@ static f32 enhanceCheckGroundPlaneForWater(TMap *map, f32 x, f32 y, f32 z,
     }
     return map->mCollisionData->checkGround(x, y, z, 1, out);
 }
+//SMS_PATCH_BL(SMS_PORT_REGION(0x801B09B8, 0, 0, 0), enhanceCheckGroundPlaneForWater);
 SMS_PATCH_BL(SMS_PORT_REGION(0x802510E8, 0, 0, 0), enhanceCheckGroundPlaneForWater);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80251168, 0, 0, 0), enhanceCheckGroundPlaneForWater);
 
@@ -295,13 +337,15 @@ static void emitExoticInOutWaterEffect(TMarioParticleManager *manager, s32 effec
     PSMTXIdentity(mtx);
     PSMTXTrans(mtx, pos->x, player->mWaterHeight, pos->z);
 
+    TVec3f center = {0, 0, 0};
+
     Mtx lookMtx;
     if (isExitingBottom) {
-        Matrix::rotateToNormal(player->mRoofTriangle->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mRoofTriangle->mNormal, lookMtx);
     } else if (isExitingTop) {
-        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
     } else {
         return;
     }
@@ -336,9 +380,9 @@ static JPABaseEmitter *emitExoticRippleWaterEffect(TMarioParticleManager *manage
 
     Mtx lookMtx;
     if (isExitingTop) {
-        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
     } else {
         return manager->emitAndBindToMtxPtr(effect, emitMtx, count, owner);
     }
@@ -370,9 +414,9 @@ static void emitExoticRunningRippleWaterEffect(TMarioParticleManager *manager, s
 
     Mtx lookMtx;
     if (isExitingTop) {
-        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
     } else {
         return;
     }
@@ -399,9 +443,9 @@ static void updateExoticWaterSplashEffect(Mtx src, Mtx dst) {
 
     Mtx lookMtx;
     if (isExitingTop) {
-        Matrix::rotateToNormal(player->mFloorTriangleWater->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
     } else if (isExitingWall) {
-        Matrix::rotateToNormal(player->mWallTriangle->mNormal, lookMtx);
+        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
     } else {
         // Make the effect disappear lol xd
         PSMTXTrans(dst, 0, -100000.0f, 0);
@@ -440,16 +484,17 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8024A7C4, 0, 0, 0), 0x41820028);
 
 static void checkIfObjGeneralWallCollisionIsWater(TMapObjGeneral *obj, TVec3f *out,
                                                   TBGWallCheckRecord *record) {
-    if (!BetterSMS::isCollisionRepaired()) {
-        out->y = obj->_03;
+    if (BetterSMS::isCollisionRepaired() && isColTypeWater(obj->mWallTouching->mType)) {
         return;
     }
 
-    if (isColTypeWater(obj->mWallTouching->mType)) {
-        return;
-    }
-    out->y = obj->_03;
+    out->x = record->mPosition.x;
+    out->z = record->mPosition.z;
+    obj->calcReflectingVelocity(record->mWalls[0],
+                                obj->mObjData->mPhysicalInfo->mPhysicalData->mWallBounceSpeed,
+                                &obj->mSpeed);
 }
+SMS_PATCH_B(SMS_PORT_REGION(0x801B3EE4, 0, 0, 0), checkIfObjGeneralWallCollisionIsWater);
 
 static void checkIfObjBallWallCollisionIsWater(TMapObjBall *obj, TVec3f *out,
                                                TBGWallCheckRecord *record) {
@@ -458,7 +503,7 @@ static void checkIfObjBallWallCollisionIsWater(TMapObjBall *obj, TVec3f *out,
 
     if ((obj->mStateFlags.asU32 & 0x80) == 0 && obj->mObjectID != 0x400000D0) {
         f32 speedMag = sqrtf(sp.x * sp.x + sp.y * sp.y + sp.z * sp.z);
-        obj->mSpeed.y += obj->_184 * speedMag;
+        sp.y += obj->_184 * speedMag;
     }
 
     bool collisionRepaired = BetterSMS::isCollisionRepaired();
@@ -467,6 +512,7 @@ static void checkIfObjBallWallCollisionIsWater(TMapObjBall *obj, TVec3f *out,
         const TBGCheckData *wall = record->mWalls[i];
         if (collisionRepaired && isColTypeWater(wall->mType)) {
             obj->touchWaterSurface();
+            *out = obj->mTranslation;
             return;
         }
 
@@ -476,8 +522,8 @@ static void checkIfObjBallWallCollisionIsWater(TMapObjBall *obj, TVec3f *out,
         }
 
         f32 projDot =
-            out->x * wall->mNormal.x + out->y * wall->mNormal.y + out->z * wall->mNormal.z;
-        f32 reflectDot = normDot * obj->mObjData->mPhysicalInfo->mPhysicalData->mWallBounceSpeed;
+            out->x * wall->mNormal.x + out->y * wall->mNormal.y + out->z * wall->mNormal.z + wall->mProjectionFactor;
+        f32 reflectDot = normDot * -(1.0f + obj->mObjData->mPhysicalInfo->mPhysicalData->mWallBounceSpeed);
 
         out->x += (obj->mMaxSpeed - projDot) * wall->mNormal.x;
         out->z += (obj->mMaxSpeed - projDot) * wall->mNormal.z;
@@ -520,6 +566,7 @@ SMS_PATCH_B(SMS_PORT_REGION(0x801B3DF0, 0, 0, 0), checkIfObjGeneralRoofCollision
 static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
     if (BetterSMS::isCollisionRepaired() && isColTypeWater(obj->mRoofTouching->mType)) {
         obj->touchWaterSurface();
+        *out = obj->mTranslation;
         return;
     }
     out->y = Max(out->y, obj->_03);
@@ -527,7 +574,7 @@ static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
                                 obj->mObjData->mPhysicalInfo->mPhysicalData->mFloorBounceSpeed,
                                 &obj->mSpeed);
 }
-SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjGeneralRoofCollisionIsWater);
+SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjBallRoofCollisionIsWater);
 
 void J3DGetTranslateRotateMtx(const J3DTransformInfo &info, Mtx out);
 extern void *gpMapObjWave;
@@ -535,7 +582,7 @@ extern void *gpMapObjWave;
 static void fixMarioOceanAnimBug(J3DTransformInfo& info, Mtx out) {
       TMario *player = gpMarioAddress;
   
-      if (BetterSMS::isCollisionRepaired()) {
+      if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
           info.ty = player->mTranslation.y +
                     getWaveHeight__11TMapObjWaveCFff(gpMapObjWave, player->mTranslation.x,
                                                      player->mTranslation.z);
@@ -548,6 +595,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802456B8, 0, 0, 0), fixMarioOceanAnimBug);
 static f32 fixBlooperSurfAnimBug(void *objWave, f32 x, f32 y, f32 z) {
     if (!BetterSMS::isCollisionRepaired()) {
         return getHeight__11TMapObjWaveCFfff(objWave, x, y, z);
+    }
+
+    if (!objWave) {
+        return -32768.0f;
     }
 
     gpMarioAddress->mWaterHeight =
@@ -581,14 +632,14 @@ static f32 fixWaterFilterHeightCalc(void *objWave, f32 x, f32 y, f32 z) {
     f32 height = enhanceWaterCheck_(x, y, z, gpMap, &water);
 
     if (!objWave) {
-        OSReport("[WARNING] ObjWave is null\n");
-        return -32768.0f;
+        return height;
     }
 
     if (water && water->mType == 258 || water->mType == 259) {
-        return getWaveHeight__11TMapObjWaveCFff(objWave, x, z) + height;
+        f32 waterY = getWaveHeight__11TMapObjWaveCFff(objWave, x, z) + height;
+        OSReport("Water height: %f\n", waterY);
     }
-    return -32768.0f;
+    return height;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189DC0, 0, 0, 0), fixWaterFilterHeightCalc);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801EA8F4, 0, 0, 0), fixWaterFilterHeightCalc);
