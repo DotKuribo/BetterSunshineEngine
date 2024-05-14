@@ -233,40 +233,6 @@ namespace BetterSMS {
             return dot(a, b) / (magnitude(a) * magnitude(b));
         }
 
-        static TVec3f eulerFromMatrix(Mtx mtx) {
-            // Row-major rotation matrix
-            // XYZ extrinsic rotation (ZYX intrinsic)
-            // X -> left + clockwise
-            // Y -> up + counter-clockwise
-            // Z -> forward + clockwise
-
-            TVec3f out{};
-
-            f32 sy = -mtx[2][0];
-            f32 y  = M_PI * 0.5f - acosf(sy);
-            f32 cy = cosf(y);
-
-            if (sy > 0.999f) {
-                out.x = 0;
-                out.y = -radiansToAngle(M_PI * 0.5f);
-                out.z = radiansToAngle(atan2f(-mtx[1][0], mtx[1][1]));
-            } else if (sy < -0.999f) {
-                out.x = 0;
-                out.y = -radiansToAngle(-M_PI * 0.5f);
-                out.z = radiansToAngle(atan2f(-mtx[1][0], mtx[1][1]));
-            } else {
-                f32 cx = mtx[0][0] / cy;
-                f32 sx = mtx[0][1] / cy;
-                f32 cz = mtx[2][2] / cy;
-                f32 sz = mtx[1][2] / cy;
-
-                out.x = radiansToAngle(atan2f(-sx, cx));
-                out.y = -radiansToAngle(y);
-                out.z = radiansToAngle(atan2f(-sz, cz));
-            }
-
-            return out;
-        }
     };
 
 }  // namespace BetterSMS

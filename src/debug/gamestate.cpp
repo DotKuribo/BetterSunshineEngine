@@ -194,7 +194,8 @@ BETTER_SMS_FOR_CALLBACK void updateGameStateMonitor(TApplication *app) {
              floorColNormal.z, floorColType, floorColValue, wallColNormal.x, wallColNormal.y,
              wallColNormal.z, wallColType, wallColValue);
 
-    TVec3f camRotation = Vector3::eulerFromMatrix(gpCamera->mTRSMatrix);
+    TVec3f translation, rotation, scale;
+    Matrix::decompose(gpCamera->mTRSMatrix, translation, rotation, scale);
 
     snprintf(sCameraStringBuffer, 200,
              "Camera Stats:\n"
@@ -202,8 +203,8 @@ BETTER_SMS_FOR_CALLBACK void updateGameStateMonitor(TApplication *app) {
              "  Rotation:   %.02f, %.02f, %.02f\n"
              "  Aspect:     %.02f\n"
              "  FOV:        %.02f\n",
-             gpCamera->mTranslation.x, gpCamera->mTranslation.y, gpCamera->mTranslation.z,
-             camRotation.x, camRotation.y, camRotation.z, gpCamera->mProjectionAspect,
+             gpCamera->mTranslation.x, gpCamera->mTranslation.y, gpCamera->mTranslation.z, rotation.x, rotation.y, rotation.z,
+             gpCamera->mProjectionAspect,
              gpCamera->mProjectionFovy);
 
     sHitObjCount = 0;

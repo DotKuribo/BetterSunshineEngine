@@ -108,7 +108,8 @@ static bool sJustExitedDebug  = false;
 static int sNumAnimations     = 336;
 
 extern void DebugMoveMarioXYZ(TMario *player);
-extern void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera);
+extern void DebugLookAtCamera(TMario *player, CPolarSubCamera *camera);
+extern void DebugCamera(TMario *player, CPolarSubCamera *camera);
 
 //----//
 
@@ -129,6 +130,14 @@ BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
 
     if (shouldToggleGameUI) {
         gIsGameUIActive ^= true;
+    }
+
+    // If the camera is frozen and the tracking is active, we need to update the camera
+    if (gDebugState != CAM_MODE && gIsCameraFrozen && gIsCameraTracking) {
+        /*gCamPosition = gpCamera->mTranslation;
+        TVec3f translation, scale;
+        Matrix::decompose(gpCamera->mTRSMatrix, translation, gCamRotation, scale);*/
+        DebugLookAtCamera(player, gpCamera);
     }
 
     if (player->mState == XYZState)
@@ -192,9 +201,10 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
             sJustExitedDebug = true;
             return true;
         } else if (gDebugState == CAM_MODE) {
-            if (!gIsCameraFrozen) {
+            if (!gIsCameraFrozen || gIsCameraTracking) {
                 gCamPosition = gpCamera->mTranslation;
-                gCamRotation = Vector3::eulerFromMatrix(gpCamera->mTRSMatrix);
+                TVec3f translation, scale;
+                Matrix::decompose(gpCamera->mTRSMatrix, translation, gCamRotation, scale);
             }
         }
     } else {
@@ -211,7 +221,7 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
         DebugMoveMarioXYZ(player);
         break;
     case CAM_MODE:
-        DebugFreeFlyCamera(player, gpCamera);
+        DebugCamera(player, gpCamera);
         break;
     }
 
@@ -361,58 +371,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x802a8948, 0, 0, 0), checkShouldUpdateMeaning);
 SMS_WRITE_32(SMS_PORT_REGION(0x802a894c, 0, 0, 0), 0x7c63f878);
 SMS_WRITE_32(SMS_PORT_REGION(0x802a8950, 0, 0, 0), 0x907e00d4);
 
-// static u8 sHomeID   = 0;
-// static u8 sTargetID = 254;
-// static TBGCheckData *sHomeTriangle;
-
-// void updateDebugCollision(TMario *player) {
-//     constexpr u32 SetHomeTriangleButtons =
-//         TMarioGamePad::EButtons::Z | TMarioGamePad::EButtons::DPAD_LEFT;
-//     constexpr u32 SetTargetTriangleButtons =
-//         TMarioGamePad::EButtons::Z | TMarioGamePad::EButtons::DPAD_RIGHT;
-
-//     if (!TGlobals::isDebugMode())
-//         return;
-
-//     const JUTGamePad::CButton &buttons = player->mController->mButtons;
-
-//     if (buttons.mFrameInput == SetHomeTriangleButtons) {
-//         sHomeTriangle = player->mFloorTriangle;
-//         sHomeID       = (sHomeID + 1) % 255;
-//     } else if (buttons.mFrameInput == SetTargetTriangleButtons && sHomeTriangle) {
-//         if (sHomeTriangle == player->mFloorTriangle)
-//             return;
-
-//         sHomeTriangle->mType          = 16042;
-//         sHomeTriangle->mValue                 = s16((sTargetID << 8) | (sHomeID - 1));
-//         player->mFloorTriangle->mType = 16042;
-//         player->mFloorTriangle->mValue        = s16(((sHomeID - 1) << 8) | sTargetID);
-//         TGlobals::sWarpColArray->addLink(sHomeTriangle, player->mFloorTriangle);
-//         TGlobals::sWarpColArray->addLink(player->mFloorTriangle, sHomeTriangle);
-//         sTargetID = sTargetID != 0 ? (sTargetID - 1) : 254;
-//     }
-
-//     return;
-// }
-
 // static void setEmitPrm() {
 //     TWaterBalloon::sEmitInfo = new TWaterEmitInfo("/mario/waterballoon/waterballoon.prm");
 //     TParams::finalize();
 // }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x802B8DC8, 0x802B0D98, 0, 0), setEmitPrm);
-
-static u32 preventDebuggingDeath(TMario *player) {
-    return player->mState == XYZState ? 0x224E0 : player->mState;  // Spoof non dying value
-};
-// SMS_PATCH_BL(SMS_PORT_REGION(0x80243110, 0x8023AE9C, 0, 0), preventDebuggingDeath);
-
-static void preventDebuggingInteraction(TMario *player, JDrama::TGraphics *graphics) {
-    if (player->mState != XYZState)
-        player->playerControl(graphics);
-    else {
-        player->mForwardSpeed = 0.0f;
-        player->mSpeed        = {0.0f, 0.0f, 0.0f};
-        player->mState        = static_cast<u32>(TMario::STATE_IDLE);
-    }
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x8024512C, 0, 0), preventDebuggingInteraction);

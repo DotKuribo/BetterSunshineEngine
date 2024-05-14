@@ -333,20 +333,27 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             list        = bgCheckNode;
         } while (y < checkData->mMinHeight);
 
-        if (BetterSMS::isCollisionRepaired() && (flags & 16)) {
+        if ((flags & 0b100000) != 0) {  // Water Check
+            const u16 type = checkData->mType;
+            if ((type >= 0x100 && type < 0x104) || type == 0x4104) {
+                continue;
+            }
+        }
+
+        if (BetterSMS::isCollisionRepaired() && (flags & 0b10000)) {
             if (checkData->isMarioThrough()) {
                 continue;
             }
         }
 
-        if (BetterSMS::isCollisionRepaired() && (flags & 8)) {
+        if (BetterSMS::isCollisionRepaired() && (flags & 0b1000)) {
             const u16 type = checkData->mType;
             if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
                 continue;
             }
         }
 
-        if ((flags & 4) != 0) {  // Pass through Check
+        if ((flags & 0b100) != 0) {  // Pass through Check
             const u16 type = checkData->mType;
             if (type == 0x401 || type == 0x801 || type == 0x10A || type == 0x8400) {
                 continue;
@@ -357,7 +364,7 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             }
         }
 
-        if ((flags & 1) != 0) {  // Water Check
+        if ((flags & 0b1) != 0) {  // Water Check
             const u16 type = checkData->mType;
             if ((type >= 0x100 && type < 0x106) || type == 0x4104) {
                 continue;

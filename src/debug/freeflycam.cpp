@@ -28,6 +28,98 @@ float gCamFOV = 70.0f;
 
 using namespace BetterSMS;
 
+void DebugLookAtCamera(TMario *player, CPolarSubCamera *camera) {
+    constexpr f32 baseSpeed = 15.0f;
+
+    const JUTGamePad::CStick &mainStick = player->mController->mControlStick;
+    const JUTGamePad::CStick &cStick    = player->mController->mCStick;
+
+    const float cameraPan  = GetCameraPan(player->mController);
+    const float cameraRoll = GetCameraRoll(player->mController);
+
+    const bool isSecondaryControl = ButtonsPressed(player->mController, TMarioGamePad::Z);
+
+    const f32 speedMultiplier = gIsFastMovement ? baseSpeed * 3 : baseSpeed;
+
+    // apply position here
+    f32 dx = mainStick.mStickX * speedMultiplier;
+    f32 dy = cStick.mStickY * speedMultiplier;
+    f32 dz = mainStick.mStickY * speedMultiplier;
+
+    // convert cam rotation to radians if in degrees
+    f32 camRotPitchInRad = angleToRadians(gCamRotation.x);
+    f32 camRotYawInRad   = angleToRadians(gCamRotation.y);
+    f32 camRotRollInRad  = angleToRadians(gCamRotation.z);
+
+    TVec3f forwardVec = {cosf(camRotPitchInRad) * sinf(camRotYawInRad), sinf(camRotPitchInRad),
+                         cosf(camRotPitchInRad) * cosf(camRotYawInRad)};
+
+    TVec3f rightVec;
+    TVec3f upVec = TVec3f::up();
+    PSVECCrossProduct(upVec, forwardVec, rightVec);
+    PSVECNormalize(rightVec, rightVec);
+
+    // Recalculate upVec as the cross product of forwardVec and rightVec
+    PSVECCrossProduct(forwardVec, rightVec, upVec);
+    PSVECNormalize(upVec, upVec);
+
+    // Apply the roll
+    TVec3f localRightVec = TVec3f::zero();
+    TVec3f localUpVec    = TVec3f::zero();
+    {
+        TVec3f cRF = rightVec;
+        TVec3f sRF = rightVec;
+        TVec3f cUF = upVec;
+        TVec3f sUF = upVec;
+
+        cRF.scale(cosf(camRotRollInRad));
+        sRF.scale(sinf(camRotRollInRad));
+        cUF.scale(cosf(camRotRollInRad));
+        sUF.scale(sinf(camRotRollInRad));
+
+        localRightVec += cRF;
+        localRightVec -= sUF;
+        localUpVec += cUF;
+        localUpVec += sRF;
+    }
+
+    // Convert stick input to local camera space
+    TVec3f scaledFVec = forwardVec;
+    scaledFVec.scale(dz);
+
+    TVec3f scaledRVec = localRightVec;
+    scaledRVec.scale(dx);
+
+    // Calculate the camera's yaw and pitch based on the direction from the camera to Mario
+    TVec3f cameraToMario = *gpMarioPos - gCamPosition;
+    PSVECNormalize(cameraToMario, cameraToMario);
+
+    gCamRotation.x = M_PI * 0.5f + acosf(cameraToMario.y);
+    gCamRotation.y = Vector3::getNormalAngle(cameraToMario);
+    gCamRotation.z = 0.0f;
+
+    if (!gIsCameraFrozen) {
+        TVec3f localTranslation = TVec3f::zero();
+        localTranslation += scaledFVec;
+        localTranslation -= scaledRVec;
+
+        gCamPosition += localTranslation;
+
+        if (!isSecondaryControl) {
+            TVec3f scaledUVec = localUpVec;
+            scaledUVec.scale(cameraPan * speedMultiplier);
+            gCamPosition += scaledUVec;  // No change required for Y
+        }
+    }
+
+    camera->mTranslation      = gCamPosition;
+    camera->mWorldTranslation = gCamPosition;
+
+    C_MTXPerspective(camera->mProjectionMatrix, camera->mProjectionFovy, camera->mProjectionAspect,
+                     camera->mProjectionNear, camera->mProjectionFar);
+    C_MTXLookAt(camera->mTRSMatrix, gCamPosition, upVec, *gpMarioPos);
+}
+
 void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     constexpr f32 baseSpeed = 15.0f;
 
@@ -37,32 +129,12 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     const float cameraPan  = GetCameraPan(player->mController);
     const float cameraRoll = GetCameraRoll(player->mController);
 
-    const bool shouldToggleFrozen =
-        ButtonsFramePressed(player->mController, gControlToggleCameraFrozen);
-
-    const bool shouldToggleTrack =
-        ButtonsFramePressed(player->mController, gControlToggleCameraTrack);
-
     const bool shouldResetRotation =
         ButtonsFramePressed(player->mController, gControlResetCameraRotation);
-
-    const float cameraFOV = GetCameraFOV(player->mController);
 
     const bool isSecondaryControl = ButtonsPressed(player->mController, TMarioGamePad::Z);
 
     const f32 speedMultiplier = gIsFastMovement ? baseSpeed * 3 : baseSpeed;
-
-    if (shouldToggleTrack) {
-        gIsCameraTracking ^= true;
-    }
-
-    if (shouldToggleFrozen)
-        gIsCameraFrozen ^= true;
-
-    if (isSecondaryControl) {
-        gCamFOV += cameraFOV;
-        camera->mProjectionFovy = gCamFOV;
-    }
 
     // apply position here
     f32 dx = mainStick.mStickX * speedMultiplier;
@@ -114,36 +186,36 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
     scaledRVec.scale(dx);
 
     // rotation applied here
-    if (!gIsCameraTracking) {
-        if (shouldResetRotation) {
-            gCamRotation = {0, 0, 0};
-        } else {
-            if (!isSecondaryControl) {
-                f32 yawChangeX =
-                    cStick.mStickX * cosf(camRotRollInRad) - cStick.mStickY * sinf(camRotRollInRad);
-                f32 yawChangeY =
-                    cStick.mStickX * sinf(camRotRollInRad) + cStick.mStickY * cosf(camRotRollInRad);
+    if (shouldResetRotation) {
+        gCamRotation = {0, 0, 0};
+    } else {
+        if (!isSecondaryControl) {
+            f32 yawChangeX =
+                cStick.mStickX * cosf(camRotRollInRad) - cStick.mStickY * sinf(camRotRollInRad);
+            f32 yawChangeY =
+                cStick.mStickX * sinf(camRotRollInRad) + cStick.mStickY * cosf(camRotRollInRad);
 
-                gCamRotation.y -= yawChangeX;
-                gCamRotation.x += yawChangeY;
-            } else {
-                gCamRotation.z -= cameraRoll;
-            }
+            gCamRotation.y -= yawChangeX;
+            gCamRotation.x += yawChangeY;
+        } else {
+            gCamRotation.z -= cameraRoll;
         }
     }
 
     gCamRotation.x = clamp<f32>(gCamRotation.x, -89.9f, 89.9f);
 
-    TVec3f localTranslation = TVec3f::zero();
-    localTranslation += scaledFVec;
-    localTranslation -= scaledRVec;
+    if (!gIsCameraFrozen) {
+        TVec3f localTranslation = TVec3f::zero();
+        localTranslation += scaledFVec;
+        localTranslation -= scaledRVec;
 
-    gCamPosition += localTranslation;
+        gCamPosition += localTranslation;
 
-    if (!isSecondaryControl) {
-        TVec3f scaledUVec = localUpVec;
-        scaledUVec.scale(cameraPan * speedMultiplier);
-        gCamPosition += scaledUVec;  // No change required for Y
+        if (!isSecondaryControl) {
+            TVec3f scaledUVec = localUpVec;
+            scaledUVec.scale(cameraPan * speedMultiplier);
+            gCamPosition += scaledUVec;  // No change required for Y
+        }
     }
 
     camera->mTranslation      = gCamPosition;
@@ -151,12 +223,36 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
 
     C_MTXPerspective(camera->mProjectionMatrix, camera->mProjectionFovy, camera->mProjectionAspect,
                      camera->mProjectionNear, camera->mProjectionFar);
+    C_MTXLookAt(camera->mTRSMatrix, gCamPosition, localUpVec, forwardVec + gCamPosition);
+}
 
-    if (!gIsCameraTracking) {
-        C_MTXLookAt(camera->mTRSMatrix, gCamPosition, localUpVec, forwardVec + gCamPosition);
+void DebugCamera(TMario *player, CPolarSubCamera *camera) {
+    const float cameraFOV = GetCameraFOV(player->mController);
+
+    const bool shouldToggleFrozen =
+        ButtonsFramePressed(player->mController, gControlToggleCameraFrozen);
+
+    const bool shouldToggleTrack =
+        ButtonsFramePressed(player->mController, gControlToggleCameraTrack);
+
+    const bool isSecondaryControl = ButtonsPressed(player->mController, TMarioGamePad::Z);
+
+    if (shouldToggleTrack) {
+        gIsCameraTracking ^= true;
+    }
+
+    if (shouldToggleFrozen)
+        gIsCameraFrozen ^= true;
+
+    if (isSecondaryControl) {
+        gCamFOV += cameraFOV;
+        camera->mProjectionFovy = gCamFOV;
+    }
+
+    if (gIsCameraTracking) {
+        DebugLookAtCamera(player, camera);
     } else {
-        C_MTXLookAt(camera->mTRSMatrix, gCamPosition, upVec, *gpMarioPos);
-        gCamRotation = Vector3::eulerFromMatrix(gpCamera->mTRSMatrix);
+        DebugFreeFlyCamera(player, camera);
     }
 }
 
@@ -205,7 +301,7 @@ static void shouldCtrlCamera(CPolarSubCamera *camera) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x800238fc, 0, 0, 0), shouldCtrlCamera);
 
 static bool isSimpleCamera(u32 r3, bool isSimple) {
-    if (gDebugState != DebugState::CAM_MODE)
+    if (gDebugState != DebugState::CAM_MODE && !gIsCameraFrozen)
         return isSimple;
     return false;
 }

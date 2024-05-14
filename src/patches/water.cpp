@@ -291,9 +291,8 @@ static f32 enhanceCheckGroundPlaneForWater(TMap *map, f32 x, f32 y, f32 z,
     if (!BetterSMS::isCollisionRepaired()) {
         return map->checkGround(x, y, z, out);
     }
-    return map->mCollisionData->checkGround(x, y, z, 1, out);
+    return map->mCollisionData->checkGround(x, y, z, 32, out);
 }
-//SMS_PATCH_BL(SMS_PORT_REGION(0x801B09B8, 0, 0, 0), enhanceCheckGroundPlaneForWater);
 SMS_PATCH_BL(SMS_PORT_REGION(0x802510E8, 0, 0, 0), enhanceCheckGroundPlaneForWater);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80251168, 0, 0, 0), enhanceCheckGroundPlaneForWater);
 
