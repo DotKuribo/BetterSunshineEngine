@@ -44,7 +44,6 @@ static void parseWarpLinks(TMapCollisionData *col, TWarpCollisionList *links, u3
 
 // 0x802B8B20
 static u32 initCollisionWarpLinks(const char *name) {
-    Console::debugLog("Initializing warp collision data...\n");
     TWarpCollisionList *warpDataArray         = new TWarpCollisionList(2048);
     TWarpCollisionList *warpDataPreserveArray = new TWarpCollisionList(1);
     BetterSMS::sWarpColArray                  = warpDataArray;

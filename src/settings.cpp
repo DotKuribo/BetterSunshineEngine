@@ -464,7 +464,7 @@ s32 SettingsDirector::direct() {
         fader->startFadeinT(0.3f);
 
         gpMSound->initSound();
-        gpMSound->enterStage(MS_WAVE_DELFINO_PLAZA, 1, 2);
+        gpMSound->enterStage(MS_WAVE_DOLPIC, 1, 2);
         MSBgm::startBGM(BGM_UNDERGROUND);
 
         gpCardManager->unmount();

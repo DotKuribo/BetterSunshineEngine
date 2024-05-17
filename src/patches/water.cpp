@@ -19,12 +19,14 @@
 #include "p_settings.hxx"
 #include "player.hxx"
 
+#if 1
+
 using namespace BetterSMS;
 
 static inline bool isColTypeWater(u16 type) { return (type > 255 && type < 261) || type == 16644; }
 
 static void normalToRotationMatrix(const TVec3f &normal, Mtx out) {
-    TVec3f up = fabsf(normal.y) < 0.999f ? TVec3f::up() : TVec3f::forward();
+    TVec3f up      = fabsf(normal.y) < 0.999f ? TVec3f::up() : TVec3f::forward();
     TVec3f forward = normal;
 
     TVec3f right;
@@ -37,7 +39,7 @@ static void normalToRotationMatrix(const TVec3f &normal, Mtx out) {
 
     PSMTXIdentity(out);
 
-    #if 0
+#if 0
     out[0][0] = right.x;
     out[0][1] = right.y;
     out[0][2] = right.z;
@@ -49,7 +51,7 @@ static void normalToRotationMatrix(const TVec3f &normal, Mtx out) {
     out[2][0] = forward.x;
     out[2][1] = forward.y;
     out[2][2] = forward.z;
-    #else
+#else
     out[0][0] = right.x;
     out[1][0] = right.y;
     out[2][0] = right.z;
@@ -61,7 +63,7 @@ static void normalToRotationMatrix(const TVec3f &normal, Mtx out) {
     out[0][2] = forward.x;
     out[1][2] = forward.y;
     out[2][2] = forward.z;
-    #endif
+#endif
 }
 
 static void patchWaterDownWarp(f32 y) {
@@ -249,7 +251,7 @@ static f32 enhanceWaterCheckAndStickToSurface(f32 x, f32 y, f32 z, const TMap *m
     if (waterborn) {
         f32 heightDiff = height - player->mTranslation.y;
         if (playerData->mIsSwimmingWaterSurface && player->mState != 0x24D9 &&
-            heightDiff < 120.0f) {
+            player->mState != 0x24DF && heightDiff < 120.0f) {
             player->mTranslation.y = Max(player->mTranslation.y, height - 80.0f);
         }
         playerData->mIsSwimmingWaterSurface = (height - player->mTranslation.y) < 81.0f;
@@ -520,9 +522,10 @@ static void checkIfObjBallWallCollisionIsWater(TMapObjBall *obj, TVec3f *out,
             continue;
         }
 
-        f32 projDot =
-            out->x * wall->mNormal.x + out->y * wall->mNormal.y + out->z * wall->mNormal.z + wall->mProjectionFactor;
-        f32 reflectDot = normDot * -(1.0f + obj->mObjData->mPhysicalInfo->mPhysicalData->mWallBounceSpeed);
+        f32 projDot = out->x * wall->mNormal.x + out->y * wall->mNormal.y +
+                      out->z * wall->mNormal.z + wall->mProjectionFactor;
+        f32 reflectDot =
+            normDot * -(1.0f + obj->mObjData->mPhysicalInfo->mPhysicalData->mWallBounceSpeed);
 
         out->x += (obj->mMaxSpeed - projDot) * wall->mNormal.x;
         out->z += (obj->mMaxSpeed - projDot) * wall->mNormal.z;
@@ -578,16 +581,16 @@ SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjBallRoofCollisionIsW
 void J3DGetTranslateRotateMtx(const J3DTransformInfo &info, Mtx out);
 extern void *gpMapObjWave;
 
-static void fixMarioOceanAnimBug(J3DTransformInfo& info, Mtx out) {
-      TMario *player = gpMarioAddress;
-  
-      if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
-          info.ty = player->mTranslation.y +
-                    getWaveHeight__11TMapObjWaveCFff(gpMapObjWave, player->mTranslation.x,
-                                                     player->mTranslation.z);
-      }
-  
-      J3DGetTranslateRotateMtx(info, out);
+static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
+    TMario *player = gpMarioAddress;
+
+    if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
+        info.ty = player->mTranslation.y + getWaveHeight__11TMapObjWaveCFff(gpMapObjWave,
+                                                                            player->mTranslation.x,
+                                                                            player->mTranslation.z);
+    }
+
+    J3DGetTranslateRotateMtx(info, out);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802456B8, 0, 0, 0), fixMarioOceanAnimBug);
 
@@ -642,3 +645,5 @@ static f32 fixWaterFilterHeightCalc(void *objWave, f32 x, f32 y, f32 z) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189DC0, 0, 0, 0), fixWaterFilterHeightCalc);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801EA8F4, 0, 0, 0), fixWaterFilterHeightCalc);
+
+#endif

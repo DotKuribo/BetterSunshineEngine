@@ -148,9 +148,11 @@ BETTER_SMS_FOR_CALLBACK void forceValidRidingAnimation(TMario *player, bool isMa
     if (!yoshi)
         return;
 
+    bool isMarioGrounded =
+        !(player->mState & TMario::STATE_AIRBORN) && !(player->mState & TMario::STATE_WATERBORN);
+
     // Force valid animation
-    if (yoshi->mState == TYoshi::MOUNTED && player->mState != TMario::STATE_SHINE_C &&
-        BetterSMS::areExploitsPatched())
+    if (yoshi->mState == TYoshi::MOUNTED && isMarioGrounded && BetterSMS::areExploitsPatched())
         player->setAnimation(TMario::ANIMATION_IDLE, 1.0f);
 }
 

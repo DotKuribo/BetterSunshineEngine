@@ -30,7 +30,6 @@ static void resetValuesOnStateChange(TMario *player) {
     switch (player->mPrevState) {
     case static_cast<u32>(TMario::STATE_TRIPLE_J):
         playerData->mCollisionFlags.mIsDisableInput = false;
-        player->mController->mState.mReadInput      = true;
         break;
     default:
         break;
@@ -45,6 +44,8 @@ static void resetValuesOnStateChange(TMario *player) {
 
     player->mController->mState.mReadInput = !playerData->mCollisionFlags.mIsDisableInput;
     player->mController->mState.mDisable   = playerData->mCollisionFlags.mIsDisableInput;
+
+    OSReport("State: %d\n", playerData->mCollisionFlags.mIsDisableInput);
 }
 
 static void resetValuesOnGroundContact(TMario *player) {

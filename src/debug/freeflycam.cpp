@@ -115,6 +115,14 @@ void DebugLookAtCamera(TMario *player, CPolarSubCamera *camera) {
     camera->mTranslation      = gCamPosition;
     camera->mWorldTranslation = gCamPosition;
 
+    gpCamera->mAnglePitch = matan(sqrtf((gpCamera->mTranslation.x - gpMarioPos->x) *
+                                            (gpCamera->mTranslation.x - gpMarioPos->x) +
+                                        (gpCamera->mTranslation.z - gpMarioPos->z) *
+                                            (gpCamera->mTranslation.z - gpMarioPos->z)),
+                                  gpCamera->mTranslation.y - gpMarioPos->y);
+    gpCamera->mAngleYaw =
+        matan(gpCamera->mTranslation.z - gpMarioPos->z, gpCamera->mTranslation.x - gpMarioPos->x);
+
     C_MTXPerspective(camera->mProjectionMatrix, camera->mProjectionFovy, camera->mProjectionAspect,
                      camera->mProjectionNear, camera->mProjectionFar);
     C_MTXLookAt(camera->mTRSMatrix, gCamPosition, upVec, *gpMarioPos);
@@ -220,6 +228,9 @@ void DebugFreeFlyCamera(TMario *player, CPolarSubCamera *camera) {
 
     camera->mTranslation      = gCamPosition;
     camera->mWorldTranslation = gCamPosition;
+
+    gpCamera->mAnglePitch = convertAngleFloatToS16(gCamRotation.x);
+    gpCamera->mAngleYaw = -convertAngleFloatToS16(gCamRotation.y);
 
     C_MTXPerspective(camera->mProjectionMatrix, camera->mProjectionFovy, camera->mProjectionAspect,
                      camera->mProjectionNear, camera->mProjectionFar);

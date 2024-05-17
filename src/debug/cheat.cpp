@@ -9,6 +9,7 @@
 #include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/System/Application.hxx>
+#include <SMS/MarioUtil/MathUtil.hxx>
 
 #include "debug.hxx"
 #include "libs/cheathandler.hxx"
@@ -133,11 +134,13 @@ BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
     }
 
     // If the camera is frozen and the tracking is active, we need to update the camera
-    if (gDebugState != CAM_MODE && gIsCameraFrozen && gIsCameraTracking) {
-        /*gCamPosition = gpCamera->mTranslation;
-        TVec3f translation, scale;
-        Matrix::decompose(gpCamera->mTRSMatrix, translation, gCamRotation, scale);*/
-        DebugLookAtCamera(player, gpCamera);
+    if (gIsCameraFrozen && gDebugState != CAM_MODE) {
+        if (gIsCameraTracking) {
+            DebugLookAtCamera(player, gpCamera);
+        } else {
+            gpCamera->mAnglePitch = convertAngleFloatToS16(gCamRotation.x);
+            gpCamera->mAngleYaw   = convertAngleFloatToS16(180.0f + gCamRotation.y);
+        }
     }
 
     if (player->mState == XYZState)
