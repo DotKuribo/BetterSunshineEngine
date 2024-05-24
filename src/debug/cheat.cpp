@@ -116,6 +116,9 @@ extern void DebugCamera(TMario *player, CPolarSubCamera *camera);
 
 BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
     // Just toggle the global things here.
+    if (!isMario) {
+        return;
+    }
 
     const bool shouldToggleDebugUI =
         ButtonsFramePressed(player->mController, gControlToggleDebugUI) &&
