@@ -35,7 +35,6 @@
 
 using namespace BetterSMS;
 
-
 static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
 static TGlobalVector<Player::InitCallback> sPlayerInitializers;
 static TGlobalVector<Player::LoadAfterCallback> sPlayerLoadAfterCBs;
@@ -99,7 +98,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::isAnimationValid(u16 anm_idx) {
     if (anm_idx >= sPlayerAnimeDatasSize)
         return false;
 
-    return sPlayerAnimeDatas[anm_idx].mAnimID != MAX_PLAYER_ANIMATIONS;
+    return sPlayerAnimeDatas[anm_idx].mAnimID < sPlayerAnimeInfosSize;
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::setAnimationData(u16 anm_idx, bool *fludd_use,
@@ -113,7 +112,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::setAnimationData(u16 anm_idx, bool
             sPlayerAnimeDatas[anm_idx].mAnimFluddID = 68;
             sPlayerAnimeDatas[anm_idx].mBodyFlags |= TMarioAnimeData::FLUDD_GRIP;
         } else {
-            sPlayerAnimeDatas[anm_idx].mAnimFluddID = sPlayerAnimeInfosSize + 1;
+            sPlayerAnimeDatas[anm_idx].mAnimFluddID = sPlayerAnimeInfosSize;
             sPlayerAnimeDatas[anm_idx].mBodyFlags &= ~TMarioAnimeData::FLUDD_GRIP;
         }
     }
@@ -137,13 +136,16 @@ BETTER_SMS_FOR_EXPORT u16 BetterSMS::Player::addAnimationData(const char *anm_na
                                                               u8 hand) {
     // Update the sentinel ref
     for (size_t i = 0; i < sPlayerAnimeDatasSize; ++i) {
-        if (sPlayerAnimeDatas[i].mAnimFluddID == sPlayerAnimeInfosSize + 1) {
+        if (sPlayerAnimeDatas[i].mAnimID >= sPlayerAnimeInfosSize) {
+            sPlayerAnimeDatas[i].mAnimID += 1;
+        }
+        if (sPlayerAnimeDatas[i].mAnimFluddID >= sPlayerAnimeInfosSize) {
             sPlayerAnimeDatas[i].mAnimFluddID += 1;
         }
     }
 
-    TMarioAnimeData new_data = {static_cast<u16>(sPlayerAnimeDatasSize),
-                                static_cast<u16>(fludd_use ? 68 : sPlayerAnimeInfosSize + 2),
+    TMarioAnimeData new_data = {static_cast<u16>(sPlayerAnimeInfosSize),
+                                static_cast<u16>(fludd_use ? 68 : sPlayerAnimeInfosSize + 1),
                                 tex_anm_id,
                                 hand,
                                 static_cast<u8>(jiggle_phys ? 6 : 4),
@@ -154,7 +156,6 @@ BETTER_SMS_FOR_EXPORT u16 BetterSMS::Player::addAnimationData(const char *anm_na
     InternalAnimInfo new_info                  = {1, anm_name};
     sPlayerAnimeInfos[sPlayerAnimeInfosSize++] = new_info;
 
-    sPlayerAnimeDatasSize++;
     return sPlayerAnimeDatasSize - 1;
 }
 
@@ -173,24 +174,31 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, co
         if (info_idx >= MAX_PLAYER_ANIMATIONS) {
             // Update the sentinel ref
             for (size_t i = 0; i < sPlayerAnimeDatasSize; ++i) {
-                if (sPlayerAnimeDatas[i].mAnimFluddID == sPlayerAnimeInfosSize + 1) {
+                if (sPlayerAnimeDatas[i].mAnimID >= sPlayerAnimeInfosSize) {
+                    sPlayerAnimeDatas[i].mAnimID += 1;
+                }
+                if (sPlayerAnimeDatas[i].mAnimFluddID >= sPlayerAnimeInfosSize) {
                     sPlayerAnimeDatas[i].mAnimFluddID += 1;
                 }
             }
             info_idx = sPlayerAnimeInfosSize++;
         } else {
             // Update the sentinel ref
+            u16 end_idx = info_idx + 1;
             for (size_t i = 0; i < sPlayerAnimeDatasSize; ++i) {
-                if (sPlayerAnimeDatas[i].mAnimFluddID == sPlayerAnimeInfosSize + 1) {
-                    sPlayerAnimeDatas[i].mAnimFluddID = info_idx + 2;
+                if (sPlayerAnimeDatas[i].mAnimID >= sPlayerAnimeInfosSize) {
+                    sPlayerAnimeDatas[i].mAnimID = end_idx;
+                }
+                if (sPlayerAnimeDatas[i].mAnimFluddID >= sPlayerAnimeInfosSize) {
+                    sPlayerAnimeDatas[i].mAnimFluddID = end_idx;
                 }
             }
-            sPlayerAnimeInfosSize = info_idx + 1;
+            sPlayerAnimeInfosSize = end_idx;
         }
     }
 
     TMarioAnimeData new_data   = {info_idx,
-                                  static_cast<u16>(fludd_use ? 68 : sPlayerAnimeInfosSize + 1),
+                                  static_cast<u16>(fludd_use ? 68 : sPlayerAnimeInfosSize),
                                   tex_anm_id,
                                   hand,
                                   static_cast<u8>(jiggle_phys ? 6 : 4),
@@ -287,11 +295,11 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player
     triFluidCenter.y += 300.0f;
 
 #define EXPAND_WARP_SET(base)                                                                      \
-    (base) : case ((base) + 10) :                                                                  \
+    (base) : case ((base) + 10):                                                                   \
     case ((base) + 20):                                                                            \
     case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1) :                                                                   \
+    (base) : case ((base) + 1):                                                                    \
     case ((base) + 2):                                                                             \
     case ((base) + 3):                                                                             \
     case ((base) + 4)
@@ -395,9 +403,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpW
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
     : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCanSprayFludd(true),
       mCurJump(0), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
-      mPrevCollisionFloorType(0), mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
-      mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),
-      mWarpTimer(-1), mWarpState(0xFF) {
+      mPrevCollisionFloorType(0), mCollisionTimer(0), mClimbTiredTimer(0),
+      mSlideSpeedMultiplier(1.0f), mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f),
+      mDefaultAttrs(player), mWarpTimer(-1), mWarpState(0xFF) {
 
     mParams = new TPlayerParams();
 
@@ -719,7 +727,7 @@ static u32 collisionHandler(TMario *player) {
                 item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                             marioFlags | Player::InteractionFlags::ON_ENTER);
         }
-        playerData->mPrevCollisionFloorType          = colType;
+        playerData->mPrevCollisionFloorType     = colType;
         playerData->mPrevCollisionFloor         = player->mFloorTriangle;
         playerData->mCollisionFlags.mIsFaceUsed = false;
         playerData->mCollisionTimer             = 0;
@@ -751,10 +759,10 @@ BETTER_SMS_FOR_CALLBACK void initExtendedPlayerAnims() {
     for (size_t i = 0; i < MarioAnimeDataSize; ++i) {
         sPlayerAnimeDatas[i] = gMarioAnimeData[i];
         if (sPlayerAnimeDatas[i].mAnimID == 200) {
-            sPlayerAnimeDatas[i].mAnimID = MAX_PLAYER_ANIMATIONS;
+            sPlayerAnimeDatas[i].mAnimID = 199;
         }
         if (sPlayerAnimeDatas[i].mAnimFluddID == 200) {
-            sPlayerAnimeDatas[i].mAnimFluddID = MAX_PLAYER_ANIMATIONS;
+            sPlayerAnimeDatas[i].mAnimFluddID = 199;
         }
     }
 
@@ -808,7 +816,6 @@ static SMS_ASM_FUNC void checkExtendedPlayerAnimDataFluddUpper() {
                   "lis       3, sPlayerAnimeInfosSize@ha    \n\t"  // This part is for sentinel
                                                                    // check after func
                   "lwz       3, sPlayerAnimeInfosSize@l (3) \n\t"
-                  "addi      3, 3, 1                        \n\t"
                   "blr                                      \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80244f00, 0, 0, 0), checkExtendedPlayerAnimDataFluddUpper);
@@ -845,7 +852,7 @@ static SMS_ASM_FUNC void isPumpOk() {
                   "lwz       4, sPlayerAnimeInfosSize@l (4) \n\t"
                   "cmplw     3, 4                           \n\t"
                   "li 3, 0                                  \n\t"
-                  "bgtlr                                    \n\t"
+                  "bgelr                                    \n\t"
                   "li 3, 1                                  \n\t"
                   "blr                                      \n\t");
 }

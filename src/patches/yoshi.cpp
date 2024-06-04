@@ -203,3 +203,12 @@ static void checkForYoshiGrabFludd(TWaterGun *fludd, int nozzle, bool unk_1) {
 }
 SMS_WRITE_32(SMS_PORT_REGION(0x80283334, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80283370, 0, 0, 0), checkForYoshiGrabFludd);
+
+// Important to keep this patch here in order to stabilize things
+static f32 getYoshiYPos(TYoshi *yoshi) {
+    TMario *player;
+    SMS_FROM_GPR(31, player);
+
+    return player->mYoshi->mTranslation.y;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80281148, 0x80278ED4, 0, 0), getYoshiYPos);

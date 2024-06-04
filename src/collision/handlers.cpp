@@ -142,39 +142,15 @@ void updateCollisionContext(TMario *player, bool isMario) {
         playerData->mPrevCollisionRoof     = nullptr;
     }
 
-    const f32 marioCollisionHeight = *(f32 *)SMS_PORT_REGION(0x80415CC4, 0x8040D21C, 0, 0);
+    TBGCheckData *roofTri;
 
     Vec playerPos;
     player->JSGGetTranslation(&playerPos);
 
-    TBGCheckData *roofTri;
-
     f32 roofHeight =
         player->checkRoofPlane(playerPos, playerPos.y, (const TBGCheckData **)&roofTri);
 
-    const f32 currentRelRoofHeight   = roofHeight - playerPos.y;
-    const bool isRoofContextCrushing =
-        (roofTri && !isColTypeWater(roofTri->mType)) &&
-        playerData->mLastRelRoofHeight >
-        currentRelRoofHeight && currentRelRoofHeight < (marioCollisionHeight - 50.0f);
-    const bool isAirBorn    = player->mState & static_cast<u32>(TMario::STATE_AIRBORN);
-    const bool isUnderWater = player->isUnderWater();
-    const bool isHanging    = player->mState == static_cast<u32>(TMario::STATE_HANG);
-
-    if (!player->mAttributes.mIsGameOver) {
-        if (isRoofContextCrushing && !isAirBorn && !isHanging && !isUnderWater) {
-            playerData->mCollisionFlags.mCrushedTimer += 1;
-        } else {
-            playerData->mCollisionFlags.mCrushedTimer = 0;
-        }
-
-        if (playerData->mCollisionFlags.mCrushedTimer > CrushTimeToDie) {
-            player->loserExec();
-            playerData->mCollisionFlags.mCrushedTimer = 0;
-            player->mScale.y                          = 0.5f;
-            player->mModelData->mModel->mBaseScale    = player->mScale;
-        }
-    }
+    const f32 currentRelRoofHeight = roofHeight - playerPos.y;
 
     playerData->mLastRelRoofHeight = currentRelRoofHeight;
 }
