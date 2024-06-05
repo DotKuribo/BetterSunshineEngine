@@ -10,6 +10,7 @@
 #include <SMS/Map/MapCollisionData.hxx>
 #include <SMS/MapObj/MapObjNormalLift.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
+#include <SMS/MapObj/MapObjWave.hxx>
 #include <SMS/MoveBG/ResetFruit.hxx>
 #include <SMS/Player/Mario.hxx>
 #include <SMS/raw_fn.hxx>
@@ -188,6 +189,8 @@ static f32 findAnyGroundLikePlaneBelow(const TVec3f &position, TMapCollisionData
     return aboveY;
 }
 
+// IMPORTANT: Does not always set the water pointer due to the nature of the function.
+// PLEASE INITIALIZE TO NULLPTR FIRST
 static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGCheckData **water) {
     TMario *player              = gpMarioAddress;
     const TVec3f samplePosition = {x, player->mTranslation.y + 80.0f, z};
@@ -218,12 +221,27 @@ static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGChe
             *water = potential;
             return potentialY;
         } else {
+            if (roofY <= player->mWaterHeight) {
+                *water = roofPlane;
+                return roofY;
+            }
             return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
         }
     } else if ((player->mState & TMario::STATE_WATERBORN)) {
         // If there is no water beneath the roof, check if there is water above the player
         // (cave setting)
-        return findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, water);
+        potentialY =
+            findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, &potential);
+        if (potential == &TMapCollisionData::mIllegalCheckData) {
+            // Prevent potential crash
+            if (*water == &TMapCollisionData::mIllegalCheckData) {
+                return potentialY;
+            }
+            return roofY;
+        }
+
+        *water = potential;
+        return Min(roofY, potentialY);
     } else {
         potentialY =
             findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, &potential);
@@ -578,14 +596,11 @@ static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjBallRoofCollisionIsWater);
 
-void J3DGetTranslateRotateMtx(const J3DTransformInfo &info, Mtx out);
-extern void *gpMapObjWave;
-
 static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
     TMario *player = gpMarioAddress;
 
     if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
-        info.ty = player->mTranslation.y + getWaveHeight__11TMapObjWaveCFff(gpMapObjWave,
+        info.ty = player->mTranslation.y + gpMapObjWave->getWaveHeight(
                                                                             player->mTranslation.x,
                                                                             player->mTranslation.z);
     }
@@ -594,9 +609,9 @@ static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802456B8, 0, 0, 0), fixMarioOceanAnimBug);
 
-static f32 fixBlooperSurfAnimBug(void *objWave, f32 x, f32 y, f32 z) {
+static f32 fixBlooperSurfAnimBug(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
     if (!BetterSMS::isCollisionRepaired()) {
-        return getHeight__11TMapObjWaveCFfff(objWave, x, y, z);
+        return objWave->getHeight(x, y, z);
     }
 
     if (!objWave) {
@@ -608,8 +623,9 @@ static f32 fixBlooperSurfAnimBug(void *objWave, f32 x, f32 y, f32 z) {
 
     if (gpMarioAddress->mFloorTriangleWater && gpMarioAddress->mFloorTriangleWater->mType == 258 ||
         gpMarioAddress->mFloorTriangleWater->mType == 259) {
-        return getWaveHeight__11TMapObjWaveCFff(objWave, x, z);
+        return objWave->getWaveHeight(x, z);
     }
+
     return 0;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80245F6C, 0, 0, 0), fixBlooperSurfAnimBug);
@@ -625,22 +641,22 @@ static const TBGCheckData *fixBlooperParamDifferentiation() {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8025B690, 0, 0, 0), fixBlooperParamDifferentiation);
 
-static f32 fixWaterFilterHeightCalc(void *objWave, f32 x, f32 y, f32 z) {
+static f32 fixWaterFilterHeightCalc(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
     if (!BetterSMS::isCollisionRepaired()) {
-        return getHeight__11TMapObjWaveCFfff(objWave, x, y, z);
+        return objWave->getHeight(x, y, z);
     }
 
-    const TBGCheckData *water;
-    f32 height = enhanceWaterCheck_(x, y, z, gpMap, &water);
+    const TBGCheckData *water = nullptr;
+    f32 height                = enhanceWaterCheck_(x, y, z, gpMap, &water);
 
     if (!objWave) {
         return height;
     }
 
     if (water && water->mType == 258 || water->mType == 259) {
-        f32 waterY = getWaveHeight__11TMapObjWaveCFff(objWave, x, z) + height;
-        OSReport("Water height: %f\n", waterY);
+        return objWave->getWaveHeight(x, z) + height;
     }
+
     return height;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189DC0, 0, 0, 0), fixWaterFilterHeightCalc);
