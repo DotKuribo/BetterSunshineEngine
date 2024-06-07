@@ -3,6 +3,7 @@
 #include <Dolphin/types.h>
 #include <JSystem/JGadget/Vector.hxx>
 #include <SMS/Manager/FlagManager.hxx>
+#include <SMS/System/MarDirector.hxx>
 
 #include "libs/cheathandler.hxx"
 #include "libs/global_vector.hxx"
