@@ -44,8 +44,6 @@ static void resetValuesOnStateChange(TMario *player) {
 
     player->mController->mState.mReadInput = !playerData->mCollisionFlags.mIsDisableInput;
     player->mController->mState.mDisable   = playerData->mCollisionFlags.mIsDisableInput;
-
-    OSReport("State: %d\n", playerData->mCollisionFlags.mIsDisableInput);
 }
 
 static void resetValuesOnGroundContact(TMario *player) {

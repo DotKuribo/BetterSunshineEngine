@@ -3,6 +3,8 @@
 
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
+#include <SMS/Camera/CubeManagerBase.hxx>
+#include <SMS/Camera/CubeMapTool.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
 #include <SMS/Manager/MarioParticleManager.hxx>
@@ -19,6 +21,8 @@
 #include "module.hxx"
 #include "p_settings.hxx"
 #include "player.hxx"
+
+#define ENABLE_WATER_CAVE_CAMERA_TYPE 0x100
 
 #if 1
 
@@ -127,23 +131,59 @@ static f32 findAnyRoofLikePlaneAbove(const TVec3f &position, TMapCollisionData &
     const int cellX = gridFraction * (position.x + boundsX);
     const int cellZ = gridFraction * (position.z + boundsZ);
 
+    // Static roofs
     f32 aboveY = data.checkRoofList(position.x, position.y, position.z, ignoreFlags,
                                     data.mStaticCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
                                         .mCheckList[TBGCheckListRoot::ROOF]
                                         .mNextTriangle,
                                     out);
 
-    const TBGCheckData *potential;
-    f32 potentialY =
-        data.checkRoofList(position.x, position.y, position.z, ignoreFlags,
-                           data.mStaticCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
-                               .mCheckList[TBGCheckListRoot::WALL]
-                               .mNextTriangle,
-                           &potential);
+    // Dynamic roofs
+    {
+        const TBGCheckData *potential;
+        f32 potentialY =
+            data.checkRoofList(position.x, position.y, position.z, ignoreFlags,
+                               data.mMoveCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
+                                   .mCheckList[TBGCheckListRoot::ROOF]
+                                   .mNextTriangle,
+                               &potential);
 
-    if (potentialY < aboveY && potentialY > position.y) {
-        *out   = potential;
-        aboveY = potentialY;
+        if (potentialY < aboveY && potentialY > position.y) {
+            *out   = potential;
+            aboveY = potentialY;
+        }
+    }
+
+    // Static walls
+    {
+        const TBGCheckData *potential;
+        f32 potentialY =
+            data.checkRoofList(position.x, position.y, position.z, ignoreFlags,
+                               data.mStaticCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
+                                   .mCheckList[TBGCheckListRoot::WALL]
+                                   .mNextTriangle,
+                               &potential);
+
+        if (potentialY < aboveY && potentialY > position.y) {
+            *out   = potential;
+            aboveY = potentialY;
+        }
+    }
+
+    // Dynamic walls
+    {
+        const TBGCheckData *potential;
+        f32 potentialY =
+            data.checkRoofList(position.x, position.y, position.z, ignoreFlags,
+                               data.mMoveCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
+                                   .mCheckList[TBGCheckListRoot::WALL]
+                                   .mNextTriangle,
+                               &potential);
+
+        if (potentialY < aboveY && potentialY > position.y) {
+            *out   = potential;
+            aboveY = potentialY;
+        }
     }
 
     return aboveY;
@@ -167,23 +207,59 @@ static f32 findAnyGroundLikePlaneBelow(const TVec3f &position, TMapCollisionData
     const int cellX = gridFraction * (position.x + boundsX);
     const int cellZ = gridFraction * (position.z + boundsZ);
 
+    // Static ground
     f32 aboveY = data.checkGroundList(position.x, position.y, position.z, ignoreFlags,
                                       data.mStaticCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
                                           .mCheckList[TBGCheckListRoot::GROUND]
                                           .mNextTriangle,
                                       out);
 
-    const TBGCheckData *potential;
-    f32 potentialY =
-        data.checkGroundList(position.x, position.y, position.z, ignoreFlags,
-                             data.mStaticCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
-                                 .mCheckList[TBGCheckListRoot::WALL]
-                                 .mNextTriangle,
-                             &potential);
+    // Dynamic ground
+    {
+        const TBGCheckData *potential;
+        f32 potentialY =
+            data.checkGroundList(position.x, position.y, position.z, ignoreFlags,
+                                 data.mMoveCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
+                                     .mCheckList[TBGCheckListRoot::GROUND]
+                                     .mNextTriangle,
+                                 &potential);
 
-    if (potentialY > aboveY && potentialY <= position.y) {
-        *out   = potential;
-        aboveY = potentialY;
+        if (potentialY > aboveY && potentialY <= position.y) {
+            *out   = potential;
+            aboveY = potentialY;
+        }
+    }
+
+    // Static walls
+    {
+        const TBGCheckData *potential;
+        f32 potentialY =
+            data.checkGroundList(position.x, position.y, position.z, ignoreFlags,
+                                 data.mStaticCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
+                                     .mCheckList[TBGCheckListRoot::WALL]
+                                     .mNextTriangle,
+                                 &potential);
+
+        if (potentialY > aboveY && potentialY <= position.y) {
+            *out   = potential;
+            aboveY = potentialY;
+        }
+    }
+
+    // Dynamic walls
+    {
+        const TBGCheckData *potential;
+        f32 potentialY =
+            data.checkGroundList(position.x, position.y, position.z, ignoreFlags,
+                                 data.mMoveCollisionRoot[cellX + (cellZ * data.mBlockXCount)]
+                                     .mCheckList[TBGCheckListRoot::WALL]
+                                     .mNextTriangle,
+                                 &potential);
+
+        if (potentialY > aboveY && potentialY <= position.y) {
+            *out   = potential;
+            aboveY = potentialY;
+        }
     }
 
     return aboveY;
@@ -191,7 +267,8 @@ static f32 findAnyGroundLikePlaneBelow(const TVec3f &position, TMapCollisionData
 
 // IMPORTANT: Does not always set the water pointer due to the nature of the function.
 // PLEASE INITIALIZE TO NULLPTR FIRST
-static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGCheckData **water) {
+SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool considerCave,
+                                                  const TMap *map, const TBGCheckData **water) {
     TMario *player              = gpMarioAddress;
     const TVec3f samplePosition = {x, player->mTranslation.y + 80.0f, z};
 
@@ -222,12 +299,12 @@ static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGChe
             return potentialY;
         } else {
             if (roofY <= player->mWaterHeight) {
-                *water = roofPlane;
-                return roofY;
+                //*water = roofPlane;
+                return roofY + 10.0f;
             }
             return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
         }
-    } else if ((player->mState & TMario::STATE_WATERBORN)) {
+    } else if (considerCave) {
         // If there is no water beneath the roof, check if there is water above the player
         // (cave setting)
         potentialY =
@@ -237,7 +314,68 @@ static f32 enhanceWaterCheck_(f32 x, f32 y, f32 z, const TMap *map, const TBGChe
             if (*water == &TMapCollisionData::mIllegalCheckData) {
                 return potentialY;
             }
-            return roofY;
+            return roofY + 10.0f;
+        }
+
+        *water = potential;
+        return Min(roofY, potentialY);
+    } else {
+        potentialY =
+            findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, &potential);
+        roofY = findAnyRoofLikePlaneAbove(samplePosition, *map->mCollisionData, 1, &roofPlane);
+        if (roofY > potentialY) {
+            *water = potential;
+            return potentialY;
+        }
+        return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
+    }
+}
+
+// IMPORTANT: Does not always set the water pointer due to the nature of the function.
+// PLEASE INITIALIZE TO NULLPTR FIRST
+SMS_NO_INLINE static f32 enhanceWaterCheckCamera_(f32 x, f32 y, f32 z, bool considerCave,
+                                                  const TMap *map, const TBGCheckData **water) {
+    const TVec3f samplePosition = {x, y + 80.0f, z};
+
+    const TBGCheckData *potential;
+    f32 roofY, potentialY;
+
+    const TBGCheckData *roofPlane;
+    roofY      = findAnyRoofLikePlaneAbove(samplePosition, *map->mCollisionData, 0, &roofPlane);
+    potentialY = findAnyGroundLikePlaneBelow({samplePosition.x, roofY - 1.0f, samplePosition.z},
+                                             *map->mCollisionData, 8, &potential);
+
+    bool isRoofWater = roofPlane && isColTypeWater(roofPlane->mType);
+    if (isRoofWater) {
+        *water = potential;
+        return potentialY;
+    }
+
+    if (potential != &TMapCollisionData::mIllegalCheckData) {
+        // Since there is water below the roof, check if there is ground between the player
+        // and the water
+        f32 groundY =
+            findAnyGroundLikePlaneBelow({samplePosition.x, potentialY - 10.0f, samplePosition.z},
+                                        *map->mCollisionData, 1, &roofPlane);
+        if (groundY <= samplePosition.y) {
+            // If there is no ground between the player and the new water, we can just
+            // return the new water level
+            *water = potential;
+            return potentialY;
+        } else {
+            return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
+        }
+    } else if (considerCave) {
+        // If there is no water beneath the roof, check if there is water above the player
+        // (cave setting)
+        potentialY =
+            findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, &potential);
+        if (potential == &TMapCollisionData::mIllegalCheckData) {
+            // Prevent potential crash
+            if (*water == &TMapCollisionData::mIllegalCheckData) {
+                return potentialY;
+            }
+            return roofY + 10.0f;
         }
 
         *water = potential;
@@ -263,7 +401,8 @@ static f32 enhanceWaterCheckAndStickToSurface(f32 x, f32 y, f32 z, const TMap *m
         return map->checkGround(x, y, z, water);
     }
 
-    f32 height = enhanceWaterCheck_(x, y, z, map, water);
+    bool considerCave = (player->mState & TMario::STATE_WATERBORN) != 0;
+    f32 height        = enhanceWaterCheckPlayer_(x, y, z, considerCave, map, water);
 
     bool waterborn = player->mState & TMario::STATE_WATERBORN;
     if (waterborn) {
@@ -600,9 +739,8 @@ static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
     TMario *player = gpMarioAddress;
 
     if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
-        info.ty = player->mTranslation.y + gpMapObjWave->getWaveHeight(
-                                                                            player->mTranslation.x,
-                                                                            player->mTranslation.z);
+        info.ty = player->mTranslation.y +
+                  gpMapObjWave->getWaveHeight(player->mTranslation.x, player->mTranslation.z);
     }
 
     J3DGetTranslateRotateMtx(info, out);
@@ -618,8 +756,9 @@ static f32 fixBlooperSurfAnimBug(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
         return -32768.0f;
     }
 
-    gpMarioAddress->mWaterHeight =
-        enhanceWaterCheck_(x, y, z, gpMap, &gpMarioAddress->mFloorTriangleWater);
+    bool considerCave            = false;
+    gpMarioAddress->mWaterHeight = enhanceWaterCheckPlayer_(x, y, z, considerCave, gpMap,
+                                                            &gpMarioAddress->mFloorTriangleWater);
 
     if (gpMarioAddress->mFloorTriangleWater && gpMarioAddress->mFloorTriangleWater->mType == 258 ||
         gpMarioAddress->mFloorTriangleWater->mType == 259) {
@@ -646,20 +785,64 @@ static f32 fixWaterFilterHeightCalc(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
         return objWave->getHeight(x, y, z);
     }
 
+    TMario *player            = gpMarioAddress;
+    Player::TPlayerData *data = Player::getData(player);
+
+    bool considerCave = false;
+
+    TNameRefPtrAryT<TCubeGeneralInfo> *generalCubes = gpCubeCamera->getCubeInfo<TCubeGeneralInfo>();
+
+    if (generalCubes) {
+        for (size_t i = 0; i < generalCubes->mChildren.size(); ++i) {
+            if (!gpCubeCamera->isInCube({x, y, z}, i)) {
+                continue;
+            }
+
+            if (gpCubeCamera->getDataNo(i) == ENABLE_WATER_CAVE_CAMERA_TYPE) {
+                considerCave = data->mIsCameraInWater;
+                break;
+            }
+        }
+    }
+
     const TBGCheckData *water = nullptr;
-    f32 height                = enhanceWaterCheck_(x, y, z, gpMap, &water);
+    f32 height                = enhanceWaterCheckCamera_(x, y, z, considerCave, gpMap, &water);
 
     if (!objWave) {
+        data->mIsCameraInWater = height > y;
         return height;
     }
 
     if (water && water->mType == 258 || water->mType == 259) {
-        return objWave->getWaveHeight(x, z) + height;
+        height += Min(objWave->getWaveHeight(x, z), 0.0f);
     }
 
+    data->mIsCameraInWater = height > y;
     return height;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189DC0, 0, 0, 0), fixWaterFilterHeightCalc);
+
+SMS_WRITE_32(SMS_PORT_REGION(0x801EA8E0, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x801EA8E4, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801EA8F4, 0, 0, 0), fixWaterFilterHeightCalc);
+
+// Enable wave filter updates elsewhere from Gelato and Sirena
+SMS_WRITE_32(SMS_PORT_REGION(0x801DCE14, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x801DCE18, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x801DCE1C, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x801DCE20, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x801DCE24, 0, 0, 0), 0x60000000);
+
+static bool checkForValidCameraType() {
+    int *type;
+    SMS_FROM_GPR(30, type);
+
+    if (!BetterSMS::isCollisionRepaired()) {
+        return true;
+    }
+
+    return *type < ENABLE_WATER_CAVE_CAMERA_TYPE;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80022F20, 0, 0, 0), checkForValidCameraType);
 
 #endif

@@ -237,6 +237,8 @@ namespace BetterSMS {
             bool mIsWarpActive;
             bool mIsWarpFluid;
             bool mIsWarpEnding;
+
+            bool mIsCameraInWater;
         };
 
 #pragma endregion
