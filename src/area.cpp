@@ -90,7 +90,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerStageInfo(u8 stageID, AreaInfo *info) {
     if (sAreaInfos[stageID]) {
-        return false;
+        OSReport("[WARN] Overwriting stage info for stage %d\n", stageID);
     }
     sAreaInfos[stageID] = info;
     return true;
@@ -98,7 +98,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerStageInfo(u8 stageID, AreaI
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExStageInfo(u8 stageID, ExAreaInfo *info) {
     if (sExAreaInfos[stageID]) {
-        return false;
+        OSReport("[WARN] Overwriting ex stage info for stage %d\n", stageID);
     }
     sExAreaInfos[stageID] = info;
     return true;
