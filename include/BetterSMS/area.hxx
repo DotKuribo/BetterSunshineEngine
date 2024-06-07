@@ -12,6 +12,8 @@
 
 namespace BetterSMS {
     namespace Stage {
+         using NextStageCallback = void (*)(TMarDirector *);
+
         struct AreaInfo {
             u8 mShineStageID;
             u8 mNormalStageID;
@@ -30,5 +32,7 @@ namespace BetterSMS {
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);
         bool registerExStageInfo(u8 stageID, ExAreaInfo *info);
+        void setNextStageHandler(NextStageCallback callback);
+
     }  // namespace Stage
 };     // namespace BetterSMS

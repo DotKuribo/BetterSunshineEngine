@@ -71,6 +71,7 @@ bool BetterSMS::isModuleRegistered(const char *key) {
     }
     return false;
 }
+
 bool BetterSMS::registerModule(const ModuleInfo &info) {
     if (isModuleRegistered(info.mName)) {
         OSPanic(__FILE__, __LINE__,
@@ -125,10 +126,6 @@ extern void drawGameStateMonitor(TApplication *, const J2DOrthoGraph *);
 
 // GAME
 extern void extendLightEffectToShineCount(TApplication *app);
-
-// PLAYER WARP
-extern void processWarp(TMario *, bool);
-extern void updateDebugCollision(TMario *, bool);
 
 // PLAYER MOVES
 extern u32 MultiJumpState;
@@ -218,20 +215,22 @@ static void initLib() {
     initExtendedPlayerAnims();
 
     initializeTaskBuffers();
+
+    // Toolbox Listener
     Game::addLoopCallback(processCurrentTask);
 
     // SETTINGS
-    sSettingsGroup.addSetting(&gBugFixesSetting);
-    sSettingsGroup.addSetting(&gExploitFixesSetting);
-    sSettingsGroup.addSetting(&gCollisionFixesSetting);
-    sSettingsGroup.addSetting(&gViewportSetting);
-    sSettingsGroup.addSetting(&gAspectRatioSetting);
-    sSettingsGroup.addSetting(&gFPSSetting);
-    sSettingsGroup.addSetting(&gCameraInvertXSetting);
-    sSettingsGroup.addSetting(&gCameraInvertYSetting);
-    sSettingsGroup.addSetting(&gSavePromptSetting);
-
     {
+        sSettingsGroup.addSetting(&gBugFixesSetting);
+        sSettingsGroup.addSetting(&gExploitFixesSetting);
+        sSettingsGroup.addSetting(&gCollisionFixesSetting);
+        sSettingsGroup.addSetting(&gViewportSetting);
+        sSettingsGroup.addSetting(&gAspectRatioSetting);
+        sSettingsGroup.addSetting(&gFPSSetting);
+        sSettingsGroup.addSetting(&gCameraInvertXSetting);
+        sSettingsGroup.addSetting(&gCameraInvertYSetting);
+        sSettingsGroup.addSetting(&gSavePromptSetting);
+
         auto &saveInfo        = sSettingsGroup.getSaveInfo();
         saveInfo.mSaveName    = Settings::getGroupName(sSettingsGroup);
         saveInfo.mBlocks      = 1;
@@ -244,9 +243,9 @@ static void initLib() {
         saveInfo.mIconCount   = 2;
         saveInfo.mIconTable   = GetResourceTextureHeader(gSaveIcon);
         saveInfo.mSaveGlobal  = false;
-    }
 
-    BetterSMS::registerModule(sBetterSMSInfo);
+        BetterSMS::registerModule(sBetterSMSInfo);
+    }
 
     //
 
@@ -349,11 +348,10 @@ static void initLib() {
 
     Game::addChangeCallback(resetPlayerDatas);
 
-    ////Game::addOnBootCallback("__init_fps", updateFPSBoot);
     Stage::addInitCallback(updateFPS);
     Stage::addUpdateCallback(updateFPS);
 
-    //// SETTINGS
+    // SETTINGS
     Game::addInitCallback(initAllSettings);
     Game::addBootCallback(initUnlockedSettings);
     Game::addLoopCallback(updateUnlockedSettings);
@@ -556,6 +554,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(
             BetterSMS::Stage::registerExStageInfo,
             "registerExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::setNextStageHandler,
+                         "setNextStageHandler__Q29BetterSMS5StageFPFP12TMarDirector_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageConfiguration,
                          "getStageConfiguration__Q29BetterSMS5StageFv");
         KURIBO_EXPORT_AS(BetterSMS::Stage::addInitCallback,

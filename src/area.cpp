@@ -4,21 +4,26 @@
 #include <SMS/GC2D/SelectMenu.hxx>
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/raw_fn.hxx>
-using namespace BetterSMS::Stage;
+
+static void moveStage_override(TMarDirector *director);
 
 namespace BetterSMS {
 
     namespace Stage {
 
-        static BetterSMS::Stage::AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX];
-        static BetterSMS::Stage::ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX];
+        static AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX];
+        static ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX];
 
-        BetterSMS::Stage::AreaInfo **getAreaInfos() { return sAreaInfos; }
-        BetterSMS::Stage::ExAreaInfo **getExAreaInfos() { return sExAreaInfos; }
+        AreaInfo **getAreaInfos() { return sAreaInfos; }
+        ExAreaInfo **getExAreaInfos() { return sExAreaInfos; }
+
+        static NextStageCallback sNextStageHandler = moveStage_override;
 
     }  // namespace Stage
 
 }  // namespace BetterSMS
+
+using namespace BetterSMS::Stage;
 
 static size_t getScenariosForScene(int sceneID) {
     if (sceneID == 0 || sceneID == 1)
@@ -76,7 +81,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
             exInfo->mNormalStageID = i + 0x14;
             exInfo->mShineStageID  = baseGameStageTable[i + 0x14];
             exInfo->mShineID       = baseGameExShineTable2[i];
-            BetterSMS::Stage::registerExStageInfo(i + 21, exInfo);
+            BetterSMS::Stage::registerExStageInfo(exInfo->mNormalStageID, exInfo);
         }
 
         oldHeap->becomeCurrentHeap();
@@ -99,7 +104,12 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExStageInfo(u8 stageID, ExA
     return true;
 }
 
-#if BETTER_SMS_EXTRA_AREAS
+void BetterSMS::Stage::setNextStageHandler(NextStageCallback callback) {
+    sNextStageHandler = callback;
+}
+
+static void moveStageHandler(TMarDirector *director) { sNextStageHandler(director); }
+SMS_PATCH_B(SMS_PORT_REGION(0x80297584, 0, 0, 0), moveStageHandler);
 
 static s32 SMS_getShineID(u32 stageID, u32 scenarioID, bool isExStage) {
     if (!sAreaInfos[stageID]) {
@@ -235,6 +245,66 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80173a24, 0, 0, 0), getScenarioNameForSelectScree
 SMS_PATCH_BL(SMS_PORT_REGION(0x80173d18, 0, 0, 0), getScenarioNameForSelectScreen);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80173db0, 0, 0, 0), getScenarioNameForSelectScreen);
 
+const char *loadStageNameFromBMG(void *global_bmg) {
+    const char *message;
+
+    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+
+    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
+    message     = (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
+    return message ? message : errMessage;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80172704, 0x802A0C00, 0, 0), loadStageNameFromBMG);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG);
+
+const char *loadScenarioNameFromBMG(void *global_bmg) {
+    const char *message;
+
+    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+
+    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
+    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
+        return errMessage;
+    }
+
+    s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
+    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
+        return errMessage;
+    }
+
+    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
+
+    message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+    return message ? message : errMessage;
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x80172734, 0, 0, 0), 0x4800006C);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFromBMG);
+
+const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
+    const char *message;
+
+    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+
+    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
+    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
+        return errMessage;
+    }
+
+    s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
+    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
+        return errMessage;
+    }
+
+    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
+
+    message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
+    return message ? message : errMessage;
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x80156D5C, 0, 0, 0), 0x480000A8);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFromBMGAfter);
+
+// Default stage override
+
 static void moveStage_override(TMarDirector *director) {
     director->mNextState           = 5;
     ((u32 *)(director))[0xE4 >> 2] = 15;
@@ -363,64 +433,3 @@ static void moveStage_override(TMarDirector *director) {
         TFlagManager::smInstance->setFlag(0x40004, nozzleType);
     }
 }
-SMS_PATCH_B(SMS_PORT_REGION(0x80297584, 0, 0, 0), moveStage_override);
-
-#endif
-
-const char *loadStageNameFromBMG(void *global_bmg) {
-    const char *message;
-
-    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
-
-    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
-    message     = (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
-    return message ? message : errMessage;
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80172704, 0x802A0C00, 0, 0), loadStageNameFromBMG);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG);
-
-const char *loadScenarioNameFromBMG(void *global_bmg) {
-    const char *message;
-
-    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
-
-    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
-    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
-        return errMessage;
-    }
-
-    s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
-    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
-        return errMessage;
-    }
-
-    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
-
-    message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
-    return message ? message : errMessage;
-}
-SMS_WRITE_32(SMS_PORT_REGION(0x80172734, 0, 0, 0), 0x4800006C);
-SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFromBMG);
-
-const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
-    const char *message;
-
-    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
-
-    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
-    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
-        return errMessage;
-    }
-
-    s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
-    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
-        return errMessage;
-    }
-
-    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
-
-    message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
-    return message ? message : errMessage;
-}
-SMS_WRITE_32(SMS_PORT_REGION(0x80156D5C, 0, 0, 0), 0x480000A8);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFromBMGAfter);
