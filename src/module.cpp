@@ -364,13 +364,9 @@ static void initLib() {
 #if BETTER_SMS_EXTRA_AREAS
     Game::addBootCallback(initAreaInfo);
 #endif
-
-    PowerPC::writeU32(
-        reinterpret_cast<u32 *>(0x802A7454),
-        0x3C600004);  // Make system memory more expansive (takes away from stage heap)
 }
 
-static void destroyLib() { PowerPC::writeU32(reinterpret_cast<u32 *>(0x802A7454), 0x3C600002); }
+static void destroyLib() {}
 
 KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_VERSION_TAG) {
     KURIBO_EXECUTE_ON_LOAD {

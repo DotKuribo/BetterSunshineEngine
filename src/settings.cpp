@@ -41,8 +41,10 @@
 #include "p_settings.hxx"
 #include <libs/scoped_ptr.hxx>
 
-/*** Memory Card Work Area ***/
-static SMS_ALIGN(32) u8 SysArea[CARD_WORKAREA];
+#define CARD_MAX_BLOCKS 8
+
+static SMS_ALIGN(32) char sCardSysArea[CARD_WORKAREA];
+static SMS_ALIGN(32) char sCardBuffer[CARD_BLOCKS_TO_BYTES(CARD_MAX_BLOCKS)];
 
 static bool sIsMounted = false;
 static s32 sChannel    = 0;
@@ -72,13 +74,13 @@ BETTER_SMS_FOR_EXPORT s32 Settings::mountCard() {
         return check;
     }
 
-    check = CARDMount(CARD_SLOTA, SysArea, detachCallback_);
+    check = CARDMount(CARD_SLOTA, sCardSysArea, detachCallback_);
     if (check == CARD_ERROR_READY) {
         sChannel = CARD_SLOTA;
         return check;
     }
 
-    check = CARDMount(CARD_SLOTB, SysArea, detachCallback_);
+    check = CARDMount(CARD_SLOTB, sCardSysArea, detachCallback_);
     if (check == CARD_ERROR_READY) {
         sChannel = CARD_SLOTB;
         return check;
@@ -271,6 +273,12 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
 
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     auto &info = group.getSaveInfo();
+    if (info.mBlocks > CARD_MAX_BLOCKS) {
+        OSReport("Failed to save settings for module \"%s\"! (TOO MANY BLOCKS: > " SMS_STRINGIZE(
+                     CARD_MAX_BLOCKS) ")\n",
+                 Settings::getGroupName(group));
+        return CARD_ERROR_CANCELED;
+    }
 
     {
         CARDStat fstatus;
@@ -296,44 +304,42 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
     {
-        auto saveBuffer    = scoped_ptr<char>(new (JKRHeap::sSystemHeap, 32) char[saveDataSize]);
-        auto saveBufferPtr = saveBuffer.get();
 
         // Reset data
-        memset(saveBufferPtr, 0, saveDataSize);
+        memset(sCardBuffer, 0, saveDataSize);
 
         // Write version info
-        saveBufferPtr[0] = group.getMajorVersion();
-        saveBufferPtr[1] = group.getMinorVersion();
+        sCardBuffer[0] = group.getMajorVersion();
+        sCardBuffer[1] = group.getMinorVersion();
 
         // Copy group name into save data
-        snprintf(saveBufferPtr + 4, 32, "%s", info.mSaveName);
+        snprintf(sCardBuffer + 4, 32, "%s", info.mSaveName);
 
         // Copy date saved into save data
         {
             OSCalendarTime calendar;
             OSTicksToCalendarTime(OSGetTime(), &calendar);
-            snprintf(saveBufferPtr + 36, 32, "Module Info (%lu/%lu/%lu)", calendar.mon + 1,
+            snprintf(sCardBuffer + 36, 32, "Module Info (%lu/%lu/%lu)", calendar.mon + 1,
                      calendar.mday, calendar.year);
         }
 
-        memcpy(saveBufferPtr + CARD_DIRENTRY_SIZE,
+        memcpy(sCardBuffer + CARD_DIRENTRY_SIZE,
                reinterpret_cast<const u8 *>(info.mBannerImage) + info.mBannerImage->mTextureOffset,
                0xE00);
-        memcpy(saveBufferPtr + CARD_DIRENTRY_SIZE + 0xE00,
+        memcpy(sCardBuffer + CARD_DIRENTRY_SIZE + 0xE00,
                reinterpret_cast<const u8 *>(info.mIconTable) + info.mIconTable->mTextureOffset,
                0x500 * info.mIconCount);
 
         size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
 
         // Write contents to save file
-        JSUMemoryOutputStream out(saveBufferPtr + dataPosOut, saveDataSize - dataPosOut);
+        JSUMemoryOutputStream out(sCardBuffer + dataPosOut, saveDataSize - dataPosOut);
         for (auto &setting : group.getSettings()) {
             setting->save(out);
         }
 
         for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
-            s32 result = CARDWrite(finfo, saveBufferPtr, CARD_BLOCKS_TO_BYTES(1), i);
+            s32 result = CARDWrite(finfo, sCardBuffer, CARD_BLOCKS_TO_BYTES(1), i);
             while (result == CARD_ERROR_BUSY) {
                 result = CARDCheck(finfo->mChannel);
             }
@@ -349,17 +355,20 @@ s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
 
 s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
     auto &info = group.getSaveInfo();
+    if (info.mBlocks > CARD_MAX_BLOCKS) {
+        OSReport("Failed to load settings for module \"%s\"! (TOO MANY BLOCKS: > " SMS_STRINGIZE(
+                     CARD_MAX_BLOCKS) ")\n",
+                 Settings::getGroupName(group));
+        return CARD_ERROR_CANCELED;
+    }
 
     const size_t saveDataSize = CARD_BLOCKS_TO_BYTES(info.mBlocks);
     {
-        auto saveBuffer    = scoped_ptr<char>(new (JKRHeap::sSystemHeap, 32) char[saveDataSize]);
-        auto saveBufferPtr = saveBuffer.get();
-
         // Reset data
-        memset(saveBufferPtr, 0, saveDataSize);
+        memset(sCardBuffer, 0, saveDataSize);
 
         for (size_t i = 0; i < saveDataSize; i += CARD_BLOCKS_TO_BYTES(1)) {
-            s32 result = CARDRead(finfo, saveBufferPtr, CARD_BLOCKS_TO_BYTES(1), i);
+            s32 result = CARDRead(finfo, sCardBuffer, CARD_BLOCKS_TO_BYTES(1), i);
             while (result == CARD_ERROR_BUSY) {
                 result = CARDCheck(finfo->mChannel);
             }
@@ -369,7 +378,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
             }
         }
 
-        if (saveBufferPtr[0] != group.getMajorVersion()) {
+        if (sCardBuffer[0] != group.getMajorVersion()) {
             OSPanic(__FILE__, __LINE__,
                     "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
                     "Automatically resetting to defaults...",
@@ -380,7 +389,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
 
         // Write contents to save file
-        JSUMemoryInputStream in(saveBufferPtr + dataPosOut, saveDataSize - dataPosOut);
+        JSUMemoryInputStream in(sCardBuffer + dataPosOut, saveDataSize - dataPosOut);
         for (auto &setting : group.getSettings()) {
             setting->load(in);
         }
