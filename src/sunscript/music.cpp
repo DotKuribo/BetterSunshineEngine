@@ -4,10 +4,9 @@
 
 using namespace BetterSMS::Music;
 
-static AudioStreamer::AudioPacket sAudioPackets[AudioQueueSize] = {
-    AudioStreamer::AudioPacket(-1), AudioStreamer::AudioPacket(-1), AudioStreamer::AudioPacket(-1),
-    AudioStreamer::AudioPacket(-1)};
-static s32 sAudioPacketIndex = 0;
+static AudioPacket sAudioPackets[AudioQueueSize] = {AudioPacket(-1), AudioPacket(-1),
+                                                    AudioPacket(-1), AudioPacket(-1)};
+static s32 sAudioPacketIndex                     = 0;
 
 void Spc::getStageBGM(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(0, &argc);
@@ -20,10 +19,9 @@ void Spc::queueStream(TSpcInterp *interp, u32 argc) {
 
     TSpcSlice item = Spc::Stack::popItem(interp);
     if (item.mType == Spc::ValueType::STRING) {
-        sAudioPackets[sAudioPacketIndex] =
-            AudioStreamer::AudioPacket(reinterpret_cast<char *>(item.mValue));
+        sAudioPackets[sAudioPacketIndex] = AudioPacket(reinterpret_cast<char *>(item.mValue));
     } else {
-        sAudioPackets[sAudioPacketIndex] = AudioStreamer::AudioPacket(item.mValue);
+        sAudioPackets[sAudioPacketIndex] = AudioPacket(item.mValue);
     }
 
     streamer->queueAudio(sAudioPackets[sAudioPacketIndex]);

@@ -10,6 +10,7 @@
 #include <SMS/System/Params.hxx>
 
 namespace BetterSMS {
+
     namespace Music {
         /*
         / General interface
@@ -34,12 +35,57 @@ namespace BetterSMS {
         / Audio streamer
         */
 
-        constexpr size_t AudioMessageQueueSize = 16;
-        constexpr size_t AudioQueueSize        = 4;
-        constexpr size_t AudioStackSize        = 0x4000;
-        constexpr u8 AudioVolumeDefault        = 127;
-        constexpr size_t AudioStreamRate       = 48000;
-        constexpr size_t AudioPreparePreOffset = 0x8000;
+        constexpr OSPriority AudioThreadPriority = OSPriority(18);
+        constexpr size_t AudioMessageQueueSize   = 16;
+        constexpr size_t AudioQueueSize          = 4;
+        constexpr size_t AudioStackSize          = 0x4000;
+        constexpr u8 AudioVolumeDefault          = 127;
+        constexpr size_t AudioStreamRate         = 48000;
+        constexpr size_t AudioPreparePreOffset   = 0x8000;
+        constexpr OSTime AudioFadeInterval       = 16;  // 16ms
+
+        struct AudioPacket {
+            union Identifier {
+                u32 as_u32;
+                const char *as_string;
+            };
+
+            struct PacketParams : public TParams {
+                PacketParams()
+                    : TParams(), SMS_TPARAM_INIT(mLoopStart, 0xFFFFFFFF),
+                      SMS_TPARAM_INIT(mLoopEnd, 0xFFFFFFFF) {}
+
+                TParamT<s32> mLoopStart;
+                TParamT<s32> mLoopEnd;
+            };
+
+            AudioPacket() : mParams() { mIdentifier.as_u32 = 0xFFFFFFFF; }
+
+            AudioPacket(u32 id) : mParams() {
+                mIdentifier.as_u32 = id;
+                mIsString          = false;
+            }
+
+            AudioPacket(const char *file) : mParams() {
+                mIdentifier.as_string = file;
+                mIsString             = true;
+            }
+
+            bool isString() const { return mIsString; }
+            const char *getString() const { return mIdentifier.as_string; }
+            u32 getID() const { return mIdentifier.as_u32; }
+
+            s32 getLoopStart() const { return mParams.mLoopStart.get(); }
+            s32 getLoopEnd() const { return mParams.mLoopEnd.get(); }
+
+            void setLoopPoint(s32 start, size_t length);
+            void setLoopPoint(f32 start, f32 length);
+
+        private:
+            bool mIsString;
+            Identifier mIdentifier;
+            PacketParams mParams;
+        };
 
         class AudioStreamer {
         public:
@@ -55,83 +101,32 @@ namespace BetterSMS {
                 FADE_IN
             };
 
-            struct AudioPacket {
-                friend class AudioStreamer;
-
-                union Identifier {
-                    u32 as_u32;
-                    const char *as_string;
-                };
-
-                struct PacketParams : public TParams {
-                    PacketParams()
-                        : TParams(), SMS_TPARAM_INIT(mLoopStart, 0xFFFFFFFF),
-                          SMS_TPARAM_INIT(mLoopEnd, 0xFFFFFFFF) {}
-
-                    TParamT<s32> mLoopStart;
-                    TParamT<s32> mLoopEnd;
-                };
-
-                AudioPacket() : mParams() { mIdentifier.as_u32 = 0xFFFFFFFF; }
-
-                AudioPacket(u32 id) : mParams() {
-                    mIdentifier.as_u32 = id;
-                    mIsString          = false;
-                }
-
-                AudioPacket(const char *file) : mParams() {
-                    mIdentifier.as_string = file;
-                    mIsString             = true;
-                }
-
-                void setLoopPoint(s32 start, size_t length);
-                void setLoopPoint(f32 start, f32 length);
-
-            private:
-                bool exec(DVDFileInfo *handle);
-
-            private:
-                bool mIsString;
-                Identifier mIdentifier;
-                PacketParams mParams;
-            };
-
         public:
-            AudioStreamer(void *(*mainLoop)(void *), OSPriority priority, DVDFileInfo *fInfo);
+            AudioStreamer(OSPriority priority, DVDFileInfo *fInfo);
             ~AudioStreamer();
 
             static AudioStreamer *getInstance() { return &sInstance; }
-
-            void setLooping(bool loop);
+            void mainLoop_(void *param);
 
             bool isPlaying() const;
             bool isPaused() const;
-            bool isLooping() const;
 
-            bool isLoopCustom() const {
-                auto packet = _mAudioQueue[_mAudioIndex];
-                return packet.mParams.mLoopStart.get() != 0xFFFFFFFF ||
-                       packet.mParams.mLoopEnd.get() != 0xFFFFFFFF;
-            }
+            bool isLooping() const;
+            void setLooping(bool loop);
+
+            u32 getErrorStatus() const { return mErrorStatus; }
 
             u32 getStreamPos() const { return mCurrentPlayAddress; }
             u32 getStreamStart() const { return mAudioHandle->mStart; }
             u32 getStreamEnd() const { return mEndPlayAddress; }
 
-            u32 getLoopStart() const {
-                auto packet = _mAudioQueue[_mAudioIndex];
-                return packet.mParams.mLoopStart.get() != 0xFFFFFFFF
-                           ? packet.mParams.mLoopStart.get()
-                           : 0;
-            }
+            bool isLoopCustom() const;
+            u32 getLoopStart() const;
+            u32 getLoopEnd() const;
 
-            u32 getLoopEnd() const {
-                auto packet = _mAudioQueue[_mAudioIndex];
-                return packet.mParams.mLoopEnd.get() != 0xFFFFFFFF ? packet.mParams.mLoopEnd.get()
-                                                                   : mAudioHandle->mLen;
-            }
+            AudioPacket &getCurrentAudio() { return getCurrentAudio(); }
+            const AudioPacket &getCurrentAudio() const { return getCurrentAudio(); }
 
-            AudioPacket &getCurrentAudio() { return _mAudioQueue[_mAudioIndex]; }
             u16 getVolumeLR() const { return (_mVolLeft << 8) | _mVolRight; }
             u8 getFullVolumeLR() const { return (_mFullVolLeft << 8) | _mFullVolRight; }
 
@@ -152,6 +147,11 @@ namespace BetterSMS {
             void seek(s32 where, JSUStreamSeekFrom whence);
             void seek(f32 seconds, JSUStreamSeekFrom whence);
 
+        private:
+            void initThread(void *(*threadMain)(void *), OSPriority);
+            void initializeSubsystem();
+            void deinitalizeSubsystem();
+
             bool play_();
             bool pause_();
             bool stop_();
@@ -160,18 +160,31 @@ namespace BetterSMS {
             bool seek_();
             void update_();
 
-        private:
-            void initThread(OSPriority);
+            bool startLowStream();
+            void pauseLowStream();
+            bool seekLowStream(s32 streamPos);
+            void stopLowStream();
 
-        public:
+            static void cbForVolumeAlarm(OSAlarm *alarm, OSContext *context);
+            static void cbForAIInterrupt(u32 trigger);
+            static void cbForGetStreamErrorStatusAsync_(u32 result, DVDCommandBlock *cmdBlock);
+            static void cbForGetStreamPlayAddrAsync_(u32 result, DVDCommandBlock *cmdBlock);
+            static void cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo);
+            static void cbForCancelStreamOnStopAsync_(u32 result, DVDCommandBlock *callback);
+            static void cbForStopStreamAtEndAsync_(u32 result, DVDCommandBlock *cmdblock);
+
+        protected:
             OSThread mMainThread;
             OSAlarm mVolumeFadeAlarm;
             OSMessageQueue mMessageQueue;
             OSMessage mMessageList[AudioMessageQueueSize];
             DVDFileInfo *mAudioHandle;
-            DVDCommandBlock mGetAddrCmd;
-            DVDCommandBlock mStopCmd;
-            DVDCommandBlock mStatusCmd;
+            DVDCommandBlock mAIInteruptBlock;
+            DVDCommandBlock mRunBlock;
+            DVDCommandBlock mPrepareBlock;
+            DVDCommandBlock mSeekBlock;
+            DVDCommandBlock mStopBlock;
+            DVDCommandBlock mPlayAddrBlock;
             u8 *mAudioStack;
             u32 mCurrentPlayAddress;
             u32 mEndPlayAddress;
@@ -201,5 +214,7 @@ namespace BetterSMS {
         bool isValidBGM(MSStageInfo id);
         bool isWeakBGM(u32 id);
         bool isWeakBGM(MSStageInfo id);
+
     }  // namespace Music
+
 }  // namespace BetterSMS
