@@ -40,7 +40,7 @@ namespace BetterSMS {
         constexpr size_t AudioQueueSize          = 4;
         constexpr size_t AudioStackSize          = 0x4000;
         constexpr u8 AudioVolumeDefault          = 127;
-        constexpr size_t AudioStreamRate         = 48000;
+        constexpr size_t AudioStreamRate         = 32000;  // 32kHz, granular for stupid reasons
         constexpr size_t AudioPreparePreOffset   = 0x8000;
         constexpr OSTime AudioFadeInterval       = 16;  // 16ms
 
@@ -116,16 +116,17 @@ namespace BetterSMS {
 
             u32 getErrorStatus() const { return mErrorStatus; }
 
-            u32 getStreamPos() const { return mCurrentPlayAddress; }
+            u32 getStreamLength() const { return mStreamEnd - mStreamPos; }
+            u32 getStreamPos() const { return mStreamPos + getStreamStart(); }
             u32 getStreamStart() const { return mAudioHandle->mStart; }
-            u32 getStreamEnd() const { return mEndPlayAddress; }
+            u32 getStreamEnd() const { return mStreamEnd + getStreamStart(); }
 
             bool isLoopCustom() const;
             u32 getLoopStart() const;
             u32 getLoopEnd() const;
 
-            AudioPacket &getCurrentAudio() { return getCurrentAudio(); }
-            const AudioPacket &getCurrentAudio() const { return getCurrentAudio(); }
+            AudioPacket &getCurrentAudio() { return _mAudioQueue[_mAudioIndex]; }
+            const AudioPacket &getCurrentAudio() const { return _mAudioQueue[_mAudioIndex]; }
 
             u16 getVolumeLR() const { return (_mVolLeft << 8) | _mVolRight; }
             u8 getFullVolumeLR() const { return (_mFullVolLeft << 8) | _mFullVolRight; }
@@ -160,10 +161,12 @@ namespace BetterSMS {
             bool seek_();
             void update_();
 
+            void nextTrack_();
+
             bool startLowStream();
             void pauseLowStream();
             bool seekLowStream(s32 streamPos);
-            void stopLowStream();
+            bool stopLowStream();
 
             static void cbForVolumeAlarm(OSAlarm *alarm, OSContext *context);
             static void cbForAIInterrupt(u32 trigger);
@@ -171,6 +174,7 @@ namespace BetterSMS {
             static void cbForGetStreamPlayAddrAsync_(u32 result, DVDCommandBlock *cmdBlock);
             static void cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo);
             static void cbForCancelStreamOnStopAsync_(u32 result, DVDCommandBlock *callback);
+            static void cbForCancelStreamOnSeekAsync_(u32 result, DVDCommandBlock *callback);
             static void cbForStopStreamAtEndAsync_(u32 result, DVDCommandBlock *cmdblock);
 
         protected:
@@ -186,9 +190,10 @@ namespace BetterSMS {
             DVDCommandBlock mStopBlock;
             DVDCommandBlock mPlayAddrBlock;
             u8 *mAudioStack;
-            u32 mCurrentPlayAddress;
-            u32 mEndPlayAddress;
+            u32 mStreamPos;
+            u32 mStreamEnd;
             u32 mErrorStatus;
+            bool mShouldUpdate;
 
         private:
             AudioPacket _mAudioQueue[AudioQueueSize];
