@@ -53,12 +53,12 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
         const u32 scenePaneIDs[] = {0xFFFFFFFF, 0xFFFFFFFF, 'bi_0', 'rc_0', 'mm_0',
                                     'yi_0',     'sr_0',     'mo_0', 'mr_0', 0xFFFFFFFF};
 
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 64; ++i) {
             auto info                = new BetterSMS::Stage::AreaInfo;
             info->mShineSelectPaneID = scenePaneIDs[i];
-            info->mNormalStageID     = baseGameNormalStageTable[i];
-            info->mShineStageID      = baseGameStageTable[info->mNormalStageID];
-            if (baseGameShineTable[i]) {
+            info->mNormalStageID     = i;
+            info->mShineStageID      = baseGameStageTable[i];
+            if (i < 10 && baseGameShineTable[i]) {
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
                     auto scenarioID = baseGameShineTable[i][j];
                     info->mScenarioIDs.push_back(scenarioID);
@@ -80,7 +80,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
             auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
             exInfo->mNormalStageID = i + 0x14;
             exInfo->mShineStageID  = baseGameStageTable[i + 0x14];
-            exInfo->mShineID       = baseGameExShineTable2[i];
+            exInfo->mShineIDs.push_back(baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1);
             BetterSMS::Stage::registerExStageInfo(exInfo->mNormalStageID, exInfo);
         }
 
