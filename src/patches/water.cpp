@@ -269,6 +269,11 @@ static f32 findAnyGroundLikePlaneBelow(const TVec3f &position, TMapCollisionData
 // PLEASE INITIALIZE TO NULLPTR FIRST
 SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool considerCave,
                                                   const TMap *map, const TBGCheckData **water) {
+    if (SMS_isDivingMap__Fv()) {
+        *water = gpMarioAddress->mFloorTriangle;
+        return gpMarioAddress->mTranslation.y;
+    }
+   
     TMario *player              = gpMarioAddress;
     const TVec3f samplePosition = {x, player->mTranslation.y + 80.0f, z};
 
