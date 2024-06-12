@@ -397,7 +397,7 @@ static f32 enhanceWaterCheckAndStickToSurface(f32 x, f32 y, f32 z, const TMap *m
     TMario *player                  = gpMarioAddress;
     Player::TPlayerData *playerData = Player::getData(player);
 
-    if (!BetterSMS::isCollisionRepaired()) {
+    if (!BetterSMS::isCollisionRepaired() || SMS_isDivingMap__Fv()) {
         return map->checkGround(x, y, z, water);
     }
 
