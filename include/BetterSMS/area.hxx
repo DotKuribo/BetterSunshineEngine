@@ -28,7 +28,7 @@ namespace BetterSMS {
         struct ExAreaInfo {
             u8 mShineStageID;
             u8 mNormalStageID;
-            TGlobalVector<s32> mShineIDs;
+            s32 mShineID;
         };
 
         bool registerStageInfo(u8 stageID, AreaInfo *info);

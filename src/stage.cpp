@@ -77,7 +77,11 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::isDivingStage(u8 area, u8 episode) 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::isExStage(u8 area, u8 episode) {
     Stage::TStageParams params;
     params.load(Stage::getStageName(area, episode));
-    return params.mIsExStage.get();
+    if (params.isCustomConfig()) {
+        return params.mIsExStage.get();
+    } else {
+        return (area >= TGameSequence::AREA_DOLPICEX0 && area <= TGameSequence::AREA_COROEX6);
+    }
 }
 
 void BetterSMS::Stage::TStageParams::reset() {

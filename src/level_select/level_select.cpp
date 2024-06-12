@@ -12,10 +12,11 @@
 
 #include <J2D/J2DOrthoGraph.hxx>
 
-#include "module.hxx"
 #include "game.hxx"
+#include "module.hxx"
 #include "p_area.hxx"
 #include "p_level_select.hxx"
+#include "stage.hxx"
 #include <DVD.h>
 #include <raw_fn.hxx>
 
@@ -80,7 +81,7 @@ static bool sceneFilename(char *out, size_t buf_size, u32 areaID, u32 episodeID)
         }
         return true;
     } else {
-        OSReport("Area ID %d, Episode ID %d, Name %s NOT FOUND\n", areaID, episodeID, out);
+        OSReport("Area ID %d, Episode ID %d, Name %s NOT FOUND\n", areaID, episodeID, stageName);
         return false;
     }
 }
@@ -236,7 +237,7 @@ void LevelSelectScreen::processInput() {
                     mShouldExit        = true;
                 }
             } else {
-                mSelectedAreaID = mScrollAreaID;
+                mSelectedAreaID  = mScrollAreaID;
                 mScrollEpisodeID = 0;
             }
         }
@@ -252,26 +253,29 @@ void LevelSelectScreen::processInput() {
     }
 }
 
-void LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, void *stageNameData,
+bool LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, void *stageNameData,
                                     void *scenarioNameData) {
     const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
     const int screenRenderHeight = 480;
 
     size_t areaFontSize = 21 - (4 * (mColumnCount - 1));
 
-    const char *stageName = nullptr;
+    const char *stageName = (const char *)SMSGetMessageData__FPvUl(stageNameData, info.mShineStageID);
+    SMS_ASSERT(stageName, "Missing stage name for area ID %d (%X)", info.mShineStageID,
+               info.mShineStageID);
+
+    AreaMenuInfo *areaMenuInfo;
 
     // Pop up episode list pane
-    J2DPane *areaPane    = new J2DPane(19, ('s' << 24) | info.mNormalStageID,
-                                       {0, 0, screenRenderWidth, screenRenderHeight});
-    areaPane->mIsVisible = false;
+    bool created;
+    J2DPane *areaPane = findOrCreateAreaPane(info, screenRenderWidth, screenRenderHeight, &created);
+    if (!created) {
+        return false;
+    }
+
     {
         char *groupTextBuf = new char[64];
         memset(groupTextBuf, 0, 64);
-
-        stageName = (const char *)SMSGetMessageData__FPvUl(stageNameData, info.mShineStageID);
-        SMS_ASSERT(stageName, "Missing stage name for area ID %d (%X)", info.mShineStageID,
-                   info.mShineStageID);
 
         snprintf(groupTextBuf, 64, "%s", stageName);
 
@@ -285,8 +289,6 @@ void LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, vo
         label->mGradientBottom = {180, 10, 230, 255};
         areaPane->mChildrenList.append(&label->mPtrLink);
     }
-
-    OSReport("Stagename %d: %s\n", flatRow, stageName);
 
     int textWidth = 500 / mColumnCount;
     int textX     = 50 + (flatRow / mColumnSize) * (textWidth + 4);
@@ -313,10 +315,12 @@ void LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, vo
     }
     mScreen->mChildrenList.append(&areaText->mPtrLink);
 
-    AreaMenuInfo *areaMenuInfo     = new AreaMenuInfo();
+    areaMenuInfo                   = new AreaMenuInfo();
     areaMenuInfo->mEpisodeListPane = areaPane;
     areaMenuInfo->mTextBox         = areaText;
-    areaMenuInfo->mStageID         = info.mNormalStageID;
+    areaMenuInfo->mStageID         = info.mShineStageID;
+    mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+
     if (flatRow == 1) {
         genEpisodeTextDelfinoPlaza(*areaMenuInfo, info, scenarioNameData);
     } else {
@@ -324,10 +328,10 @@ void LevelSelectScreen::genAreaText(s32 flatRow, const Stage::AreaInfo &info, vo
     }
 
     mScreen->mChildrenList.append(&areaPane->mPtrLink);
-    mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+    return true;
 }
 
-void LevelSelectScreen::genAreaTextTest1(s32 flatRow) {
+bool LevelSelectScreen::genAreaTextTest1(s32 flatRow) {
     const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
     const int screenRenderHeight = 480;
 
@@ -390,9 +394,11 @@ void LevelSelectScreen::genAreaTextTest1(s32 flatRow) {
 
     mScreen->mChildrenList.append(&areaPane->mPtrLink);
     mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+
+    return true;
 }
 
-void LevelSelectScreen::genAreaTextTest2(s32 flatRow) {
+bool LevelSelectScreen::genAreaTextTest2(s32 flatRow) {
     const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
     const int screenRenderHeight = 480;
 
@@ -455,9 +461,11 @@ void LevelSelectScreen::genAreaTextTest2(s32 flatRow) {
 
     mScreen->mChildrenList.append(&areaPane->mPtrLink);
     mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+
+    return true;
 }
 
-void LevelSelectScreen::genAreaTextScale(s32 flatRow) {
+bool LevelSelectScreen::genAreaTextScale(s32 flatRow) {
     const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
     const int screenRenderHeight = 480;
 
@@ -520,6 +528,8 @@ void LevelSelectScreen::genAreaTextScale(s32 flatRow) {
 
     mScreen->mChildrenList.append(&areaPane->mPtrLink);
     mAreaInfos.insert(mAreaInfos.end(), areaMenuInfo);
+
+    return true;
 }
 
 void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo &info,
@@ -554,14 +564,14 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, const Stage::AreaInfo
 
     s32 en = 0, eny = 0;
     for (s32 j = 0; j < info.mScenarioIDs.size(); ++j) {
-        char filename[128];
-        if (!sceneFilename(filename, 128, info.mNormalStageID, j)) {
-            continue;
-        }
-
         if (info.mScenarioIDs.size() > info.mScenarioNameIDs.size()) {
             OSReport("[WARNING] Scenario count mismatches name count! %lu / %lu\n",
                      info.mScenarioIDs.size(), info.mScenarioNameIDs.size());
+        }
+
+        char filename[128];
+        if (!sceneFilename(filename, 128, info.mNormalStageID, j)) {
+            continue;
         }
 
         u8 scenarioID      = info.mScenarioIDs[j];
@@ -1073,6 +1083,26 @@ void LevelSelectScreen::genEpisodeTextScale(AreaMenuInfo &menu) {
     }
 }
 
+J2DPane *LevelSelectScreen::findOrCreateAreaPane(const Stage::AreaInfo &info, int width, int height,
+                                                 bool *created) {
+    for (AreaMenuInfo *menu : mAreaInfos) {
+        if (menu->mStageID == info.mShineStageID) {
+            if (created) {
+                *created = false;
+            }
+            return menu->mEpisodeListPane;
+        }
+    }
+
+    if (created) {
+        *created = true;
+    }
+ 
+    J2DPane *areaPane = new J2DPane(19, ('s' << 24) | info.mNormalStageID, {0, 0, width, height});
+    areaPane->mIsVisible = false;
+    return areaPane;
+}
+
 AreaMenuInfo *LevelSelectScreen::getAreaInfo(u32 index) {
     if (index >= mAreaInfos.size())
         return nullptr;
@@ -1214,11 +1244,21 @@ void LevelSelectDirector::initializeLevelsLayout() {
     BetterSMS::Stage::AreaInfo **areaInfos     = BetterSMS::Stage::getAreaInfos();
     BetterSMS::Stage::ExAreaInfo **exAreaInfos = BetterSMS::Stage::getExAreaInfos();
 
+    bool visited_map[BETTER_SMS_AREA_MAX];
+    memset(visited_map, 0, sizeof(visited_map));
+
     size_t areaCount = 3;  // Account for test maps and scale map
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
         if (!areaInfos[i]) {
             continue;
         }
+        if (visited_map[areaInfos[i]->mShineStageID] == true) {
+            continue;
+        }
+        if (Stage::isExStage(i, 0)) {
+            continue;
+        }
+        visited_map[areaInfos[i]->mShineStageID] = true;
         areaCount += 1;
     }
 
@@ -1230,26 +1270,32 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
     s32 flatRow = 0;
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
-        switch (i) {
+        Stage::AreaInfo *info = areaInfos[i];
+        if (!info || visited_map[info->mShineStageID] == false) {
+            continue;
+        }
+        switch (info->mNormalStageID) {
         case 11:
-            mSelectScreen->genAreaTextScale(flatRow);
+            if (mSelectScreen->genAreaTextScale(flatRow)) {
+                flatRow += 1;
+            }
             break;
         case 12:
-            mSelectScreen->genAreaTextTest1(flatRow);
+            if (mSelectScreen->genAreaTextTest1(flatRow)) {
+                flatRow += 1;
+            }
             break;
         case 17:
-            mSelectScreen->genAreaTextTest2(flatRow);
+            if (mSelectScreen->genAreaTextTest2(flatRow)) {
+                flatRow += 1;
+            }
             break;
         default:
-            auto *info = areaInfos[i];
-            if (!info) {
-                continue;
+            if (mSelectScreen->genAreaText(flatRow, *info, stageNameData, scenarioNameData)) {
+                flatRow += 1;
             }
-            mSelectScreen->genAreaText(flatRow, *info, stageNameData, scenarioNameData);
             break;
         }
-
-        flatRow += 1;
     }
 }
 
@@ -1299,6 +1345,7 @@ s32 LevelSelectDirector::direct() {
                                             ->mEpisodeInfos[mSelectScreen->mSelectedEpisodeID];
                 gpApplication.mNextScene.mAreaID    = info->mNormalStageID;
                 gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
+                TFlagManager::smInstance->setFlag(0x40003, info->mScenarioID);
             }
 
             if ((mController->mButtons.mInput & TMarioGamePad::X)) {

@@ -34,7 +34,7 @@ static size_t getScenariosForScene(int sceneID) {
 
 static size_t getExScenariosForScene(int sceneID) { return 4; }
 
-BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
+BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
     const u8 **baseGameShineTable =
         reinterpret_cast<const u8 **>(SMS_PORT_REGION(0x803C0CC8, 0, 0, 0));
     const u8 **baseGameExShineTable =
@@ -58,16 +58,16 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
             info->mShineSelectPaneID = scenePaneIDs[i];
             info->mNormalStageID     = i;
             info->mShineStageID      = baseGameStageTable[i];
-            if (i < 10 && baseGameShineTable[i]) {
+            if (i < 10 && baseGameShineTable[info->mShineStageID]) {
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
-                    auto scenarioID = baseGameShineTable[i][j];
+                    auto scenarioID = baseGameShineTable[info->mShineStageID][j];
                     info->mScenarioIDs.push_back(scenarioID);
                     info->mScenarioNameIDs.push_back(baseGameScenarioNameTable[scenarioID]);
                 }
             }
-            if (baseGameExShineTable[i]) {
+            if (i < 10 && baseGameExShineTable[info->mShineStageID]) {
                 for (int j = 0; j < getExScenariosForScene(i); ++j) {
-                    auto scenarioID = baseGameExShineTable[i][j];
+                    auto scenarioID = baseGameExShineTable[info->mShineStageID][j];
                     info->mExScenarioIDs.push_back(scenarioID);
                     info->mExScenarioNameIDs.push_back(baseGameScenarioNameTable[scenarioID]);
                 }
@@ -80,7 +80,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo(TApplication *) {
             auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
             exInfo->mNormalStageID = i + 0x14;
             exInfo->mShineStageID  = baseGameStageTable[i + 0x14];
-            exInfo->mShineIDs.push_back(baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1);
+            exInfo->mShineID = baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1;
             BetterSMS::Stage::registerExStageInfo(exInfo->mNormalStageID, exInfo);
         }
 
@@ -262,17 +262,16 @@ const char *loadScenarioNameFromBMG(void *global_bmg) {
 
     const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
 
-    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
-    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
+    if (sAreaInfos[gpMarDirector->mAreaID] == nullptr) {
         return errMessage;
     }
 
     s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
-    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
+    if (episode_id >= sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs.size()) {
         return errMessage;
     }
 
-    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
+    s32 message_idx = sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs[episode_id];
 
     message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
     return message ? message : errMessage;
@@ -285,17 +284,16 @@ const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
 
     const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
 
-    s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
-    if (area_id >= BETTER_SMS_AREA_MAX || sAreaInfos[area_id] == nullptr) {
+    if (sAreaInfos[gpMarDirector->mAreaID] == nullptr) {
         return errMessage;
     }
 
     s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
-    if (episode_id >= sAreaInfos[area_id]->mScenarioNameIDs.size()) {
+    if (episode_id >= sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs.size()) {
         return errMessage;
     }
 
-    s32 message_idx = sAreaInfos[area_id]->mScenarioNameIDs[episode_id];
+    s32 message_idx = sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs[episode_id];
 
     message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
     return message ? message : errMessage;
