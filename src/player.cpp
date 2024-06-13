@@ -716,6 +716,7 @@ static u32 collisionHandler(TMario *player) {
     }
 
     if (colType != prevColType) {
+        OSReport("Collision type changed from %d to %d\n", prevColType, colType);
         // Here we keep the loops apart as to force exit callbacks before enter callbacks
         for (auto &item : sPlayerCollisionHandlers) {
             if (item.first == prevColType)
