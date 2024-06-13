@@ -70,15 +70,8 @@ static void resetValuesOnAirborn(TMario *player) {
 static void resetValuesOnCollisionChange(TMario *player) {
     auto playerData = Player::getData(player);
 
-    if (!player->mFloorTriangle || (player->mFloorTriangle == playerData->mPrevCollisionFloor))
+    if (!player->mFloorTriangle)
         return;
-
-    if (player->mFloorTriangle->mType != playerData->mPrevCollisionFloorType) {
-        playerData->mPrevCollisionFloorType     = player->mFloorTriangle->mType;
-        playerData->mPrevCollisionFloor         = player->mFloorTriangle;
-        playerData->mCollisionFlags.mIsFaceUsed = false;
-        playerData->mCollisionTimer             = 0;
-    }
 
     switch (player->mFloorTriangle->mType) {
     case EXPAND_WARP_SET(16042):
@@ -120,7 +113,7 @@ using namespace BetterSMS;
 static inline bool isColTypeWater(u16 type) { return (type > 255 && type < 261) || type == 16644; }
 
 // extern -> generic.cpp
-void updateCollisionContext(TMario *player, bool isMario) {
+BETTER_SMS_FOR_CALLBACK void updateCollisionContext(TMario *player, bool isMario) {
     constexpr s16 CrushTimeToDie = 0;
 
     Player::TPlayerData *playerData = Player::getData(player);
