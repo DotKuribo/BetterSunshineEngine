@@ -319,11 +319,9 @@ SMS_NO_INLINE bool AudioStreamer::play_() {
             AISetStreamPlayState(true);
             setVolumeFadeTo((_mFullVolLeft + _mFullVolRight) / 2, _mFadeTime);
 
-            OSReport("[AUDIO_STREAM] Resuming paused audio!\n");
             _mIsPaused = false;
             return true;
         } else {
-            OSReport("[AUDIO_STREAM] Already playing audio!\n");
             return false;
         }
     }
@@ -356,8 +354,6 @@ SMS_NO_INLINE bool AudioStreamer::pause_() {
     _mPreservedVolLeft  = _mVolLeft;
     _mPreservedVolRight = _mVolRight;
     setVolumeFadeTo(0, _mFadeTime);
-
-    OSReport("[AUDIO_STREAM] Pausing audio!\n");
 
     _mIsPaused = true;
     return true;
@@ -458,8 +454,6 @@ void AudioStreamer::nextTrack_() {
 }
 
 SMS_NO_INLINE bool AudioStreamer::startLowStream() {
-    OSReport("[AUDIO_STREAM] Starting low stream!\n");
-
     const AudioPacket &packet = getCurrentAudio();
 
     char adpPath[0x40];
@@ -492,13 +486,11 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
 }
 
 SMS_NO_INLINE void AudioStreamer::pauseLowStream() {
-    OSReport("[AUDIO_STREAM] Pausing low stream!\n");
     AISetStreamPlayState(false);
     // DVDCancelStreamAsync(&mStopBlock, cbForCancelStreamOnPauseAsync_);
 }
 
 SMS_NO_INLINE bool AudioStreamer::seekLowStream(s32 streamPos) {
-    OSReport("[AUDIO_STREAM] Seeking low stream to %d!\n", streamPos);
     streamPos &= ~0x7FFF;
     if (streamPos < 0)
         return false;
@@ -509,7 +501,6 @@ SMS_NO_INLINE bool AudioStreamer::seekLowStream(s32 streamPos) {
 }
 
 SMS_NO_INLINE bool AudioStreamer::stopLowStream() {
-    OSReport("[AUDIO_STREAM] Stopping low stream!\n");
     AISetStreamVolLeft(0);
     AISetStreamVolRight(0);
     AISetStreamPlayState(false);
@@ -556,9 +547,6 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
     DVDGetStreamErrorStatusAsync(&streamer->mPlayAddrBlock,
                                  AudioStreamer::cbForGetStreamErrorStatusAsync_);
 
-    OSReport("[AUDIO_STREAM] Current play address: 0x%X, End play address: 0x%X\n",
-             streamer->getStreamPos(), streamer->getStreamEnd());
-
     // Check if we've reached the end of the stream
     if (streamer->getStreamPos() < streamer->getStreamEnd()) {
         return;
@@ -601,23 +589,6 @@ void BetterSMS::Music::AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
 
 SMS_NO_INLINE void AudioStreamer::cbForStopStreamAtEndAsync_(u32 result,
                                                              DVDCommandBlock *cmdblock) {
-    OSReport("[AUDIO_STREAM] Stopped stream at end! (RESULT: 0x%X) \n", result);
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-    // Here we either loop or play the next track
-    if (streamer->isLooping()) {
-        // Seek to loop start
-        streamer->_mWhere  = streamer->getLoopStart();
-        streamer->_mWhence = BEGIN;
-        streamer->seek_();
-    } else {
-        streamer->_mDelayedTime = 0.0f;
-        streamer->stopLowStream();
-        streamer->nextTrack_();
-        if (!streamer->startLowStream()) {
-            OSReport("[AUDIO_STREAM] Failed to start next track!\n");
-            _mIsPlaying = false;
-        }
-    }
 }
 
 #pragma endregion
