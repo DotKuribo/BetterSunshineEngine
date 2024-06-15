@@ -108,7 +108,10 @@ void BetterSMS::Stage::setNextStageHandler(NextStageCallback callback) {
 }
 
 static void moveStageHandler(TMarDirector *director) { sNextStageHandler(director); }
-SMS_PATCH_B(SMS_PORT_REGION(0x80297584, 0, 0, 0), moveStageHandler);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80297E40, 0, 0, 0), moveStageHandler);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80299244, 0, 0, 0), moveStageHandler);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029933C, 0, 0, 0), moveStageHandler);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029946C, 0, 0, 0), moveStageHandler);
 
 static s32 SMS_getShineID(u32 stageID, u32 scenarioID, bool isExStage) {
     if (!sAreaInfos[stageID]) {
@@ -294,135 +297,4 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFrom
 
 // Default stage override
 
-static void moveStage_override(TMarDirector *director) {
-    director->mNextState           = 5;
-    ((u32 *)(director))[0xE4 >> 2] = 15;
-
-    gpApplication.mFader->setColor({0, 0, 0, 255});
-
-    s32 nextStageID = gpApplication.mNextScene.mAreaID;
-    s32 thisStageID = gpApplication.mCurrentScene.mAreaID;
-
-    s32 nextShineStage = SMS_getShineStage(nextStageID);
-    s32 thisShineStage = SMS_getShineStage(thisStageID);
-
-    if (thisShineStage != nextShineStage) {
-        TFlagManager::smInstance->setFlag(0x40002, 0);
-    }
-
-    u8 &nextEpisodeID = gpApplication.mNextScene.mEpisodeID;
-    s32 episodeID     = TFlagManager::smInstance->getFlag(0x40003);
-
-    if (nextEpisodeID == 0xFF) {
-        if (sAreaInfos[nextStageID]) {
-            if (nextStageID == 0) {
-                nextEpisodeID = 0;
-                TFlagManager::smInstance->setFlag(0x40003, 0);
-            } else if (nextStageID == 1) {
-                ((u32 *)(director))[0xE4 >> 2] = 2;
-                nextEpisodeID                  = decideNextScenario__FUc(nextStageID);
-                TFlagManager::smInstance->setFlag(0x40003, 0);
-            } else if (nextStageID == 7) {
-                ((u32 *)(director))[0xE4 >> 2] = 2;
-                switch (episodeID) {
-                default:
-                    nextEpisodeID = 0;
-                    break;
-                case 1:
-                    nextEpisodeID = 0;
-                    break;
-                case 2:
-                    nextEpisodeID = 1;
-                    break;
-                case 3:
-                    nextEpisodeID = 2;
-                    break;
-                case 4:
-                    nextEpisodeID = 2;
-                    break;
-                case 5:
-                    nextEpisodeID = 0;
-                    break;
-                case 6:
-                    nextEpisodeID = 3;
-                    break;
-                case 7:
-                    nextEpisodeID = 4;
-                    break;
-                }
-            } else if (nextStageID == 9) {
-                gpApplication.mFader->setColor({210, 210, 210, 255});
-                director->mNextState = 8;
-            } else {
-                ((u32 *)(director))[0xE4 >> 2] = 8;
-                director->mNextState           = 8;
-            }
-        } else {
-            if (nextStageID == 13) {
-                ((u32 *)(director))[0xE4 >> 2] = 2;
-                switch (episodeID) {
-                default:
-                case 0:
-                    nextEpisodeID = 0;
-                    break;
-                case 2:
-                    nextEpisodeID = 1;
-                    break;
-                case 4:
-                    nextEpisodeID = 2;
-                    break;
-                case 5:
-                    nextEpisodeID = 3;
-                    break;
-                case 6:
-                    nextEpisodeID = 3;
-                    break;
-                case 7:
-                    nextEpisodeID = 3;
-                    break;
-                }
-            } else if (nextStageID == 52) {
-                ((u32 *)(director))[0xE4 >> 2] = 8;
-                nextEpisodeID                  = 0;
-                TFlagManager::smInstance->setFlag(0x40003, 0);
-            } else if (nextStageID >= 15 && nextStageID < 52) {
-                ((u32 *)(director))[0xE4 >> 2] = 2;
-                nextEpisodeID                  = 0;
-                if (episodeID == 4) {
-                    nextEpisodeID = 1;
-                } else if (episodeID == 3) {
-                    nextEpisodeID = 0;
-                }
-            } else if (nextStageID == 58) {
-                ((u32 *)(director))[0xE4 >> 2] = 2;
-                nextEpisodeID                  = 0;
-                if (episodeID == 7) {
-                    nextEpisodeID = 0;
-                } else if (episodeID == 0) {
-                    nextEpisodeID = 1;
-                }
-            } else {
-                ((u32 *)(director))[0xE4 >> 2] = 2;
-                nextEpisodeID                  = 0;
-            }
-        }
-    }
-
-    if (nextEpisodeID != 0xFF) {
-        if ((director->mGameState & 0x100) == 0) {
-            director->mNextState = 5;
-        } else {
-            ((u32 *)(director))[0xE4 >> 2] = 15;
-            gpApplication.mFader->setColor({0, 0, 0, 255});
-            director->mNextState = 6;
-        }
-    }
-
-    if (gpMarioAddress->mAttributes.mHasFludd) {
-        u8 nozzleType = gpMarioAddress->mFludd->mSecondNozzle;
-        if (nozzleType == TWaterGun::Yoshi) {
-            nozzleType = TWaterGun::Hover;
-        }
-        TFlagManager::smInstance->setFlag(0x40004, nozzleType);
-    }
-}
+static void moveStage_override(TMarDirector *director) { director->moveStage(); }
