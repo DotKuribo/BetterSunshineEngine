@@ -52,15 +52,16 @@ public:
 
 protected:
     void processInput();
-    void genAreaText(s32, const Stage::AreaInfo &, void *, void *);
-    void genAreaTextTest1(s32);
-    void genAreaTextTest2(s32);
-    void genAreaTextScale(s32);
+    bool genAreaText(s32, const Stage::AreaInfo &, void *, void *);
+    bool genAreaTextTest1(s32);
+    bool genAreaTextTest2(s32);
+    bool genAreaTextScale(s32);
     void genEpisodeText(AreaMenuInfo &, const Stage::AreaInfo &, void *);
     void genEpisodeTextDelfinoPlaza(AreaMenuInfo &, const Stage::AreaInfo &, void *);
     void genEpisodeTextTest1(AreaMenuInfo &);
     void genEpisodeTextTest2(AreaMenuInfo &);
     void genEpisodeTextScale(AreaMenuInfo &);
+    J2DPane *findOrCreateAreaPane(const Stage::AreaInfo &, int width, int height, bool *created);
 
 private:
     bool mShouldExit;

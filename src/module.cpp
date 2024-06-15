@@ -196,7 +196,7 @@ extern void updateAutoSaveIcon(TApplication *);
 extern void drawAutoSaveIcon(TApplication *, const J2DOrthoGraph *);
 
 // STAGES
-extern void initAreaInfo(TApplication *);
+extern void initAreaInfo();
 
 extern void patches_staticResetter(TMarDirector *);
 
@@ -213,6 +213,7 @@ static void initLib() {
     makeExtendedObjDataTable();
     initLoadingScreen();
     initExtendedPlayerAnims();
+    initAreaInfo();
 
     initializeTaskBuffers();
 
@@ -359,11 +360,6 @@ static void initLib() {
 
     // PATCHES
     Stage::addInitCallback(patches_staticResetter);
-
-    // STAGE
-#if BETTER_SMS_EXTRA_AREAS
-    Game::addBootCallback(initAreaInfo);
-#endif
 }
 
 static void destroyLib() {}
