@@ -66,15 +66,18 @@ void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     if (!streamer)
         return;
 
+    u32 streamStart = streamer->getStreamStart();
+    u32 streamEnd   = streamStart + streamer->getLoopEnd();
+    u32 streamPos   = streamer->getStreamPos();
+    u32 streamSize  = streamEnd - streamStart;
+
     snprintf(sStringBuffer, 100,
              "Stream:\n"
              "  Status:      %lu\n"
              "  CurAddress: 0x%lX\n"
              "  EndAddress: 0x%lX\n"
-             "  FInfoAddr:   0x%lX\n"
              "  FInfoSize:    0x%lX",
-             streamer->mErrorStatus, streamer->mCurrentPlayAddress, streamer->mEndPlayAddress,
-             streamer->mAudioHandle->mStart, streamer->mAudioHandle->mLen);
+             streamer->getErrorStatus(), streamPos, streamEnd, streamSize);
 
     gpMusicStringB->draw(111, 103);
     gpMusicStringW->draw(110, 102);
