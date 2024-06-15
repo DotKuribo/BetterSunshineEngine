@@ -50,8 +50,8 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
     {
         auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
-        const u32 scenePaneIDs[] = {0xFFFFFFFF, 0xFFFFFFFF, 'bi_0', 'rc_0', 'mm_0',
-                                    'yi_0',     'sr_0',     'mo_0', 'mr_0', 0xFFFFFFFF};
+        const u32 scenePaneIDs[] = {0,      0, 'bi_0', 'rc_0', 'mm_0', 'pi_0',
+                                    'sr_0', 0, 'mo_0', 'mr_0', 0};
 
         for (int i = 0; i < 64; ++i) {
             auto info                = new BetterSMS::Stage::AreaInfo;
@@ -74,7 +74,6 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
             }
             BetterSMS::Stage::registerStageInfo(i, info);
         }
-
 
         for (int i = 0; i < 32; ++i) {
             auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
@@ -150,6 +149,10 @@ static TExPane *constructExPaneForSelectScreen(TExPane *pane, J2DScreen *screen)
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
+    // This check is only necessary once
+    SMS_ASSERT(sAreaInfos[menu->mAreaID]->mShineSelectPaneID != 0,
+               "Tried to open shine select screen for an area that has no pane ID!");
+
     return (TExPane *)__ct__7TExPaneFP9J2DScreenUl(pane, screen,
                                                    sAreaInfos[menu->mAreaID]->mShineSelectPaneID);
 }
@@ -212,14 +215,7 @@ static void clampSelectScreenEpisodesVisible() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    int stageID = SMS_getShineStage(menu->mAreaID);
-    if (stageID == -1) {
-        // Default behavior
-        menu->mEpisodeCount = Min(menu->mEpisodeCount, 8);
-        return;
-    }
-
-    menu->mEpisodeCount = Min(menu->mEpisodeCount, sAreaInfos[stageID]->mScenarioIDs.size());
+    menu->mEpisodeCount = Min(menu->mEpisodeCount, sAreaInfos[menu->mAreaID]->mScenarioIDs.size());
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174E8C, 0, 0, 0), clampSelectScreenEpisodesVisible);
 SMS_WRITE_32(SMS_PORT_REGION(0x80174E90, 0, 0, 0), 0x60000000);
@@ -231,13 +227,8 @@ static const char *getScenarioNameForSelectScreen() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    int stageID = SMS_getShineStage(menu->mAreaID);
-    if (stageID == -1) {
-        return nullptr;
-    }
-
     return (const char *)SMSGetMessageData__FPvUl(
-        menu->mScenarioBMGData, sAreaInfos[stageID]->mScenarioNameIDs[menu->mEpisodeID]);
+        menu->mScenarioBMGData, sAreaInfos[menu->mAreaID]->mScenarioNameIDs[menu->mEpisodeID]);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017539C, 0, 0, 0), getScenarioNameForSelectScreen);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017398c, 0, 0, 0), getScenarioNameForSelectScreen);
@@ -309,9 +300,13 @@ static void moveStage_override(TMarDirector *director) {
 
     gpApplication.mFader->setColor({0, 0, 0, 255});
 
-    s32 nextStageID = SMS_getShineStage(gpApplication.mNextScene.mAreaID);
-    s32 curStageID  = SMS_getShineStage(gpApplication.mCurrentScene.mAreaID);
-    if (curStageID != nextStageID) {
+    s32 nextStageID = gpApplication.mNextScene.mAreaID;
+    s32 thisStageID = gpApplication.mCurrentScene.mAreaID;
+
+    s32 nextShineStage = SMS_getShineStage(nextStageID);
+    s32 thisShineStage = SMS_getShineStage(thisStageID);
+
+    if (thisShineStage != nextShineStage) {
         TFlagManager::smInstance->setFlag(0x40002, 0);
     }
 
