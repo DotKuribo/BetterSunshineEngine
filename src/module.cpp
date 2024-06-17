@@ -398,6 +398,12 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::triggerAutoSave, "triggerAutoSave__9BetterSMSFv");
 
         /* SETTINGS */
+        KURIBO_EXPORT_AS(BetterSMS::areBugsPatched, "areBugsPatched__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::areExploitsPatched, "areExploitsPatched__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::isCollisionRepaired, "isCollisionRepaired__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::isCameraInvertedX, "isCameraInvertedX__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::isCameraInvertedY, "isCameraInvertedY__9BetterSMSFv");
+
         // Hack for circular reference
         KURIBO_EXPORT_AS(
             BetterSMS::Settings::getGroupName,

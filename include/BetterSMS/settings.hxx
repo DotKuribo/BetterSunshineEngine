@@ -31,6 +31,15 @@
 #include "libs/global_list.hxx"
 
 namespace BetterSMS {
+    bool areBugsPatched();
+    bool areExploitsPatched();
+    bool isCollisionRepaired();
+    bool isCameraInvertedX();
+    bool isCameraInvertedY();
+}  // namespace BetterSMS
+
+namespace BetterSMS {
+
 
     struct ModuleInfo;
 

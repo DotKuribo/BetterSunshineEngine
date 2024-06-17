@@ -942,11 +942,3 @@ public:
 private:
     int mPromptsValue;
 };
-
-namespace BetterSMS {
-    bool areBugsPatched();
-    bool areExploitsPatched();
-    bool isCollisionRepaired();
-    bool isCameraInvertedX();
-    bool isCameraInvertedY();
-}  // namespace BetterSMS
