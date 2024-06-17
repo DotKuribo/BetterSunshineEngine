@@ -40,9 +40,12 @@ using namespace BetterSMS;
 static void checkInvertCamCStickX(CPolarSubCamera *camera, f32 x) {
     camera->rotateY_ByStickX_(BetterSMS::isCameraInvertedX() ? -x : x);
 }
+SMS_PATCH_BL(SMS_PORT_REGION(0x80029E44, 0, 0, 0), checkInvertCamCStickX);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80029EAC, 0, 0, 0), checkInvertCamCStickX);
 
 static void checkInvertCamCStickY(CPolarSubCamera *camera, f32 y) {
     camera->rotateX_ByStickY_(BetterSMS::isCameraInvertedY() ? -y : y);
 }
+SMS_PATCH_BL(SMS_PORT_REGION(0x800293B4, 0, 0, 0), checkInvertCamCStickY);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002A1E0, 0, 0, 0), checkInvertCamCStickY);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80031104, 0, 0, 0), checkInvertCamCStickY);

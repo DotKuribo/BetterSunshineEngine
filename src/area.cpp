@@ -11,8 +11,8 @@ namespace BetterSMS {
 
     namespace Stage {
 
-        static AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX];
-        static ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX];
+        static AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX] = {};
+        static ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX] = {};
 
         AreaInfo **getAreaInfos() { return sAreaInfos; }
         ExAreaInfo **getExAreaInfos() { return sExAreaInfos; }

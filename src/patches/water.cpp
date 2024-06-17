@@ -280,8 +280,7 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool cons
     potentialY = findAnyGroundLikePlaneBelow({samplePosition.x, roofY - 1.0f, samplePosition.z},
                                              *map->mCollisionData, 8, &potential);
 
-    bool isRoofWater = roofPlane && isColTypeWater(roofPlane->mType);
-    if (isRoofWater) {
+    if (isColTypeWater(roofPlane->mType)) {
         *water = potential;
         return potentialY;
     }
@@ -299,10 +298,11 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool cons
             return potentialY;
         } else {
             if (roofY <= player->mWaterHeight) {
-                //*water = roofPlane;
-                return roofY + 10.0f;
+                return player->mWaterHeight;
             }
-            return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
+            player->mWaterHeight = player->mFloorBelow;
+            *water = player->mFloorTriangle;
+            return player->mFloorBelow;
         }
     } else if (considerCave) {
         // If there is no water beneath the roof, check if there is water above the player
@@ -310,24 +310,27 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool cons
         potentialY =
             findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, &potential);
         if (potential == &TMapCollisionData::mIllegalCheckData) {
-            // Prevent potential crash
-            if (*water == &TMapCollisionData::mIllegalCheckData) {
-                return potentialY;
+            if (roofPlane == &TMapCollisionData::mIllegalCheckData) {
+                player->mWaterHeight = player->mFloorBelow;
+                *water = player->mFloorTriangle;
+                return player->mFloorBelow;
             }
-            return roofY + 10.0f;
+            return player->mWaterHeight;
         }
 
         *water = potential;
-        return Min(roofY, potentialY);
+        return Min(roofY + 100.0f, potentialY);
     } else {
         potentialY =
             findAnyGroundLikePlaneBelow({x, 10000000.0f, z}, *map->mCollisionData, 8, &potential);
         roofY = findAnyRoofLikePlaneAbove(samplePosition, *map->mCollisionData, 1, &roofPlane);
-        if (roofY > potentialY) {
+        if (roofY > potentialY && potential != &TMapCollisionData::mIllegalCheckData) {
             *water = potential;
             return potentialY;
         }
-        return findAnyGroundLikePlaneBelow({x, y, z}, *map->mCollisionData, 8, water);
+        player->mWaterHeight = player->mFloorBelow;
+        *water = player->mFloorTriangle;
+        return player->mFloorBelow;
     }
 }
 
@@ -739,8 +742,17 @@ static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
     TMario *player = gpMarioAddress;
 
     if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
-        info.ty = player->mTranslation.y +
-                  gpMapObjWave->getWaveHeight(player->mTranslation.x, player->mTranslation.z);
+        const TBGCheckData *water = nullptr;
+        f32 waterY                = findAnyGroundLikePlaneBelow({player->mTranslation.x, 10000000.0f,
+                                                                    player->mTranslation.z},
+                                                                *gpMap->mCollisionData, 8, &water);
+        if (water != &TMapCollisionData::mIllegalCheckData) {
+            f32 waveHeight =
+                gpMapObjWave->getWaveHeight(player->mTranslation.x, player->mTranslation.z);
+            f32 scale =
+                1.0f / Max(1.0f, fabsf(waterY - player->mTranslation.y) / 100.0f);
+            info.ty = player->mTranslation.y + waveHeight * scale;
+        }
     }
 
     J3DGetTranslateRotateMtx(info, out);
@@ -832,17 +844,5 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801DCE18, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x801DCE1C, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x801DCE20, 0, 0, 0), 0x60000000);
 SMS_WRITE_32(SMS_PORT_REGION(0x801DCE24, 0, 0, 0), 0x60000000);
-
-static bool checkForValidCameraType() {
-    int *type;
-    SMS_FROM_GPR(30, type);
-
-    if (!BetterSMS::isCollisionRepaired()) {
-        return true;
-    }
-
-    return *type < ENABLE_WATER_CAVE_CAMERA_TYPE;
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80022F20, 0, 0, 0), checkForValidCameraType);
 
 #endif

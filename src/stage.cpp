@@ -70,13 +70,17 @@ BETTER_SMS_FOR_EXPORT const char *BetterSMS::Stage::getStageName(u8 area, u8 epi
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::isDivingStage(u8 area, u8 episode) {
     Stage::TStageParams params;
-    params.load(Stage::getStageName(area, episode));
+    if (const char *stageName = Stage::getStageName(area, episode)) {
+        params.load(stageName);
+    }
     return params.mIsDivingStage.get();
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::isExStage(u8 area, u8 episode) {
     Stage::TStageParams params;
-    params.load(Stage::getStageName(area, episode));
+    if (const char *stageName = Stage::getStageName(area, episode)) {
+        params.load(stageName);
+    }
     if (params.isCustomConfig()) {
         return params.mIsExStage.get();
     } else {
