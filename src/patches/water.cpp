@@ -301,7 +301,7 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool cons
                 return player->mWaterHeight;
             }
             player->mWaterHeight = player->mFloorBelow;
-            *water = player->mFloorTriangle;
+            *water               = player->mFloorTriangle;
             return player->mFloorBelow;
         }
     } else if (considerCave) {
@@ -312,7 +312,7 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool cons
         if (potential == &TMapCollisionData::mIllegalCheckData) {
             if (roofPlane == &TMapCollisionData::mIllegalCheckData) {
                 player->mWaterHeight = player->mFloorBelow;
-                *water = player->mFloorTriangle;
+                *water               = player->mFloorTriangle;
                 return player->mFloorBelow;
             }
             return player->mWaterHeight;
@@ -329,15 +329,15 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool cons
             return potentialY;
         }
         player->mWaterHeight = player->mFloorBelow;
-        *water = player->mFloorTriangle;
+        *water               = player->mFloorTriangle;
         return player->mFloorBelow;
     }
 }
 
 // IMPORTANT: Does not always set the water pointer due to the nature of the function.
 // PLEASE INITIALIZE TO NULLPTR FIRST
-SMS_NO_INLINE static f32 enhanceWaterCheckCamera_(f32 x, f32 y, f32 z, bool considerCave,
-                                                  const TMap *map, const TBGCheckData **water) {
+SMS_NO_INLINE f32 enhanceWaterCheckGeneric_(f32 x, f32 y, f32 z, bool considerCave, const TMap *map,
+                                            const TBGCheckData **water) {
     const TVec3f samplePosition = {x, y + 80.0f, z};
 
     const TBGCheckData *potential;
@@ -743,15 +743,14 @@ static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
 
     if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
         const TBGCheckData *water = nullptr;
-        f32 waterY                = findAnyGroundLikePlaneBelow({player->mTranslation.x, 10000000.0f,
-                                                                    player->mTranslation.z},
-                                                                *gpMap->mCollisionData, 8, &water);
+        f32 waterY                = findAnyGroundLikePlaneBelow(
+            {player->mTranslation.x, 10000000.0f, player->mTranslation.z}, *gpMap->mCollisionData,
+            8, &water);
         if (water != &TMapCollisionData::mIllegalCheckData) {
             f32 waveHeight =
                 gpMapObjWave->getWaveHeight(player->mTranslation.x, player->mTranslation.z);
-            f32 scale =
-                1.0f / Max(1.0f, fabsf(waterY - player->mTranslation.y) / 100.0f);
-            info.ty = player->mTranslation.y + waveHeight * scale;
+            f32 scale = 1.0f / Max(1.0f, fabsf(waterY - player->mTranslation.y) / 100.0f);
+            info.ty   = player->mTranslation.y + waveHeight * scale;
         }
     }
 
@@ -818,7 +817,7 @@ static f32 fixWaterFilterHeightCalc(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
     }
 
     const TBGCheckData *water = nullptr;
-    f32 height                = enhanceWaterCheckCamera_(x, y, z, considerCave, gpMap, &water);
+    f32 height                = enhanceWaterCheckGeneric_(x, y, z, considerCave, gpMap, &water);
 
     if (!objWave) {
         data->mIsCameraInWater = height > y;

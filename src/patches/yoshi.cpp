@@ -8,6 +8,13 @@
 #include "stage.hxx"
 
 #include "p_settings.hxx"
+#include <Camera/CubeMapTool.hxx>
+#include <Camera/CubeManagerBase.hxx>
+#include <Map/Map.hxx>
+
+#ifndef ENABLE_WATER_CAVE_CAMERA_TYPE
+#define ENABLE_WATER_CAVE_CAMERA_TYPE 0x100
+#endif
 
 using namespace BetterSMS;
 
@@ -88,6 +95,9 @@ static void killYoshi(TYoshi *yoshi) {
     yoshi->mSubState = 30;
 }
 
+extern f32 enhanceWaterCheckGeneric_(f32 x, f32 y, f32 z, bool considerCave,
+                                                   const TMap *map, const TBGCheckData **water);
+
 static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 groundY) {
     if (yoshi->mType == TYoshi::GREEN || !BetterSMS::isCollisionRepaired())
         return;
@@ -96,14 +106,30 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
     if (ground->isWaterSurface())
         return;
 
-    const TBGCheckData *roof;
-    f32 roofHeight = gpMapCollisionData->checkRoof(yoshi->mTranslation.x, yoshi->mTranslation.y,
-                                                   yoshi->mTranslation.z, 0, &roof);
-    const TBGCheckData *water;
-    f32 waterY = gpMapCollisionData->checkGround(yoshi->mTranslation.x, roofHeight - 10.0f,
-                                                 yoshi->mTranslation.z, 0, &water);
+    bool considerCave = false;
 
-    if (waterY - yoshi->mTranslation.y < 100)
+    TNameRefPtrAryT<TCubeCameraInfo> *cameraCubes = gpCubeCamera->getCubeInfo<TCubeCameraInfo>();
+
+    if (cameraCubes) {
+        for (size_t i = 0; i < cameraCubes->mChildren.size(); ++i) {
+            if (!gpCubeCamera->isInCube(
+                    {yoshi->mTranslation.x, yoshi->mTranslation.y, yoshi->mTranslation.z}, i)) {
+                continue;
+            }
+
+            if (gpCubeCamera->getDataNo(i) == ENABLE_WATER_CAVE_CAMERA_TYPE) {
+                considerCave = true;
+                break;
+            }
+        }
+    }
+
+    const TBGCheckData *water = nullptr;
+    f32 height = enhanceWaterCheckGeneric_(yoshi->mTranslation.x, yoshi->mTranslation.y + 80.0f,
+                                           yoshi->mTranslation.z,
+                                           considerCave, gpMap, &water);
+
+    if (height - yoshi->mTranslation.y < 100)
         return;
 
     if (!water->isWaterSurface() ||
