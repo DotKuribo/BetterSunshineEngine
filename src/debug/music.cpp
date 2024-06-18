@@ -67,7 +67,7 @@ void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
         return;
 
     u32 streamStart = streamer->getStreamStart();
-    u32 streamEnd   = streamStart + streamer->getLoopEnd();
+    u32 streamEnd   = streamer->getStreamEnd();
     u32 streamPos   = streamer->getStreamPos();
     u32 streamSize  = streamEnd - streamStart;
 

@@ -479,7 +479,7 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     AISetStreamTrigger(Music::AudioStreamRate);
     AISetStreamPlayState(true);
 
-    DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), getLoopStart(),
+    DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0,
                           AudioStreamer::cbForPrepareStreamAsync_);
 
     return true;
@@ -580,16 +580,15 @@ SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnStopAsync_(u32 result,
     DVDClose(streamer->mAudioHandle);
 }
 
-void BetterSMS::Music::AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
-                                                                    DVDCommandBlock *callback) {
+SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
+                                                                DVDCommandBlock *callback) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
     DVDPrepareStreamAsync(streamer->mAudioHandle, streamer->getLoopEnd() - streamer->mStreamPos,
                           streamer->mStreamPos, AudioStreamer::cbForPrepareStreamAsync_);
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForStopStreamAtEndAsync_(u32 result,
-                                                             DVDCommandBlock *cmdblock) {
-}
+                                                             DVDCommandBlock *cmdblock) {}
 
 #pragma endregion
 
@@ -723,6 +722,7 @@ static void initExMusic(MSStageInfo bgm) {
 
     AudioStreamer *streamer = AudioStreamer::getInstance();
     AudioPacket packet(gStageBGM & 0x3FF);
+    packet.setLoopPoint(config->mStreamLoopStart.get(), config->mStreamLoopEnd.get());
 
     streamer->queueAudio(packet);
     streamer->setLooping(true);
@@ -770,6 +770,7 @@ static void initStageMusic() {
 #if 1
     AudioStreamer *streamer = AudioStreamer::getInstance();
     AudioPacket packet(gStageBGM & 0x3FF);
+    packet.setLoopPoint(config->mStreamLoopStart.get(), config->mStreamLoopEnd.get());
 
     streamer->queueAudio(packet);
     streamer->setLooping(true);

@@ -52,8 +52,8 @@ namespace BetterSMS {
 
             struct PacketParams : public TParams {
                 PacketParams()
-                    : TParams(), SMS_TPARAM_INIT(mLoopStart, 0xFFFFFFFF),
-                      SMS_TPARAM_INIT(mLoopEnd, 0xFFFFFFFF) {}
+                    : TParams(), SMS_TPARAM_INIT(mLoopStart, -1),
+                      SMS_TPARAM_INIT(mLoopEnd, -1) {}
 
                 TParamT<s32> mLoopStart;
                 TParamT<s32> mLoopEnd;

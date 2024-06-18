@@ -46,6 +46,8 @@ namespace BetterSMS {
                   SMS_TPARAM_INIT(mMusicPitch, 1.0f), SMS_TPARAM_INIT(mMusicID, 1),
                   SMS_TPARAM_INIT(mMusicAreaID, 1), SMS_TPARAM_INIT(mMusicEpisodeID, 0),
                   SMS_TPARAM_INIT(mMusicEnabled, true), SMS_TPARAM_INIT(mMusicSetCustom, false),
+                  SMS_TPARAM_INIT(mStreamLoopStart, -1),
+                  SMS_TPARAM_INIT(mStreamLoopEnd, -1),
                   SMS_TPARAM_INIT(mGravityMultiplier, 1.0f) {}
 
             TStageParams(const char *prm) : TStageParams() {
@@ -67,40 +69,42 @@ namespace BetterSMS {
             void reset();
 
             // Stage Info
-            TParamT<bool> mIsExStage;
-            TParamT<bool> mIsDivingStage;
-            TParamT<bool> mIsOptionStage;
-            TParamT<bool> mIsMultiplayerStage;
-            TParamT<bool> mIsEggFree;
+            TParamRT<bool> mIsExStage;
+            TParamRT<bool> mIsDivingStage;
+            TParamRT<bool> mIsOptionStage;
+            TParamRT<bool> mIsMultiplayerStage;
+            TParamRT<bool> mIsEggFree;
 
             // Player Info
-            TParamT<u16> mPlayerHealth;
-            TParamT<u16> mPlayerMaxHealth;
-            TParamT<bool> mPlayerHasFludd;
-            TParamT<bool> mPlayerHasHelmet;
-            TParamT<bool> mPlayerHasGlasses;
-            TParamT<bool> mPlayerHasShirt;
-            TParamT<bool> mPlayerCanRideYoshi;
-            TParamT<f32> mPlayerSizeMultiplier;
+            TParamRT<u16> mPlayerHealth;
+            TParamRT<u16> mPlayerMaxHealth;
+            TParamRT<bool> mPlayerHasFludd;
+            TParamRT<bool> mPlayerHasHelmet;
+            TParamRT<bool> mPlayerHasGlasses;
+            TParamRT<bool> mPlayerHasShirt;
+            TParamRT<bool> mPlayerCanRideYoshi;
+            TParamRT<f32> mPlayerSizeMultiplier;
 
             // Fludd Info
-            TParamT<u8> mFluddPrimary;
-            TParamT<u8> mFluddSecondary;
-            TParamT<JUtility::TColor> mFluddWaterColor;
-            TParamT<bool> mFluddShouldColorWater;
+            TParamRT<u8> mFluddPrimary;
+            TParamRT<u8> mFluddSecondary;
+            TParamRT<JUtility::TColor> mFluddWaterColor;
+            TParamRT<bool> mFluddShouldColorWater;
 
             // Music Info
-            TParamT<f32> mMusicVolume;
-            TParamT<f32> mMusicSpeed;
-            TParamT<f32> mMusicPitch;
-            TParamT<u16> mMusicID;
-            TParamT<u8> mMusicAreaID;
-            TParamT<u8> mMusicEpisodeID;
-            TParamT<bool> mMusicEnabled;
-            TParamT<bool> mMusicSetCustom;
+            TParamRT<f32> mMusicVolume;
+            TParamRT<f32> mMusicSpeed;
+            TParamRT<f32> mMusicPitch;
+            TParamRT<u16> mMusicID;
+            TParamRT<u8> mMusicAreaID;
+            TParamRT<u8> mMusicEpisodeID;
+            TParamRT<bool> mMusicEnabled;
+            TParamRT<bool> mMusicSetCustom;
+            TParamRT<s32> mStreamLoopStart;
+            TParamRT<s32> mStreamLoopEnd;
 
             // Global Info
-            TParamT<f32> mGravityMultiplier;
+            TParamRT<f32> mGravityMultiplier;
 
         private:
             bool mIsCustomConfigLoaded;
