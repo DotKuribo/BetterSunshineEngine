@@ -179,12 +179,12 @@ bool AudioStreamer::isLoopCustom() const {
 
 u32 AudioStreamer::getLoopStart() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopStart() != 0xFFFFFFFF ? packet.getLoopStart() : 0;
+    return packet.getLoopStart() != 0xFFFFFFFF ? Min(packet.getLoopStart(), mAudioHandle->mLen) : 0;
 }
 
 u32 AudioStreamer::getLoopEnd() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopEnd() != 0xFFFFFFFF ? packet.getLoopEnd() : mAudioHandle->mLen;
+    return packet.getLoopEnd() != 0xFFFFFFFF ? Min(packet.getLoopEnd(), mAudioHandle->mLen) : mAudioHandle->mLen;
 }
 
 void AudioStreamer::setLooping(bool loop) { _mIsLooping = loop; }
