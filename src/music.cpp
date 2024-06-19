@@ -828,7 +828,7 @@ static void stopMusicOnManholeEnter(u32 musicID) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024FAB8, 0x80247844, 0, 0), stopMusicOnManholeEnter);
 
 // 0x8024FB0C
-static void stopMusicOnManholeExit(u32 musicID, u32 unk_0) {
+static void startMusicOnManholeExit(u32 musicID, u32 unk_0) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
     if (streamer->isPaused())
@@ -836,7 +836,7 @@ static void stopMusicOnManholeExit(u32 musicID, u32 unk_0) {
 
     MSBgm::stopBGM(musicID, unk_0);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB0C, 0x80247898, 0, 0), stopMusicOnManholeExit);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB0C, 0x80247898, 0, 0), startMusicOnManholeExit);
 
 // 0x802981A8
 static void stopMusicBeforeShineCamera(CPolarSubCamera *cam, const char *demo, const TVec3f *pos,
