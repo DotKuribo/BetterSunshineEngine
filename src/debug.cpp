@@ -70,3 +70,28 @@ BETTER_SMS_FOR_CALLBACK void drawDebugCallbacks(TApplication *app, const J2DOrth
 }
 
 #pragma endregion
+
+//static void *debugNewHook(JKRHeap *heap, size_t size, int alignment) {
+//    void *ptr = heap->alloc(size, alignment);
+//    if (BetterSMS::isDebugMode() && heap == JKRHeap::sSystemHeap) {
+//        OSReport("Allocated 0x%X bytes at block %p\n", size, ptr);
+//    }
+//    return ptr;
+//}
+//SMS_PATCH_BL(0x802C3BD8, debugNewHook);
+//SMS_PATCH_BL(0x802C3C24, debugNewHook);
+//SMS_PATCH_BL(0x802C3C68, debugNewHook);
+//SMS_PATCH_BL(0x802C3C90, debugNewHook);
+//SMS_PATCH_BL(0x802C3CD8, debugNewHook);
+//SMS_PATCH_BL(0x802C3D24, debugNewHook);
+//SMS_PATCH_BL(0x802C3D68, debugNewHook);
+//SMS_PATCH_BL(0x802C3D90, debugNewHook);
+//
+//static void debugDeleteHook(JKRHeap *heap, void *block) {
+//    heap->free(block);
+//    if (BetterSMS::isDebugMode() && heap == JKRHeap::sSystemHeap) {
+//        OSReport("Deleted block %p\n", block);
+//    }
+//}
+//SMS_PATCH_BL(0x802C3DF0, debugDeleteHook);
+//SMS_PATCH_BL(0x802C3E54, debugDeleteHook);

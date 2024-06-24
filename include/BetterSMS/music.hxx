@@ -40,7 +40,7 @@ namespace BetterSMS {
         constexpr size_t AudioQueueSize          = 4;
         constexpr size_t AudioStackSize          = 0x4000;
         constexpr u8 AudioVolumeDefault          = 127;
-        constexpr size_t AudioStreamRate         = 32000;  // 32kHz, granular for stupid reasons
+        constexpr size_t AudioStreamRate         = 48000;  // 32kHz, granular for stupid reasons
         constexpr size_t AudioPreparePreOffset   = 0x8000;
         constexpr OSTime AudioFadeInterval       = 16;  // 16ms
 
@@ -78,6 +78,7 @@ namespace BetterSMS {
             s32 getLoopStart() const { return mParams.mLoopStart.get(); }
             s32 getLoopEnd() const { return mParams.mLoopEnd.get(); }
 
+            void setLoopPoint(s32 start, s32 length);
             void setLoopPoint(s32 start, size_t length);
             void setLoopPoint(f32 start, f32 length);
 
@@ -193,7 +194,6 @@ namespace BetterSMS {
             u32 mStreamPos;
             u32 mStreamEnd;
             u32 mErrorStatus;
-            bool mShouldUpdate;
 
         private:
             AudioPacket _mAudioQueue[AudioQueueSize];

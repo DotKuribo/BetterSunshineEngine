@@ -188,7 +188,7 @@ extern void checkForCompletionAwards(TApplication *);
 extern void updateUnlockedSettings(TApplication *);
 extern void drawUnlockedSettings(TApplication *, const J2DOrthoGraph *);
 
-extern void resetPlayerDatas(TApplication *application);
+extern void resetPlayerDatas(TMarDirector *application);
 
 // SAVE FILE
 extern void initAutoSaveIcon(TApplication *);
@@ -347,7 +347,7 @@ static void initLib() {
 
     Game::addBootCallback(initDebugCallbacks);
 
-    Game::addChangeCallback(resetPlayerDatas);
+    Stage::addInitCallback(resetPlayerDatas);
 
     Stage::addInitCallback(updateFPS);
     Stage::addUpdateCallback(updateFPS);

@@ -267,9 +267,8 @@ static f32 findAnyGroundLikePlaneBelow(const TVec3f &position, TMapCollisionData
 
 // IMPORTANT: Does not always set the water pointer due to the nature of the function.
 // PLEASE INITIALIZE TO NULLPTR FIRST
-SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(f32 x, f32 y, f32 z, bool considerCave,
+SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(TMario *player, f32 x, f32 y, f32 z, bool considerCave,
                                                   const TMap *map, const TBGCheckData **water) {
-    TMario *player              = gpMarioAddress;
     const TVec3f samplePosition = {x, player->mTranslation.y + 80.0f, z};
 
     const TBGCheckData *potential;
@@ -397,7 +396,9 @@ SMS_NO_INLINE f32 enhanceWaterCheckGeneric_(f32 x, f32 y, f32 z, bool considerCa
 
 static f32 enhanceWaterCheckAndStickToSurface(f32 x, f32 y, f32 z, const TMap *map,
                                               const TBGCheckData **water) {
-    TMario *player                  = gpMarioAddress;
+    TMario *player;
+    SMS_FROM_GPR(29, player);
+
     Player::TPlayerData *playerData = Player::getData(player);
 
     if (!BetterSMS::isCollisionRepaired() || SMS_isDivingMap__Fv()) {
@@ -405,7 +406,7 @@ static f32 enhanceWaterCheckAndStickToSurface(f32 x, f32 y, f32 z, const TMap *m
     }
 
     bool considerCave = (player->mState & TMario::STATE_WATERBORN) != 0;
-    f32 height        = enhanceWaterCheckPlayer_(x, y, z, considerCave, map, water);
+    f32 height        = enhanceWaterCheckPlayer_(player, x, y, z, considerCave, map, water);
 
     bool waterborn = player->mState & TMario::STATE_WATERBORN;
     if (waterborn) {
@@ -478,147 +479,6 @@ static f32 makeFluddHoverNotClipWaterRoof(TMap *map, f32 x, f32 y, f32 z,
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802555E8, 0, 0, 0), makeFluddHoverNotClipWaterRoof);
 
-static void emitExoticInOutWaterEffect(TMarioParticleManager *manager, s32 effect,
-                                       const TVec3f *pos, u8 count, const void *owner) {
-    if (!BetterSMS::isCollisionRepaired()) {
-        manager->emit(effect, pos, count, owner);
-        return;
-    }
-
-    TMario *player = gpMarioAddress;
-
-    bool isExitingBottom = player->mRoofTriangle && isColTypeWater(player->mRoofTriangle->mType) &&
-                           !((player->mRoofTriangle->mMinHeight - player->mTranslation.y) > 50.0f);
-
-    bool isExitingTop = (player->mWaterHeight - player->mTranslation.y) < 50.0f;
-
-    bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
-
-    Mtx mtx;
-    PSMTXIdentity(mtx);
-    PSMTXTrans(mtx, pos->x, player->mWaterHeight, pos->z);
-
-    TVec3f center = {0, 0, 0};
-
-    Mtx lookMtx;
-    if (isExitingBottom) {
-        Matrix::normalToRotationF(player->mRoofTriangle->mNormal, lookMtx);
-    } else if (isExitingTop) {
-        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
-    } else if (isExitingWall) {
-        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
-    } else {
-        return;
-    }
-
-    PSMTXConcat(mtx, lookMtx, mtx);
-
-    manager->emitAndBindToMtx(effect, mtx, count, owner);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80264278, 0, 0, 0), emitExoticInOutWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x802642EC, 0, 0, 0), emitExoticInOutWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80264304, 0, 0, 0), emitExoticInOutWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8026431C, 0, 0, 0), emitExoticInOutWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80264358, 0, 0, 0), emitExoticInOutWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80264370, 0, 0, 0), emitExoticInOutWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80264388, 0, 0, 0), emitExoticInOutWaterEffect);
-
-static JPABaseEmitter *emitExoticRippleWaterEffect(TMarioParticleManager *manager, s32 effect,
-                                                   Mtx emitMtx, u8 count, const void *owner) {
-    if (!BetterSMS::isCollisionRepaired()) {
-        return manager->emitAndBindToMtxPtr(effect, emitMtx, count, owner);
-    }
-
-    TMario *player = gpMarioAddress;
-
-    bool isExitingTop = fabsf(player->mWaterHeight - player->mTranslation.y) < 100.0f;
-
-    bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
-
-    Mtx mtx;
-    PSMTXIdentity(mtx);
-    PSMTXTrans(mtx, player->mTranslation.x, player->mWaterHeight, player->mTranslation.z);
-
-    Mtx lookMtx;
-    if (isExitingTop) {
-        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
-    } else if (isExitingWall) {
-        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
-    } else {
-        return manager->emitAndBindToMtxPtr(effect, emitMtx, count, owner);
-    }
-
-    PSMTXConcat(mtx, lookMtx, emitMtx);
-
-    return manager->emitAndBindToMtxPtr(effect, emitMtx, count, owner);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80233BD4, 0, 0, 0), emitExoticRippleWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80233BF8, 0, 0, 0), emitExoticRippleWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80233C1C, 0, 0, 0), emitExoticRippleWaterEffect);
-
-static void emitExoticRunningRippleWaterEffect(TMarioParticleManager *manager, s32 effect,
-                                               const TVec3f *pos, u8 count, const void *owner) {
-    if (!BetterSMS::isCollisionRepaired()) {
-        manager->emit(effect, pos, count, owner);
-        return;
-    }
-
-    TMario *player = gpMarioAddress;
-
-    bool isExitingTop = (player->mWaterHeight - player->mTranslation.y) < 50.0f;
-
-    bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
-
-    Mtx mtx;
-    PSMTXIdentity(mtx);
-    PSMTXTrans(mtx, pos->x, pos->y, pos->z);
-
-    Mtx lookMtx;
-    if (isExitingTop) {
-        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
-    } else if (isExitingWall) {
-        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
-    } else {
-        return;
-    }
-
-    PSMTXConcat(mtx, lookMtx, mtx);
-
-    manager->emitAndBindToMtx(effect, mtx, count, owner);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80263F1C, 0, 0, 0), emitExoticRunningRippleWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80233D2C, 0, 0, 0), emitExoticRunningRippleWaterEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80233D50, 0, 0, 0), emitExoticRunningRippleWaterEffect);
-
-static void updateExoticWaterSplashEffect(Mtx src, Mtx dst) {
-    if (!BetterSMS::isCollisionRepaired()) {
-        PSMTXCopy(src, dst);
-        return;
-    }
-
-    TMario *player = gpMarioAddress;
-
-    bool isExitingTop = (player->mWaterHeight - player->mTranslation.y) < 50.0f;
-
-    bool isExitingWall = player->mWallTriangle && player->mWaterHeight > player->mTranslation.y;
-
-    Mtx lookMtx;
-    if (isExitingTop) {
-        Matrix::normalToRotationF(player->mFloorTriangleWater->mNormal, lookMtx);
-    } else if (isExitingWall) {
-        Matrix::normalToRotationF(player->mWallTriangle->mNormal, lookMtx);
-    } else {
-        // Make the effect disappear lol xd
-        PSMTXTrans(dst, 0, -100000.0f, 0);
-        return;
-    }
-
-    PSMTXConcat(src, lookMtx, src);
-    PSMTXCopy(src, dst);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80271E24, 0, 0, 0), updateExoticWaterSplashEffect);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8027203C, 0, 0, 0), updateExoticWaterSplashEffect);
-
 static void checkIfWaterSplashOnEntry(TMario *player, f32 waterHeight) {
     if ((waterHeight - player->mTranslation.y) > 50) {
         return;
@@ -627,7 +487,8 @@ static void checkIfWaterSplashOnEntry(TMario *player, f32 waterHeight) {
 }
 
 static bool checkIfHipAttackingValid(f32 groundY) {
-    TMario *player = gpMarioAddress;
+    TMario *player;
+    SMS_FROM_GPR(31, player);
 
     if (!BetterSMS::isCollisionRepaired()) {
         return groundY > player->mTranslation.y;
@@ -738,9 +599,7 @@ static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjBallRoofCollisionIsWater);
 
-static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
-    TMario *player = gpMarioAddress;
-
+static SMS_NO_INLINE void fixMarioOceanAnimBug_(TMario *player, J3DTransformInfo &info, Mtx out) {
     if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
         const TBGCheckData *water = nullptr;
         f32 waterY                = findAnyGroundLikePlaneBelow(
@@ -756,6 +615,12 @@ static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
 
     J3DGetTranslateRotateMtx(info, out);
 }
+
+static void fixMarioOceanAnimBug(J3DTransformInfo &info, Mtx out) {
+    TMario *player;
+    SMS_FROM_GPR(30, player);
+    fixMarioOceanAnimBug_(player, info, out);
+}
 SMS_PATCH_BL(SMS_PORT_REGION(0x802456B8, 0, 0, 0), fixMarioOceanAnimBug);
 
 static f32 fixBlooperSurfAnimBug(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
@@ -768,7 +633,7 @@ static f32 fixBlooperSurfAnimBug(TMapObjWave *objWave, f32 x, f32 y, f32 z) {
     }
 
     bool considerCave            = false;
-    gpMarioAddress->mWaterHeight = enhanceWaterCheckPlayer_(x, y, z, considerCave, gpMap,
+    gpMarioAddress->mWaterHeight = enhanceWaterCheckPlayer_(gpMarioAddress, x, y, z, considerCave, gpMap,
                                                             &gpMarioAddress->mFloorTriangleWater);
 
     if (gpMarioAddress->mFloorTriangleWater && gpMarioAddress->mFloorTriangleWater->mType == 258 ||

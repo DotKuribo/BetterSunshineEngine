@@ -85,12 +85,16 @@ bool AudioStreamer::isLooping() const { return _mIsLooping; }
 AudioStreamer AudioStreamer::sInstance = AudioStreamer(AudioThreadPriority, &sAudioFInfo);
 
 AudioStreamer::AudioStreamer(OSPriority priority, DVDFileInfo *fInfo)
-    : mAudioHandle(fInfo), mStreamPos(0), mStreamEnd(0), mShouldUpdate(true), _mAudioIndex(0),
+    : mAudioHandle(fInfo), mStreamPos(0), mStreamEnd(0), _mAudioIndex(0),
       _mDelayedTime(0.0f), _mFadeTime(0.0f), _mWhere(0), _mWhence(JSUStreamSeekFrom::BEGIN),
       _mVolLeft(AudioVolumeDefault), _mVolRight(AudioVolumeDefault),
       _mFullVolLeft(AudioVolumeDefault), _mFullVolRight(AudioVolumeDefault),
       _mTargetVolume(AudioVolumeDefault), _mPreservedVolLeft(AudioVolumeDefault),
       _mPreservedVolRight(AudioVolumeDefault) {
+    for (size_t i = 0; i < 4; ++i) {
+        _mAudioQueue[i] = AudioPacket();
+    }
+
     initThread(threadMain_, priority);
 }
 
@@ -174,17 +178,18 @@ void AudioStreamer::mainLoop_(void *param) {
 
 bool AudioStreamer::isLoopCustom() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopStart() != 0xFFFFFFFF || packet.getLoopEnd() != 0xFFFFFFFF;
+    return packet.getLoopStart() >= 0 || packet.getLoopEnd() >= 0;
 }
 
 u32 AudioStreamer::getLoopStart() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopStart() != 0xFFFFFFFF ? Min(packet.getLoopStart(), mAudioHandle->mLen) : 0;
+    return packet.getLoopStart() >= 0 ? Min(packet.getLoopStart(), mAudioHandle->mLen) : 0;
 }
 
 u32 AudioStreamer::getLoopEnd() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopEnd() != 0xFFFFFFFF ? Min(packet.getLoopEnd(), mAudioHandle->mLen) : mAudioHandle->mLen;
+    return packet.getLoopEnd() >= 0 ? Min(packet.getLoopEnd(), mAudioHandle->mLen)
+                                    : mAudioHandle->mLen;
 }
 
 void AudioStreamer::setLooping(bool loop) { _mIsLooping = loop; }
@@ -418,24 +423,23 @@ SMS_NO_INLINE void AudioStreamer::update_() {
             _startPaused = true;
         } else if (_startPaused && !isGamePaused) {
             if (isPaused()) {
-                mShouldUpdate = play_();
+                play_();
             }
             _startPaused = false;
         }
     }
 
-    // Check if volume has finished fading for pause/stop
-    if (mShouldUpdate) {
-        fadeAudio_();
+    fadeAudio_();
 
+    // Check if volume has finished fading for pause/stop
+    const u8 curVolume = ((_mVolLeft + _mVolRight) / 2);
+    if (curVolume == _mTargetVolume) {
         const u8 avgVolume = (_mVolLeft + _mVolRight) / 2;
         if (avgVolume == 0) {
             if (isPaused()) {
                 pauseLowStream();
-                mShouldUpdate = false;
             } else if (!isPlaying()) {
                 stopLowStream();
-                mShouldUpdate = false;
             }
             return;
         }
@@ -479,8 +483,7 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     AISetStreamTrigger(Music::AudioStreamRate);
     AISetStreamPlayState(true);
 
-    DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0,
-                          AudioStreamer::cbForPrepareStreamAsync_);
+    DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0, AudioStreamer::cbForPrepareStreamAsync_);
 
     return true;
 }
@@ -505,6 +508,11 @@ SMS_NO_INLINE bool AudioStreamer::stopLowStream() {
     AISetStreamVolRight(0);
     AISetStreamPlayState(false);
     return DVDCancelStreamAsync(&mStopBlock, AudioStreamer::cbForCancelStreamOnStopAsync_);
+}
+
+void AudioPacket::setLoopPoint(s32 start, s32 end) {
+    mParams.mLoopStart.set(start);
+    mParams.mLoopEnd.set(end);
 }
 
 void AudioPacket::setLoopPoint(s32 start, size_t length) {
@@ -759,7 +767,7 @@ static void initStageMusic() {
     if (!config->mMusicEnabled.get())
         return;
 
-    if ((gStageBGM & 0xFC00) == 0) {
+    if ((gStageBGM & ~0x3FF) == 0) {
         startStageBGM__10MSMainProcFUcUc(gpMarDirector->mAreaID, gpMarDirector->mEpisodeID);
         return;
     }

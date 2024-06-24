@@ -101,11 +101,13 @@ void BetterSMS::Stage::TStageParams::reset() {
     mPlayerCanRideYoshi.set(true);
     mMusicEnabled.set(true);
     mMusicSetCustom.set(false);
+    mMusicID.set(1);
     mMusicAreaID.set(1);
     mMusicEpisodeID.set(1);
     mMusicPitch.set(1);
     mMusicSpeed.set(1);
     mMusicVolume.set(1);
+    mIsCustomConfigLoaded = false;
 }
 
 static int findNumber(const char *string, size_t max) {
@@ -193,7 +195,7 @@ void BetterSMS::Stage::TStageParams::load(const char *stageName) {
         return;
     }
 
-    mIsCustomConfigLoaded = false;
+    reset();
 }
 
 void initStageLoading(TMarDirector *director) {
@@ -272,7 +274,7 @@ void drawStageCallbacks(J2DOrthoGraph *ortho) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80143F14, 0x80138B50, 0, 0), drawStageCallbacks);
 
-extern void resetPlayerDatas(TApplication *);
+extern void resetPlayerDatas(TMarDirector *);
 
 void exitStageCallbacks(TApplication *app) {
     if (app->mContext != TApplication::CONTEXT_DIRECT_STAGE)
@@ -282,7 +284,6 @@ void exitStageCallbacks(TApplication *app) {
         item(app);
     }
 
-    resetPlayerDatas(app);
     resetStageConfig(app);
     sIsStageInitialized = false;
 }

@@ -7,9 +7,10 @@
 #include <SMS/raw_fn.hxx>
 
 #include "libs/container.hxx"
-#include "libs/global_unordered_map.hxx"
+#include "libs/global_vector.hxx"
 #include "libs/string.hxx"
 
+#include "logging.hxx"
 #include "memory.hxx"
 #include "module.hxx"
 #include "object.hxx"
@@ -36,11 +37,18 @@ static u16 *sObjLoadAddrTable[sLoadAddrTableSize][2]{
 
 static ObjData *sObjDataTableNew[ObjDataTableSize + sObjMaxCount];
 
-static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomMapObjList(64);
-static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomEnemyObjList(64);
-static TGlobalUnorderedMap<TGlobalString, Objects::NameRefInitializer> sCustomMiscObjList(64);
-static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjInteractionList(64);
-static TGlobalUnorderedMap<u32, Objects::ObjectInteractor> sCustomObjGrabList(64);
+template <typename _I, typename _C> struct ObjectCallbackMeta {
+    _I mID;
+    _C mCallback;
+};
+
+static TGlobalVector<ObjectCallbackMeta<const char *, Objects::NameRefInitializer>> sCustomMapObjList;
+static TGlobalVector<ObjectCallbackMeta<const char *, Objects::NameRefInitializer>>
+    sCustomEnemyObjList;
+static TGlobalVector<ObjectCallbackMeta<const char *, Objects::NameRefInitializer>>
+    sCustomMiscObjList;
+static TGlobalVector<ObjectCallbackMeta<u32, Objects::ObjectInteractor>> sCustomObjInteractionList;
+static TGlobalVector<ObjectCallbackMeta<u32, Objects::ObjectInteractor>> sCustomObjGrabList;
 
 BETTER_SMS_FOR_EXPORT size_t BetterSMS::Objects::getRemainingCapacity() {
     return sObjExpansionSize - sOBJNewCount;
@@ -50,9 +58,13 @@ BETTER_SMS_FOR_EXPORT size_t BetterSMS::Objects::getRemainingCapacity() {
 BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
                                            Objects::NameRefInitializer initFn) {
-    if (sCustomMapObjList.find(name) != sCustomMapObjList.end())
-        return false;
-    sCustomMapObjList[name] = initFn;
+    for (auto &item : sCustomMapObjList) {
+        if (strcmp(item.mID, name) == 0) {
+            Console::log("Object '%s' is already registered!\n", name);
+            return false;
+        }
+    }
+    sCustomMapObjList.push_back({name, initFn});
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
         sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
                          1];  // Copy the default end to the next position
@@ -65,9 +77,13 @@ BetterSMS::Objects::registerObjectAsMapObj(const char *name, ObjData *data,
 BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
                                           Objects::NameRefInitializer initFn) {
-    if (sCustomEnemyObjList.find(name) != sCustomEnemyObjList.end())
-        return false;
-    sCustomEnemyObjList[name] = initFn;
+    for (auto &item : sCustomEnemyObjList) {
+        if (strcmp(item.mID, name) == 0) {
+            Console::log("Enemy '%s' is already registered!\n", name);
+            return false;
+        }
+    }
+    sCustomEnemyObjList.push_back({name, initFn});
     sObjDataTableNew[ObjDataTableSize + sOBJNewCount] =
         sObjDataTableNew[ObjDataTableSize + sOBJNewCount -
                          1];  // Copy the default end to the next position
@@ -79,27 +95,39 @@ BetterSMS::Objects::registerObjectAsEnemy(const char *name, ObjData *data,
 // Misc (Managers, tables, etc)
 BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectAsMisc(const char *name, Objects::NameRefInitializer initFn) {
-    if (sCustomMiscObjList.find(name) != sCustomMiscObjList.end())
-        return false;
-    sCustomMiscObjList[name] = initFn;
+    for (auto &item : sCustomMiscObjList) {
+        if (strcmp(item.mID, name) == 0) {
+            Console::log("Misc object '%s' is already registered!\n", name);
+            return false;
+        }
+    }
+    sCustomMiscObjList.push_back({name, initFn});
     return true;
 }
 
 BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectCollideInteractor(u32 objectID,
                                                     Objects::ObjectInteractor interactor) {
-    if (sCustomObjInteractionList.find(objectID) != sCustomObjInteractionList.end())
-        return false;
-    sCustomObjInteractionList[objectID] = interactor;
+    for (auto &item : sCustomObjInteractionList) {
+        if (item.mID == objectID) {
+            Console::log("Collide interactor 0x%X is already registered!\n", objectID);
+            return false;
+        }
+    }
+    sCustomObjInteractionList.push_back({objectID, interactor});
     return true;
 }
 
 BETTER_SMS_FOR_EXPORT bool
 BetterSMS::Objects::registerObjectGrabInteractor(u32 objectID,
                                                  Objects::ObjectInteractor interactor) {
-    if (sCustomObjGrabList.find(objectID) != sCustomObjGrabList.end())
-        return false;
-    sCustomObjGrabList[objectID] = interactor;
+    for (auto &item : sCustomObjGrabList) {
+        if (item.mID == objectID) {
+            Console::log("Grab interactor 0x%X is already registered!\n", objectID);
+            return false;
+        }
+    }
+    sCustomObjGrabList.push_back({objectID, interactor});
     return true;
 }
 
@@ -126,9 +154,8 @@ static JDrama::TNameRef *makeExtendedMapObjFromRef(TMarNameRefGen *nameGen, cons
         return obj;
 
     for (auto &item : sCustomMapObjList) {
-        auto &dictItem = item;
-        if (strcmp(dictItem.first.data(), name) == 0) {
-            return dictItem.second();
+        if (strcmp(item.mID, name) == 0) {
+            return item.mCallback();
         }
     }
 
@@ -143,8 +170,8 @@ static JDrama::TNameRef *makeExtendedBossEnemyFromRef(TMarNameRefGen *nameGen, c
 
     for (auto &item : sCustomMiscObjList) {
         auto &dictItem = item;
-        if (strcmp(dictItem.first.data(), name) == 0) {
-            return dictItem.second();
+        if (strcmp(item.mID, name) == 0) {
+            return item.mCallback();
         }
     }
 
@@ -161,8 +188,8 @@ static JDrama::TNameRef *makeExtendedGenericFromRef(TMarNameRefGen *nameGen, con
 
     for (auto &item : sCustomEnemyObjList) {
         auto &dictItem = item;
-        if (strcmp(dictItem.first.data(), name) == 0) {
-            return dictItem.second();
+        if (strcmp(item.mID, name) == 0) {
+            return item.mCallback();
         }
     }
 
@@ -180,8 +207,8 @@ static THitActor **objectInteractionHandler() {
 
     for (auto &item : sCustomObjInteractionList) {
         auto &dictItem = item;
-        if (dictItem.first == obj->mObjectID) {
-            dictItem.second(obj, player);
+        if (item.mID == obj->mObjectID) {
+            dictItem.mCallback(obj, player);
             break;
         }
     }
@@ -199,8 +226,8 @@ static THitActor *objGrabHandler() {
 
     for (auto &item : sCustomObjGrabList) {
         auto &dictItem = item;
-        if (dictItem.first == obj->mObjectID) {
-            dictItem.second(obj, player);
+        if (item.mID == obj->mObjectID) {
+            dictItem.mCallback(obj, player);
             break;
         }
     }

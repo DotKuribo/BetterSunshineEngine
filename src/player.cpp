@@ -35,17 +35,45 @@
 
 using namespace BetterSMS;
 
-static TGlobalUnorderedMap<TMario *, TGlobalUnorderedMap<TGlobalString, void *>> sPlayerDict(4);
+// Wrapper to fix void * problems with map.
+struct MarioData {
+    const char *mKey;
+    void *mPtr;
+};
+
+struct MarioDataPair {
+    TMario *mPlayer;
+    TGlobalVector<MarioData> mData;
+};
+
+template <typename _I, typename _C> struct PhysicsMetaInfo {
+    _I mID;
+    _C mCallback;
+};
+
+static MarioDataPair sPlayerDatas[8];
 static TGlobalVector<Player::InitCallback> sPlayerInitializers;
 static TGlobalVector<Player::LoadAfterCallback> sPlayerLoadAfterCBs;
 static TGlobalVector<Player::UpdateCallback> sPlayerUpdaters;
-static TGlobalUnorderedMap<u32, Player::MachineCallback> sPlayerStateMachines(32);
-static TGlobalUnorderedMap<u16, Player::CollisionCallback> sPlayerCollisionHandlers(32);
+static TGlobalVector<PhysicsMetaInfo<u32, Player::MachineCallback>> sPlayerStateMachines;
+static TGlobalVector<PhysicsMetaInfo<u16, Player::CollisionCallback>> sPlayerCollisionHandlers;
 
 BETTER_SMS_FOR_EXPORT Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
-    auto &dataDict = sPlayerDict[player];
-    auto data      = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict["__better_sms"]);
+    TPlayerData *data = nullptr;
 
+    for (size_t i = 0; i < 8; ++i) {
+        if (sPlayerDatas[i].mPlayer != player) {
+            continue;
+        }
+        for (const MarioData &item : sPlayerDatas[i].mData) {
+            if (strcmp(item.mKey, "__better_sms") == 0) {
+                data = reinterpret_cast<Player::TPlayerData *>(item.mPtr);
+                goto AfterSearch;
+            }
+        }
+    }
+
+AfterSearch:
     if (!data) {
         Console::debugLog(
             "Trying to access BetterSMS player data that is not registered! (No Data)\n");
@@ -55,10 +83,21 @@ BETTER_SMS_FOR_EXPORT Player::TPlayerData *BetterSMS::Player::getData(TMario *pl
 }
 
 BETTER_SMS_FOR_EXPORT void *BetterSMS::Player::getRegisteredData(TMario *player, const char *key) {
+    TPlayerData *data = nullptr;
 
-    auto &dataDict = sPlayerDict[player];
-    auto data      = reinterpret_cast<BetterSMS::Player::TPlayerData *>(dataDict[key]);
+    for (size_t i = 0; i < 8; ++i) {
+        if (sPlayerDatas[i].mPlayer != player) {
+            continue;
+        }
+        for (const MarioData &item : sPlayerDatas[i].mData) {
+            if (strcmp(item.mKey, key) == 0) {
+                data = reinterpret_cast<Player::TPlayerData *>(item.mPtr);
+                goto AfterSearch;
+            }
+        }
+    }
 
+AfterSearch:
     if (!data) {
         Console::debugLog("Trying to access player data (%s) that is not registered!\n", key);
     }
@@ -69,16 +108,39 @@ BETTER_SMS_FOR_EXPORT void *BetterSMS::Player::getRegisteredData(TMario *player,
 // Register arbitrary module data for a player
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerData(TMario *player, const char *key,
                                                            void *data) {
-    auto &dataDict = sPlayerDict[player];
-    if (dataDict.find(key) != dataDict.end())
-        return false;
-    dataDict[key] = data;
-    return true;
+    for (size_t i = 0; i < 8; ++i) {
+        if (sPlayerDatas[i].mPlayer == player) {
+            for (const MarioData &item : sPlayerDatas[i].mData) {
+                if (strcmp(item.mKey, key) == 0) {
+                    Console::debugLog("Player data (%s) already exists!\n", key);
+                    return false;
+                }
+            }
+            sPlayerDatas[i].mData.push_back({key, data});
+        }
+        if (sPlayerDatas[i].mPlayer == nullptr) {
+            sPlayerDatas[i].mPlayer = player;
+            sPlayerDatas[i].mData   = {};
+            sPlayerDatas[i].mData.push_back({key, data});
+            return true;
+        }
+    }
+    return false;
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Player::deregisterData(TMario *player, const char *key) {
-    auto &dataDict = sPlayerDict[player];
-    dataDict.erase(key);
+    for (size_t i = 0; i < 8; ++i) {
+        if (sPlayerDatas[i].mPlayer != player) {
+            continue;
+        }
+
+        for (auto it = sPlayerDatas[i].mData.begin(); it != sPlayerDatas[i].mData.end(); ++it) {
+            if (strcmp(it->mKey, key) == 0) {
+                sPlayerDatas[i].mData.erase(it);
+                return;
+            }
+        }
+    }
 }
 
 constexpr size_t MarioAnimeDataSize = 336;
@@ -229,24 +291,34 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addUpdateCallback(UpdateCallback p
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerStateMachine(u32 state,
                                                                    MachineCallback process) {
     if ((state & 0x1C0) != 0x1C0) {
-        Console::log("[WARNING] State machine being registered isn't ORd with 0x1C0 (Prevents "
-                     "engine collisions)!\n");
+        Console::log("[WARNING] State machine 0x%X isn't ORd with 0x1C0 (Prevents "
+                     "engine collisions)!\n",
+                     state);
     }
-    if (sPlayerStateMachines.find(state) != sPlayerStateMachines.end())
-        return false;
-    sPlayerStateMachines[state] = process;
+    for (auto &item : sPlayerStateMachines) {
+        if (item.mID == state) {
+            Console::log("[WARNING] State machine 0x%X already exists!\n", state);
+            return false;
+        }
+    }
+    sPlayerStateMachines.push_back({state, process});
     return true;
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerCollisionHandler(u16 colType,
                                                                        CollisionCallback process) {
     if ((colType & 0xC000) != 0) {
-        Console::log("[WARNING] Collision type registered has camera clip and shadow flags set "
-                     "(0x4000 || 0x8000)! This may cause unwanted behaviour!\n");
+        Console::log("[WARNING] Collision type 0x%X has camera clip and shadow flags set "
+                     "(0x4000 || 0x8000)! This may cause unwanted behaviour!\n",
+                     colType);
     }
-    if (sPlayerCollisionHandlers.find(colType) != sPlayerCollisionHandlers.end())
-        return false;
-    sPlayerCollisionHandlers[colType] = process;
+    for (auto &item : sPlayerCollisionHandlers) {
+        if (item.mID == colType) {
+            Console::log("[WARNING] Collision type 0x%X already exists!\n", colType);
+            return false;
+        }
+    }
+    sPlayerCollisionHandlers.push_back({colType, process});
     return true;
 }
 
@@ -438,7 +510,6 @@ bool Player::TPlayerData::loadPrm(const char *prm = "/better_sms.prm") {
 
     void *resource = archive->getResource(prm);
     if (resource) {
-        OSReport("Loading better_sms.prm\n");
         JSUMemoryInputStream stream(resource, archive->getResSize(resource));
         mParams->load(stream);
         return true;
@@ -576,9 +647,8 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
     // player->mFludd->mCurrentNozzle = config->mFluddPrimary.get();
     // player->mFludd->mSecondNozzle  = config->mFluddSecondary.get();
 
-    // player->mFludd->mCurrentWater =
-    // player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
-    //                                     ->mEmitParams.mAmountMax.get();
+    player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
+                                        ->mEmitParams.mAmountMax.get();
 }
 
 // Extern to Player Init CB
@@ -586,7 +656,6 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
     Stage::TStageParams *config = Stage::getStageConfiguration();
 
     Player::TPlayerData *params = new Player::TPlayerData(player, nullptr, isMario);
-    Player::deregisterData(player, "__better_sms");
     Player::registerData(player, "__better_sms", params);
 
     bool isGlasses = false;
@@ -619,7 +688,12 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         reinterpret_cast<u16 *>(player->mCap)[2] |= 0b100;
 }
 
-BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TApplication *application) { sPlayerDict.clear(); }
+BETTER_SMS_FOR_CALLBACK void resetPlayerDatas(TMarDirector *application) {
+    for (size_t i = 0; i < 8; ++i) {
+        sPlayerDatas[i].mPlayer = nullptr;
+        sPlayerDatas[i].mData.clear();
+    }
+}
 
 static TMario *playerInitHandler(TMario *player) {
     player->initValues();
@@ -682,8 +756,8 @@ static bool stateMachineHandler(TMario *player) {
 
     bool shouldProgressState = true;
     for (auto &item : sPlayerStateMachines) {
-        if (item.first == currentState) {
-            shouldProgressState = item.second(player);
+        if (item.mID == currentState) {
+            shouldProgressState = item.mCallback(player);
             break;
         }
     }
@@ -716,16 +790,15 @@ static u32 collisionHandler(TMario *player) {
     }
 
     if (colType != prevColType) {
-        OSReport("Collision type changed from %d to %d\n", prevColType, colType);
         // Here we keep the loops apart as to force exit callbacks before enter callbacks
         for (auto &item : sPlayerCollisionHandlers) {
-            if (item.first == prevColType)
-                item.second(player, const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
+            if (item.mID == prevColType)
+                item.mCallback(player, const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
                             marioFlags | Player::InteractionFlags::ON_EXIT);
         }
         for (auto &item : sPlayerCollisionHandlers) {
-            if (item.first == colType)
-                item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
+            if (item.mID == colType)
+                item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                             marioFlags | Player::InteractionFlags::ON_ENTER);
         }
         playerData->mPrevCollisionFloorType     = colType;
@@ -734,8 +807,8 @@ static u32 collisionHandler(TMario *player) {
         playerData->mCollisionTimer             = 0;
     } else if (colType >= 3000) {  // Custom collision is routinely updated
         for (auto &item : sPlayerCollisionHandlers) {
-            if (item.first == colType)
-                item.second(player, const_cast<TBGCheckData *>(player->mFloorTriangle), marioFlags);
+            if (item.mID == colType)
+                item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle), marioFlags);
         }
     }
 

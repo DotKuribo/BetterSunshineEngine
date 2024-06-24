@@ -371,10 +371,6 @@ BETTER_SMS_FOR_CALLBACK void instantWarpHandler(TMario *player, const TBGCheckDa
                                                 u32 flags) {
     auto *playerData = Player::getData(player);
 
-    if ((flags & Player::InteractionFlags::ON_ENTER)) {
-        OSReport("Player entered warp\n");
-    }
-
     if (((flags & Player::InteractionFlags::ON_ENTER) ||
          (flags & Player::InteractionFlags::ON_CONTACT)) &&
         (flags & Player::InteractionFlags::GROUNDED)) {

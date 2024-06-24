@@ -81,6 +81,10 @@ static void resetValuesOnCollisionChange(TMario *player) {
     // Callback collision
     case 16081:
     case 17081: {
+        if (!playerData->mPrevCollisionFloor) {
+            break;
+        }
+
         u8 index = playerData->mPrevCollisionFloor->mValue >> 8;
         if (index == 2) {
             player->mDirtyParams = playerData->mDefaultDirtyParams;

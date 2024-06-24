@@ -17,3 +17,9 @@ static void resetStage(TFlagManager *flagManager) {
     memset(((u8 *)&flagManager->Type1Flag) + 0x11F, 0, 1);
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x80294EF4, 0x8028CD0C, 0, 0), resetStage);
+
+static void extendResetCard(TFlagManager *flagManager) {
+    flagManager->resetStage();
+    memset(((u8 *)&flagManager->Type1Flag) + 0x1F4, 0, 0x8C);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80295470, 0, 0, 0), extendResetCard);

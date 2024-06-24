@@ -22,18 +22,19 @@ using namespace BetterSMS::Collision;
 #define MAX_PLAYER_ANIMATIONS 512
 
 namespace BetterSMS {
+
     namespace Player {
         struct TPlayerData;
 
         // Get the specialized BetterSMS info of a player
-        void *getRegisteredData(TMario *, const char *);
+        void *getRegisteredData(TMario *player, const char *key);
 
         // Get arbitrary module data for a player
-        TPlayerData *getData(TMario *);
+        TPlayerData *getData(TMario *player);
 
         // Use this to have extended params by potentially inheriting TPlayerData
-        bool registerData(TMario *, const char *, void *);
-        void deregisterData(TMario *, const char *);
+        bool registerData(TMario *player, const char *key, void *data);
+        void deregisterData(TMario *player, const char *key);
 
         bool isAnimationValid(u16 anm_idx);
         bool setAnimationData(u16 anm_idx, bool *fludd_use, bool *jiggle_phys, u8 *tex_anm_id,
@@ -66,9 +67,9 @@ namespace BetterSMS {
         // Add a function to call on player update
         bool addUpdateCallback(UpdateCallback);
         // Register a function to call for a specific player state
-        bool registerStateMachine(u32, MachineCallback);
+        bool registerStateMachine(u32 state, MachineCallback);
         // Register a function to call for a specific collision type
-        bool registerCollisionHandler(u16, CollisionCallback);
+        bool registerCollisionHandler(u16 state, CollisionCallback);
 
         // Warps the player to a collision face
         void warpToCollisionFace(TMario *player, const TBGCheckData *face, bool isFluid);
@@ -243,4 +244,5 @@ namespace BetterSMS {
 
 #pragma endregion
     }  // namespace Player
+
 }  // namespace BetterSMS

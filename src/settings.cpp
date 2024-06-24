@@ -1057,7 +1057,12 @@ inline size_t setting_hash::operator()(BetterSMS::Settings::SingleSetting *v) co
 }
 //
 
-static TGlobalUnorderedMap<Settings::SingleSetting *, bool> sNewUnlockMap(256);
+struct SettingMetaInfo {
+    const char *mID;
+    bool mIsUnlocked;
+};
+
+static TGlobalVector<SettingMetaInfo> sNewUnlockMap;
 
 BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
     sLastTime = 0;
@@ -1093,15 +1098,26 @@ BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
 BETTER_SMS_FOR_CALLBACK void
 checkForUnlockedSettings(const Settings::SettingsGroup &group,
                          TGlobalVector<Settings::SingleSetting *> &out) {
+    SettingMetaInfo *info = nullptr;
     for (auto &setting : group.getSettings()) {
-        if (sNewUnlockMap.find(setting) == sNewUnlockMap.end()) {
-            sNewUnlockMap[setting] = setting->isUnlocked() && setting->isUserEditable();
+        for (size_t i = 0; i < sNewUnlockMap.size(); ++i) {
+            if (strcmp(sNewUnlockMap[i].mID, setting->getName()) == 0) {
+                info = &sNewUnlockMap[i];
+                break;
+            }
         }
-        bool &unlocked = sNewUnlockMap[setting];
-        if (setting->isUnlocked() && setting->isUserEditable() &&
-            !unlocked) {  // This means the setting was just unlocked
+
+        bool isSettingAccessible = setting->isUnlocked() && setting->isUserEditable();
+
+        if (info == nullptr) {
+            sNewUnlockMap.push_back({setting->getName(), isSettingAccessible});
+            continue;
+        }
+
+        if (isSettingAccessible &&
+            !info->mIsUnlocked) {  // This means the setting was just unlocked
             out.insert(out.begin(), setting);
-            unlocked = true;
+            info->mIsUnlocked = true;
         }
     }
 }

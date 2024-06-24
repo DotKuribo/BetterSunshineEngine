@@ -91,15 +91,15 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8029474C, 0x8028C564, 0, 0), shineGetClamper);
 
 // 0x80294334
 static void extendFlagManagerLoad(JSUMemoryInputStream &stream) {
-    stream.read(((u8 *)TFlagManager::smInstance + 0x1F4), 0x8C);
-    stream.skip(0x120);
+    stream.read(((u8 *)TFlagManager::smInstance + 0x1F4), 0x90);
+    stream.skip(0x11C);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80294334, 0x8028C14C, 0, 0), extendFlagManagerLoad);
 
 // 0x802939B8
 static void extendFlagManagerSave(JSUMemoryOutputStream &stream) {
-    stream.write(((u8 *)TFlagManager::smInstance + 0x1F4), 0x8C);
-    stream.skip(0x120, 0);
+    stream.write(((u8 *)TFlagManager::smInstance + 0x1F4), 0x90);
+    stream.skip(0x11C, 0);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802939B8, 0x8028B7D0, 0, 0), extendFlagManagerSave);
 
