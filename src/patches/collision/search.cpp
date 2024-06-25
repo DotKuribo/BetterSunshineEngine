@@ -227,8 +227,10 @@ static size_t checkWallsExotic_(TMapCollisionData *collision, TBGWallCheckRecord
     const f32 boundsX = collision->mAreaSizeX;
     const f32 boundsZ = collision->mAreaSizeZ;
 
+    bool isCollisionRepaired = BetterSMS::isCollisionRepaired();
+
     // This fixes large objects consuming many cells when bug fixes are enabled
-    const f32 cellRadius = BetterSMS::isCollisionRepaired() ? record->mRadius : 0.0f;
+    const f32 cellRadius = isCollisionRepaired ? record->mRadius : 0.0f;
 
     const f32 minX = record->mPosition.x - cellRadius;
     const f32 maxX = record->mPosition.x + cellRadius;
@@ -250,7 +252,7 @@ static size_t checkWallsExotic_(TMapCollisionData *collision, TBGWallCheckRecord
     size_t wallsFound = 0;
 
     // Fall back to simple corner behavior when not fixing bugs
-    if (!BetterSMS::isCollisionRepaired() || !roundCorners) {
+    if (!isCollisionRepaired || !roundCorners) {
         for (int cellX = cellMinX; cellX <= cellMaxX; ++cellX) {
             for (int cellZ = cellMinZ; cellZ <= cellMaxZ; ++cellZ) {
                 wallsFound += collision->checkWallList(
@@ -323,6 +325,8 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
     *out       = &TMapCollisionData::mIllegalCheckData;
     f32 exactY = -32767.0f;
 
+    bool isCollisionRepaired = BetterSMS::isCollisionRepaired();
+
     while (true) {
         do {
             if (!list)
@@ -340,13 +344,13 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             }
         }
 
-        if (BetterSMS::isCollisionRepaired() && (flags & 0b10000)) {
+        if (isCollisionRepaired && (flags & 0b10000)) {
             if (checkData->isMarioThrough()) {
                 continue;
             }
         }
 
-        if (BetterSMS::isCollisionRepaired() && (flags & 0b1000)) {
+        if (isCollisionRepaired && (flags & 0b1000)) {
             const u16 type = checkData->mType;
             if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
                 continue;
@@ -358,7 +362,7 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             if (type == 0x401 || type == 0x801 || type == 0x10A || type == 0x8400) {
                 continue;
             }
-            if (BetterSMS::isCollisionRepaired()) {
+            if (isCollisionRepaired) {
                 if (type == 0x800)
                     continue;
             }
@@ -401,7 +405,7 @@ static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckL
             exactY = sampleExactY;
         }
 
-        if (!BetterSMS::isCollisionRepaired())
+        if (!isCollisionRepaired)
             return exactY;  // Return on first sample (default behavior)
     }
 }
@@ -413,6 +417,8 @@ static f32 patchedCheckRoofList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckLis
     TBGCheckData *checkData;
     TBGCheckList *bgCheckNode;
 
+    bool isCollisionRepaired = BetterSMS::isCollisionRepaired();
+
     while (true) {
         if (!list) {
             *out = &TMapCollisionData::mIllegalCheckData;
@@ -423,7 +429,7 @@ static f32 patchedCheckRoofList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckLis
         bgCheckNode = list->mNextTriangle;
         list        = bgCheckNode;
 
-        if (BetterSMS::isCollisionRepaired() && (flags & 8)) {
+        if (isCollisionRepaired && (flags & 8)) {
             const u16 type = checkData->mType;
             if (!(type >= 0x100 && type < 0x106) && type != 0x4104) {
                 continue;
@@ -435,13 +441,13 @@ static f32 patchedCheckRoofList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckLis
             if (type == 0x401 || type == 0x801 || type == 0x10A || type == 0x8400) {
                 continue;
             }
-            if (BetterSMS::isCollisionRepaired()) {
+            if (isCollisionRepaired) {
                 if (type == 0x800)
                     continue;
             }
         }
 
-        if (BetterSMS::isCollisionRepaired() && (flags & 1)) {  // Water Check
+        if (isCollisionRepaired && (flags & 1)) {  // Water Check
             const u16 type = checkData->mType;
             if ((type >= 0x100 && type < 0x106) || type == 0x4104) {
                 continue;

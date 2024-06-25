@@ -279,6 +279,8 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(TMario *player, f32 x, f32 y, 
     potentialY = findAnyGroundLikePlaneBelow({samplePosition.x, roofY - 1.0f, samplePosition.z},
                                              *map->mCollisionData, 8, &potential);
 
+    OSReport("RoofY: %f, PotentialY: %f\n", roofY, potentialY);
+
     if (isColTypeWater(roofPlane->mType)) {
         *water = potential;
         return potentialY;
