@@ -11,7 +11,7 @@ namespace BetterSMS {
 
     namespace Stage {
 
-        static AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX] = {};
+        static AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX]       = {};
         static ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX] = {};
 
         AreaInfo **getAreaInfos() { return sAreaInfos; }
@@ -297,4 +297,25 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80156E04, 0x802A0C00, 0, 0), loadScenarioNameFrom
 
 // Default stage override
 
-static void moveStage_override(TMarDirector *director) { director->moveStage(); }
+static void moveStage_override(TMarDirector *director) {
+    if (gpApplication.mNextScene.mAreaID <= 60 || gpApplication.mNextScene.mEpisodeID != 0xFF) {
+        director->moveStage();
+        return;
+    }
+
+    const AreaInfo *info = sAreaInfos[gpApplication.mNextScene.mAreaID];
+    if (!info) {
+        director->moveStage();
+        return;
+    }
+
+    gpApplication.mFader->setColor({0, 0, 0, 255});
+
+    if (SMS_getShineStage(gpApplication.mNextScene.mAreaID) !=
+        SMS_getShineStage(gpApplication.mCurrentScene.mAreaID)) {
+        TFlagManager::smInstance->setFlag(0x40002, 0);
+    }
+
+    *(u32 *)((u8 *)director + 0xE4) = 8;
+    director->mNextState            = 8;
+}
