@@ -279,9 +279,12 @@ SMS_NO_INLINE static f32 enhanceWaterCheckPlayer_(TMario *player, f32 x, f32 y, 
     potentialY = findAnyGroundLikePlaneBelow({samplePosition.x, roofY - 1.0f, samplePosition.z},
                                              *map->mCollisionData, 8, &potential);
 
-    OSReport("RoofY: %f, PotentialY: %f\n", roofY, potentialY);
-
     if (isColTypeWater(roofPlane->mType)) {
+        // If it is ocean water let's just assume the player is in water
+        if (roofPlane->mType == 258 || roofPlane->mType == 259) {
+            *water = roofPlane;
+            return roofY;
+        }
         *water = potential;
         return potentialY;
     }
@@ -351,6 +354,11 @@ SMS_NO_INLINE f32 enhanceWaterCheckGeneric_(f32 x, f32 y, f32 z, bool considerCa
 
     bool isRoofWater = roofPlane && isColTypeWater(roofPlane->mType);
     if (isRoofWater) {
+        // If it is ocean water let's just assume the player is in water
+        if (roofPlane->mType == 258 || roofPlane->mType == 259) {
+            *water = roofPlane;
+            return roofY;
+        }
         *water = potential;
         return potentialY;
     }
