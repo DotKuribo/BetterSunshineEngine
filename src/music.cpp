@@ -694,17 +694,17 @@ static u8 gOldEpisodeID = 0;
 
 // 0x802B7A4C
 static void initSoundBank(u8 areaID, u8 episodeID) {
-    /*TStageParams *config = TStageParams::sStageConfig;
+    Stage::TStageParams *config = Stage::TStageParams::sStageConfig;
 
     gOldAreaID = areaID;
     gOldEpisodeID = episodeID;
     if (config->mMusicSetCustom.get()) {
       areaID = config->mMusicAreaID.get();
       episodeID = config->mMusicEpisodeID.get();
-    }*/
+    }
     setMSoundEnterStage__10MSMainProcFUcUc(areaID, episodeID);
 }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
 
 constexpr f32 PauseFadeSpeed = 0.2f;
 
@@ -767,7 +767,7 @@ static void initStageMusic() {
     if (!config->mMusicEnabled.get())
         return;
 
-    if ((gStageBGM & ~0x3FF) == 0) {
+    if ((gStageBGM & ~0x800103FF) == 0) {
         startStageBGM__10MSMainProcFUcUc(gpMarDirector->mAreaID, gpMarDirector->mEpisodeID);
         return;
     }

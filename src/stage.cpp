@@ -104,9 +104,9 @@ void BetterSMS::Stage::TStageParams::reset() {
     mMusicID.set(1);
     mMusicAreaID.set(1);
     mMusicEpisodeID.set(1);
-    mMusicPitch.set(1);
-    mMusicSpeed.set(1);
-    mMusicVolume.set(1);
+    mMusicPitch.set(1.0f);
+    mMusicSpeed.set(1.0f);
+    mMusicVolume.set(0.75f);
     mIsCustomConfigLoaded = false;
 }
 
@@ -232,6 +232,8 @@ BETTER_SMS_FOR_CALLBACK void resetStageConfig(TApplication *) {
     gAudioVolume = 0.75f;
     gAudioPitch  = 1.0f;
     gAudioSpeed  = 1.0f;
+
+    Stage::getStageConfiguration()->reset();
 }
 
 void initStageCallbacks(TMarDirector *director) {
