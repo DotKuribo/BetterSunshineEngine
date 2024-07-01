@@ -26,7 +26,7 @@
 using namespace BetterSMS;
 
 void InitCard();
-s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut);
+s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut, bool canCreate);
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo);
 s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo);
@@ -949,8 +949,8 @@ public:
 
     bool isUnlocked() const override { return false; }
     void save(JSUMemoryOutputStream &out) override {
-        mFirstBootFlag = false;
-        BoolSetting::save(out);
+        bool value = false;
+        out.write(&value, 1);
     }
 
 private:

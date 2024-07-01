@@ -54,11 +54,13 @@ namespace BetterSMS {
             AIRBORN        = 1 << 6
         };
 
+        typedef u32 InteractionFlags_;
+
         typedef void (*InitCallback)(TMario *, bool);
         typedef void (*LoadAfterCallback)(TMario *);
         typedef void (*UpdateCallback)(TMario *, bool);
         typedef bool (*MachineCallback)(TMario *);
-        typedef void (*CollisionCallback)(TMario *, const TBGCheckData *, u32 /*InteractionFlags*/);
+        typedef void (*CollisionCallback)(TMario *, const TBGCheckData *, InteractionFlags_);
 
         // Add a function to call on player init
         bool addInitCallback(InitCallback);

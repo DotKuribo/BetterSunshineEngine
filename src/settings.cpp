@@ -97,7 +97,7 @@ BETTER_SMS_FOR_EXPORT s32 Settings::unmountCard() {
 
 BETTER_SMS_FOR_EXPORT s32 Settings::saveSettingsGroup(Settings::SettingsGroup &group) {
     CARDFileInfo finfo;
-    s32 ret = OpenSavedSettings(group, finfo);
+    s32 ret = OpenSavedSettings(group, finfo, true);
     if (ret < CARD_ERROR_READY) {
         CloseSavedSettings(group, &finfo);
         return ret;
@@ -118,19 +118,18 @@ BETTER_SMS_FOR_EXPORT s32 Settings::saveSettingsGroup(Settings::SettingsGroup &g
 BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &group) {
     CARDFileInfo finfo;
 
-    int ret = OpenSavedSettings(group, finfo);
-    if (ret < CARD_ERROR_READY) {
+    int ret = OpenSavedSettings(group, finfo, false);
+    if (ret >= CARD_ERROR_READY) {
+        // If this returns BROKEN, the save file is desynced by version and should be reset
+        if (ReadSavedSettings(group, &finfo) == CARD_ERROR_BROKEN) {
+            ret = UpdateSavedSettings(group, &finfo);
+        }
+
         CloseSavedSettings(group, &finfo);
-        return ret;
     }
 
-    // If this returns BROKEN, the save file is desynced by version and should be reset
-    if (ReadSavedSettings(group, &finfo) == CARD_ERROR_BROKEN) {
-        ret = UpdateSavedSettings(group, &finfo);
-        if (ret < CARD_ERROR_READY) {
-            CloseSavedSettings(group, &finfo);
-            return ret;
-        }
+    for (auto& setting : group.getSettings()) {
+        setting->emit();
     }
 
     return CloseSavedSettings(group, &finfo);
@@ -231,7 +230,7 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
 
 void InitCard() { CARDInit(); }
 
-s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
+s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut, bool canCreate) {
     auto &info = group.getSaveInfo();
 
     // Create and open save file for this group
@@ -251,7 +250,7 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut) {
         ret = CARDCheck(sChannel);
     }
 
-    if (ret == CARD_ERROR_NOFILE) {
+    if (ret == CARD_ERROR_NOFILE && canCreate) {
         s32 cret =
             CARDCreate(sChannel, normalizedPath, CARD_BLOCKS_TO_BYTES(info.mBlocks), &infoOut);
         // OSReport("Result (CREATE): %d\n", cret);
@@ -521,6 +520,7 @@ void SettingsDirector::setup(JDrama::TDisplay *display, TMarioGamePad *controlle
     mDisplay                       = display;
     mController                    = controller;
     mController->mState.mReadInput = false;
+    mController->mState._02 = true;
     SMSRumbleMgr->reset();
     OSCreateThread(&gSetupThread, setupThreadFunc, this, gpSetupThreadStack + 0x10000, 0x10000, 17,
                    0);

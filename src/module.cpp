@@ -182,9 +182,6 @@ extern void updateFPS(TMarDirector *);
 // LOADING SCREEN
 extern void initLoadingScreen();
 
-// SETTINGS
-extern void initAllSettings(TApplication *);
-
 extern void initUnlockedSettings(TApplication *);
 extern void checkForCompletionAwards(TApplication *);
 extern void updateUnlockedSettings(TApplication *);
@@ -356,7 +353,6 @@ static void initLib() {
     Stage::addUpdateCallback(updateFPS);
 
     // SETTINGS
-    Game::addInitCallback(initAllSettings);
     Game::addBootCallback(initUnlockedSettings);
     Game::addLoopCallback(updateUnlockedSettings);
     Game::addPostDrawCallback(drawUnlockedSettings);
@@ -570,6 +566,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(
             BetterSMS::Stage::addDraw2DCallback,
             "addDraw2DCallback__Q29BetterSMS5StageFPFP12TMarDirectorPC13J2DOrthoGraph_v");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Stage::addExitCallback,
+            "addExitCallback__Q29BetterSMS5StageFPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageName, "getStageName__Q29BetterSMS5StageFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::isExStage, "isExStage__Q29BetterSMS5StageFUcUc");
 

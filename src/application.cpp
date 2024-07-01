@@ -161,7 +161,15 @@ extern void gameInitCallbackHandler(TApplication *app);
 extern void gameBootCallbackHandler(TApplication *app);
 extern void gameChangeCallbackHandler(TApplication *app);
 
+// SETTINGS
+extern void initAllSettings(TApplication *);
+
 void BetterApplicationProcess(TApplication *app) {
+    OSReport("Show settings on boot: %d\n", sShowSettingsOnBoot);
+    OSReport("Is first boot: %d\n", Application::isFirstBoot());
+
+    initAllSettings(app);
+
     bool exitLoop   = false;
     u8 delayContext = 1;
     do {
@@ -185,19 +193,17 @@ void BetterApplicationProcess(TApplication *app) {
 
                 bool introSceneMatchesExpected = app->mNextScene.mAreaID == sIntroArea &&
                                                  app->mNextScene.mEpisodeID == sIntroEpisode;
-#if 1
+
                 if (BetterSMS::isDebugMode()) {
                     delayContext = TApplication::CONTEXT_DIRECT_LEVEL_SELECT;
+                } else if (sShowSettingsOnBoot && Application::isFirstBoot()) {
+                    delayContext = CONTEXT_DIRECT_SETTINGS_MENU;
                 }
 
                 // If external tools like Junior's Toolbox hijack the scene, we should permiss
                 // it.
                 if (!introSceneMatchesExpected) {
                     delayContext = TApplication::CONTEXT_DIRECT_STAGE;
-                }
-#endif
-                if (sShowSettingsOnBoot && Application::isFirstBoot()) {
-                    delayContext = CONTEXT_DIRECT_SETTINGS_MENU;
                 }
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
@@ -226,13 +232,10 @@ void BetterApplicationProcess(TApplication *app) {
                     app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO) {
                     app->mContext = TApplication::CONTEXT_GAME_SHUTDOWN;
                 } else if (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN) {
-#if 1
                     delayContext = BetterSMS::isDebugMode()
                                        ? TApplication::CONTEXT_DIRECT_LEVEL_SELECT
                                        : TApplication::CONTEXT_GAME_INTRO;
-#else
-                    delayContext = TApplication::CONTEXT_GAME_INTRO;
-#endif
+
                     gpCardManager->unmount();
                 }
             }
