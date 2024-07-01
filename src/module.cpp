@@ -49,6 +49,8 @@ Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX
 Settings::SwitchSetting gCameraInvertYSetting("Invert Camera Y", &sCameraInvertY);
 SavePromptsSetting gSavePromptSetting("Save Prompts");
 
+FirstBootSetting gFirstBootSetting;
+
 static BetterSMS::ModuleInfo sBetterSMSInfo{"Better Sunshine Engine", 1, 2, &sSettingsGroup};
 //
 
@@ -231,6 +233,7 @@ static void initLib() {
         sSettingsGroup.addSetting(&gCameraInvertXSetting);
         sSettingsGroup.addSetting(&gCameraInvertYSetting);
         sSettingsGroup.addSetting(&gSavePromptSetting);
+        sSettingsGroup.addSetting(&gFirstBootSetting);
 
         auto &saveInfo        = sSettingsGroup.getSaveInfo();
         saveInfo.mSaveName    = Settings::getGroupName(sSettingsGroup);
@@ -264,7 +267,7 @@ static void initLib() {
                                          BetterAppContextDirectShineSelect);
     Application::registerContextCallback(TApplication::CONTEXT_DIRECT_LEVEL_SELECT,
                                          BetterAppContextDirectLevelSelect);
-    Application::registerContextCallback(10, BetterAppContextDirectSettingsMenu);
+    Application::registerContextCallback(CONTEXT_DIRECT_SETTINGS_MENU, BetterAppContextDirectSettingsMenu);
 
     //// AUTO SAVE
     Game::addBootCallback(initAutoSaveIcon);
@@ -427,6 +430,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
             "registerContextCallback__Q29BetterSMS11ApplicationFUcPFP12TApplication_b");
         KURIBO_EXPORT_AS(BetterSMS::Application::setIntroStage,
                          "setIntroStage__Q29BetterSMS11ApplicationFUcUc");
+        KURIBO_EXPORT_AS(BetterSMS::Application::isFirstBoot,
+                         "isFirstBoot__Q29BetterSMS11ApplicationFv");
+        KURIBO_EXPORT_AS(BetterSMS::Application::showSettingsOnFirstBoot,
+                         "showSettingsOnFirstBoot__Q29BetterSMS11ApplicationFb");
 
         /* BMG */
         KURIBO_EXPORT_AS(

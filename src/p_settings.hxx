@@ -942,3 +942,17 @@ public:
 private:
     int mPromptsValue;
 };
+
+class FirstBootSetting final : public Settings::BoolSetting {
+public:
+    FirstBootSetting() : BoolSetting("First Boot", &mFirstBootFlag), mFirstBootFlag(true) {}
+
+    bool isUnlocked() const override { return false; }
+    void save(JSUMemoryOutputStream &out) override {
+        mFirstBootFlag = false;
+        BoolSetting::save(out);
+    }
+
+private:
+    bool mFirstBootFlag;
+};

@@ -24,8 +24,11 @@
 using namespace BetterSMS;
 
 static TGlobalVector<Application::ContextCallback> sContextCBs(256);
-static bool sIsAdditionalMovie = false;
+static bool sIsAdditionalMovie  = false;
+static bool sShowSettingsOnBoot = false;
 static u8 sIntroArea = 15, sIntroEpisode = 0;
+
+extern FirstBootSetting gFirstBootSetting;
 
 #define SMS_CHECK_RESET_FLAG(gamepad) (((1 << (gamepad)->mPort) & TMarioGamePad::mResetFlag) == 1)
 
@@ -40,6 +43,12 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Application::registerContextCallback(u8 co
 BETTER_SMS_FOR_EXPORT void BetterSMS::Application::setIntroStage(u8 area, u8 episode) {
     sIntroArea    = area;
     sIntroEpisode = episode;
+}
+
+bool BetterSMS::Application::isFirstBoot() { return gFirstBootSetting.getBool(); }
+
+BETTER_SMS_FOR_EXPORT void BetterSMS::Application::showSettingsOnFirstBoot(bool show_on_boot) {
+    sShowSettingsOnBoot = show_on_boot;
 }
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextGameBoot(TApplication *app) {
@@ -187,6 +196,9 @@ void BetterApplicationProcess(TApplication *app) {
                     delayContext = TApplication::CONTEXT_DIRECT_STAGE;
                 }
 #endif
+                if (sShowSettingsOnBoot && Application::isFirstBoot()) {
+                    delayContext = CONTEXT_DIRECT_SETTINGS_MENU;
+                }
             }
         } else if (app->mContext == TApplication::CONTEXT_GAME_BOOT) {
             app->mNextScene.set(sIntroArea, sIntroEpisode, 0);
