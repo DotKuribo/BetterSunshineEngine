@@ -557,9 +557,6 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
     DVDGetStreamErrorStatusAsync(&streamer->mPlayAddrBlock,
                                  AudioStreamer::cbForGetStreamErrorStatusAsync_);
 
-    OSReport("[AUDIO_STREAM] Stream position: %d\n", streamer->getStreamPos());
-    OSReport("[AUDIO_STREAM] Stream end: %d\n", streamer->getStreamEnd());
-
     // Check if we've reached the end of the stream
     if (streamer->getStreamPos() < streamer->getStreamEnd()) {
         return;
@@ -568,8 +565,6 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
     // Here we either loop or play the next track
     if (streamer->isLooping()) {
         // Seek to loop start
-        OSReport("[AUDIO_STREAM] Loop start: %d, Loop end: %d\n", streamer->getLoopStart(),
-                 streamer->getLoopEnd());
         streamer->_mWhere  = streamer->getLoopStart();
         streamer->_mWhence = BEGIN;
         streamer->seek_();
