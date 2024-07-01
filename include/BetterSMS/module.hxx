@@ -12,7 +12,7 @@
 #include "settings.hxx"
 #include "libs/optional.hxx"
 
-#define BETTER_SMS_MODULE_NAME "BetterSunshineEngine"
+#define BETTER_SMS_MODULE_NAME "Better Sunshine Engine"
 #define BETTER_SMS_AUTHOR_NAME "JoshuaMK"
 
 #ifndef BETTER_SMS_VERSION
@@ -38,10 +38,10 @@
 
 #if SMS_DEBUG
 #define BETTER_SMS_VERSION_TAG                                                                     \
-    "(DEBUG) " BETTER_SMS_VERSION "[" SMS_STRINGIZE(BETTER_SMS_MAX_SHINES) " Shines]"
+     BETTER_SMS_VERSION " (DEBUG)"
 #else
 #define BETTER_SMS_VERSION_TAG                                                                     \
-    "(RELEASE) " BETTER_SMS_VERSION "[" SMS_STRINGIZE(BETTER_SMS_MAX_SHINES) " Shines]"
+    BETTER_SMS_VERSION " (RELEASE)"
 #endif
 
 /* CONFIGURATION DEFINES */

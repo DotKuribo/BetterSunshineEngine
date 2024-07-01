@@ -40,7 +40,7 @@ namespace BetterSMS {
         constexpr size_t AudioQueueSize          = 4;
         constexpr size_t AudioStackSize          = 0x4000;
         constexpr u8 AudioVolumeDefault          = 127;
-        constexpr size_t AudioStreamRate         = 48000;  // 32kHz, granular for stupid reasons
+        constexpr size_t AudioStreamRate         = 32000;  // 32kHz, granular for stupid reasons
         constexpr size_t AudioPreparePreOffset   = 0x8000;
         constexpr OSTime AudioFadeInterval       = 16;  // 16ms
 

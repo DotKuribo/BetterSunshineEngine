@@ -85,8 +85,8 @@ bool AudioStreamer::isLooping() const { return _mIsLooping; }
 AudioStreamer AudioStreamer::sInstance = AudioStreamer(AudioThreadPriority, &sAudioFInfo);
 
 AudioStreamer::AudioStreamer(OSPriority priority, DVDFileInfo *fInfo)
-    : mAudioHandle(fInfo), mStreamPos(0), mStreamEnd(0), _mAudioIndex(0),
-      _mDelayedTime(0.0f), _mFadeTime(0.0f), _mWhere(0), _mWhence(JSUStreamSeekFrom::BEGIN),
+    : mAudioHandle(fInfo), mStreamPos(0), mStreamEnd(0), _mAudioIndex(0), _mDelayedTime(0.0f),
+      _mFadeTime(0.0f), _mWhere(0), _mWhence(JSUStreamSeekFrom::BEGIN),
       _mVolLeft(AudioVolumeDefault), _mVolRight(AudioVolumeDefault),
       _mFullVolLeft(AudioVolumeDefault), _mFullVolRight(AudioVolumeDefault),
       _mTargetVolume(AudioVolumeDefault), _mPreservedVolLeft(AudioVolumeDefault),
@@ -500,6 +500,8 @@ SMS_NO_INLINE bool AudioStreamer::seekLowStream(s32 streamPos) {
 
     mStreamPos = streamPos;
 
+    OSReport("[AUDIO_STREAM] Seeking to %d\n", streamPos);
+
     return DVDCancelStreamAsync(&mSeekBlock, AudioStreamer::cbForCancelStreamOnSeekAsync_);
 }
 
@@ -555,6 +557,9 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
     DVDGetStreamErrorStatusAsync(&streamer->mPlayAddrBlock,
                                  AudioStreamer::cbForGetStreamErrorStatusAsync_);
 
+    OSReport("[AUDIO_STREAM] Stream position: %d\n", streamer->getStreamPos());
+    OSReport("[AUDIO_STREAM] Stream end: %d\n", streamer->getStreamEnd());
+
     // Check if we've reached the end of the stream
     if (streamer->getStreamPos() < streamer->getStreamEnd()) {
         return;
@@ -563,6 +568,8 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
     // Here we either loop or play the next track
     if (streamer->isLooping()) {
         // Seek to loop start
+        OSReport("[AUDIO_STREAM] Loop start: %d, Loop end: %d\n", streamer->getLoopStart(),
+                 streamer->getLoopEnd());
         streamer->_mWhere  = streamer->getLoopStart();
         streamer->_mWhence = BEGIN;
         streamer->seek_();
@@ -696,11 +703,11 @@ static u8 gOldEpisodeID = 0;
 static void initSoundBank(u8 areaID, u8 episodeID) {
     Stage::TStageParams *config = Stage::TStageParams::sStageConfig;
 
-    gOldAreaID = areaID;
+    gOldAreaID    = areaID;
     gOldEpisodeID = episodeID;
     if (config->mMusicSetCustom.get()) {
-      areaID = config->mMusicAreaID.get();
-      episodeID = config->mMusicEpisodeID.get();
+        areaID    = config->mMusicAreaID.get();
+        episodeID = config->mMusicEpisodeID.get();
     }
     setMSoundEnterStage__10MSMainProcFUcUc(areaID, episodeID);
 }
