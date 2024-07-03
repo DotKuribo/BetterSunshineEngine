@@ -137,6 +137,7 @@ extern void updateDeadTriggerState(TMario *player, bool isMario);
 extern void updateCollisionContext(TMario *, bool);
 extern void updateClimbContext(TMario *, bool);
 extern void checkForForceDropOnDeadActor(TMario *, bool);
+extern void onPlayerSurfingUpdate(TMario *, bool);
 
 // PLAYER ANIM
 extern void initExtendedPlayerAnims();
@@ -305,6 +306,7 @@ static void initLib() {
     Player::addUpdateCallback(updateCollisionContext);
     Player::addUpdateCallback(updateClimbContext);
     Player::addUpdateCallback(checkForForceDropOnDeadActor);
+    Player::addUpdateCallback(onPlayerSurfingUpdate);
 
     //// YOSHI
     Player::addUpdateCallback(checkForYoshiDeath);
