@@ -5,6 +5,8 @@
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/raw_fn.hxx>
 
+#define MESSAGE_NO_DATA "NO DATA"
+
 static void moveStage_override(TMarDirector *director);
 
 namespace BetterSMS {
@@ -242,7 +244,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80173db0, 0, 0, 0), getScenarioNameForSelectScree
 const char *loadStageNameFromBMG(void *global_bmg) {
     const char *message;
 
-    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+    const char *errMessage = BetterSMS::isDebugMode() ? MESSAGE_NO_DATA : nullptr;
 
     s32 area_id = SMS_getShineStage(gpMarDirector->mAreaID);
     message     = (const char *)SMSGetMessageData__FPvUl(global_bmg, area_id);
@@ -254,7 +256,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80156D2C, 0x802A0C00, 0, 0), loadStageNameFromBMG
 const char *loadScenarioNameFromBMG(void *global_bmg) {
     const char *message;
 
-    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+    const char *errMessage = BetterSMS::isDebugMode() ? MESSAGE_NO_DATA : nullptr;
 
     if (sAreaInfos[gpMarDirector->mAreaID] == nullptr) {
         return errMessage;
@@ -276,7 +278,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801727A0, 0x802A0C00, 0, 0), loadScenarioNameFrom
 const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
     const char *message;
 
-    const char *errMessage = BetterSMS::isDebugMode() ? "NO DATA" : "";
+    const char *errMessage = BetterSMS::isDebugMode() ? MESSAGE_NO_DATA : nullptr;
 
     if (sAreaInfos[gpMarDirector->mAreaID] == nullptr) {
         return errMessage;

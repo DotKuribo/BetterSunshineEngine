@@ -233,7 +233,9 @@ BETTER_SMS_FOR_CALLBACK void resetStageConfig(TApplication *) {
     gAudioPitch  = 1.0f;
     gAudioSpeed  = 1.0f;
 
-    Stage::getStageConfiguration()->reset();
+    if (Stage::TStageParams *config = Stage::getStageConfiguration()) {
+        config->reset();
+    }
 }
 
 void initStageCallbacks(TMarDirector *director) {
