@@ -1,9 +1,10 @@
-#include "area.hxx"
-#include "module.hxx"
 #include <JGadget/UnorderedMap.hxx>
 #include <SMS/GC2D/SelectMenu.hxx>
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/raw_fn.hxx>
+
+#include "module.hxx"
+#include "p_area.hxx"
 
 #define MESSAGE_NO_DATA "NO DATA"
 
@@ -13,18 +14,21 @@ namespace BetterSMS {
 
     namespace Stage {
 
-        static AreaInfo *sAreaInfos[BETTER_SMS_AREA_MAX]       = {};
-        static ExAreaInfo *sExAreaInfos[BETTER_SMS_EXAREA_MAX] = {};
-
-        AreaInfo **getAreaInfos() { return sAreaInfos; }
-        ExAreaInfo **getExAreaInfos() { return sExAreaInfos; }
+        static ShineAreaInfo *sShineAreaInfos[BETTER_SMS_AREA_MAX]  = {};
+        static NormalAreaInfo sNormalAreaInfos[BETTER_SMS_AREA_MAX] = {};
+        static ExAreaInfo sExAreaInfos[BETTER_SMS_EXAREA_MAX]       = {};
 
         static NextStageCallback sNextStageHandler = moveStage_override;
+
+        ShineAreaInfo **getShineAreaInfos() { return sShineAreaInfos; }
+        NormalAreaInfo *getNormalAreaInfos() { return sNormalAreaInfos; }
+        ExAreaInfo *getExAreaInfos() { return sExAreaInfos; }
 
     }  // namespace Stage
 
 }  // namespace BetterSMS
 
+using namespace BetterSMS;
 using namespace BetterSMS::Stage;
 
 static size_t getScenariosForScene(int sceneID) {
@@ -50,59 +54,62 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
     const u8 *baseGameExShineTable2 =
         reinterpret_cast<const u8 *>(SMS_PORT_REGION(0x803DF4D8, 0, 0, 0));
     {
-        auto *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
+        JKRHeap *oldHeap = JKRHeap::sRootHeap->becomeCurrentHeap();
 
         const u32 scenePaneIDs[] = {0,      0, 'bi_0', 'rc_0', 'mm_0', 'pi_0',
                                     'sr_0', 0, 'mo_0', 'mr_0', 0};
 
         for (int i = 0; i < 64; ++i) {
-            auto info                = new BetterSMS::Stage::AreaInfo;
-            info->mShineSelectPaneID = scenePaneIDs[i];
-            info->mNormalStageID     = i;
-            info->mShineStageID      = baseGameStageTable[i];
-            if (i < 10 && baseGameShineTable[info->mShineStageID]) {
+            ShineAreaInfo *info = new ShineAreaInfo(baseGameStageTable[i], scenePaneIDs[i]);
+            if (i < 10 && baseGameShineTable[info->getShineStageID()]) {
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
-                    auto scenarioID = baseGameShineTable[info->mShineStageID][j];
-                    info->mScenarioIDs.push_back(scenarioID);
-                    info->mScenarioNameIDs.push_back(baseGameScenarioNameTable[scenarioID]);
+                    u8 scenarioID = baseGameShineTable[info->getShineStageID()][j];
+                    info->addScenario(scenarioID, baseGameScenarioNameTable[scenarioID]);
                 }
             }
-            if (i < 10 && baseGameExShineTable[info->mShineStageID]) {
+            if (i < 10 && baseGameExShineTable[info->getShineStageID()]) {
                 for (int j = 0; j < getExScenariosForScene(i); ++j) {
-                    auto scenarioID = baseGameExShineTable[info->mShineStageID][j];
-                    info->mExScenarioIDs.push_back(scenarioID);
-                    info->mExScenarioNameIDs.push_back(baseGameScenarioNameTable[scenarioID]);
+                    u8 scenarioID = baseGameExShineTable[info->getShineStageID()][j];
+                    info->addExScenario(scenarioID, baseGameScenarioNameTable[scenarioID]);
                 }
             }
-            BetterSMS::Stage::registerStageInfo(i, info);
+            registerShineStage(info);
+            registerNormalStage(i, info->getShineStageID());
         }
 
         for (int i = 0; i < 32; ++i) {
-            auto exInfo            = new BetterSMS::Stage::ExAreaInfo;
-            exInfo->mNormalStageID = i + 0x14;
-            exInfo->mShineStageID  = baseGameStageTable[i + 0x14];
-            exInfo->mShineID = baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1;
-            BetterSMS::Stage::registerExStageInfo(exInfo->mNormalStageID, exInfo);
+            registerExStage(i + 0x14, baseGameStageTable[i + 0x14],
+                            baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1);
         }
+
+        // TODO: Initialize shine stage IDs to -1
 
         oldHeap->becomeCurrentHeap();
     }
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerStageInfo(u8 stageID, AreaInfo *info) {
-    if (sAreaInfos[stageID]) {
-        OSReport("[WARN] Overwriting stage info for stage %d\n", stageID);
+bool BetterSMS::Stage::registerShineStage(ShineAreaInfo *info) {
+    if (sShineAreaInfos[info->getShineStageID()]) {
+        OSReport("[WARN] Overwriting stage info for stage %d\n", info->getShineStageID());
     }
-    sAreaInfos[stageID] = info;
+    sShineAreaInfos[info->getShineStageID()] = info;
     return true;
 }
 
-BETTER_SMS_FOR_EXPORT bool BetterSMS::Stage::registerExStageInfo(u8 stageID, ExAreaInfo *info) {
-    if (sExAreaInfos[stageID]) {
-        OSReport("[WARN] Overwriting ex stage info for stage %d\n", stageID);
+bool BetterSMS::Stage::registerNormalStage(u8 normalStageID, u8 shineStageID) {
+    if (sNormalAreaInfos[normalStageID].mShineStageID != -1) {
+        OSReport("[WARN] Overwriting stage info for stage %d\n", normalStageID);
     }
-    sExAreaInfos[stageID] = info;
+    sNormalAreaInfos[normalStageID] = {shineStageID};
     return true;
+}
+
+bool BetterSMS::Stage::registerExStage(u8 exStageID, u8 shineStageID, s32 shineID) {
+    if (sExAreaInfos[exStageID].mShineStageID != -1) {
+        OSReport("[WARN] Overwriting ex stage info for stage %d\n", exStageID);
+    }
+    sExAreaInfos[exStageID] = {shineStageID, shineID};
+    return registerNormalStage(exStageID, shineStageID);
 }
 
 void BetterSMS::Stage::setNextStageHandler(NextStageCallback callback) {
@@ -116,20 +123,22 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8029933C, 0, 0, 0), moveStageHandler);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8029946C, 0, 0, 0), moveStageHandler);
 
 static s32 SMS_getShineID(u32 stageID, u32 scenarioID, bool isExStage) {
-    if (!sAreaInfos[stageID]) {
+    if (!sShineAreaInfos[stageID]) {
         return -1;
     }
-    const BetterSMS::Stage::AreaInfo &info = *sAreaInfos[stageID];
+    const ShineAreaInfo &info = *sShineAreaInfos[stageID];
     if (isExStage) {
-        if (scenarioID >= info.mExScenarioIDs.size()) {
+        const TGlobalVector<s32> &exScenarioIDs = info.getExScenarioIDs();
+        if (scenarioID >= exScenarioIDs.size()) {
             return -1;
         }
-        return info.mExScenarioIDs[scenarioID];
+        return exScenarioIDs[scenarioID];
     } else {
-        if (scenarioID >= info.mScenarioIDs.size()) {
+        const TGlobalVector<s32> &scenarioIDs = info.getScenarioIDs();
+        if (scenarioID >= scenarioIDs.size()) {
             return -1;
         }
-        return info.mScenarioIDs[scenarioID];
+        return scenarioIDs[scenarioID];
     }
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x8016FAC0, 0, 0, 0), SMS_getShineID);
@@ -137,17 +146,13 @@ SMS_PATCH_B(SMS_PORT_REGION(0x80175AF8, 0, 0, 0), SMS_getShineID);
 SMS_PATCH_B(SMS_PORT_REGION(0x8017CC6C, 0, 0, 0), SMS_getShineID);
 
 static s32 SMS_getShineIDofExStage(u32 exStageID) {
-    if (!sExAreaInfos[exStageID])
+    if (sExAreaInfos[exStageID].mShineStageID != -1)
         return -1;
-    return sExAreaInfos[exStageID]->mShineID;
+    return sExAreaInfos[exStageID].mShineID;
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x802a8a98, 0, 0, 0), SMS_getShineIDofExStage);
 
-static s32 SMS_getShineStage(u32 stageID) {
-    if (!sAreaInfos[stageID])
-        return -1;
-    return sAreaInfos[stageID]->mShineStageID;
-}
+static s32 SMS_getShineStage(u32 stageID) { return sNormalAreaInfos[stageID].mShineStageID; }
 SMS_PATCH_B(SMS_PORT_REGION(0x802A8AC8, 0, 0, 0), SMS_getShineStage);
 
 static TExPane *constructExPaneForSelectScreen(TExPane *pane, J2DScreen *screen) {
@@ -155,11 +160,11 @@ static TExPane *constructExPaneForSelectScreen(TExPane *pane, J2DScreen *screen)
     SMS_FROM_GPR(31, menu);
 
     // This check is only necessary once
-    SMS_ASSERT(sAreaInfos[menu->mAreaID]->mShineSelectPaneID != 0,
+    SMS_ASSERT(sShineAreaInfos[SMS_getShineStage(menu->mAreaID)]->getShineSelectPaneID() != 0,
                "Tried to open shine select screen for an area that has no pane ID!");
 
-    return (TExPane *)__ct__7TExPaneFP9J2DScreenUl(pane, screen,
-                                                   sAreaInfos[menu->mAreaID]->mShineSelectPaneID);
+    return (TExPane *)__ct__7TExPaneFP9J2DScreenUl(
+        pane, screen, sShineAreaInfos[SMS_getShineStage(menu->mAreaID)]->getShineSelectPaneID());
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174D40, 0, 0, 0), constructExPaneForSelectScreen);
 
@@ -167,7 +172,9 @@ static TBoundPane *constructBoundPaneForSelectScreenA(TBoundPane *pane, J2DScree
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    u32 paneID = (sAreaInfos[menu->mAreaID]->mShineSelectPaneID & 0xFFFFFF00) | 'a';
+    u32 paneID =
+        (sShineAreaInfos[SMS_getShineStage(menu->mAreaID)]->getShineSelectPaneID() & 0xFFFFFF00) |
+        'a';
 
     return (TBoundPane *)__ct__10TBoundPaneFP9J2DScreenUl(pane, screen, paneID);
 }
@@ -177,7 +184,9 @@ static TBoundPane *constructBoundPaneForSelectScreenB(TBoundPane *pane, J2DScree
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    u32 paneID = (sAreaInfos[menu->mAreaID]->mShineSelectPaneID & 0xFFFFFF00) | 'b';
+    u32 paneID =
+        (sShineAreaInfos[SMS_getShineStage(menu->mAreaID)]->getShineSelectPaneID() & 0xFFFFFF00) |
+        'b';
 
     return (TBoundPane *)__ct__10TBoundPaneFP9J2DScreenUl(pane, screen, paneID);
 }
@@ -220,7 +229,13 @@ static void clampSelectScreenEpisodesVisible() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    menu->mEpisodeCount = Min(menu->mEpisodeCount, sAreaInfos[menu->mAreaID]->mScenarioIDs.size());
+    ShineAreaInfo *info = sShineAreaInfos[SMS_getShineStage(menu->mAreaID)];
+    if (!info) {
+        return;
+    }
+
+    const TGlobalVector<s32> &scenarioIDs = info->getScenarioIDs();
+    menu->mEpisodeCount = Min(menu->mEpisodeCount, scenarioIDs.size());
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174E8C, 0, 0, 0), clampSelectScreenEpisodesVisible);
 SMS_WRITE_32(SMS_PORT_REGION(0x80174E90, 0, 0, 0), 0x60000000);
@@ -232,8 +247,18 @@ static const char *getScenarioNameForSelectScreen() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    return (const char *)SMSGetMessageData__FPvUl(
-        menu->mScenarioBMGData, sAreaInfos[menu->mAreaID]->mScenarioNameIDs[menu->mEpisodeID]);
+    ShineAreaInfo *info = sShineAreaInfos[SMS_getShineStage(menu->mAreaID)];
+    if (!info) {
+        return MESSAGE_NO_DATA;
+    }
+
+    const TGlobalVector<s32> &scenarioNameIDs = info->getScenarioNameIDs();
+    if (menu->mEpisodeID >= scenarioNameIDs.size()) {
+        return MESSAGE_NO_DATA;
+    }
+
+    return (const char *)SMSGetMessageData__FPvUl(menu->mScenarioBMGData,
+                                                  scenarioNameIDs[menu->mEpisodeID]);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017539C, 0, 0, 0), getScenarioNameForSelectScreen);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017398c, 0, 0, 0), getScenarioNameForSelectScreen);
@@ -258,16 +283,19 @@ const char *loadScenarioNameFromBMG(void *global_bmg) {
 
     const char *errMessage = BetterSMS::isDebugMode() ? MESSAGE_NO_DATA : nullptr;
 
-    if (sAreaInfos[gpMarDirector->mAreaID] == nullptr) {
+    ShineAreaInfo *info = sShineAreaInfos[SMS_getShineStage(gpMarDirector->mAreaID)];
+    if (!info) {
         return errMessage;
     }
+
+    const TGlobalVector<s32> &scenarioNameIDs = info->getScenarioNameIDs();
 
     s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
-    if (episode_id >= sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs.size()) {
+    if (episode_id >= scenarioNameIDs.size()) {
         return errMessage;
     }
 
-    s32 message_idx = sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs[episode_id];
+    s32 message_idx = scenarioNameIDs[episode_id];
 
     message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
     return message ? message : errMessage;
@@ -280,16 +308,19 @@ const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
 
     const char *errMessage = BetterSMS::isDebugMode() ? MESSAGE_NO_DATA : nullptr;
 
-    if (sAreaInfos[gpMarDirector->mAreaID] == nullptr) {
+    ShineAreaInfo *info = sShineAreaInfos[SMS_getShineStage(gpMarDirector->mAreaID)];
+    if (!info) {
         return errMessage;
     }
+
+    const TGlobalVector<s32> &scenarioNameIDs = info->getScenarioNameIDs();
 
     s32 episode_id = TFlagManager::smInstance->getFlag(0x40003);
-    if (episode_id >= sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs.size()) {
+    if (episode_id >= scenarioNameIDs.size()) {
         return errMessage;
     }
 
-    s32 message_idx = sAreaInfos[gpMarDirector->mAreaID]->mScenarioNameIDs[episode_id];
+    s32 message_idx = scenarioNameIDs[episode_id];
 
     message = (const char *)SMSGetMessageData__FPvUl(global_bmg, message_idx);
     return message ? message : errMessage;
@@ -305,8 +336,7 @@ static void moveStage_override(TMarDirector *director) {
         return;
     }
 
-    const AreaInfo *info = sAreaInfos[gpApplication.mNextScene.mAreaID];
-    if (!info) {
+    if (sNormalAreaInfos[gpApplication.mNextScene.mAreaID].mShineStageID == -1) {
         director->moveStage();
         return;
     }

@@ -13,26 +13,52 @@
 
 namespace BetterSMS {
     namespace Stage {
-         using NextStageCallback = void (*)(TMarDirector *);
+        using NextStageCallback = void (*)(TMarDirector *);
 
-        struct AreaInfo {
+        class ShineAreaInfo {
+        public:
+            ShineAreaInfo() = delete;
+            ShineAreaInfo(u8 shineStageID) : mShineStageID(shineStageID) {}
+            ShineAreaInfo(u8 shineStageID, u32 shineSelectPaneID)
+                : mShineStageID(shineStageID), mShineSelectPaneID(shineSelectPaneID) {}
+
+            [[nodiscard]] u8 getShineStageID() const { return mShineStageID; }
+            [[nodiscard]] u32 getShineSelectPaneID() const { return mShineSelectPaneID; }
+
+            [[nodiscard]] const TGlobalVector<s32> &getScenarioIDs() const { return mScenarioIDs; }
+            [[nodiscard]] const TGlobalVector<s32> &getExScenarioIDs() const {
+                return mExScenarioIDs;
+            }
+            [[nodiscard]] const TGlobalVector<s32> &getScenarioNameIDs() const {
+                return mScenarioNameIDs;
+            }
+            [[nodiscard]] const TGlobalVector<s32> &getExScenarioNameIDs() const {
+                return mExScenarioNameIDs;
+            }
+
+            void addScenario(s32 scenarioID, s32 scenarioNameID) {
+                mScenarioIDs.push_back(scenarioID);
+                mScenarioNameIDs.push_back(scenarioNameID);
+            }
+
+            void addExScenario(s32 exScenarioID, s32 exScenarioNameID) {
+                mExScenarioIDs.push_back(exScenarioID);
+                mExScenarioNameIDs.push_back(exScenarioNameID);
+            }
+
+        private:
             u8 mShineStageID;
-            u8 mNormalStageID;
-            TGlobalVector<s32> mScenarioIDs;
-            TGlobalVector<s32> mExScenarioIDs;
-            TGlobalVector<s32> mScenarioNameIDs;
-            TGlobalVector<s32> mExScenarioNameIDs;
-            u32 mShineSelectPaneID;
+            TGlobalVector<s32> mScenarioIDs       = {};
+            TGlobalVector<s32> mExScenarioIDs     = {};
+            TGlobalVector<s32> mScenarioNameIDs   = {};
+            TGlobalVector<s32> mExScenarioNameIDs = {};
+            u32 mShineSelectPaneID                = '\0';
         };
 
-        struct ExAreaInfo {
-            u8 mShineStageID;
-            u8 mNormalStageID;
-            s32 mShineID;
-        };
+        bool registerShineStage(ShineAreaInfo *info);
+        bool registerNormalStage(u8 normalStageID, u8 shineStageID);
+        bool registerExStage(u8 exStageID, u8 shineStageID, s32 shineID);
 
-        bool registerStageInfo(u8 stageID, AreaInfo *info);
-        bool registerExStageInfo(u8 stageID, ExAreaInfo *info);
         void setNextStageHandler(NextStageCallback callback);
 
     }  // namespace Stage

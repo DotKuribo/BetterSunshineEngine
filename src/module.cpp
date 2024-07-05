@@ -552,10 +552,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "addChangeCallback__Q29BetterSMS4GameFPFP12TApplication_v");
 
         /* STAGE */
-        KURIBO_EXPORT_AS(BetterSMS::Stage::registerStageInfo,
+        KURIBO_EXPORT_AS(BetterSMS::Stage::registerNormalStage,
                          "registerStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage8AreaInfo");
         KURIBO_EXPORT_AS(
-            BetterSMS::Stage::registerExStageInfo,
+            BetterSMS::Stage::registerExStage,
             "registerExStageInfo__Q29BetterSMS5StageFUcPQ39BetterSMS5Stage10ExAreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::setNextStageHandler,
                          "setNextStageHandler__Q29BetterSMS5StageFPFP12TMarDirector_v");

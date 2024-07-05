@@ -52,16 +52,16 @@ public:
 
 protected:
     void processInput();
-    bool genAreaText(s32, const Stage::AreaInfo &, void *, void *);
-    bool genAreaTextTest1(s32);
-    bool genAreaTextTest2(s32);
-    bool genAreaTextScale(s32);
-    void genEpisodeText(AreaMenuInfo &, const Stage::AreaInfo &, void *);
-    void genEpisodeTextDelfinoPlaza(AreaMenuInfo &, const Stage::AreaInfo &, void *);
-    void genEpisodeTextTest1(AreaMenuInfo &);
-    void genEpisodeTextTest2(AreaMenuInfo &);
-    void genEpisodeTextScale(AreaMenuInfo &);
-    J2DPane *findOrCreateAreaPane(const Stage::AreaInfo &, int width, int height, bool *created);
+    bool genAreaText(s32 flatRow, u8 normalStageID, u8 shineStageID, void *stageNameData, void *scenarioNameData);
+    bool genAreaTextTest1(s32 flatRow);
+    bool genAreaTextTest2(s32 flatRow);
+    bool genAreaTextScale(s32 flatRow);
+    void genEpisodeText(AreaMenuInfo &, u8 normalStageID, u8 shineStageID, void *scenarioNameData);
+    void genEpisodeTextDelfinoPlaza(AreaMenuInfo &, u8 normalStageID, u8 shineStageID, void *scenarioNameData);
+    void genEpisodeTextTest1(AreaMenuInfo &info);
+    void genEpisodeTextTest2(AreaMenuInfo &info);
+    void genEpisodeTextScale(AreaMenuInfo &info);
+    J2DPane *findOrCreateAreaPane(u8 normalStageID, u8 shineStageID, int width, int height, bool *created);
 
 private:
     bool mShouldExit;
