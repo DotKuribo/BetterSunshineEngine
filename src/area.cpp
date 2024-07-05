@@ -38,7 +38,7 @@ static size_t getScenariosForScene(int sceneID) {
     return 8;
 }
 
-static size_t getExScenariosForScene(int sceneID) { return 4; }
+static size_t getExScenariosForScene(int sceneID) { return 2; }
 
 BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
     const u8 **baseGameShineTable =
@@ -68,7 +68,8 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
                 }
             }
             if (i < 10 && baseGameExShineTable[info->getShineStageID()]) {
-                for (int j = 0; j < getExScenariosForScene(i); ++j) {
+                // First and last entries always unused
+                for (int j = 1; j < getExScenariosForScene(i); ++j) {
                     u8 scenarioID = baseGameExShineTable[info->getShineStageID()][j];
                     info->addExScenario(scenarioID, baseGameScenarioNameTable[scenarioID]);
                 }
