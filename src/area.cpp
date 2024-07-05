@@ -14,9 +14,9 @@ namespace BetterSMS {
 
     namespace Stage {
 
-        static ShineAreaInfo *sShineAreaInfos[BETTER_SMS_AREA_MAX]  = {};
-        static NormalAreaInfo sNormalAreaInfos[BETTER_SMS_AREA_MAX] = {};
-        static ExAreaInfo sExAreaInfos[BETTER_SMS_EXAREA_MAX]       = {};
+        static ShineAreaInfo *sShineAreaInfos[BETTER_SMS_AREA_MAX];
+        static NormalAreaInfo sNormalAreaInfos[BETTER_SMS_AREA_MAX];
+        static ExAreaInfo sExAreaInfos[BETTER_SMS_EXAREA_MAX];
 
         static NextStageCallback sNextStageHandler = moveStage_override;
 
@@ -59,12 +59,27 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
         const u32 scenePaneIDs[] = {0,      0, 'bi_0', 'rc_0', 'mm_0', 'pi_0',
                                     'sr_0', 0, 'mo_0', 'mr_0', 0};
 
+        // TODO: Initialize shine stage IDs to -1
+        for (size_t i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
+            sShineAreaInfos[i]  = nullptr;
+            sNormalAreaInfos[i] = {-1};
+            sExAreaInfos[i]     = {-1, -1};
+        }
+
         for (int i = 0; i < 64; ++i) {
-            ShineAreaInfo *info = new ShineAreaInfo(baseGameStageTable[i], scenePaneIDs[i]);
+            ShineAreaInfo *info = sShineAreaInfos[baseGameStageTable[i]];
+
+            bool needs_new_info = info == nullptr;
+            if (needs_new_info) {
+                info = new ShineAreaInfo(baseGameStageTable[i], scenePaneIDs[i]);
+            }
+
             if (i < 10 && baseGameShineTable[info->getShineStageID()]) {
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
                     u8 scenarioID = baseGameShineTable[info->getShineStageID()][j];
                     info->addScenario(scenarioID, baseGameScenarioNameTable[scenarioID]);
+                    OSReport("Added scenario %d to stage %d\n", scenarioID,
+                             info->getShineStageID());
                 }
             }
             if (i < 10 && baseGameExShineTable[info->getShineStageID()]) {
@@ -74,7 +89,11 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
                     info->addExScenario(scenarioID, baseGameScenarioNameTable[scenarioID]);
                 }
             }
-            registerShineStage(info);
+
+            if (needs_new_info) {
+                registerShineStage(info);
+            }
+
             registerNormalStage(i, info->getShineStageID());
         }
 
@@ -82,8 +101,6 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
             registerExStage(i + 0x14, baseGameStageTable[i + 0x14],
                             baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1);
         }
-
-        // TODO: Initialize shine stage IDs to -1
 
         oldHeap->becomeCurrentHeap();
     }
@@ -209,13 +226,10 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80174B44, 0, 0, 0), 0x60000000);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174B48, 0, 0, 0), getShineFlagForSelectScreen1);
 
 static bool getShineFlagForSelectScreen2() {
-    int episodeID;
-    SMS_FROM_GPR(26, episodeID);
-
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), episodeID, false);
+    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), 0, false);
     if (shineID == -1) {
         return false;
     }
@@ -236,7 +250,7 @@ static void clampSelectScreenEpisodesVisible() {
     }
 
     const TGlobalVector<s32> &scenarioIDs = info->getScenarioIDs();
-    menu->mEpisodeCount = Min(menu->mEpisodeCount, scenarioIDs.size());
+    menu->mEpisodeCount                   = Min(menu->mEpisodeCount, scenarioIDs.size());
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80174E8C, 0, 0, 0), clampSelectScreenEpisodesVisible);
 SMS_WRITE_32(SMS_PORT_REGION(0x80174E90, 0, 0, 0), 0x60000000);
