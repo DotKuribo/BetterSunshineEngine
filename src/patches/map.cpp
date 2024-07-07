@@ -15,14 +15,22 @@
 
 static bool sIsSeaBMDPresent = false;
 
+static bool shouldHaveSeaBMD(u8 area) {
+    return (area == TGameSequence::AREA_AIRPORT || area == TGameSequence::AREA_DOLPIC ||
+            area == TGameSequence::AREA_RICCO || area == TGameSequence::AREA_MAMMA ||
+            area == TGameSequence::AREA_PINNABEACH || area == TGameSequence::AREA_SIRENA ||
+            area == TGameSequence::AREA_MARE || area == TGameSequence::AREA_PINNAPARCO ||
+            area == TGameSequence::AREA_DOLPICEX0);
+}
+
 static bool isSeaBMDPresent(TMarDirector *director) {
     const u8 area    = director->mAreaID;
-    sIsSeaBMDPresent = JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
-    if (BetterSMS::areBugsPatched())
-        return sIsSeaBMDPresent;
-    else
-        return (area <= 1 || area == 4 || area == 3 || area == 14 || area == 9 || area == 5 ||
-                area == 6 || area == 20);
+    if (BetterSMS::areBugsPatched()) {
+        sIsSeaBMDPresent = JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
+    } else {
+        sIsSeaBMDPresent = shouldHaveSeaBMD(area);
+    }
+    return sIsSeaBMDPresent;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8018A064, 0, 0, 0), isSeaBMDPresent);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A068, 0, 0, 0), 0x2C030000);
@@ -30,20 +38,18 @@ SMS_WRITE_32(SMS_PORT_REGION(0x8018A06C, 0, 0, 0), 0x41820064);
 SMS_WRITE_32(SMS_PORT_REGION(0x8018A070, 0, 0, 0), 0x48000038);
 
 static void *isSeaIndirectBMDPresent(THitActor *staticobj, const char *name) {
-    if (staticobj && name)
-        init__13TMapStaticObjFPCc(staticobj, name);
-
     if (BetterSMS::areBugsPatched()) {
+        if (staticobj && name)
+            init__13TMapStaticObjFPCc(staticobj, name);
+
         if (!JKRArchive::getGlbResource("/scene/Map/Map/seaindirect.bmd")) {
             return nullptr;
         }
         return Memory::malloc(128, 4);
     }
 
-    const u8 area = gpMarDirector->mAreaID;
-
-    if (area <= 1 || area == 4 || area == 3 || area == 14 || area == 9 || area == 5 || area == 6 ||
-        area == 20) {
+    if (sIsSeaBMDPresent) {
+        init__13TMapStaticObjFPCc(staticobj, name);
         return Memory::malloc(128, 4);
     }
     return nullptr;

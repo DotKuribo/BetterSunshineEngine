@@ -78,8 +78,6 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
                 for (int j = 0; j < getScenariosForScene(i); ++j) {
                     u8 scenarioID = baseGameShineTable[info->getShineStageID()][j];
                     info->addScenario(scenarioID, baseGameScenarioNameTable[scenarioID]);
-                    OSReport("Added scenario %d to stage %d\n", scenarioID,
-                             info->getShineStageID());
                 }
             }
             if (i < 10 && baseGameExShineTable[info->getShineStageID()]) {
@@ -164,7 +162,7 @@ SMS_PATCH_B(SMS_PORT_REGION(0x80175AF8, 0, 0, 0), SMS_getShineID);
 SMS_PATCH_B(SMS_PORT_REGION(0x8017CC6C, 0, 0, 0), SMS_getShineID);
 
 static s32 SMS_getShineIDofExStage(u32 exStageID) {
-    if (sExAreaInfos[exStageID].mShineStageID != -1)
+    if (sExAreaInfos[exStageID].mShineStageID == -1)
         return -1;
     return sExAreaInfos[exStageID].mShineID;
 }

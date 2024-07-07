@@ -247,7 +247,9 @@ void BetterApplicationProcess(TApplication *app) {
         if (sIsAdditionalMovie) {
             sIsAdditionalMovie = false;
         } else {
-            app->mPrevScene    = app->mCurrentScene;
+            if (app->mCurrentScene.mEpisodeID != 0xFF) {
+                app->mPrevScene = app->mCurrentScene;
+            }
             app->mCurrentScene = app->mNextScene;
         }
     } while (app->mContext != TApplication::CONTEXT_GAME_SHUTDOWN);
