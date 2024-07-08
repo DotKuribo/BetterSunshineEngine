@@ -13,6 +13,6 @@ static void initBinaryNullptrPatch(TSpcBinary *binary) {
         binary->init();
         return;
     }
-    Console::debugLog("Warning: SPC binary is nullptr! \n");
+    Console::debugLog("Warning: SPC binary is nullptr!\n");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80289098, 0x80280E24, 0, 0), initBinaryNullptrPatch);

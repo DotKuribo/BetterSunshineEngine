@@ -5,8 +5,9 @@
 
 #define BIND_SYMBOL(binary, symbol, func)                                                          \
     (binary)->bindSystemDataToSymbol((symbol), reinterpret_cast<u32>(&(func)))
-static void initCustomFunctions(TSpcBinary *spcBinary, const char *symbol, u32 address) {
-    BIND_SYMBOL(spcBinary, symbol, address);
+
+static void initEclipseFunctions(TSpcBinary* spcBinary) {
+    spcBinary->initUserBuiltin();
     BIND_SYMBOL(spcBinary, "spawnObjByID", Spc::spawnObjByID);
     BIND_SYMBOL(spcBinary, "getPlayerInputByIndex", Spc::getPlayerInputByIndex);
     BIND_SYMBOL(spcBinary, "getStageBGM", Spc::getStageBGM);
@@ -22,6 +23,5 @@ static void initCustomFunctions(TSpcBinary *spcBinary, const char *symbol, u32 a
     BIND_SYMBOL(spcBinary, "getStreamLooping", Spc::getStreamLooping);
     BIND_SYMBOL(spcBinary, "setStreamLooping", Spc::setStreamLooping);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80219380, 0x802112D4, 0, 0), initCustomFunctions);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80289920, 0x802816AC, 0, 0), initCustomFunctions);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80222584, 0, 0, 0), initEclipseFunctions);
 #undef BIND_SYMBOL
