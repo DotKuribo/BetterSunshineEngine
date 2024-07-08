@@ -96,7 +96,7 @@ BETTER_SMS_FOR_CALLBACK void initAreaInfo() {
         }
 
         for (int i = 0; i < 32; ++i) {
-            registerExStage(i + 0x14, baseGameStageTable[i + 0x14],
+            registerExStage(i + 0x15, baseGameStageTable[i + 0x15],
                             baseGameExShineTable2[i] != 0xFF ? baseGameExShineTable2[i] : -1);
         }
 
