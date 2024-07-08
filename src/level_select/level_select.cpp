@@ -47,8 +47,6 @@ static bool sceneExists(u32 areaID, u32 episodeID) {
         strncpy(loc, ".szs", 4);
     }
 
-    OSReport("Checking for %s, stageID: %d\n", stageName, areaID);
-
     if (DVDConvertPathToEntrynum(stageName) >= 0) {
         return true;
     } else {

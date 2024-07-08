@@ -165,9 +165,6 @@ extern void gameChangeCallbackHandler(TApplication *app);
 extern void initAllSettings(TApplication *);
 
 void BetterApplicationProcess(TApplication *app) {
-    OSReport("Show settings on boot: %d\n", sShowSettingsOnBoot);
-    OSReport("Is first boot: %d\n", Application::isFirstBoot());
-
     initAllSettings(app);
 
     bool exitLoop   = false;
