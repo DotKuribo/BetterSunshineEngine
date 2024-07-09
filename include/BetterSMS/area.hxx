@@ -37,11 +37,21 @@ namespace BetterSMS {
             }
 
             void addScenario(s32 scenarioID, s32 scenarioNameID) {
+                for (const s32 &id : mScenarioIDs) {
+                    if (id == scenarioID) {
+                        return;
+                    }
+                }
                 mScenarioIDs.push_back(scenarioID);
                 mScenarioNameIDs.push_back(scenarioNameID);
             }
 
             void addExScenario(s32 exScenarioID, s32 exScenarioNameID) {
+                for (const s32 &id : mScenarioIDs) {
+                    if (id == exScenarioID) {
+                        return;
+                    }
+                }
                 mExScenarioIDs.push_back(exScenarioID);
                 mExScenarioNameIDs.push_back(exScenarioNameID);
             }
