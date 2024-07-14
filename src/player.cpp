@@ -812,14 +812,14 @@ static u32 collisionHandler(TMario *player) {
         }
     }
 
-    TSMSFader *fader = gpApplication.mFader;
+    /*TSMSFader *fader = gpApplication.mFader;
     if (fader->mFadeStatus != TSMSFader::FADE_OFF) {
         playerData->mCollisionFlags.mIsDisableInput = true;
         player->mController->mState.mReadInput      = false;
     } else {
         playerData->mCollisionFlags.mIsDisableInput = false;
         player->mController->mState.mReadInput      = true;
-    }
+    }*/
 
     playerData->mLastQuarterFrameState = player->mState;
     return player->mState;
