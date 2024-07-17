@@ -14,7 +14,6 @@
 
 using namespace BetterSMS;
 
-
 static void doProcessJumpState(TMario *player) {
     auto playerData = Player::getData(player);
 
@@ -30,7 +29,7 @@ static void doProcessJumpState(TMario *player) {
         if (stickMagnitude > 0.1f) {
             Player::rotateRelativeToCamera(
                 player, gpCamera,
-                {controller->mControlStick.mStickX, controller->mControlStick.mStickY}, 1.0f);
+                {controller->mControlStick.mStickX, controller->mControlStick.mStickY}, 0.1f);
         } else {
             player->mForwardSpeed *= 0.98f;
         }
