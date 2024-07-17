@@ -354,6 +354,20 @@ static void moveStage_override(TMarDirector *director) {
         return;
     }
 
+    s32 shineStageID = SMS_getShineStage(gpApplication.mNextScene.mAreaID);
+
+    bool isSameShineStage = SMS_getShineStage(gpApplication.mCurrentScene.mAreaID) == shineStageID;
+    bool isSameNormalStage =
+        gpApplication.mCurrentScene.mAreaID == gpApplication.mNextScene.mAreaID;
+
+    if (isSameShineStage && !isSameNormalStage) {
+        if (gpApplication.mNextScene.mEpisodeID == 0xFF) {
+            gpApplication.mNextScene.mEpisodeID = gpApplication.mCurrentScene.mEpisodeID;
+            director->moveStage();
+            return;
+        }
+    }
+
     gpApplication.mFader->setColor({0, 0, 0, 255});
 
     if (SMS_getShineStage(gpApplication.mNextScene.mAreaID) !=

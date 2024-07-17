@@ -576,6 +576,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
             BetterSMS::Stage::addExitCallback,
             "addExitCallback__Q29BetterSMS5StageFPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageName, "getStageName__Q29BetterSMS5StageFUcUc");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::isDivingStage, "isDivingStage__Q29BetterSMS5StageFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::isExStage, "isExStage__Q29BetterSMS5StageFUcUc");
 
         /* TIME */

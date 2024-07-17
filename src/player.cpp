@@ -433,13 +433,31 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToPoint(TMario *player, const 
     }
 }
 
+static f32 normalizeAngle(f32 angle) {
+    angle = fmodf__3stdFff(angleToRadians(angle) + M_PI, 2 * M_PI);
+    if (angle < 0)
+        angle += 2 * M_PI;
+    return radiansToAngle(angle - M_PI);
+}
+
+static f32 getAngleDelta(f32 a, f32 b) {
+    f32 delta = normalizeAngle(a) - normalizeAngle(b);
+    if (delta > 180.0f) {
+        delta -= 360.0f;
+    } else if (delta < -180.0f) {
+        delta += 360.0f;
+    }
+    return delta;
+}
+
 BETTER_SMS_FOR_EXPORT void BetterSMS::Player::rotateRelativeToCamera(TMario *player,
                                                                      CPolarSubCamera *camera,
                                                                      Vec2 dir, f32 lerp_) {
-    player->mAngle.y = lerp<f32>(player->mAngle.y,
-                                 camera->mHorizontalAngle +
-                                     convertAngleFloatToS16(radiansToAngle(atan2f(dir.x, -dir.y))),
-                                 lerp_);
+    f32 accelAngle = radiansToAngle(atan2f(-dir.x, dir.y));
+    f32 camAngle   = convertAngleS16ToFloat(camera->mHorizontalAngle);
+    f32 delta      = getAngleDelta(convertAngleS16ToFloat(player->mAngle.y), camAngle + accelAngle);
+
+    player->mAngle.y += convertAngleFloatToS16(delta) * lerp_;
 }
 
 #pragma region Patches
@@ -794,12 +812,12 @@ static u32 collisionHandler(TMario *player) {
         for (auto &item : sPlayerCollisionHandlers) {
             if (item.mID == prevColType)
                 item.mCallback(player, const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
-                            marioFlags | Player::InteractionFlags::ON_EXIT);
+                               marioFlags | Player::InteractionFlags::ON_EXIT);
         }
         for (auto &item : sPlayerCollisionHandlers) {
             if (item.mID == colType)
                 item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
-                            marioFlags | Player::InteractionFlags::ON_ENTER);
+                               marioFlags | Player::InteractionFlags::ON_ENTER);
         }
         playerData->mPrevCollisionFloorType     = colType;
         playerData->mPrevCollisionFloor         = player->mFloorTriangle;
@@ -808,7 +826,8 @@ static u32 collisionHandler(TMario *player) {
     } else if (colType >= 3000) {  // Custom collision is routinely updated
         for (auto &item : sPlayerCollisionHandlers) {
             if (item.mID == colType)
-                item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle), marioFlags);
+                item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
+                               marioFlags);
         }
     }
 

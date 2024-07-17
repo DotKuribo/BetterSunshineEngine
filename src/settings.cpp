@@ -122,13 +122,17 @@ BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &g
     if (ret >= CARD_ERROR_READY) {
         // If this returns BROKEN, the save file is desynced by version and should be reset
         if (ReadSavedSettings(group, &finfo) == CARD_ERROR_BROKEN) {
+            OSPanic(__FILE__, __LINE__,
+                    "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
+                    "Automatically resetting to defaults...",
+                    Settings::getGroupName(group));
             ret = UpdateSavedSettings(group, &finfo);
         }
 
         CloseSavedSettings(group, &finfo);
     }
 
-    for (auto& setting : group.getSettings()) {
+    for (auto &setting : group.getSettings()) {
         setting->emit();
     }
 
@@ -217,8 +221,8 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     if (Settings::mountCard() < CARD_ERROR_READY)
         return;
 
-    for (auto &init : gModuleInfos) {
-        auto settingsGroup = init.mSettings;
+    for (BetterSMS::ModuleInfo &init : gModuleInfos) {
+        Settings::SettingsGroup *settingsGroup = init.mSettings;
         if (!settingsGroup)  // No settings registered
             continue;
 
@@ -271,7 +275,7 @@ s32 OpenSavedSettings(Settings::SettingsGroup &group, CARDFileInfo &infoOut, boo
 }
 
 s32 UpdateSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
-    auto &info = group.getSaveInfo();
+    Settings::SettingsSaveInfo &info = group.getSaveInfo();
     if (info.mBlocks > CARD_MAX_BLOCKS) {
         OSReport("Failed to save settings for module \"%s\"! (TOO MANY BLOCKS: > " SMS_STRINGIZE(
                      CARD_MAX_BLOCKS) ")\n",
@@ -378,10 +382,6 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         }
 
         if (sCardBuffer[0] != group.getMajorVersion()) {
-            OSPanic(__FILE__, __LINE__,
-                    "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
-                    "Automatically resetting to defaults...",
-                    Settings::getGroupName(group));
             return CARD_ERROR_BROKEN;
         }
 
@@ -413,7 +413,17 @@ s32 SaveAllSettings() {
     {
         gpCardManager->getBookmarkInfos(&sBookMarkInfo);
         while (gpCardManager->mCommand == TCardManager::GETBOOKMARKS) {
-            SMS_ASM_BLOCK("");  // Wait for save to finish
+            // Wait for save to finish
+            OSYieldThread();
+        }
+
+        if (s32 status = gpCardManager->getLastStatus()) {
+            OSPanic(__FILE__, __LINE__,
+                    "Failed to get bookmark info for autosave! (Status: %d)\nMake sure your memory "
+                    "card is okay "
+                    "and that you haven't loaded a savestate that was made before your last save!",
+                    status);
+            return status;
         }
 
         JSUMemoryOutputStream out(nullptr, 0);
@@ -421,8 +431,19 @@ s32 SaveAllSettings() {
         TFlagManager::smInstance->save(out);
         gpCardManager->writeBlock(gpApplication.mCurrentSaveBlock);  // This is the block being used
         while (gpCardManager->mCommand == TCardManager::SAVEBLOCK) {
-            SMS_ASM_BLOCK("");  // Wait for save to finish
+            // Wait for save to finish
+            OSYieldThread();
         }
+
+        if (s32 status = gpCardManager->getLastStatus()) {
+            OSPanic(__FILE__, __LINE__,
+                    "Failed to save block for autosave! (Status: %d)\nMake sure your memory card "
+                    "is okay and that "
+                    "you haven't loaded a savestate that was made before your last save!",
+                    status);
+            return status;
+        }
+
         gpCardManager->unmount();
         TFlagManager::smInstance->saveSuccess();
     }
@@ -431,6 +452,13 @@ s32 SaveAllSettings() {
         s32 cardStatus = Settings::mountCard();
         {
             if (cardStatus < CARD_ERROR_READY) {
+                OSPanic(__FILE__, __LINE__,
+                        "Failed to mount memory card for autosave! (Status: %d)\nMake sure your "
+                        "memory card is okay and that you haven't loaded a savestate that was made "
+                        "before your last save!",
+                        cardStatus);
+
+                gpCardManager->mount_(true);
                 return cardStatus;
             }
             Settings::saveAllSettings();
@@ -445,6 +473,8 @@ s32 SaveAllSettings() {
         gpCardManager->getOptionWriteStream(&out);
         TFlagManager::smInstance->saveOption(out);
         gpCardManager->writeOptionBlock();
+
+        OSReport("Last Status (Option Save): %d\n", gpCardManager->getLastStatus());
     }
 
     return CARD_ERROR_READY;
@@ -520,7 +550,7 @@ void SettingsDirector::setup(JDrama::TDisplay *display, TMarioGamePad *controlle
     mDisplay                       = display;
     mController                    = controller;
     mController->mState.mReadInput = false;
-    mController->mState._02 = true;
+    mController->mState._02        = true;
     SMSRumbleMgr->reset();
     OSCreateThread(&gSetupThread, setupThreadFunc, this, gpSetupThreadStack + 0x10000, 0x10000, 17,
                    0);
