@@ -57,3 +57,12 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
 SMS_WRITE_32(SMS_PORT_REGION(0x8018D08C, 0, 0, 0), 0x60000000);
 
 #endif
+
+SMS_ASM_FUNC void fixShadowPartsCrash() {
+    SMS_ASM_BLOCK("cmpwi 4, 0                      \n\t"
+                  "li 0, 0                         \n\t"
+                  "beq 8                           \n\t"
+                  "lhz 0, 0x18, (4)                \n\t"
+                  "blr                             \n\t");
+}
+SMS_PATCH_BL(0x802320E0, fixShadowPartsCrash);
