@@ -35,7 +35,7 @@
 // SETTINGS //
 
 // BetterSMS settings
-static Settings::SettingsGroup sSettingsGroup(2, 0, Settings::Priority::CORE);
+static Settings::SettingsGroup sSettingsGroup(3, 0, Settings::Priority::CORE);
 
 BugsSetting gBugFixesSetting("Bug Fixes");
 BugsSetting gExploitFixesSetting("Exploit Fixes");
@@ -43,6 +43,7 @@ CollisionFixesSetting gCollisionFixesSetting("Collision Fixes");
 AspectRatioSetting gAspectRatioSetting("Aspect Ratio");
 ViewportSetting gViewportSetting("Viewport");
 FPSSetting gFPSSetting("Frame Rate");
+GammaSetting gGammaSetting("Gamma Correction");
 static bool sCameraInvertX = false;
 static bool sCameraInvertY = false;
 Settings::SwitchSetting gCameraInvertXSetting("Invert Camera X", &sCameraInvertX);
@@ -177,8 +178,9 @@ extern void stopMusicOnExitStage(TApplication *app);
 extern void initStreamInfo(TApplication *app);
 extern void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph);
 
-// FPS
+// GRAPHICS
 extern void updateFPS(TMarDirector *);
+extern void updateGammaSetting(TApplication *);
 
 // LOADING SCREEN
 extern void initLoadingScreen();
@@ -228,6 +230,7 @@ static void initLib() {
         sSettingsGroup.addSetting(&gViewportSetting);
         sSettingsGroup.addSetting(&gAspectRatioSetting);
         sSettingsGroup.addSetting(&gFPSSetting);
+        sSettingsGroup.addSetting(&gGammaSetting);
         sSettingsGroup.addSetting(&gCameraInvertXSetting);
         sSettingsGroup.addSetting(&gCameraInvertYSetting);
         sSettingsGroup.addSetting(&gSavePromptSetting);
@@ -353,6 +356,7 @@ static void initLib() {
 
     Stage::addInitCallback(updateFPS);
     Stage::addUpdateCallback(updateFPS);
+    Game::addLoopCallback(updateGammaSetting);
 
     // SETTINGS
     Game::addBootCallback(initUnlockedSettings);

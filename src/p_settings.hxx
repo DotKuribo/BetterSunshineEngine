@@ -911,6 +911,26 @@ private:
     int mFPSValue;
 };
 
+class GammaSetting final : public Settings::FloatSetting {
+public:
+    GammaSetting(const char *name) : FloatSetting(name, &mGammaValue), mGammaValue(1.0f) {
+        mValueRange     = {0.5f, 2.0f, 0.1f};
+        mValueChangedCB = GammaSetting::valueChanged;
+    }
+    ~GammaSetting() override {}
+
+    void getValueName(char *dst) const override { snprintf(dst, 100, "%.1f", mGammaValue); }
+
+    static void valueChanged(void *old, void *cur, ValueKind kind) {
+        auto gamma = *reinterpret_cast<float *>(cur);
+        *(u8 *)0x8042FC62 = static_cast<u8>(9.0f * gamma);
+        *(u8 *)0x8042FC63 = static_cast<u8>(9.0f * gamma);
+    }
+
+private:
+    float mGammaValue;
+};
+
 class SavePromptsSetting final : public Settings::IntSetting {
 public:
     enum Kind { ALL, NO_BLUE, NONE, AUTO_SAVE };

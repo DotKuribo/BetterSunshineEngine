@@ -89,7 +89,7 @@ namespace BetterSMS {
                 }
             }
 
-            const char *getName() { return mName; }
+            const char *getName() const { return mName; }
             void setName(const char *name) { mName = name; }
 
             void *getValue() const { return mValuePtr; }
@@ -102,10 +102,14 @@ namespace BetterSMS {
                 SMS_DEBUG_ASSERT(
                     kind == ValueKind::BOOL,
                     "Mismatching setting types found, setting a non BOOL to BOOL value!");
-                bool lc = active;
-                if (*reinterpret_cast<bool *>(mValuePtr) != lc && mValueChangedCB)
-                    mValueChangedCB(mValuePtr, &lc, getKind());
-                *reinterpret_cast<bool *>(mValuePtr) = lc;
+                bool cur = active;
+                bool old = *reinterpret_cast<bool *>(mValuePtr);
+                if (old != cur) {
+                    *reinterpret_cast<bool *>(mValuePtr) = cur;
+                    if (mValueChangedCB) {
+                        mValueChangedCB(&old, &cur, getKind());
+                    }
+                }
             }
 
             void setInt(int x) const {
@@ -113,10 +117,14 @@ namespace BetterSMS {
                 SMS_DEBUG_ASSERT(
                     kind == ValueKind::INT,
                     "Mismatching setting types found, setting a non INT to INT value!");
-                int lc = x;
-                if (*reinterpret_cast<int *>(mValuePtr) != lc && mValueChangedCB)
-                    mValueChangedCB(mValuePtr, &lc, getKind());
-                *reinterpret_cast<int *>(mValuePtr) = lc;
+                int cur = x;
+                int old = *reinterpret_cast<int *>(mValuePtr);
+                if (old != cur) {
+                    *reinterpret_cast<int *>(mValuePtr) = cur;
+                    if (mValueChangedCB) {
+                        mValueChangedCB(&old, &cur, getKind());
+                    }
+                }
             }
 
             void setFloat(float f) const {
@@ -124,10 +132,14 @@ namespace BetterSMS {
                 SMS_DEBUG_ASSERT(
                     kind == ValueKind::FLOAT,
                     "Mismatching setting types found, setting a non FLOAT to FLOAT value!");
-                float lc = f;
-                if (*reinterpret_cast<float *>(mValuePtr) != lc && mValueChangedCB)
-                    mValueChangedCB(mValuePtr, &lc, getKind());
-                *reinterpret_cast<float *>(mValuePtr) = lc;
+                float cur = f;
+                float old = *reinterpret_cast<float *>(mValuePtr);
+                if (old != cur) {
+                    *reinterpret_cast<float *>(mValuePtr) = cur;
+                    if (mValueChangedCB) {
+                        mValueChangedCB(&old, &cur, getKind());
+                    }
+                }
             }
 
             // Signals the changed callback which can update arbitrary memory
@@ -163,7 +175,7 @@ namespace BetterSMS {
             void load(JSUMemoryInputStream &in) override {
                 u8 b;
                 in.read(&b, 1);
-                setBool(b > 1 ? false : b);  // Reset value if corrupt
+                setBool(b == 0 ? false : true);  // Reset value if corrupt
             }
             void save(JSUMemoryOutputStream &out) override { out.write(mValuePtr, 1); }
         };
@@ -213,11 +225,11 @@ namespace BetterSMS {
         private:
             int clampValueToRange(int x) const {
                 if (x > mValueRange.mStop) {
-                    x = mValueRange.mStart + (x - mValueRange.mStop - 1);
+                    x = mValueRange.mStart + (x - mValueRange.mStop - mValueRange.mStep);
                 } else if (x < mValueRange.mStart) {
-                    x = mValueRange.mStop + (x - mValueRange.mStart + 1);
+                    x = mValueRange.mStop + (x - mValueRange.mStart + mValueRange.mStep);
                 }
-                if (x < mValueRange.mStart && x > mValueRange.mStop)
+                if (x < mValueRange.mStart || x > mValueRange.mStop)
                     x = mValueRange.mStart;
                 return x;
             }
@@ -259,13 +271,14 @@ namespace BetterSMS {
             ValueRange<f32> mValueRange;
 
         private:
-            int clampValueToRange(int x) const {
-                if (x > mValueRange.mStop) {
-                    x = mValueRange.mStart + (x - mValueRange.mStop - 1);
-                } else if (x < mValueRange.mStart) {
-                    x = mValueRange.mStop + (x - mValueRange.mStart + 1);
+            float clampValueToRange(float x) const {
+                f32 epsilonStep = mValueRange.mStep * 0.5f;
+                if (x > mValueRange.mStop + epsilonStep) {
+                    x = mValueRange.mStart;
+                } else if (x < mValueRange.mStart - epsilonStep) {
+                    x = mValueRange.mStop;
                 }
-                if (x < mValueRange.mStart && x > mValueRange.mStop)
+                if (x < mValueRange.mStart - epsilonStep || x > mValueRange.mStop + epsilonStep)
                     x = mValueRange.mStart;
                 return x;
             }
