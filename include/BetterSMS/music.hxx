@@ -25,6 +25,9 @@ namespace BetterSMS {
         void stopSong(f32 fadeTime);
         void skipSong(f32 fadeTime);
 
+        bool isPlaying();
+        bool isPaused();
+
         void setVolume(u8 left, u8 right);
         void setVolumeFade(u8 dstVolume, f32 seconds);
 

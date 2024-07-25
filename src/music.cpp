@@ -44,6 +44,9 @@ BETTER_SMS_FOR_EXPORT void Music::skipSong(f32 fadeTime) {
     return AudioStreamer::getInstance()->skip(fadeTime);
 }
 
+BETTER_SMS_FOR_EXPORT bool Music::isPlaying() { return AudioStreamer::getInstance()->isPlaying(); }
+BETTER_SMS_FOR_EXPORT bool Music::isPaused() { return AudioStreamer::getInstance()->isPaused(); }
+
 BETTER_SMS_FOR_EXPORT void Music::setVolume(u8 left, u8 right) {
     AudioStreamer::getInstance()->setVolumeLR(left, right);
 }

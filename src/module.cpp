@@ -517,6 +517,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::pauseSong, "pauseSong__Q29BetterSMS5MusicFf");
         KURIBO_EXPORT_AS(BetterSMS::Music::stopSong, "stopSong__Q29BetterSMS5MusicFf");
         KURIBO_EXPORT_AS(BetterSMS::Music::skipSong, "skipSong__Q29BetterSMS5MusicFf");
+        KURIBO_EXPORT_AS(BetterSMS::Music::isPlaying, "isPlaying__Q29BetterSMS5MusicFv");
+        KURIBO_EXPORT_AS(BetterSMS::Music::isPaused, "isPaused__Q29BetterSMS5MusicFv");
         KURIBO_EXPORT_AS(BetterSMS::Music::setVolume, "setVolume__Q29BetterSMS5MusicFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Music::setVolumeFade, "setVolumeFade__Q29BetterSMS5MusicFUcf");
         KURIBO_EXPORT_AS(BetterSMS::Music::getMaxVolume, "getMaxVolume__Q29BetterSMS5MusicFv");
