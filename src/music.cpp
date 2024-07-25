@@ -52,6 +52,10 @@ BETTER_SMS_FOR_EXPORT void Music::setVolumeFade(u8 dstVolume, f32 seconds) {
     AudioStreamer::getInstance()->setVolumeFadeTo(dstVolume, seconds);
 }
 
+BETTER_SMS_FOR_EXPORT u8 Music::getMaxVolume() {
+    return AudioStreamer::getInstance()->getFullVolumeLR();
+}
+
 BETTER_SMS_FOR_EXPORT void Music::setMaxVolume(u8 max) {
     AudioStreamer::getInstance()->setFullVolumeLR(max, max);
 }
@@ -915,5 +919,36 @@ BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
         streamer->next(0.2f);
     }
 }
+
+static void fadeStreamOnFadeBgm(void *fadeX, f32 blend) {
+    AudioStreamer *streamer = AudioStreamer::getInstance();
+    if (streamer->isPlaying()) {
+        f32 scaler = 1.0f - blend;
+        u8 volume  = static_cast<f32>(streamer->getFullVolumeLR()) * scaler;
+        streamer->setVolumeLR(volume, volume);
+    }
+
+    xFadeBgm__10MSBgmXFadeFf(fadeX, blend);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BA234, 0, 0, 0), fadeStreamOnFadeBgm);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BA5DC, 0, 0, 0), fadeStreamOnFadeBgm);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BAAAC, 0, 0, 0), fadeStreamOnFadeBgm);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BAEB8, 0, 0, 0), fadeStreamOnFadeBgm);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BB198, 0, 0, 0), fadeStreamOnFadeBgm);
+
+static void fadeStreamOnFadeBgmForce(void *fadeX, f32 blend) {
+    AudioStreamer *streamer = AudioStreamer::getInstance();
+    if (streamer->isPlaying()) {
+        f32 scaler = 1.0f - blend;
+        u8 volume  = static_cast<f32>(streamer->getFullVolumeLR()) * scaler;
+        streamer->setVolumeLR(volume, volume);
+    }
+
+    xFadeBgmForce__10MSBgmXFadeFf(fadeX, blend);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BA1CC, 0, 0, 0), fadeStreamOnFadeBgmForce);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BA4E4, 0, 0, 0), fadeStreamOnFadeBgmForce);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BA8F4, 0, 0, 0), fadeStreamOnFadeBgmForce);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802BAEA4, 0, 0, 0), fadeStreamOnFadeBgmForce);
 
 #pragma endregion
