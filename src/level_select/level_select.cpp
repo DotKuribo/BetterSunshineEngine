@@ -30,14 +30,18 @@
     { 240, 170, 10, 255 }
 
 static bool sceneExists(u32 areaID, u32 episodeID) {
-    if (areaID >= gpApplication.mStageArchiveAry->mChildren.size())
+    if (areaID >= gpApplication.mStageArchiveAry->mChildren.size()) {
+        OSReport("Area ID %d NOT FOUND\n", areaID);
         return false;
+    }
 
     auto *areaInfo = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
         gpApplication.mStageArchiveAry->mChildren[areaID]);
 
-    if (episodeID >= areaInfo->mChildren.size())
+    if (episodeID >= areaInfo->mChildren.size()) {
+        OSReport("Area ID %d, Episode ID %d NOT FOUND\n", areaID, episodeID);
         return false;
+    }
 
     TScenarioArchiveName episodeInfo = areaInfo->mChildren[episodeID];
     char stageName[128];
@@ -56,14 +60,18 @@ static bool sceneExists(u32 areaID, u32 episodeID) {
 }
 
 static bool sceneFilename(char *out, size_t buf_size, u32 areaID, u32 episodeID) {
-    if (areaID >= gpApplication.mStageArchiveAry->mChildren.size())
+    if (areaID >= gpApplication.mStageArchiveAry->mChildren.size()) {
+        OSReport("Area ID %d NOT FOUND\n", areaID);
         return false;
+    }
 
     auto *areaInfo = reinterpret_cast<TNameRefAryT<TScenarioArchiveName> *>(
         gpApplication.mStageArchiveAry->mChildren[areaID]);
 
-    if (episodeID >= areaInfo->mChildren.size())
+    if (episodeID >= areaInfo->mChildren.size()) {
+        OSReport("Area ID %d, Episode ID %d NOT FOUND\n", areaID, episodeID);
         return false;
+    }
 
     TScenarioArchiveName episodeInfo = areaInfo->mChildren[episodeID];
     char stageName[128];
@@ -587,7 +595,7 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, u8 normalStageID, u8 
         s32 scenarioNameID = j >= scenarioNameIDs.size() ? -1 : scenarioNameIDs[j];
 
         J2DTextBox *scenarioText = new J2DTextBox(
-            ('e' << 24) | scenarioID,
+            ('e' << 24) | scenarioNameID & 0xFFFFFF,
             {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
              static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
@@ -616,7 +624,7 @@ void LevelSelectScreen::genEpisodeText(AreaMenuInfo &menu, u8 normalStageID, u8 
         menu.mEpisodeListPane->mChildrenList.append(&scenarioText->mPtrLink);
 
         J2DTextBox *episodeFileNameText = new J2DTextBox(
-            ('f' << 24) | scenarioID,
+            ('f' << 24) | scenarioNameID & 0xFFFFFF,
             {0, static_cast<int>(110 + ((textHeight + 2) * eny)), 600,
              static_cast<int>(158 + ((textHeight + 2) * eny))},
             gpSystemFont->mFont, "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
