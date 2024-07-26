@@ -191,8 +191,20 @@ void TGenericRailObj::control() {
         nodePos = graph->indexToPoint(mGraphTracer->mCurrentNode);
     }
 
-    f32 distanceLerp =
-        static_cast<f32>(mDistanceToNext) / (PSVECDistance(nodePos, mTranslation) / mTravelSpeed);
+    f32 distanceLerp = 1.0f - (static_cast<f32>(mDistanceToNext) / static_cast<f32>(mPathDistance));
+
+    if (graph->mNodes[mGraphTracer->mCurrentNode].mRailNode->mFlags & 0x1000) {
+        if (distanceLerp > 1.0f - (mTravelSpeed / static_cast<f32>(mPathDistance))) {
+            resetPosition();
+
+            mGroundY =
+                gpMapCollisionData->checkGround(mTranslation.x, mTranslation.y, mTranslation.z, 0,
+                                                const_cast<const TBGCheckData **>(&mFloorBelow));
+
+            return;
+        }
+    }
+
     mRotation = {
         lerp<f32>(mCurrentNodeRotation.x, mTargetNodeRotation.x,
                   1.0f - (static_cast<f32>(mDistanceToNext) / static_cast<f32>(mPathDistance))),
