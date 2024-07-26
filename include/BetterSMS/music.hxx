@@ -25,6 +25,7 @@ namespace BetterSMS {
         void stopSong(f32 fadeTime);
         void skipSong(f32 fadeTime);
 
+        bool isLooping();
         bool isPlaying();
         bool isPaused();
 
@@ -34,7 +35,8 @@ namespace BetterSMS {
         u8 getMaxVolume();
         void setMaxVolume(u8 max);
 
-        void setLoopPoint(f32 start, f32 length);
+        void setLooping(bool loop);
+        void setLoopPoint(s32 start, s32 end);
 
         /*
         / Audio streamer

@@ -44,6 +44,10 @@ BETTER_SMS_FOR_EXPORT void Music::skipSong(f32 fadeTime) {
     return AudioStreamer::getInstance()->skip(fadeTime);
 }
 
+BETTER_SMS_FOR_EXPORT bool BetterSMS::Music::isLooping() {
+    return AudioStreamer::getInstance()->isLooping();
+}
+
 BETTER_SMS_FOR_EXPORT bool Music::isPlaying() { return AudioStreamer::getInstance()->isPlaying(); }
 BETTER_SMS_FOR_EXPORT bool Music::isPaused() { return AudioStreamer::getInstance()->isPaused(); }
 
@@ -63,9 +67,13 @@ BETTER_SMS_FOR_EXPORT void Music::setMaxVolume(u8 max) {
     AudioStreamer::getInstance()->setFullVolumeLR(max, max);
 }
 
-BETTER_SMS_FOR_EXPORT void Music::setLoopPoint(f32 start, f32 length) {
+BETTER_SMS_FOR_EXPORT void BetterSMS::Music::setLooping(bool loop) {
+    AudioStreamer::getInstance()->setLooping(loop);
+}
+
+BETTER_SMS_FOR_EXPORT void Music::setLoopPoint(s32 start, s32 end) {
     AudioPacket &packet = AudioStreamer::getInstance()->getCurrentAudio();
-    packet.setLoopPoint(start, length);
+    packet.setLoopPoint(start, end);
 }
 
 #pragma region Implementation
