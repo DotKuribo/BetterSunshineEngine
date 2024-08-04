@@ -493,9 +493,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80250514, 0x802482A0, 0, 0), patchRideMovementUpW
 Player::TPlayerData::TPlayerData(TMario *player, CPolarSubCamera *camera, bool isMario)
     : mPlayer(player), mCamera(camera), mIsEMario(!isMario), mPlayerID(0), mCanSprayFludd(true),
       mCurJump(0), mIsClimbTired(false), mLastQuarterFrameState(player->mState),
-      mPrevCollisionFloorType(0), mCollisionTimer(0), mClimbTiredTimer(0),
-      mSlideSpeedMultiplier(1.0f), mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f),
-      mDefaultAttrs(player), mWarpTimer(-1), mWarpState(0xFF) {
+      mPrevCollisionFloor(nullptr), mPrevCollisionRoof(nullptr), mPrevCollisionFloorType(0),
+      mCollisionTimer(0), mClimbTiredTimer(0), mSlideSpeedMultiplier(1.0f),
+      mMaxAddVelocity(1000.0f), mYoshiWaterSpeed(0.0f, 0.0f, 0.0f), mDefaultAttrs(player),
+      mWarpTimer(-1), mWarpState(0xFF) {
 
     mParams = new TPlayerParams();
 

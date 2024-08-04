@@ -428,8 +428,10 @@ SMS_NO_INLINE bool AudioStreamer::seek_() {
 
 SMS_NO_INLINE void AudioStreamer::update_() {
     // Check if pause menu is active to mute music
+    bool isGamePaused = false;
+
     if (gpMarDirector) {
-        bool isGamePaused = gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU;
+        isGamePaused = gpMarDirector->mCurState == TMarDirector::STATE_PAUSE_MENU;
         if (!_startPaused && isGamePaused) {
             if (isPlaying()) {
                 _mDelayedTime = 0.7f;
@@ -441,6 +443,21 @@ SMS_NO_INLINE void AudioStreamer::update_() {
                 play_();
             }
             _startPaused = false;
+        }
+    }
+
+    if (!isGamePaused && isPlaying()) {
+        // Automatically fade music in/out based on event sequenced track
+        if (MSBgm *handle = (MSBgm *)MSBgm::getHandle(2)) {
+            if (!isPaused() && isPlaying()) {
+                _mDelayedTime = 0.7f;
+                pause_();
+            }
+        } else {
+            if (isPaused() && isPlaying()) {
+                _mDelayedTime = 0.7f;
+                play_();
+            }
         }
     }
 
@@ -723,7 +740,7 @@ static void initSoundBank(u8 areaID, u8 episodeID) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
 
-constexpr f32 PauseFadeSpeed = 0.2f;
+constexpr f32 PauseFadeSpeed = 0.5f;
 
 // 0x802BB89C
 static void initExMusic(MSStageInfo bgm) {

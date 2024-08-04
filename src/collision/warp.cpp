@@ -175,8 +175,6 @@ void TWarpCollisionList::addLink(TCollisionLink &link) {
         Console::debugLog("TWarpCollision::addLink(): Collision list is full!\n");
         return;
     }
-    Console::debugLog("TWarpCollision::addLink(): (%d) Added link of type %d at 0x%X\n",
-                      link.getThisColTriangle()->mType, link.getSearchMode(), &mColList[mUsedSize]);
     mColList[mUsedSize++] = link;
 }
 

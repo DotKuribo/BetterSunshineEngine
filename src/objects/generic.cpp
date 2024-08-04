@@ -175,7 +175,7 @@ void TGenericRailObj::control() {
     if (moveToNextNode(mTravelSpeed)) {
         readRailFlag();
         {
-            auto nextIndex = graph->getShortestNextIndex(mGraphTracer->mCurrentNode,
+            int nextIndex = graph->getShortestNextIndex(mGraphTracer->mCurrentNode,
                                                          mGraphTracer->mPreviousNode, -1);
             mGraphTracer->moveTo(nextIndex);
         }
@@ -204,6 +204,8 @@ void TGenericRailObj::control() {
             return;
         }
     }
+
+    OSReport("Next: %f, Length: %f\n", (f32)mDistanceToNext, (f32)mPathDistance);
 
     mRotation = {
         lerp<f32>(mCurrentNodeRotation.x, mTargetNodeRotation.x,
@@ -249,12 +251,16 @@ void TGenericRailObj::readRailFlag() {
                                 convertAngleS16ToFloat(railNode->mValues[3])};
     }
 
-    TGraphNode &graphNextNode = graph->mNodes[currentIndex];
-    TRailNode *railNextNode   = graphNextNode.mRailNode;
+    if (currentIndex == -1) {
+        mTargetNodeRotation = mCurrentNodeRotation;
+    } else {
+        TGraphNode &graphNextNode = graph->mNodes[currentIndex];
+        TRailNode *railNextNode   = graphNextNode.mRailNode;
 
-    mTargetNodeRotation = {convertAngleS16ToFloat(railNextNode->mValues[1]),
-                           convertAngleS16ToFloat(railNextNode->mValues[2]),
-                           convertAngleS16ToFloat(railNextNode->mValues[3])};
+        mTargetNodeRotation = {convertAngleS16ToFloat(railNextNode->mValues[1]),
+                               convertAngleS16ToFloat(railNextNode->mValues[2]),
+                               convertAngleS16ToFloat(railNextNode->mValues[3])};
+    }
 }
 
 void TGenericRailObj::resetPosition() {
