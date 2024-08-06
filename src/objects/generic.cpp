@@ -36,6 +36,16 @@ static void clampRotation(TVec3f &rotation) {
     rotation.z = clampPreserve(rotation.z);
 }
 
+void TGenericRailObj::perform(u32 flags, JDrama::TGraphics *graphics) {
+    if ((flags & 0x200)) {
+        mActorData->mUseDisplayList = true;
+        mActorData->unlockDLIfNeed();
+        mActorData->offMakeDL();
+    }
+
+    TRailMapObj::perform(flags, graphics);
+}
+
 void TGenericRailObj::load(JSUMemoryInputStream &in) {
     JDrama::TActor::load(in);
 
@@ -74,9 +84,9 @@ void TGenericRailObj::load(JSUMemoryInputStream &in) {
 void TGenericRailObj::makeMActors() {
     mActorKeeper = new TMActorKeeper(mLiveManager, 1);
     if (mModelLoadFlags & 0x8000)
-        mActorKeeper->mModelFlags = 0x11220000;
+        mActorKeeper->mModelFlags = 0x112F0000;
     else
-        mActorKeeper->mModelFlags = 0x10220000;
+        mActorKeeper->mModelFlags = 0x102F0000;
 
     char modelPath[128];
     snprintf(modelPath, 128, "%s.bmd", mModelName);

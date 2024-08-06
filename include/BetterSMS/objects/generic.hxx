@@ -15,6 +15,7 @@ public:
           mModelName(nullptr), mCurrentSound(nullptr) {}
     ~TGenericRailObj() override {}
 
+    void perform(u32 flags, JDrama::TGraphics *graphics) override;
     void load(JSUMemoryInputStream &in) override;
     void initMapCollisionData() override;
     void initMapObj() override;

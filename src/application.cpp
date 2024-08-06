@@ -243,7 +243,9 @@ void BetterApplicationProcess(TApplication *app) {
         app->mContext = delayContext;
 
         // This fixes the secret area movies destroying previous scene data
-        if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
+        if (sIsAdditionalMovie) {
+            sIsAdditionalMovie = false;
+        } else {
             if (app->mCurrentScene.mEpisodeID != 0xFF) {
                 app->mPrevScene = app->mCurrentScene;
             }

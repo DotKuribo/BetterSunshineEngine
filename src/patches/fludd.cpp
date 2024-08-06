@@ -199,6 +199,8 @@ BETTER_SMS_FOR_CALLBACK void updateDeadTriggerState(TMario *player, bool isMario
     isAlive |= (player->mState == 0x350 || player->mState == 0x10000357 ||
                 player->mState == 0x10000358);  // Ropes
     isAlive |= (player->mState == 0x10100341);  // Pole Climb
+    isAlive |= (player->mState & 0x30000000) != 0;  // Ladder climbs
+    isAlive |= (player->mState == 0x200349 || player->mState == 0x20054A);  // Roof climbs
     playerData->setCanSprayFludd(isAlive);
 }
 

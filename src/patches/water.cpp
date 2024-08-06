@@ -610,16 +610,20 @@ static void checkIfObjBallRoofCollisionIsWater(TMapObjBall *obj, TVec3f *out) {
 SMS_PATCH_B(SMS_PORT_REGION(0x801E5AD4, 0, 0, 0), checkIfObjBallRoofCollisionIsWater);
 
 static SMS_NO_INLINE void fixMarioOceanAnimBug_(TMario *player, J3DTransformInfo &info, Mtx out) {
-    if (BetterSMS::isCollisionRepaired() && gpMapObjWave) {
-        const TBGCheckData *water = nullptr;
-        f32 waterY                = findAnyGroundLikePlaneBelow(
-            {player->mTranslation.x, 10000000.0f, player->mTranslation.z}, *gpMap->mCollisionData,
-            8, &water);
-        if (water != &TMapCollisionData::mIllegalCheckData) {
-            f32 waveHeight =
-                gpMapObjWave->getWaveHeight(player->mTranslation.x, player->mTranslation.z);
-            f32 scale = 1.0f / Max(1.0f, fabsf(waterY - player->mTranslation.y) / 100.0f);
-            info.ty   = player->mTranslation.y + waveHeight * scale;
+    if (BetterSMS::isCollisionRepaired()) {
+        if (gpMapObjWave) {
+            const TBGCheckData *water = nullptr;
+            f32 waterY                = findAnyGroundLikePlaneBelow(
+                {player->mTranslation.x, 10000000.0f, player->mTranslation.z},
+                *gpMap->mCollisionData, 8, &water);
+            if (water != &TMapCollisionData::mIllegalCheckData) {
+                f32 waveHeight =
+                    gpMapObjWave->getWaveHeight(player->mTranslation.x, player->mTranslation.z);
+                f32 scale = 1.0f / Max(1.0f, fabsf(waterY - player->mTranslation.y) / 100.0f);
+                info.ty   = player->mTranslation.y + waveHeight * scale;
+            }
+        } else {
+            info.ty = player->mTranslation.y;
         }
     }
 
