@@ -199,6 +199,7 @@ extern void drawAutoSaveIcon(TApplication *, const J2DOrthoGraph *);
 
 // STAGES
 extern void initAreaInfo();
+extern void initializeMapObjWave(TMarDirector *director);
 
 extern void patches_staticResetter(TMarDirector *);
 
@@ -353,6 +354,7 @@ static void initLib() {
     Game::addBootCallback(initDebugCallbacks);
 
     Stage::addInitCallback(resetPlayerDatas);
+    Stage::addInitCallback(initializeMapObjWave);
 
     Stage::addInitCallback(updateFPS);
     Stage::addUpdateCallback(updateFPS);

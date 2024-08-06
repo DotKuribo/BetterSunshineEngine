@@ -666,6 +666,16 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
     // player->mFludd->mCurrentNozzle = config->mFluddPrimary.get();
     // player->mFludd->mSecondNozzle  = config->mFluddSecondary.get();
 
+    if (SMS_isDivingMap__Fv()) {
+        TFlagManager::smInstance->setFlag(0x40004, TWaterGun::Underwater);
+        player->mFludd->mSecondNozzle  = TWaterGun::Underwater;
+        player->mFludd->mCurrentNozzle = TWaterGun::Underwater;
+    } else {
+        if (TFlagManager::smInstance->getFlag(0x40004) == TWaterGun::Underwater) {
+            TFlagManager::smInstance->setFlag(0x40004, TWaterGun::Hover);
+        }
+    }
+
     player->mFludd->mCurrentWater = player->mFludd->mNozzleList[(u8)player->mFludd->mCurrentNozzle]
                                         ->mEmitParams.mAmountMax.get();
 }

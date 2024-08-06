@@ -762,6 +762,11 @@ static void initExMusic(MSStageInfo bgm) {
         return;
     }
 
+    if ((gStageBGM & ~0x800103FF) == 0) {
+        MSBgm::startBGM(gStageBGM);
+        return;
+    }
+
     AudioStreamer *streamer = AudioStreamer::getInstance();
     AudioPacket packet(gStageBGM & 0x3FF);
     packet.setLoopPoint(config->mStreamLoopStart.get(), config->mStreamLoopEnd.get());
@@ -789,6 +794,7 @@ static char streamFiles[][JASystem::HardStream::streamFilesSize] = {"test.adp", 
 // 0x802984D0
 static void initStageMusic() {
     Stage::TStageParams *config = Stage::getStageConfiguration();
+    AudioStreamer *streamer     = AudioStreamer::getInstance();
 
     if (config->mMusicSetCustom.get()) {
         gStageBGM = 0x80010000 | config->mMusicID.get();
@@ -801,16 +807,18 @@ static void initStageMusic() {
     if (!config->mMusicEnabled.get())
         return;
 
+    if (config->mIsExStage.get()) {
+        if (MSBgm::getHandle(0) || streamer->isPlaying()) {
+            return;
+        }
+    }
+
     if ((gStageBGM & ~0x800103FF) == 0) {
         startStageBGM__10MSMainProcFUcUc(gpMarDirector->mAreaID, gpMarDirector->mEpisodeID);
         return;
     }
 
-    if (config->mIsExStage.get())
-        return;
-
 #if 1
-    AudioStreamer *streamer = AudioStreamer::getInstance();
     AudioPacket packet(gStageBGM & 0x3FF);
     packet.setLoopPoint(config->mStreamLoopStart.get(), config->mStreamLoopEnd.get());
 

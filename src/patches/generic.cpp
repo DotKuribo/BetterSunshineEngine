@@ -80,6 +80,9 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801B751C, 0x801AF3D4, 0, 0), 0x418200A4);
 
 SMS_WRITE_32(SMS_PORT_REGION(0x801E68A0, 0, 0, 0), 0x60000000);
 
+// Enable bianco.bmt loading everywhere
+SMS_WRITE_32(SMS_PORT_REGION(0x801B7490, 0, 0, 0), 0x60000000);
+
 // Remove save prompts
 extern SavePromptsSetting gSavePromptSetting;
 BETTER_SMS_FOR_CALLBACK bool conditionalSavePrompt(TMarDirector *director, u8 nextState) {

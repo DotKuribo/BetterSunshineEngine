@@ -723,4 +723,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801EA8F4, 0, 0, 0), fixWaterFilterHeightCalc);
 //SMS_WRITE_32(SMS_PORT_REGION(0x801DCE20, 0, 0, 0), 0x60000000);
 //SMS_WRITE_32(SMS_PORT_REGION(0x801DCE24, 0, 0, 0), 0x60000000);
 
+BETTER_SMS_FOR_CALLBACK void initializeMapObjWave(TMarDirector* director) {
+    gpMapObjWave = nullptr;  // lol
+}
+
 #endif
