@@ -5,6 +5,7 @@
 #include "logging.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"
+#include "sunscript.hxx"
 
 using namespace BetterSMS;
 

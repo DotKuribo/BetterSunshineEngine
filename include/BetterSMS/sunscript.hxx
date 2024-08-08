@@ -7,34 +7,42 @@
 
 #include "sunscript.hxx"
 
-namespace Spc {
+namespace BetterSMS {
 
-    enum ValueType { INT, FLOAT, STRING };
+    namespace Spc {
 
-    namespace Stack {
+        typedef void (*SpcFunction)(TSpcInterp *interp, u32 argc);
 
-        inline TSpcSlice popItem(TSpcInterp *interp) {
-            if (!(interp->mSlicesCount > 0)) {
-                SpcTrace("TSpcStack : stack underflow\n");
-                return interp->mSlices[interp->mSlicesCount];
-            }
-            return interp->mSlices[--interp->mSlicesCount];
-        }
+        enum ValueType { INT, FLOAT, STRING };
 
-        inline void pushItem(TSpcInterp *interp, u32 value, Spc::ValueType type) {
-            TSpcSlice slice;
-            slice.mValue = value;
-            slice.mType  = static_cast<u32>(type);
+        namespace Stack {
 
-            if (!(interp->mSlicesCount < interp->mSlicesMax)) {
-                SpcTrace("TSpcStack : stack overflow\n");
-                interp->mSlices[interp->mSlicesCount] = slice;
-                return;
+            inline TSpcSlice popItem(TSpcInterp *interp) {
+                if (!(interp->mSlicesCount > 0)) {
+                    SpcTrace("TSpcStack : stack underflow\n");
+                    return interp->mSlices[interp->mSlicesCount];
+                }
+                return interp->mSlices[--interp->mSlicesCount];
             }
 
-            interp->mSlices[interp->mSlicesCount++] = slice;
-        }
+            inline void pushItem(TSpcInterp *interp, u32 value, Spc::ValueType type) {
+                TSpcSlice slice;
+                slice.mValue = value;
+                slice.mType  = static_cast<u32>(type);
 
-    }  // namespace Stack
+                if (!(interp->mSlicesCount < interp->mSlicesMax)) {
+                    SpcTrace("TSpcStack : stack overflow\n");
+                    interp->mSlices[interp->mSlicesCount] = slice;
+                    return;
+                }
 
-}  // namespace Spc
+                interp->mSlices[interp->mSlicesCount++] = slice;
+            }
+
+        }  // namespace Stack
+
+        bool registerBuiltinFunction(const char *key, SpcFunction function);
+
+    }  // namespace Spc
+
+}  // namespace BetterSMS

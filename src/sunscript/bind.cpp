@@ -1,27 +1,61 @@
 #include <SMS/SPC/SpcBinary.hxx>
 
 #include "module.hxx"
+#include "sunscript.hxx"
 #include "p_sunscript.hxx"
+
+#include "libs/global_vector.hxx"
+
+using namespace BetterSMS;
+
+struct BuiltinData {
+    const char *mKey;
+    Spc::SpcFunction mFn;
+};
+
+static const BuiltinData sBuiltinDataBSMS[] = {
+    {"spawnObjByID", Spc::spawnObjByID},
+    {"getPlayerInputByIndex", Spc::getPlayerInputByIndex},
+    {"getStageBGM", Spc::getStageBGM},
+    {"queueStream", Spc::queueStream},
+    {"playStream", Spc::playStream},
+    {"pauseStream", Spc::pauseStream},
+    {"stopStream", Spc::stopStream},
+    {"seekStream", Spc::seekStream},
+    {"nextStream", Spc::nextStream},
+    {"skipStream", Spc::skipStream},
+    {"getStreamVolume", Spc::getStreamVolume},
+    {"setStreamVolume", Spc::setStreamVolume},
+    {"getStreamLooping", Spc::getStreamLooping},
+    {"setStreamLooping", Spc::setStreamLooping},
+};
+
+static TGlobalVector<BuiltinData> sBuiltinDatas;
+
+bool BetterSMS::Spc::registerBuiltinFunction(const char *key, SpcFunction function) {
+    for (const BuiltinData &data : sBuiltinDatas) {
+        if (data.mKey == key) {
+            return false;
+        }
+    }
+    sBuiltinDatas.push_back({key, function});
+    return true;
+}
 
 #define BIND_SYMBOL(binary, symbol, func)                                                          \
     (binary)->bindSystemDataToSymbol((symbol), reinterpret_cast<u32>(&(func)))
 
-static void initEclipseFunctions(TSpcBinary* spcBinary) {
+static void initModuleFunctions(TSpcBinary* spcBinary) {
     spcBinary->initUserBuiltin();
-    BIND_SYMBOL(spcBinary, "spawnObjByID", Spc::spawnObjByID);
-    BIND_SYMBOL(spcBinary, "getPlayerInputByIndex", Spc::getPlayerInputByIndex);
-    BIND_SYMBOL(spcBinary, "getStageBGM", Spc::getStageBGM);
-    BIND_SYMBOL(spcBinary, "queueStream", Spc::queueStream);
-    BIND_SYMBOL(spcBinary, "playStream", Spc::playStream);
-    BIND_SYMBOL(spcBinary, "pauseStream", Spc::pauseStream);
-    BIND_SYMBOL(spcBinary, "stopStream", Spc::stopStream);
-    BIND_SYMBOL(spcBinary, "seekStream", Spc::seekStream);
-    BIND_SYMBOL(spcBinary, "nextStream", Spc::nextStream);
-    BIND_SYMBOL(spcBinary, "skipStream", Spc::skipStream);
-    BIND_SYMBOL(spcBinary, "getStreamVolume", Spc::getStreamVolume);
-    BIND_SYMBOL(spcBinary, "setStreamVolume", Spc::setStreamVolume);
-    BIND_SYMBOL(spcBinary, "getStreamLooping", Spc::getStreamLooping);
-    BIND_SYMBOL(spcBinary, "setStreamLooping", Spc::setStreamLooping);
+
+    for (const BuiltinData &data : sBuiltinDataBSMS) {
+        BIND_SYMBOL(spcBinary, data.mKey, data.mFn);
+    }
+
+    for (const BuiltinData &data : sBuiltinDatas) {
+        BIND_SYMBOL(spcBinary, data.mKey, data.mFn);
+    }
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80222584, 0, 0, 0), initEclipseFunctions);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80222584, 0, 0, 0), initModuleFunctions);
+
 #undef BIND_SYMBOL

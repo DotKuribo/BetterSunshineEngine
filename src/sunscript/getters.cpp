@@ -4,8 +4,6 @@
 #include "p_sunscript.hxx"
 #include "time.hxx"
 
-void Spc::getTimeAsStr(TSpcInterp *interp, u32 argc) {}
-
 void Spc::getPlayerInputByIndex(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(2, &argc);
 

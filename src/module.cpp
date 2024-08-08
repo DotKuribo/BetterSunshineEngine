@@ -30,6 +30,7 @@
 #include "player.hxx"
 #include "settings.hxx"
 #include "stage.hxx"
+#include "sunscript.hxx"
 #include "time.hxx"
 
 // SETTINGS //
@@ -528,6 +529,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::setMaxVolume, "setMaxVolume__Q29BetterSMS5MusicFUc");
         KURIBO_EXPORT_AS(BetterSMS::Music::setLooping, "setLooping__Q29BetterSMS5MusicFb");
         KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFll");
+
+        /* SPC */
+        KURIBO_EXPORT_AS(BetterSMS::Spc::registerBuiltinFunction, "registerBuiltinFunction__Q29BetterSMS3SpcFPCcPFP10TSpcInterpUl");
 
 /* OBJECTS */
 #if BETTER_SMS_EXTRA_OBJECTS
