@@ -43,7 +43,7 @@ bool BetterSMS::Spc::registerBuiltinFunction(const char *key, SpcFunction functi
 }
 
 #define BIND_SYMBOL(binary, symbol, func)                                                          \
-    (binary)->bindSystemDataToSymbol((symbol), reinterpret_cast<u32>(&(func)))
+    (binary)->bindSystemDataToSymbol((symbol), reinterpret_cast<u32>((func)))
 
 static void initModuleFunctions(TSpcBinary* spcBinary) {
     spcBinary->initUserBuiltin();

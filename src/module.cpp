@@ -531,7 +531,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFll");
 
         /* SPC */
-        KURIBO_EXPORT_AS(BetterSMS::Spc::registerBuiltinFunction, "registerBuiltinFunction__Q29BetterSMS3SpcFPCcPFP10TSpcInterpUl");
+        KURIBO_EXPORT_AS(BetterSMS::Spc::registerBuiltinFunction, "registerBuiltinFunction__Q29BetterSMS3SpcFPCcPFP10TSpcInterpUl_v");
 
 /* OBJECTS */
 #if BETTER_SMS_EXTRA_OBJECTS

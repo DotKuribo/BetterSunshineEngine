@@ -12,9 +12,10 @@ static u8 SMS_ALIGN(32) gSaveThreadStack[0x4000];
 static OSThread gSaveThread;
 
 static void *saveAllThread(void *arg) {
-    if (SaveAllSettings() == CARD_ERROR_READY) {
-        gIsAutoSaveActive = false;
+    if (SaveAllSettings() != CARD_ERROR_READY) {
+        gSavePromptSetting.setInt(SavePromptsSetting::ALL);
     }
+    gIsAutoSaveActive = false;
     return nullptr;
 }
 

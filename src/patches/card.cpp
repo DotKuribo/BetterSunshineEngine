@@ -30,8 +30,13 @@ static s32 mountCard(TCardManager *cardManager, bool r4) {
     bool tryMount = true;
     s32 ret       = 0;
 
-    if (cardManager->mMounted)
-        tryMount = cardManager->probe() < -1;
+    if (cardManager->mMounted) {
+        tryMount = false;
+        if (CARDCheck(cardManager->mChannel) < CARD_ERROR_BUSY) {
+            cardManager->unmount();
+            tryMount = true;
+        }
+    }
 
     if (tryMount) {
         cardManager->mChannel = CARD_SLOTA;
