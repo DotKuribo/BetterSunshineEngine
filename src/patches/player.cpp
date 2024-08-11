@@ -26,6 +26,7 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
     if (!carried || !BetterSMS::areBugsPatched())
         return;
 
+    #if 0
     switch (*(u32 *)carried) {
     case VT_COVER_FRUIT:
     case VT_RANDOM_FRUIT:
@@ -41,6 +42,12 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
     default:
         return;
     }
+    #else
+    if ((carried->mStateFlags.asU32 & 1) != 0) {
+        carried->mHolder    = nullptr;
+        player->mHeldObject = nullptr;
+    }
+    #endif
 }
 
 #undef VT_COVER_FRUIT

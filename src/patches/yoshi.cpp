@@ -102,9 +102,9 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
     if (yoshi->mType == TYoshi::GREEN || !BetterSMS::isCollisionRepaired())
         return;
 
-    // Check for water hit
-    if (ground->isWaterSurface())
-        return;
+    //// Check for water hit
+    //if (ground->isWaterSurface())
+    //    return;
 
     bool considerCave = false;
 
@@ -125,7 +125,7 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
     }
 
     const TBGCheckData *water = nullptr;
-    f32 height = enhanceWaterCheckGeneric_(yoshi->mTranslation.x, yoshi->mTranslation.y + 80.0f,
+    f32 height = enhanceWaterCheckGeneric_(yoshi->mTranslation.x, yoshi->mTranslation.y + 10.0f,
                                            yoshi->mTranslation.z,
                                            considerCave, gpMap, &water);
 
