@@ -237,8 +237,12 @@ void TGenericRailObj::control() {
 void TGenericRailObj::setGroundCollision() {
     auto *model = getModel();
     if (mCollisionManager) {
-        mCollisionManager->mCurrentMapCollision->_5C &= 0xFFFFFFFE;  // Enable
-        mCollisionManager->mCurrentMapCollision->moveMtx(*model->mJointArray);
+        if ((mStateFlags.asU32 & 3)) {
+            mCollisionManager->mCurrentMapCollision->_5C |= 1;  // Disable
+        } else {
+            mCollisionManager->mCurrentMapCollision->_5C &= ~1;  // Enable
+            mCollisionManager->mCurrentMapCollision->moveMtx(*model->mJointArray);
+        }
     }
 }
 
