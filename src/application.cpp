@@ -111,6 +111,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectStage(TApplication *app) {
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectShineSelect(TApplication *app) {
     SMSSetupTitleRenderingInfo(app->mDisplay);
 
+    sIsAdditionalMovie = false;
+
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
 
     auto *director = new TSelectDir();
@@ -122,6 +124,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectShineSelect(TApplication *app
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app) {
     SMSSetupTitleRenderingInfo(app->mDisplay);
+
+    sIsAdditionalMovie = false;
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
 
@@ -144,6 +148,8 @@ BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectLevelSelect(TApplication *app
 
 BETTER_SMS_FOR_CALLBACK bool BetterAppContextDirectSettingsMenu(TApplication *app) {
     SMSSetupTitleRenderingInfo(app->mDisplay);
+
+    sIsAdditionalMovie = false;
 
     app->mFader->setDisplaySize(SMSGetTitleRenderWidth(), SMSGetTitleRenderHeight());
 

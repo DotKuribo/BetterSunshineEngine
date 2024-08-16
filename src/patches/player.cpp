@@ -43,6 +43,9 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
         return;
     }
     #else
+    if ((carried->mObjectID & 0x10000000))
+        return;
+
     if ((carried->mStateFlags.asU32 & 1) != 0) {
         carried->mHolder    = nullptr;
         player->mHeldObject = nullptr;

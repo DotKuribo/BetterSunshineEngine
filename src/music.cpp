@@ -383,12 +383,17 @@ SMS_NO_INLINE bool AudioStreamer::stop_() {
     if (!_mIsPlaying && !_mIsPaused)
         return false;
 
-    _mFadeTime          = _mDelayedTime;
-    _mPreservedVolLeft  = _mVolLeft;
-    _mPreservedVolRight = _mVolRight;
-    setVolumeFadeTo(0, _mFadeTime);
-
     OSReport("[AUDIO_STREAM] Stopping audio!\n");
+
+    if (_mDelayedTime <= 0.0f) {
+        _mDelayedTime = 0.0f;
+        stopLowStream();
+    } else {
+        _mFadeTime          = _mDelayedTime;
+        _mPreservedVolLeft  = _mVolLeft;
+        _mPreservedVolRight = _mVolRight;
+        setVolumeFadeTo(0, _mFadeTime);
+    }
 
     _mIsPaused  = false;
     _mIsPlaying = false;

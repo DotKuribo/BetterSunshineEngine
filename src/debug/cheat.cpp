@@ -57,7 +57,6 @@ static void debugModeNotify(TCheatHandler *) {
 
     BetterSMS::Debug::addDrawCallback(drawCheatText);
     BetterSMS::setDebugMode(true);
-    Console::debugLog("Debug mode activated!\n");
 }
 
 static void *handleDebugCheat(void *GCLogoDir) {
@@ -132,7 +131,7 @@ BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
         gDebugUIPage = (gDebugUIPage + 1) % 6;
     }
 
-    if (shouldToggleGameUI) {
+    if (shouldToggleGameUI && BetterSMS::isDebugMode()) {
         gIsGameUIActive ^= true;
     }
 

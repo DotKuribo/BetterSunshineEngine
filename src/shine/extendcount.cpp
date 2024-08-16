@@ -18,14 +18,14 @@ extern "C" bool getShineFlag__12TFlagManagerFUc(TFlagManager *flagManager, u16 f
 extern "C" void setShineFlag__12TFlagManagerFUc(TFlagManager *flagManager, u16 flag);
 
 // 0x80293B10
-static bool extendShineIDLogic(TFlagManager *flagManager, u32 flagID) {
+static bool extendShineCounterIDLogic(TFlagManager *flagManager, u32 flagID) {
     if ((flagID & 0xFFFF) > 0x77)
-        flagID += (0x60040 - 0x78);
+        flagID += (0x50040 - 0x78);
     if (flagID > 0x60334)
         flagID = 0;
     return flagManager->getFlag(flagID);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80293B10, 0x8028B928, 0, 0), extendShineIDLogic);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80293B10, 0x8028B928, 0, 0), extendShineCounterIDLogic);
 
 static void shineFlagSetter(TFlagManager *flagManager, u32 flag, s32 val) {
     if (flag < 0x60400) {

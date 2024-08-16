@@ -51,12 +51,24 @@ template <typename _I, typename _C> struct PhysicsMetaInfo {
     _C mCallback;
 };
 
+#define MAX_CALLBACKS 128
+
 static MarioDataPair sPlayerDatas[8];
-static TGlobalVector<Player::InitCallback> sPlayerInitializers;
-static TGlobalVector<Player::LoadAfterCallback> sPlayerLoadAfterCBs;
-static TGlobalVector<Player::UpdateCallback> sPlayerUpdaters;
-static TGlobalVector<PhysicsMetaInfo<u32, Player::MachineCallback>> sPlayerStateMachines;
-static TGlobalVector<PhysicsMetaInfo<u16, Player::CollisionCallback>> sPlayerCollisionHandlers;
+
+static Player::InitCallback sPlayerInitializers[128];
+static size_t sPlayerInitializersSize = 0;
+
+static Player::LoadAfterCallback sPlayerLoadAfterCBs[128];
+static size_t sPlayerLoadAfterCBsSize = 0;
+
+static Player::UpdateCallback sPlayerUpdaters[128];
+static size_t sPlayerUpdatersSize = 0;
+
+static PhysicsMetaInfo<u32, Player::MachineCallback> sPlayerStateMachines[128];
+static size_t sPlayerStateMachinesSize = 0;
+
+static PhysicsMetaInfo<u16, Player::CollisionCallback> sPlayerCollisionHandlers[128];
+static size_t sPlayerCollisionHandlersSize = 0;
 
 BETTER_SMS_FOR_EXPORT Player::TPlayerData *BetterSMS::Player::getData(TMario *player) {
     TPlayerData *data = nullptr;
@@ -274,17 +286,17 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addAnimationDataEx(u16 anm_idx, co
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addInitCallback(InitCallback process) {
-    sPlayerInitializers.push_back(process);
+    sPlayerInitializers[sPlayerInitializersSize++] = process;
     return true;
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addLoadAfterCallback(LoadAfterCallback process) {
-    sPlayerLoadAfterCBs.push_back(process);
+    sPlayerLoadAfterCBs[sPlayerLoadAfterCBsSize++] = process;
     return true;
 }
 
 BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::addUpdateCallback(UpdateCallback process) {
-    sPlayerUpdaters.push_back(process);
+    sPlayerUpdaters[sPlayerUpdatersSize++] = process;
     return true;
 }
 
@@ -301,7 +313,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerStateMachine(u32 state,
             return false;
         }
     }
-    sPlayerStateMachines.push_back({state, process});
+    sPlayerStateMachines[sPlayerStateMachinesSize++] = {state, process};
     return true;
 }
 
@@ -318,7 +330,7 @@ BETTER_SMS_FOR_EXPORT bool BetterSMS::Player::registerCollisionHandler(u16 colTy
             return false;
         }
     }
-    sPlayerCollisionHandlers.push_back({colType, process});
+    sPlayerCollisionHandlers[sPlayerCollisionHandlersSize++] = {colType, process};
     return true;
 }
 
@@ -730,6 +742,9 @@ static TMario *playerInitHandler(TMario *player) {
     initMario(player, true);
 
     for (auto &item : sPlayerInitializers) {
+        if (item == nullptr) {
+            continue;
+        }
         item(player, true);
     }
 
@@ -746,6 +761,9 @@ static bool shadowMarioInitHandler() {
     initMario(player, false);
 
     for (auto &item : sPlayerInitializers) {
+        if (item == nullptr) {
+            continue;
+        }
         item(player, false);
     }
 
@@ -757,6 +775,9 @@ static void playerLoadAfterHandler(TMario *player) {
     player->initMirrorModel();
 
     for (auto &item : sPlayerLoadAfterCBs) {
+        if (item == nullptr) {
+            continue;
+        }
         item(player);
     }
 }
@@ -764,6 +785,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80276BB8, 0, 0, 0), playerLoadAfterHandler);
 
 static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {
+        if (item == nullptr) {
+            continue;
+        }
         item(player, true);
     }
 
@@ -773,6 +797,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler)
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {
+        if (item == nullptr) {
+            continue;
+        }
         item(player, false);
     }
 
@@ -785,7 +812,7 @@ static bool stateMachineHandler(TMario *player) {
 
     bool shouldProgressState = true;
     for (auto &item : sPlayerStateMachines) {
-        if (item.mID == currentState) {
+        if (item.mID == currentState && item.mCallback != nullptr) {
             shouldProgressState = item.mCallback(player);
             break;
         }
@@ -821,12 +848,12 @@ static u32 collisionHandler(TMario *player) {
     if (colType != prevColType) {
         // Here we keep the loops apart as to force exit callbacks before enter callbacks
         for (auto &item : sPlayerCollisionHandlers) {
-            if (item.mID == prevColType)
+            if (item.mID == prevColType && item.mCallback != nullptr)
                 item.mCallback(player, const_cast<TBGCheckData *>(playerData->mPrevCollisionFloor),
                                marioFlags | Player::InteractionFlags::ON_EXIT);
         }
         for (auto &item : sPlayerCollisionHandlers) {
-            if (item.mID == colType)
+            if (item.mID == colType && item.mCallback != nullptr)
                 item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                                marioFlags | Player::InteractionFlags::ON_ENTER);
         }
@@ -836,7 +863,7 @@ static u32 collisionHandler(TMario *player) {
         playerData->mCollisionTimer             = 0;
     } else if (colType >= 3000) {  // Custom collision is routinely updated
         for (auto &item : sPlayerCollisionHandlers) {
-            if (item.mID == colType)
+            if (item.mID == colType && item.mCallback != nullptr)
                 item.mCallback(player, const_cast<TBGCheckData *>(player->mFloorTriangle),
                                marioFlags);
         }

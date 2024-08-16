@@ -39,6 +39,11 @@ extern GammaSetting gGammaSetting;
 
 BETTER_SMS_FOR_CALLBACK void updateGammaSetting(TApplication *app) {
     f32 gamma = gGammaSetting.getFloat();
-    *((u8 *)app->mDisplay + 0x42) = static_cast<u8>(9.0f * gamma);
-    *((u8 *)app->mDisplay + 0x43) = static_cast<u8>(9.0f * gamma);
+    if (THPPlayerGetState() != 0) {
+        *((u8 *)app->mDisplay + 0x42) = 0;
+        *((u8 *)app->mDisplay + 0x43) = 0;
+    } else {
+        *((u8 *)app->mDisplay + 0x42) = static_cast<u8>(8.0f * gamma);
+        *((u8 *)app->mDisplay + 0x43) = static_cast<u8>(8.0f * gamma);
+    }
 }

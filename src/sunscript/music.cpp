@@ -17,10 +17,8 @@ void Spc::queueStream(TSpcInterp *interp, u32 argc) {
     if (item.mType == Spc::ValueType::STRING) {
         streamer->queueAudio(AudioPacket(reinterpret_cast<const char *>(item.mValue)));
     } else {
-        streamer->queueAudio(AudioPacket(item.mValue));
+        streamer->queueAudio(AudioPacket(item.getDataInt()));
     }
-
-    OSReport("Item type: %d, Item value: %X\n", item.mType, item.mValue);
 }
 
 void Spc::playStream(TSpcInterp *interp, u32 argc) {
@@ -34,7 +32,7 @@ void Spc::pauseStream(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).mValue);
+    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).getDataFloat());
     streamer->pause(fadeOut);
 }
 
@@ -42,7 +40,7 @@ void Spc::stopStream(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).mValue);
+    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).getDataFloat());
     streamer->stop(fadeOut);
 }
 
@@ -50,8 +48,8 @@ void Spc::seekStream(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    JSUStreamSeekFrom whence = static_cast<JSUStreamSeekFrom>(Spc::Stack::popItem(interp).mValue);
-    s32 where                = Spc::Stack::popItem(interp).mValue;
+    JSUStreamSeekFrom whence = static_cast<JSUStreamSeekFrom>(Spc::Stack::popItem(interp).getDataInt());
+    s32 where                = Spc::Stack::popItem(interp).getDataInt();
 
     streamer->seek(where, whence);
 }
@@ -60,7 +58,7 @@ void Spc::nextStream(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).mValue);
+    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).getDataFloat());
     streamer->next(fadeOut);
 }
 
@@ -68,7 +66,7 @@ void Spc::skipStream(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).mValue);
+    f32 fadeOut = static_cast<f32>(Spc::Stack::popItem(interp).getDataFloat());
     streamer->skip(fadeOut);
 }
 
@@ -83,7 +81,7 @@ void Spc::setStreamVolume(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    u32 volLR = Spc::Stack::popItem(interp).mValue;
+    u32 volLR = Spc::Stack::popItem(interp).getDataInt();
     streamer->setVolumeLR(static_cast<u8>(volLR >> 8), static_cast<u8>(volLR));
 }
 
@@ -97,6 +95,6 @@ void Spc::setStreamLooping(TSpcInterp *interp, u32 argc) {
     interp->verifyArgNum(1, &argc);
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
-    bool looping = static_cast<bool>(Spc::Stack::popItem(interp).mValue);
+    bool looping = static_cast<bool>(Spc::Stack::popItem(interp).getDataInt());
     streamer->setLooping(looping);
 }
