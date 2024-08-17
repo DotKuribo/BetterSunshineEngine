@@ -395,7 +395,7 @@ static void moveStage_override(TMarDirector *director) {
     bool isSameNormalStage =
         gpApplication.mCurrentScene.mAreaID == gpApplication.mNextScene.mAreaID;
 
-    if (isSameShineStage && !isSameNormalStage) {
+    if (isSameShineStage && !isSameNormalStage && !TFlagManager::smInstance->getBool(0x50010)) {
         if (gpApplication.mNextScene.mEpisodeID == 0xFF) {
             gpApplication.mNextScene.mEpisodeID = gpApplication.mCurrentScene.mEpisodeID;
             director->moveStage();
