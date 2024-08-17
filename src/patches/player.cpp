@@ -1,6 +1,7 @@
 #include <Dolphin/MTX.h>
 #include <JSystem/JUtility/JUTColor.hxx>
 #include <SMS/Enemy/EnemyMario.hxx>
+#include <SMS/Map/Map.hxx>
 #include <SMS/Strategic/HitActor.hxx>
 #include <SMS/Strategic/LiveActor.hxx>
 #include <SMS/System/CardManager.hxx>
@@ -76,3 +77,11 @@ SMS_ASM_FUNC void fixShadowPartsCrash() {
                   "blr                             \n\t");
 }
 SMS_PATCH_BL(0x802320E0, fixShadowPartsCrash);
+
+static size_t checkWallsWhenHanging(TMap* map, TBGWallCheckRecord* record) {
+    return map->mCollisionData->checkWalls(record);
+}
+SMS_PATCH_BL(0x80260944, checkWallsWhenHanging);
+SMS_PATCH_BL(0x80260AF8, checkWallsWhenHanging);
+SMS_PATCH_BL(0x80260D1C, checkWallsWhenHanging);
+SMS_PATCH_BL(0x80260DDC, checkWallsWhenHanging);

@@ -199,13 +199,15 @@ bool AudioStreamer::isLoopCustom() const {
 
 u32 AudioStreamer::getLoopStart() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopStart() >= 0 ? Min(packet.getLoopStart(), mAudioHandle->mLen) : 0;
+    u32 start = packet.getLoopStart() >= 0 ? Min(packet.getLoopStart(), mAudioHandle->mLen) : 0;
+    return start & ~0x7FFF;
 }
 
 u32 AudioStreamer::getLoopEnd() const {
     const AudioPacket &packet = getCurrentAudio();
-    return packet.getLoopEnd() >= 0 ? Min(packet.getLoopEnd(), mAudioHandle->mLen)
-                                    : mAudioHandle->mLen;
+    u32 end = packet.getLoopEnd() >= 0 ? Min(packet.getLoopEnd(), mAudioHandle->mLen)
+                                       : mAudioHandle->mLen;
+    return end & ~0x7FFF;
 }
 
 void AudioStreamer::setLooping(bool loop) { _mIsLooping = loop; }
@@ -328,15 +330,11 @@ void AudioStreamer::seek(s32 where, JSUStreamSeekFrom whence) {
 }
 
 void AudioStreamer::seek(f32 seconds, JSUStreamSeekFrom whence) {
-    sAudioCommand = AudioCommand::SEEK;
-    _mWhere       = AudioStreamRate * (u32)seconds;
-    _mWhence      = whence;
-    OSSendMessage(&mMessageQueue, static_cast<u32>(sAudioCommand), OS_MESSAGE_NOBLOCK);
+    OSReport("[AUDIO_STREAMER] seek(f32 seconds, JSUStreamSeekFrom whence) is deprecated. Use "
+             "seek(s32 where, JSUStreamSeekFrom whence) instead.\n");
 }
 
 SMS_NO_INLINE bool AudioStreamer::play_() {
-    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedPlay, _mIsPlaying, _mIsPaused);
-
     if (mRequestedPlay)
         return false;
 
@@ -365,9 +363,6 @@ SMS_NO_INLINE bool AudioStreamer::play_() {
 }
 
 SMS_NO_INLINE bool AudioStreamer::pause_() {
-    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedPause, _mIsPlaying,
-             _mIsPaused);
-
     if (mRequestedPause || _mIsPaused)
         return false;
 
@@ -388,9 +383,6 @@ SMS_NO_INLINE bool AudioStreamer::pause_() {
 }
 
 SMS_NO_INLINE bool AudioStreamer::stop_() {
-    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedStop, _mIsPlaying,
-             _mIsPaused);
-
     if (mRequestedStop)
         return false;
 
@@ -421,9 +413,6 @@ bool AudioStreamer::skip_() {
 }
 
 SMS_NO_INLINE void AudioStreamer::next_() {
-    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedPause, _mIsPlaying,
-             _mIsPaused);
-
     if (mRequestedNext)
         return;
 
@@ -515,12 +504,10 @@ SMS_NO_INLINE void AudioStreamer::update_() {
         const u8 avgVolume = (_mVolLeft + _mVolRight) / 2;
         if (avgVolume == 0) {
             if (mRequestedPause) {
-                OSReport("[AUDIO_STREAM] Paused!\n");
                 mRequestedPause = false;
                 _mIsPaused      = true;
                 pauseLowStream();
             } else if (mRequestedStop) {
-                OSReport("[AUDIO_STREAM] Stopped!\n");
                 mRequestedStop = false;
                 _mIsPlaying    = false;
                 _mIsPaused     = false;
@@ -533,7 +520,6 @@ SMS_NO_INLINE void AudioStreamer::update_() {
         if (mRequestedNext) {
             mRequestedNext = false;
             nextTrack_();
-            OSReport("[AUDIO_STREAM] Next track!\n");
         }
 
         if (mRequestedPlay) {
@@ -543,7 +529,6 @@ SMS_NO_INLINE void AudioStreamer::update_() {
                 _mIsPlaying = false;
             } else {
                 OSReport("[AUDIO_STREAM] Started next track!\n");
-                mStreamEnd = getLoopEnd() - 0x8000;
                 resetVolumeToFull();
             }
         }
@@ -551,6 +536,7 @@ SMS_NO_INLINE void AudioStreamer::update_() {
 }
 
 void AudioStreamer::nextTrack_() {
+    OSReport("[AUDIO_STREAM] Next track!\n");
     {
         TAtomicGuard guard;
 
@@ -588,11 +574,14 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     AISetStreamPlayState(true);
 
     DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0, AudioStreamer::cbForPrepareStreamAsync_);
+    mStreamEnd = getLoopEnd() - 0x8000;
+    mStreamPos = 0;
 
     return true;
 }
 
 SMS_NO_INLINE void AudioStreamer::pauseLowStream() {
+    OSReport("[AUDIO_STREAM] Pausing stream...\n");
     AISetStreamPlayState(false);
     // DVDCancelStreamAsync(&mStopBlock, cbForCancelStreamOnPauseAsync_);
 }
@@ -610,6 +599,7 @@ SMS_NO_INLINE bool AudioStreamer::seekLowStream(s32 streamPos) {
 }
 
 SMS_NO_INLINE bool AudioStreamer::stopLowStream() {
+    OSReport("[AUDIO_STREAM] Stopping stream...\n");
     AISetStreamVolLeft(0);
     AISetStreamVolRight(0);
     AISetStreamPlayState(false);
@@ -637,9 +627,9 @@ void AudioPacket::setLoopPoint(f32 start, f32 length) {
 
 SMS_NO_INLINE void AudioStreamer::cbForVolumeAlarm(OSAlarm *alarm, OSContext *context) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    if (!streamer->isPlaying()) {
+    /*if (!streamer->isPlaying()) {
         DVDGetStreamErrorStatusAsync(&streamer->mCanPlayBlock, cbForGetStreamErrorStatusAsync_);
-    }
+    }*/
     streamer->update_();
 }
 
@@ -663,11 +653,17 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamErrorStatusAsync_(u32 result,
 
 SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
                                                                DVDCommandBlock *cmdBlock) {
+
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    streamer->mStreamPos    = result - streamer->getStreamStart();
 
     DVDGetStreamErrorStatusAsync(&streamer->mPlayAddrBlock,
                                  AudioStreamer::cbForGetStreamErrorStatusAsync_);
+
+    if (streamer->mErrorStatus == 0) {
+        return;
+    }
+
+    streamer->mStreamPos = result - streamer->getStreamStart();
 
     // Check if we've reached the end of the stream
     if (streamer->getStreamPos() < streamer->getStreamEnd()) {
@@ -689,6 +685,7 @@ SMS_NO_INLINE void AudioStreamer::cbForPrepareStreamAsync_(u32 result, DVDFileIn
     AudioStreamer *streamer = AudioStreamer::getInstance();
     DVDStopStreamAtEndAsync(&streamer->mPrepareBlock, nullptr);
     _mIsPlaying = true;
+    _mIsPaused  = false;
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnStopAsync_(u32 result,
@@ -700,6 +697,9 @@ SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnStopAsync_(u32 result,
     streamer->mAudioHandle->mCmdBlock.mOffset = 0;
     streamer->mStreamPos                      = 0;
     streamer->mStreamEnd                      = 0;
+    streamer->mErrorStatus                    = 0;
+    _mIsPlaying                               = false;
+    _mIsPaused                                = false;
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
@@ -1030,10 +1030,11 @@ static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8028B318, 0, 0, 0), startMusicOnScriptMusicStop);
 
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
-    OSReport("[AUDIO_STREAM] Stopping music on exit stage\n");
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         AudioStreamer *streamer = AudioStreamer::getInstance();
-        streamer->next(0.2f);
+        if (streamer->isPlaying()) {
+            streamer->next(0.2f);
+        }
     }
 }
 
