@@ -100,8 +100,9 @@ bool AudioStreamer::isLooping() const { return _mIsLooping; }
 AudioStreamer AudioStreamer::sInstance = AudioStreamer(AudioThreadPriority, &sAudioFInfo);
 
 AudioStreamer::AudioStreamer(OSPriority priority, DVDFileInfo *fInfo)
-    : mAudioHandle(fInfo), mStreamPos(0), mStreamEnd(0), _mAudioIndex(0), _mDelayedTime(0.0f),
-      _mFadeTime(0.0f), _mWhere(0), _mWhence(JSUStreamSeekFrom::BEGIN),
+    : mAudioHandle(fInfo), mPlayNextTrack(true), mRequestedNext(false), mRequestedPause(false),
+      mRequestedPlay(false), mRequestedStop(false), mStreamPos(0), mStreamEnd(0), _mAudioIndex(0),
+      _mDelayedTime(0.0f), _mFadeTime(0.0f), _mWhere(0), _mWhence(JSUStreamSeekFrom::BEGIN),
       _mVolLeft(AudioVolumeDefault), _mVolRight(AudioVolumeDefault),
       _mFullVolLeft(AudioVolumeDefault), _mFullVolRight(AudioVolumeDefault),
       _mTargetVolume(AudioVolumeDefault), _mPreservedVolLeft(AudioVolumeDefault),
@@ -334,14 +335,19 @@ void AudioStreamer::seek(f32 seconds, JSUStreamSeekFrom whence) {
 }
 
 SMS_NO_INLINE bool AudioStreamer::play_() {
-    if (isPlaying()) {
-        if (isPaused()) {
+    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedPlay, _mIsPlaying, _mIsPaused);
+
+    if (mRequestedPlay)
+        return false;
+
+    if (_mIsPlaying) {
+        if (_mIsPaused) {
             AISetStreamPlayState(true);
             setVolumeFadeTo((_mFullVolLeft + _mFullVolRight) / 2, _mFadeTime);
 
             _mIsPaused = false;
             return true;
-        } else {
+        } else if (!mRequestedNext) {
             return false;
         }
     }
@@ -354,40 +360,22 @@ SMS_NO_INLINE bool AudioStreamer::play_() {
         return false;
     }
 
-    _mIsPlaying = startLowStream();
-    if (_mIsPlaying) {
-        OSReport("[AUDIO_STREAM] Playing new audio!\n");
-        mStreamEnd = getLoopEnd() - 0x8000;
-        resetVolumeToFull();
-        return true;
-    }
-
-    OSReport("[AUDIO_STREAM] No audio queued to play!\n");
-    return false;
-}
-
-SMS_NO_INLINE bool AudioStreamer::pause_() {
-    if (_mIsPaused)
-        return false;
-
-    _mFadeTime          = _mDelayedTime;
-    _mPreservedVolLeft  = _mVolLeft;
-    _mPreservedVolRight = _mVolRight;
-    setVolumeFadeTo(0, _mFadeTime);
-
-    _mIsPaused = true;
+    mRequestedPlay = true;
     return true;
 }
 
-SMS_NO_INLINE bool AudioStreamer::stop_() {
-    if (!_mIsPlaying && !_mIsPaused)
-        return false;
+SMS_NO_INLINE bool AudioStreamer::pause_() {
+    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedPause, _mIsPlaying,
+             _mIsPaused);
 
-    OSReport("[AUDIO_STREAM] Stopping audio!\n");
+    if (mRequestedPause || _mIsPaused)
+        return false;
 
     if (_mDelayedTime <= 0.0f) {
         _mDelayedTime = 0.0f;
-        stopLowStream();
+        _mIsPaused    = false;
+        _mIsPlaying   = false;
+        pauseLowStream();
     } else {
         _mFadeTime          = _mDelayedTime;
         _mPreservedVolLeft  = _mVolLeft;
@@ -395,9 +383,36 @@ SMS_NO_INLINE bool AudioStreamer::stop_() {
         setVolumeFadeTo(0, _mFadeTime);
     }
 
-    _mIsPaused  = false;
-    _mIsPlaying = false;
+    mRequestedPause = true;
     return true;
+}
+
+SMS_NO_INLINE bool AudioStreamer::stop_() {
+    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedStop, _mIsPlaying,
+             _mIsPaused);
+
+    if (mRequestedStop)
+        return false;
+
+    if (!_mIsPlaying && !_mIsPaused)
+        return false;
+
+    bool state = true;
+
+    if (_mDelayedTime <= 0.0f) {
+        _mDelayedTime = 0.0f;
+        _mIsPaused    = false;
+        _mIsPlaying   = false;
+        state         = stopLowStream();
+    } else {
+        _mFadeTime          = _mDelayedTime;
+        _mPreservedVolLeft  = _mVolLeft;
+        _mPreservedVolRight = _mVolRight;
+        setVolumeFadeTo(0, _mFadeTime);
+    }
+
+    mRequestedStop = true;
+    return state;
 }
 
 bool AudioStreamer::skip_() {
@@ -406,8 +421,34 @@ bool AudioStreamer::skip_() {
 }
 
 SMS_NO_INLINE void AudioStreamer::next_() {
-    stop_();
-    nextTrack_();
+    OSReport("[AUDIO_STREAM] Req: %d, pl: %d, pa: %d, \n", mRequestedPause, _mIsPlaying,
+             _mIsPaused);
+
+    if (mRequestedNext)
+        return;
+
+    if (_mDelayedTime <= 0.0f || _mIsPaused) {
+        _mDelayedTime = 0.0f;
+        if (mErrorStatus == 1) {
+            stopLowStream();
+        }
+    } else if (_mIsPlaying) {
+        _mFadeTime          = _mDelayedTime;
+        _mPreservedVolLeft  = _mVolLeft;
+        _mPreservedVolRight = _mVolRight;
+        setVolumeFadeTo(0, _mFadeTime);
+    } else {
+        _mDelayedTime       = 0.0f;
+        _mFadeTime          = 0.0f;
+        _mTargetVolume      = 0;
+        _mVolLeft           = 0;
+        _mVolRight          = 0;
+        _mPreservedVolLeft  = 0;
+        _mPreservedVolRight = 0;
+    }
+
+    mRequestedNext = true;
+    mRequestedStop = true;
 }
 
 SMS_NO_INLINE bool AudioStreamer::seek_() {
@@ -473,12 +514,38 @@ SMS_NO_INLINE void AudioStreamer::update_() {
     if (curVolume == _mTargetVolume) {
         const u8 avgVolume = (_mVolLeft + _mVolRight) / 2;
         if (avgVolume == 0) {
-            if (isPaused()) {
+            if (mRequestedPause) {
+                OSReport("[AUDIO_STREAM] Paused!\n");
+                mRequestedPause = false;
+                _mIsPaused      = true;
                 pauseLowStream();
-            } else if (!isPlaying()) {
+            } else if (mRequestedStop) {
+                OSReport("[AUDIO_STREAM] Stopped!\n");
+                mRequestedStop = false;
+                _mIsPlaying    = false;
+                _mIsPaused     = false;
                 stopLowStream();
             }
-            return;
+        }
+    }
+
+    if (canPlayNextTrack()) {
+        if (mRequestedNext) {
+            mRequestedNext = false;
+            nextTrack_();
+            OSReport("[AUDIO_STREAM] Next track!\n");
+        }
+
+        if (mRequestedPlay) {
+            mRequestedPlay = false;
+            if (!startLowStream()) {
+                OSReport("[AUDIO_STREAM] Failed to start next track!\n");
+                _mIsPlaying = false;
+            } else {
+                OSReport("[AUDIO_STREAM] Started next track!\n");
+                mStreamEnd = getLoopEnd() - 0x8000;
+                resetVolumeToFull();
+            }
         }
     }
 }
@@ -549,6 +616,10 @@ SMS_NO_INLINE bool AudioStreamer::stopLowStream() {
     return DVDCancelStreamAsync(&mStopBlock, AudioStreamer::cbForCancelStreamOnStopAsync_);
 }
 
+bool BetterSMS::Music::AudioStreamer::canPlayNextTrack() const {
+    return mPlayNextTrack && mErrorStatus == 0;
+}
+
 void AudioPacket::setLoopPoint(s32 start, s32 end) {
     mParams.mLoopStart.set(start);
     mParams.mLoopEnd.set(end);
@@ -566,6 +637,9 @@ void AudioPacket::setLoopPoint(f32 start, f32 length) {
 
 SMS_NO_INLINE void AudioStreamer::cbForVolumeAlarm(OSAlarm *alarm, OSContext *context) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
+    if (!streamer->isPlaying()) {
+        DVDGetStreamErrorStatusAsync(&streamer->mCanPlayBlock, cbForGetStreamErrorStatusAsync_);
+    }
     streamer->update_();
 }
 
@@ -574,14 +648,15 @@ SMS_NO_INLINE void AudioStreamer::cbForAIInterrupt(u32 trigger) {
     AISetStreamTrigger(trigger + Music::AudioStreamRate);
     DVDGetStreamPlayAddrAsync(&streamer->mAIInteruptBlock,
                               AudioStreamer::cbForGetStreamPlayAddrAsync_);
-    // streamer->mErrorStatus = 2;
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForGetStreamErrorStatusAsync_(u32 result,
                                                                   DVDCommandBlock *cmdBlock) {
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-    streamer->mErrorStatus  = result;
-    if (streamer->mErrorStatus != 1) {
+    AudioStreamer *streamer    = AudioStreamer::getInstance();
+    streamer->mLastErrorStatus = streamer->mErrorStatus;
+    streamer->mErrorStatus     = result;
+    if (streamer->mErrorStatus != 1 && streamer->mErrorStatus != streamer->mLastErrorStatus &&
+        streamer->isPlaying()) {
         streamer->stop_();
     }
 }
@@ -606,25 +681,25 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
         streamer->_mWhence = BEGIN;
         streamer->seek_();
     } else {
-        streamer->_mDelayedTime = 0.0f;
-        streamer->stopLowStream();
-        streamer->nextTrack_();
-        if (!streamer->startLowStream()) {
-            OSReport("[AUDIO_STREAM] Failed to start next track!\n");
-            _mIsPlaying = false;
-        }
+        streamer->skip_();
     }
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
     DVDStopStreamAtEndAsync(&streamer->mPrepareBlock, nullptr);
+    _mIsPlaying = true;
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnStopAsync_(u32 result,
                                                                 DVDCommandBlock *callback) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
     DVDClose(streamer->mAudioHandle);
+    streamer->mAudioHandle->mStart            = 0;
+    streamer->mAudioHandle->mLen              = 0;
+    streamer->mAudioHandle->mCmdBlock.mOffset = 0;
+    streamer->mStreamPos                      = 0;
+    streamer->mStreamEnd                      = 0;
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
@@ -955,6 +1030,7 @@ static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8028B318, 0, 0, 0), startMusicOnScriptMusicStop);
 
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
+    OSReport("[AUDIO_STREAM] Stopping music on exit stage\n");
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         AudioStreamer *streamer = AudioStreamer::getInstance();
         streamer->next(0.2f);

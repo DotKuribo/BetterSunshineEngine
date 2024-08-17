@@ -176,6 +176,8 @@ namespace BetterSMS {
             bool seekLowStream(s32 streamPos);
             bool stopLowStream();
 
+            bool canPlayNextTrack() const;
+
             static void cbForVolumeAlarm(OSAlarm *alarm, OSContext *context);
             static void cbForAIInterrupt(u32 trigger);
             static void cbForGetStreamErrorStatusAsync_(u32 result, DVDCommandBlock *cmdBlock);
@@ -191,16 +193,23 @@ namespace BetterSMS {
             OSMessageQueue mMessageQueue;
             OSMessage mMessageList[AudioMessageQueueSize];
             DVDFileInfo *mAudioHandle;
-            DVDCommandBlock mAIInteruptBlock;
-            DVDCommandBlock mRunBlock;
-            DVDCommandBlock mPrepareBlock;
-            DVDCommandBlock mSeekBlock;
-            DVDCommandBlock mStopBlock;
-            DVDCommandBlock mPlayAddrBlock;
+            mutable DVDCommandBlock mAIInteruptBlock;
+            mutable DVDCommandBlock mRunBlock;
+            mutable DVDCommandBlock mPrepareBlock;
+            mutable DVDCommandBlock mSeekBlock;
+            mutable DVDCommandBlock mStopBlock;
+            mutable DVDCommandBlock mPlayAddrBlock;
+            mutable DVDCommandBlock mCanPlayBlock;
             u8 *mAudioStack;
             u32 mStreamPos;
             u32 mStreamEnd;
             u32 mErrorStatus;
+            u32 mLastErrorStatus;
+            bool mPlayNextTrack;
+            bool mRequestedNext;
+            bool mRequestedStop;
+            bool mRequestedPlay;
+            bool mRequestedPause;
 
         private:
             AudioPacket _mAudioQueue[AudioQueueSize];
