@@ -436,8 +436,6 @@ void setDEBSWidthByRedCoinTimer(TGCConsole2 *console, bool forceAppear) {
     startAppearTelop__11TGCConsole2Fb(console, forceAppear);
 }
 
-SMS_WRITE_32(SMS_PORT_REGION(0x80142998, 0, 0, 0), 0x48000078);
-
 // static int sx = 100;
 // static int sy = 900;
 //

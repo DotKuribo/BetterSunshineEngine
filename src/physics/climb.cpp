@@ -149,35 +149,6 @@ void getClimbingAnimSpd(TMario *player, TMario::Animation anim, f32 speed) {
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025DBC4, 0, 0, 0), getClimbingAnimSpd);
 // SMS_PATCH_BL(SMS_PORT_REGION(0x8025E38C, 0, 0, 0), getClimbingAnimSpd);
 
-/* ROOF HANG CODE */
-
-static SMS_ASM_FUNC void scaleRoofClimbHeight(f32 yCoord, f32 speed) {
-    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(SMS_PORT_REGION(
-        -0xDE0, -0xf68, 0, 0)) "(2)        \n\t"
-                               "lfs 3, 0x28(31)                                \n\t"
-                               "fmuls 0, 0, 3                                  \n\t"
-                               "blr                                            \n\t");
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x8025D66C, 0x802553F8, 0, 0), scaleRoofClimbHeight);
-
-static SMS_ASM_FUNC void scaleRoofSquashedHeight() {
-    SMS_ASM_BLOCK("lfs 3, " SMS_STRINGIZE(SMS_PORT_REGION(
-        -0xDE0, -0xf68, 0, 0)) "(2)        \n\t"
-                               "lfs 5, 0x28(30)                                \n\t"
-                               "fmuls 3, 5, 3                                  \n\t"
-                               "blr                                            \n\t");
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x802617EC, 0x80259578, 0, 0), scaleRoofSquashedHeight);
-
-static SMS_ASM_FUNC void scaleRoofMoveDiff() {
-    SMS_ASM_BLOCK("lfs 0, " SMS_STRINGIZE(SMS_PORT_REGION(
-        -0xD7C, -0xf04, 0, 0)) "(2)        \n\t"
-                               "lfs 10, 0x28(30)                                \n\t"
-                               "fmuls 0, 0, 10                                  \n\t"
-                               "blr                                             \n\t");
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80261824, 0x802595B0, 0, 0), scaleRoofMoveDiff);
-
 // static bool canHangOnRoof(TBGCheckData *roof /*, u16 colType*/) {
 //     TMario *player;
 //     SMS_FROM_GPR(30, player);

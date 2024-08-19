@@ -23,6 +23,8 @@
 using namespace BetterSMS;
 using namespace BetterSMS::Music;
 
+constexpr f32 PauseFadeSpeed = 0.8f;
+
 // Name of the song to play, e.g. "BeachTheme"
 BETTER_SMS_FOR_EXPORT bool Music::queueSong(const char *name) {
     return AudioStreamer::getInstance()->queueAudio(AudioPacket(name));
@@ -84,6 +86,7 @@ static bool _startPaused = false;
 static bool _mIsPlaying  = false;
 static bool _mIsPaused   = false;
 static bool _mIsLooping  = false;
+static bool _mIsBootOut  = false;
 
 SMS_NO_INLINE static void *threadMain_(void *param) {
     AudioStreamer *streamer = reinterpret_cast<Music::AudioStreamer *>(param);
@@ -483,14 +486,14 @@ SMS_NO_INLINE void AudioStreamer::update_() {
 
     if (!isGamePaused && isPlaying()) {
         // Automatically fade music in/out based on event sequenced track
-        if (MSBgm *handle = (MSBgm *)MSBgm::getHandle(2)) {
+        if (MSBgm::getHandle(0) || MSBgm::getHandle(1) || MSBgm::getHandle(2)) {
             if (!isPaused() && isPlaying()) {
-                _mDelayedTime = 0.7f;
+                _mDelayedTime = PauseFadeSpeed;
                 pause_();
             }
         } else {
-            if (isPaused() && isPlaying()) {
-                _mDelayedTime = 0.7f;
+            if (isPaused() && isPlaying() && !_mIsBootOut) {
+                _mDelayedTime = PauseFadeSpeed;
                 play_();
             }
         }
@@ -574,7 +577,7 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     AISetStreamPlayState(true);
 
     DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0, AudioStreamer::cbForPrepareStreamAsync_);
-    mStreamEnd = getLoopEnd() - 0x8000;
+    mStreamEnd = getLoopEnd() - AudioPreparePreOffset;
     mStreamPos = 0;
 
     return true;
@@ -820,11 +823,11 @@ static void initSoundBank(u8 areaID, u8 episodeID) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802B7A4C, 0x802AFA1C, 0, 0), initSoundBank);
 
-constexpr f32 PauseFadeSpeed = 0.5f;
-
 // 0x802BB89C
 static void initExMusic(MSStageInfo bgm) {
     Stage::TStageParams *config = Stage::getStageConfiguration();
+
+    _mIsBootOut = false;
 
     if (config->mMusicSetCustom.get()) {
         gStageBGM = 0x80010000 | config->mMusicID.get();
@@ -875,6 +878,8 @@ static char streamFiles[][JASystem::HardStream::streamFilesSize] = {"test.adp", 
 static void initStageMusic() {
     Stage::TStageParams *config = Stage::getStageConfiguration();
     AudioStreamer *streamer     = AudioStreamer::getInstance();
+
+    _mIsBootOut = false;
 
     if (config->mMusicSetCustom.get()) {
         gStageBGM = 0x80010000 | config->mMusicID.get();
@@ -939,8 +944,9 @@ static void stopMusicOnShineGet(u32 musicID) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
     if ((gpMarDirector->mCollectedShine->mType & 0x10) == 0 && streamer->isPlaying()) {
-        streamer->stop(PauseFadeSpeed);
+        _mIsBootOut = true;
     }
+    streamer->pause(PauseFadeSpeed);
 
     MSBgm::startBGM(musicID);
 }
@@ -955,7 +961,7 @@ static void stopMusicOnManholeEnter(u32 musicID) {
 
     MSBgm::startBGM(musicID);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024FAB8, 0x80247844, 0, 0), stopMusicOnManholeEnter);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8024FAB8, 0x80247844, 0, 0), stopMusicOnManholeEnter);
 
 // 0x8024FB0C
 static void startMusicOnManholeExit(u32 musicID, u32 unk_0) {
@@ -966,7 +972,7 @@ static void startMusicOnManholeExit(u32 musicID, u32 unk_0) {
 
     MSBgm::stopBGM(musicID, unk_0);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB0C, 0x80247898, 0, 0), startMusicOnManholeExit);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB0C, 0x80247898, 0, 0), startMusicOnManholeExit);
 
 // 0x802981A8
 static void stopMusicBeforeShineCamera(CPolarSubCamera *cam, const char *demo, const TVec3f *pos,
@@ -977,7 +983,7 @@ static void stopMusicBeforeShineCamera(CPolarSubCamera *cam, const char *demo, c
     if (streamer->isPlaying())
         streamer->pause(PauseFadeSpeed);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802981A8, 0x80290040, 0, 0), stopMusicBeforeShineCamera);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x802981A8, 0x80290040, 0, 0), stopMusicBeforeShineCamera);
 
 // 0x80297FD4
 static void startMusicAfterShineCamera(CPolarSubCamera *cam) {
@@ -987,13 +993,13 @@ static void startMusicAfterShineCamera(CPolarSubCamera *cam) {
     if (streamer->isPaused())
         streamer->play();
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80297FD4, 0x8028FE6C, 0, 0), startMusicAfterShineCamera);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x80297FD4, 0x8028FE6C, 0, 0), startMusicAfterShineCamera);
 
 static void stopMusicOnDeathExec(u32 musicID) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
     if (streamer->isPlaying())
-        streamer->stop(PauseFadeSpeed);
+        streamer->pause(PauseFadeSpeed);
 
     MSBgm::startBGM(musicID);
 }
@@ -1003,7 +1009,7 @@ static void stopMusicOnGameOver(u32 musicID) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
     if (streamer->isPlaying())
-        streamer->stop(PauseFadeSpeed);
+        streamer->pause(PauseFadeSpeed);
 
     MSBgm::startBGM(musicID);
 }
@@ -1017,7 +1023,7 @@ static void pauseMusicOnScriptMusicStart(u32 musicID) {
 
     MSBgm::startBGM(musicID);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8028b7f0, 0, 0, 0), pauseMusicOnScriptMusicStart);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8028b7f0, 0, 0, 0), pauseMusicOnScriptMusicStart);
 
 static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
@@ -1027,12 +1033,13 @@ static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
 
     MSBgm::stopBGM(musicID, _unk);
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x8028B318, 0, 0, 0), startMusicOnScriptMusicStop);
+// SMS_PATCH_BL(SMS_PORT_REGION(0x8028B318, 0, 0, 0), startMusicOnScriptMusicStop);
 
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         AudioStreamer *streamer = AudioStreamer::getInstance();
-        if (streamer->isPlaying()) {
+        if (streamer->isPlaying() || streamer->isPaused() ||
+            (streamer->getErrorStatus() == 0 && streamer->getCurrentAudio().getID() != -1)) {
             streamer->next(0.2f);
         }
     }

@@ -132,7 +132,7 @@ static void checkForWaterDeath(TYoshi *yoshi, const TBGCheckData *ground, f32 gr
     if (height - yoshi->mTranslation.y < 100)
         return;
 
-    if (!water->isWaterSurface() ||
+    if (!water || !water->isWaterSurface() ||
         !(yoshi->mState == TYoshi::UNMOUNTED || yoshi->mState == TYoshi::MOUNTED))
         return;
 

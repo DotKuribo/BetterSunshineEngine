@@ -219,7 +219,7 @@ static size_t checkWallListExotic(const TBGCheckList *list, TBGWallCheckRecord *
 }
 
 static size_t checkWallsExotic_(TMapCollisionData *collision, TBGWallCheckRecord *record,
-                                bool roundCorners) {
+                                bool isExotic) {
     record->mNumWalls = 0;
 
     const f32 gridFraction = 1.0f / 1024.0f;
@@ -230,7 +230,7 @@ static size_t checkWallsExotic_(TMapCollisionData *collision, TBGWallCheckRecord
     bool isCollisionRepaired = BetterSMS::isCollisionRepaired();
 
     // This fixes large objects consuming many cells when bug fixes are enabled
-    const f32 cellRadius = isCollisionRepaired ? record->mRadius : 0.0f;
+    const f32 cellRadius = (isCollisionRepaired && isExotic) ? record->mRadius : 0.0f;
 
     const f32 minX = record->mPosition.x - cellRadius;
     const f32 maxX = record->mPosition.x + cellRadius;
@@ -252,7 +252,7 @@ static size_t checkWallsExotic_(TMapCollisionData *collision, TBGWallCheckRecord
     size_t wallsFound = 0;
 
     // Fall back to simple corner behavior when not fixing bugs
-    if (!isCollisionRepaired || !roundCorners) {
+    if (!isCollisionRepaired || !isExotic) {
         for (int cellX = cellMinX; cellX <= cellMaxX; ++cellX) {
             for (int cellZ = cellMinZ; cellZ <= cellMaxZ; ++cellZ) {
                 wallsFound += collision->checkWallList(
@@ -310,7 +310,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80189B04, 0, 0, 0), checkWallsExotic);
 
 static bool enhancePlayerCheckWallPlane(TMap *map, TBGWallCheckRecord *record) {
     bool isSimpleCollisionState = false;
-    isSimpleCollisionState |= (gpMarioAddress->mState & 0x30000000) != 0;  // Hanging still
+    isSimpleCollisionState |= (gpMarioAddress->mState & 0x30200000) != 0;  // Hanging still
     record->mIgnoreFlags |= 1;  // Ignore water
     return checkWallsExotic_(map->mCollisionData, record, !isSimpleCollisionState) > 0;
 }

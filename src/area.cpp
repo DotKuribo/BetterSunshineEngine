@@ -358,7 +358,7 @@ static const char *loadScenarioNameFromBMGAfter(void *global_bmg) {
 
 SMS_NO_INLINE static const char *loadScenarioNameFromBMGAfterStub(u8 *pause_menu, void* global_bmg) {
     const char *name = loadScenarioNameFromBMGAfter(global_bmg);
-    if (!name) {
+    if (!name || strcmp(name, "") == 0) {
         (*(J2DPane **)(pause_menu + 0x1C))->add(0, 30);
         (*(J2DPane **)(pause_menu + 0xD4))->add(0, 15);
     }

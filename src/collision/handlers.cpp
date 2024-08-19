@@ -25,6 +25,9 @@ using namespace BetterSMS;
     case ((base) + 4)
 
 static void resetValuesOnStateChange(TMario *player) {
+    if (gpMarDirector->mCurState != TMarDirector::STATE_NORMAL)
+        return;
+
     auto playerData = Player::getData(player);
 
     switch (player->mPrevState) {

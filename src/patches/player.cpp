@@ -27,7 +27,7 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
     if (!carried || !BetterSMS::areBugsPatched())
         return;
 
-    #if 0
+#if 0
     switch (*(u32 *)carried) {
     case VT_COVER_FRUIT:
     case VT_RANDOM_FRUIT:
@@ -43,15 +43,15 @@ void checkForForceDropOnDeadActor(TMario *player, bool isMario) {
     default:
         return;
     }
-    #else
-    if ((carried->mObjectID & 0x10000000))
+#else
+    if ((carried->mObjectID & 0x18000000))
         return;
 
     if ((carried->mStateFlags.asU32 & 1) != 0) {
         carried->mHolder    = nullptr;
         player->mHeldObject = nullptr;
     }
-    #endif
+#endif
 }
 
 #undef VT_COVER_FRUIT
@@ -78,10 +78,29 @@ SMS_ASM_FUNC void fixShadowPartsCrash() {
 }
 SMS_PATCH_BL(0x802320E0, fixShadowPartsCrash);
 
-static size_t checkWallsWhenHanging(TMap* map, TBGWallCheckRecord* record) {
+static size_t checkWallsWhenHanging(TMap *map, TBGWallCheckRecord *record) {
     return map->mCollisionData->checkWalls(record);
 }
 SMS_PATCH_BL(0x80260944, checkWallsWhenHanging);
 SMS_PATCH_BL(0x80260AF8, checkWallsWhenHanging);
 SMS_PATCH_BL(0x80260D1C, checkWallsWhenHanging);
 SMS_PATCH_BL(0x80260DDC, checkWallsWhenHanging);
+
+static f32 getHangingRoof(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **out) {
+    TVec3f *pos;
+    SMS_FROM_GPR(31, pos);
+
+    if (!BetterSMS::isCollisionRepaired()) {
+        return map->checkRoof(x, y, z, out);
+    }
+
+    //f32 height = 10000000.0f;
+    while (true) {
+        f32 result = map->checkRoof(x, y + 80.0f, z, out);
+        if (result > pos->y - 80.0f) {
+            return result;
+        }
+        y = result;
+    }
+}
+SMS_PATCH_BL(0x80261794, getHangingRoof);
