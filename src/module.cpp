@@ -32,6 +32,7 @@
 #include "stage.hxx"
 #include "sunscript.hxx"
 #include "time.hxx"
+#include "thp.hxx"
 
 // SETTINGS //
 
@@ -131,6 +132,8 @@ extern void drawGameStateMonitor(TApplication *, const J2DOrthoGraph *);
 // GAME
 extern void extendLightEffectToShineCount(TApplication *app);
 
+extern void loadBaseGameTHP();
+
 // PLAYER MOVES
 extern u32 MultiJumpState;
 extern void updateDeadTriggerState(TMario *player, bool isMario);
@@ -218,6 +221,7 @@ static void initLib() {
     initLoadingScreen();
     initExtendedPlayerAnims();
     initAreaInfo();
+    loadBaseGameTHP();
 
     initializeTaskBuffers();
 
