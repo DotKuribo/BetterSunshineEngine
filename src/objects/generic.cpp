@@ -176,7 +176,7 @@ void TGenericRailObj::control() {
     }
 
     TGraphWeb *graph = mGraphTracer->mGraph;
-    if (graph->isDummy()) {
+    if (!graph || graph->isDummy()) {
         mRotation.add(mBaseRotation);
         return;
     }

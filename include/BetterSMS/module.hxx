@@ -125,15 +125,6 @@ namespace BetterSMS {
 
     private:
         static void valueChanged(void *old, void *cur, ValueKind kind) {
-            auto flag = *reinterpret_cast<bool *>(cur);
-            if (flag) {
-                // Force exotic wall selection (Fixes intersecting walls)
-                PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x802556A0, 0, 0, 0)),
-                                  0x4800000C);
-            } else {
-                PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x802556A0, 0, 0, 0)),
-                                  0x4082000C);
-            }
         }
 
         bool mIsUnlocked;

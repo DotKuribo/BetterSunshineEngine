@@ -1368,6 +1368,8 @@ s32 LevelSelectDirector::direct() {
                                             ->mEpisodeInfos[mSelectScreen->mSelectedEpisodeID];
                 gpApplication.mNextScene.mAreaID    = info->mNormalStageID;
                 gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
+                // Reset coins
+                TFlagManager::smInstance->setFlag(0x40002, 0);
                 TFlagManager::smInstance->setFlag(0x40003, info->mScenarioID);
             }
 

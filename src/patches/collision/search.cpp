@@ -308,13 +308,55 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x801899E8, 0, 0, 0), checkWallsExotic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189A64, 0, 0, 0), checkWallsExotic);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80189B04, 0, 0, 0), checkWallsExotic);
 
-static bool enhancePlayerCheckWallPlane(TMap *map, TBGWallCheckRecord *record) {
+//static bool enhancePlayerCheckWallPlane(TMap *map, TBGWallCheckRecord *record) {
+//    bool isSimpleCollisionState = false;
+//    isSimpleCollisionState |= (gpMarioAddress->mState & 0x30200000) != 0;  // Hanging still
+//    isSimpleCollisionState |= (gpMarioAddress->mState == TMario::STATE_WALLSLIDE);  // Wall slide
+//    record->mIgnoreFlags |= 1;  // Ignore water
+//    return checkWallsExotic_(map->mCollisionData, record, !isSimpleCollisionState) > 0;
+//}
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80255664, 0, 0, 0), enhancePlayerCheckWallPlane);
+
+static TBGCheckData *checkWallPlaneEnhanced(TMario *player, Vec *pos, f32 height, f32 radius) {
+    TBGWallCheckRecord record;
+    record.mPosition.x  = pos->x;
+    record.mPosition.y  = pos->y + height;
+    record.mPosition.z  = pos->z;
+    record.mCollideMax  = 4;
+    record.mIgnoreFlags = BetterSMS::isCollisionRepaired() ? 1 : 0;
+    record.mRadius      = radius;
+
     bool isSimpleCollisionState = false;
-    isSimpleCollisionState |= (gpMarioAddress->mState & 0x30200000) != 0;  // Hanging still
-    record->mIgnoreFlags |= 1;  // Ignore water
-    return checkWallsExotic_(map->mCollisionData, record, !isSimpleCollisionState) > 0;
+    isSimpleCollisionState |= (player->mState & 0x30200000) != 0;           // Hanging still
+    isSimpleCollisionState |= (player->mState == TMario::STATE_WALLSLIDE);  // Wall slide
+
+    TBGCheckData *result = nullptr;
+
+    bool touchedWalls = checkWallsExotic_(gpMapCollisionData, &record, !isSimpleCollisionState) > 0;
+    if (touchedWalls && record.mNumWalls > 0) {
+        size_t i = 0;
+        do {
+            TBGCheckData *wall = record.mWalls[i];
+            if (isSimpleCollisionState && wall->mOwner == player->mPriorityCollisionOwner) {
+                result = wall;
+                break;
+            }
+
+            f32 wallProj = fabsf(wall->mNormal.x * pos->x + wall->mNormal.y * pos->y +
+                                 wall->mNormal.z * pos->z + wall->mProjectionFactor);
+            if (wallProj < radius) {
+                result = wall;
+                radius = wallProj;
+            }
+            i += 1;
+        } while (--record.mNumWalls);
+    }
+
+    pos->x = record.mPosition.x;
+    pos->z = record.mPosition.z;
+    return result;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80255664, 0, 0, 0), enhancePlayerCheckWallPlane);
+SMS_PATCH_B(SMS_PORT_REGION(0x802555FC, 0, 0, 0), checkWallPlaneEnhanced);
 
 static f32 patchedCheckGroundList(f32 x, f32 y, f32 z, u8 flags, const TBGCheckList *list,
                                   const TBGCheckData **out) {
@@ -488,6 +530,3 @@ SMS_PATCH_B(SMS_PORT_REGION(0x8018C628, 0, 0, 0), patchedCheckRoofList);
 
 // static float removeQuarterFrames() { return 120.0f; }
 // SMS_PATCH_BL(SMS_PORT_REGION(0x80299850, 0, 0, 0), removeQuarterFrames);
-
-// Force exotic wall selection (Fixes intersecting walls)
-SMS_WRITE_32(SMS_PORT_REGION(0x802556A0, 0, 0, 0), 0x4800000C);

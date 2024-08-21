@@ -94,7 +94,7 @@ static f32 getHangingRoof(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **o
         return map->checkRoof(x, y, z, out);
     }
 
-    //f32 height = 10000000.0f;
+    // f32 height = 10000000.0f;
     while (true) {
         f32 result = map->checkRoof(x, y + 80.0f, z, out);
         if (result > pos->y - 80.0f) {

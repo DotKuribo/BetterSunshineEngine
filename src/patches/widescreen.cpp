@@ -436,60 +436,59 @@ void setDEBSWidthByRedCoinTimer(TGCConsole2 *console, bool forceAppear) {
     startAppearTelop__11TGCConsole2Fb(console, forceAppear);
 }
 
-// static int sx = 100;
-// static int sy = 900;
-//
-// static void fixDEBSWideScreenText(s32 x1, s32 y1, s32 width, s32 height) {
-//     TGCConsole2 *console = gpMarDirector->mGCConsole;
-//     const f32 ratio      = getScreenToFullScreenRatio();
-//
-//     //sDEBSToTimerRatio = lerp<f32>(0.0f, 1.0f, f32(console->mRedCoinCardTimer) / 117.1f);
-//     sDEBSToTimerRatio = lerp<f32>(0.0f, 1.0f, f32(console->mRedCoinCardTimer) / 117.1f);
-//
-//     TExPane *pane          = console->mTelopWindow;
-//     J2DWindow *window      = reinterpret_cast<J2DWindow *>(pane->mPane);
-//     pane->mRect.mX1        = sPaneRect.mX1 + (180.0f * sDEBSToTimerRatio);
-//     pane->mPane->mRect.mX1 = sPaneRect.mX1 + (180.0f * sDEBSToTimerRatio);
-//     window->mFillRect.mX2  =
-//         sFillRect.mX2 - (180.0f * sDEBSToTimerRatio);
-//
-//     switch (getScreenRenderWidth()) {
-//     default:
-//     case 600:
-//         GXSetScissor(x1, y1, width, height);
-//         break;
-//     case 700:
-//         GXSetScissor(sx, y1, sy, height);
-//         break;
-//     case 1050:
-//         GXSetScissor(sx, y1, sy, height);
-//         break;
-//     }
-// }
-// SMS_PATCH_BL(SMS_PORT_REGION(0x80143FDC, 0x80138CAC, 0, 0), fixDEBSWideScreenText);
-//
-// static void fixDEBSWideScreenPanel(TGCConsole2 *console) {
-//     const f32 ratio  = getScreenToFullScreenRatio();
-//     const s32 offset = getScreenRatioAdjustX();
-//
-//     TExPane *pane     = console->mTelopWindow;
-//     J2DWindow *window = reinterpret_cast<J2DWindow *>(pane->mPane);
-//     pane->mRect.mX1 -= offset;
-//     pane->mRect.mX2 += offset;
-//     pane->mPane->mRect.mX1 -= offset;
-//     pane->mPane->mRect.mX2 += offset;
-//     window->mFillRect.mX2 += offset * 2;
-//
-//     sPaneRect = pane->mRect;
-//     sFillRect = window->mFillRect;
-//
-//     sDEBSToTimerRatio          = 0.0f;
-//     console->mRedCoinCardTimer = 0;
-//     sHasRedAppeared            = false;
-//
-//     sx = 400 + -getScreenRatioAdjustX();
-//     sy = getScreenRenderWidth() - 300;
-// }
+static int sx = 100;
+static int sy = 900;
+
+static void fixDEBSWideScreenText(s32 x1, s32 y1, s32 width, s32 height) {
+    TGCConsole2 *console = gpMarDirector->mGCConsole;
+    const f32 ratio      = getScreenToFullScreenRatio();
+
+    // sDEBSToTimerRatio = lerp<f32>(0.0f, 1.0f, f32(console->mRedCoinCardTimer) / 117.1f);
+    sDEBSToTimerRatio = lerp<f32>(0.0f, 1.0f, f32(console->mRedCoinCardTimer) / 117.1f);
+
+    TExPane *pane          = console->mTelopWindow;
+    J2DWindow *window      = reinterpret_cast<J2DWindow *>(pane->mPane);
+    pane->mRect.mX1        = sPaneRect.mX1 + (180.0f * sDEBSToTimerRatio);
+    pane->mPane->mRect.mX1 = sPaneRect.mX1 + (180.0f * sDEBSToTimerRatio);
+    window->mFillRect.mX2  = sFillRect.mX2 - (180.0f * sDEBSToTimerRatio);
+
+    switch (getScreenRenderWidth()) {
+    default:
+    case 600:
+        GXSetScissor(x1, y1, width, height);
+        break;
+    case 700:
+        GXSetScissor(36, y1, 496, height);
+        break;
+    case 1050:
+        GXSetScissor(-80, y1, 750, height);
+        break;
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80143FDC, 0x80138CAC, 0, 0), fixDEBSWideScreenText);
+
+static void fixDEBSWideScreenPanel(TGCConsole2 *console) {
+    const f32 ratio  = getScreenToFullScreenRatio();
+    const s32 offset = getScreenRatioAdjustX();
+
+    TExPane *pane     = console->mTelopWindow;
+    J2DWindow *window = reinterpret_cast<J2DWindow *>(pane->mPane);
+    pane->mRect.mX1 -= offset;
+    pane->mRect.mX2 += offset;
+    pane->mPane->mRect.mX1 -= offset;
+    pane->mPane->mRect.mX2 += offset;
+    window->mFillRect.mX2 += offset * 2;
+
+    sPaneRect = pane->mRect;
+    sFillRect = window->mFillRect;
+
+    sDEBSToTimerRatio          = 0.0f;
+    console->mRedCoinCardTimer = 0;
+    sHasRedAppeared            = false;
+
+    sx = 136 + -getScreenRatioAdjustX();
+    sy = getScreenRenderWidth() - 204;
+}
 
 static void fixDeathScreenRatio(u32 *cardsave, TMarioGamePad *gamepad) {
     initData__9TCardSaveFP13TMarioGamePad(cardsave, gamepad);
@@ -513,7 +512,7 @@ static void fixYoshiFruitText(TGCConsole2 *console) {
 
 static void loadAfterGCConsolePatches(TGCConsole2 *console) {
     loadAfter__Q26JDrama8TNameRefFv(console);
-    // fixDEBSWideScreenPanel(console);
+    fixDEBSWideScreenPanel(console);
     fixYoshiFruitText(console);
 
     // char buffer[64];
@@ -563,44 +562,44 @@ static void patchLevelSelectPosition(J2DScreen *screen, int x, int y, J2DGrafCon
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosition);
 
-// static SMS_ASM_FUNC void patchGXScissor() {
-//     // clang-format off
-//     SMS_ASM_BLOCK (
-//         SMS_PORT_REGION (
-//             "lwz       7, -0x72F8(13)   \n\t",
-//             "lwz       7, -0x7338(13)   \n\t",
-//             "lwz       7, -0x72F8(13)   \n\t",
-//             "lwz       7, -0x72F8(13)   \n\t"
-//         )
-//         SMS_PORT_REGION (
-//             "lwz       0, 0x1E8(7)    \n\t",
-//             "lwz       0, 0x156(7)    \n\t",
-//             "lwz       0, 0x1E8(7)    \n\t",
-//             "lwz       0, 0x1E8(7)    \n\t"
-//         )
-//         "rlwinm    12,0,4,18,27       \n\t"
-//         "cmpwi     3, 0               \n\t"
-//         "beq-      .gx_loc_0x40       \n\t"
-//         "add       0, 3, 5            \n\t"
-//         "cmpw      0, 12              \n\t"
-//         "beq-      .gx_loc_0x40       \n\t"
-//         "rlwinm    0,12,31,1,31       \n\t"
-//         "sub       3, 3, 0            \n\t"
-//         "mulli     3, 3, 0x3          \n\t"
-//         "mulli     5, 5, 0x3          \n\t"
-//         "srawi     3, 3, 0x2          \n\t"
-//         "rlwinm    5,5,30,2,31        \n\t"
-//         "addze     3, 3               \n\t"
-//         "add       3, 3, 0            \n\t"
-//         ".gx_loc_0x40:                \n\t"
-//         "lis 12, GXSetScissor@h       \n\t"
-//         "ori 12, 12, GXSetScissor@l + 4       \n\t"
-//         "mtctr 12       \n\t"
-//         "bctr       \n\t"
-//     );
-//     // clang-format on
-// }
-// SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
+ static SMS_ASM_FUNC void patchGXScissor() {
+     // clang-format off
+     SMS_ASM_BLOCK (
+         SMS_PORT_REGION (
+             "lwz       7, -0x72F8(13)   \n\t",
+             "lwz       7, -0x7338(13)   \n\t",
+             "lwz       7, -0x72F8(13)   \n\t",
+             "lwz       7, -0x72F8(13)   \n\t"
+         )
+         SMS_PORT_REGION (
+             "lwz       0, 0x1E8(7)    \n\t",
+             "lwz       0, 0x156(7)    \n\t",
+             "lwz       0, 0x1E8(7)    \n\t",
+             "lwz       0, 0x1E8(7)    \n\t"
+         )
+         "rlwinm    12,0,4,18,27       \n\t"
+         "cmpwi     3, 0               \n\t"
+         "beq-      .gx_loc_0x40       \n\t"
+         "add       0, 3, 5            \n\t"
+         "cmpw      0, 12              \n\t"
+         "beq-      .gx_loc_0x40       \n\t"
+         "rlwinm    0,12,31,1,31       \n\t"
+         "sub       3, 3, 0            \n\t"
+         "mulli     3, 3, 0x3          \n\t"
+         "mulli     5, 5, 0x3          \n\t"
+         "srawi     3, 3, 0x2          \n\t"
+         "rlwinm    5,5,30,2,31        \n\t"
+         "addze     3, 3               \n\t"
+         "add       3, 3, 0            \n\t"
+         ".gx_loc_0x40:                \n\t"
+         "lis 12, GXSetScissor@h       \n\t"
+         "ori 12, 12, GXSetScissor@l + 4       \n\t"
+         "mtctr 12       \n\t"
+         "bctr       \n\t"
+     );
+     // clang-format on
+ }
+ //SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
 
 static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;

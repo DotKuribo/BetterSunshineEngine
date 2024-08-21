@@ -145,7 +145,7 @@ void AudioStreamer::initializeSubsystem() {
 
     AISetStreamSampleRate(AI_SAMPLE_48K);
     AIResetStreamSampleCount();
-    AISetStreamTrigger(Music::AudioStreamRate);
+    AISetStreamTrigger(Music::AudioInterruptRate);
 
     AISetStreamVolLeft(0);
     AISetStreamVolRight(0);
@@ -424,6 +424,13 @@ SMS_NO_INLINE void AudioStreamer::next_() {
         if (mErrorStatus == 1) {
             stopLowStream();
         }
+        _mDelayedTime       = 0.0f;
+        _mFadeTime          = 0.0f;
+        _mTargetVolume      = 0;
+        _mVolLeft           = 0;
+        _mVolRight          = 0;
+        _mPreservedVolLeft  = _mVolLeft;
+        _mPreservedVolRight = _mVolLeft;
     } else if (_mIsPlaying) {
         _mFadeTime          = _mDelayedTime;
         _mPreservedVolLeft  = _mVolLeft;
@@ -435,8 +442,8 @@ SMS_NO_INLINE void AudioStreamer::next_() {
         _mTargetVolume      = 0;
         _mVolLeft           = 0;
         _mVolRight          = 0;
-        _mPreservedVolLeft  = 0;
-        _mPreservedVolRight = 0;
+        _mPreservedVolLeft  = _mVolLeft;
+        _mPreservedVolRight = _mVolLeft;
     }
 
     mRequestedNext = true;
@@ -516,15 +523,15 @@ SMS_NO_INLINE void AudioStreamer::update_() {
                 _mIsPaused     = false;
                 stopLowStream();
             }
+
+            if (mRequestedNext) {
+                mRequestedNext = false;
+                nextTrack_();
+            }
         }
     }
 
     if (canPlayNextTrack()) {
-        if (mRequestedNext) {
-            mRequestedNext = false;
-            nextTrack_();
-        }
-
         if (mRequestedPlay) {
             mRequestedPlay = false;
             if (!startLowStream()) {
@@ -539,7 +546,6 @@ SMS_NO_INLINE void AudioStreamer::update_() {
 }
 
 void AudioStreamer::nextTrack_() {
-    OSReport("[AUDIO_STREAM] Next track!\n");
     {
         TAtomicGuard guard;
 
@@ -573,7 +579,7 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     AISetStreamVolLeft(_mVolLeft);
     AISetStreamVolRight(_mVolRight);
     AIResetStreamSampleCount();
-    AISetStreamTrigger(Music::AudioStreamRate);
+    AISetStreamTrigger(Music::AudioInterruptRate);
     AISetStreamPlayState(true);
 
     DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0, AudioStreamer::cbForPrepareStreamAsync_);
@@ -586,6 +592,7 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
 SMS_NO_INLINE void AudioStreamer::pauseLowStream() {
     OSReport("[AUDIO_STREAM] Pausing stream...\n");
     AISetStreamPlayState(false);
+    DVDStopStreamAtEndAsync(&mPauseBlock, nullptr);
     // DVDCancelStreamAsync(&mStopBlock, cbForCancelStreamOnPauseAsync_);
 }
 
@@ -630,15 +637,13 @@ void AudioPacket::setLoopPoint(f32 start, f32 length) {
 
 SMS_NO_INLINE void AudioStreamer::cbForVolumeAlarm(OSAlarm *alarm, OSContext *context) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    /*if (!streamer->isPlaying()) {
-        DVDGetStreamErrorStatusAsync(&streamer->mCanPlayBlock, cbForGetStreamErrorStatusAsync_);
-    }*/
     streamer->update_();
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForAIInterrupt(u32 trigger) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    AISetStreamTrigger(trigger + Music::AudioStreamRate);
+    //streamer->mStreamPos    = trigger * (48000.0f / AudioStreamRate);
+    AISetStreamTrigger(trigger + Music::AudioInterruptRate);
     DVDGetStreamPlayAddrAsync(&streamer->mAIInteruptBlock,
                               AudioStreamer::cbForGetStreamPlayAddrAsync_);
 }
@@ -650,6 +655,7 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamErrorStatusAsync_(u32 result,
     streamer->mErrorStatus     = result;
     if (streamer->mErrorStatus != 1 && streamer->mErrorStatus != streamer->mLastErrorStatus &&
         streamer->isPlaying()) {
+        streamer->_mDelayedTime = 0.0f;
         streamer->stop_();
     }
 }
@@ -666,6 +672,7 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
         return;
     }
 
+    OSReport("[AUDIO_STREAM] Result: %X\n", result);
     streamer->mStreamPos = result - streamer->getStreamStart();
 
     // Check if we've reached the end of the stream
@@ -686,7 +693,7 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
 
 SMS_NO_INLINE void AudioStreamer::cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    DVDStopStreamAtEndAsync(&streamer->mPrepareBlock, nullptr);
+    DVDStopStreamAtEndAsync(&streamer->mPrepareBlock, AudioStreamer::cbForStopStreamAtEndAsync_);
     _mIsPlaying = true;
     _mIsPaused  = false;
 }
@@ -708,12 +715,16 @@ SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnStopAsync_(u32 result,
 SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
                                                                 DVDCommandBlock *callback) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
+    AIResetStreamSampleCount();
+    AISetStreamTrigger(Music::AudioInterruptRate);
     DVDPrepareStreamAsync(streamer->mAudioHandle, streamer->getLoopEnd() - streamer->mStreamPos,
                           streamer->mStreamPos, AudioStreamer::cbForPrepareStreamAsync_);
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForStopStreamAtEndAsync_(u32 result,
-                                                             DVDCommandBlock *cmdblock) {}
+                                                             DVDCommandBlock *cmdblock) {
+    OSReport("[AUDIO_STREAM] Result: %d, cmdBlockState: %d\n", result, cmdblock->mCurState);
+}
 
 #pragma endregion
 
@@ -858,7 +869,7 @@ static void initExMusic(MSStageInfo bgm) {
     streamer->setLooping(true);
 
     if (streamer->isPlaying()) {
-        streamer->skip(0.0f);
+        streamer->next(0.0f);
     }
 
     streamer->setVolumeLR(Music::AudioVolumeDefault, Music::AudioVolumeDefault);
@@ -904,6 +915,14 @@ static void initStageMusic() {
     }
 
 #if 1
+    // In this circumstance, the previous attempt failed so we stupidly try again
+    // instead of queueing a new one and throwing everything off by one.
+    if (streamer->getCurrentAudio().getID() == (gStageBGM & 0x3FF)) {
+        streamer->setVolumeLR(Music::AudioVolumeDefault, Music::AudioVolumeDefault);
+        streamer->play();
+        return;
+    }
+
     AudioPacket packet(gStageBGM & 0x3FF);
     packet.setLoopPoint(config->mStreamLoopStart.get(), config->mStreamLoopEnd.get());
 
@@ -911,7 +930,7 @@ static void initStageMusic() {
     streamer->setLooping(true);
 
     if (streamer->isPlaying()) {
-        streamer->skip(0.0f);
+        streamer->next(0.0f);
     }
 
     streamer->setVolumeLR(Music::AudioVolumeDefault, Music::AudioVolumeDefault);
@@ -1038,10 +1057,7 @@ static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         AudioStreamer *streamer = AudioStreamer::getInstance();
-        if (streamer->isPlaying() || streamer->isPaused() ||
-            (streamer->getErrorStatus() == 0 && streamer->getCurrentAudio().getID() != -1)) {
-            streamer->next(0.2f);
-        }
+        streamer->next(0.2f);
     }
 }
 

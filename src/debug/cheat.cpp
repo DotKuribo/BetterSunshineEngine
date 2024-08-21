@@ -135,6 +135,12 @@ BETTER_SMS_FOR_CALLBACK void checkDebugMode(TMario *player, bool isMario) {
         gIsGameUIActive ^= true;
     }
 
+    if (gIsGameUIActive) {
+        PowerPC::writeU32((u32 *)0x80299CF0, 0x3880FFFF);
+    } else {
+        PowerPC::writeU32((u32 *)0x80299CF0, 0x3880FFEF);
+    }
+
     // If the camera is frozen and the tracking is active, we need to update the camera
     if (gIsCameraFrozen && gDebugState != CAM_MODE) {
         if (gIsCameraTracking) {
@@ -352,17 +358,17 @@ static bool shouldNotUpdateMarDirector() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x80297A48, 0, 0, 0), shouldNotUpdateMarDirector);
 SMS_WRITE_32(SMS_PORT_REGION(0x80297A4C, 0, 0, 0), 0x28030001);
 
-static SMS_ASM_FUNC void flagConditionalGameUI() {
-    SMS_ASM_BLOCK("lis 12, gIsGameUIActive@ha      \n\t"
-                  "lbz 12, gIsGameUIActive@l (12)  \n\t"
-                  "cmpwi 12, 1                     \n\t"
-                  "beq _render_ui                  \n\t"
-                  "li 4, 0                         \n\t"
-                  "_render_ui:                     \n\t"
-                  "rlwinm. 0, 4, 0, 31, 31         \n\t"
-                  "blr                             \n\t");
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x80140844, 0, 0, 0), flagConditionalGameUI);
+//static SMS_ASM_FUNC void flagConditionalGameUI() {
+//    SMS_ASM_BLOCK("lis 12, gIsGameUIActive@ha      \n\t"
+//                  "lbz 12, gIsGameUIActive@l (12)  \n\t"
+//                  "cmpwi 12, 1                     \n\t"
+//                  "beq _render_ui                  \n\t"
+//                  "li 4, 0                         \n\t"
+//                  "_render_ui:                     \n\t"
+//                  "rlwinm. 0, 4, 0, 31, 31         \n\t"
+//                  "blr                             \n\t");
+//}
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80140844, 0, 0, 0), flagConditionalGameUI);
 
 static u32 checkShouldUpdateMeaning() {
     TMarioGamePad *controller;
