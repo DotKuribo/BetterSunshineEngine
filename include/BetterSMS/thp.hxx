@@ -6,22 +6,11 @@
 
 namespace BetterSMS {
 
-	namespace THP {
+    namespace THP {
 
-		
-	
-		
-        bool addTHP(u8 x, char* filename);
-		
+        bool addTHP(u8 id, const char *filename);
+        const char *getTHP(u8 id);
 
-		const char *getTHP();
+    }  // namespace THP
 
-
-
-	
-
-	}
-
-	
 }  // namespace BetterSMS
-

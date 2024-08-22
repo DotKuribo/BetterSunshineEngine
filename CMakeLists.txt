@@ -105,7 +105,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         "include/BetterSMS/objects/*.hxx"
     )
 
-    add_executable(BetterSunshineEngine ${BETTERSMS_SRC} "src/patches/thp.cpp")
+    add_executable(BetterSunshineEngine ${BETTERSMS_SRC})
     target_link_libraries(BetterSunshineEngine PUBLIC
                           Dolphin
                           JSystem
