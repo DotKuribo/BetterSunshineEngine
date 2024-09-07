@@ -308,9 +308,9 @@ namespace BetterSMS {
         public:
             SettingsGroup() = delete;
             SettingsGroup(u8 major, u8 minor, Priority prio)
-                : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio), mSettings() {}
+                : mModule(), mVersion((major << 8) | minor), mIOValid(true), mOrderPriority(prio), mSettings() {}
             SettingsGroup(u8 major, u8 minor, const SettingsList &settings, Priority prio)
-                : mModule(), mVersion((major << 8) | minor), mOrderPriority(prio),
+                : mModule(), mVersion((major << 8) | minor), mIOValid(true), mOrderPriority(prio),
                   mSettings(settings) {}
 
             friend const char *Settings::getGroupName(const SettingsGroup &group);
