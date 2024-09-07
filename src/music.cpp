@@ -189,6 +189,9 @@ void AudioStreamer::mainLoop_(void *param) {
         case AudioStreamer::AudioCommand::SEEK:
             seek_();
             break;
+        case AudioStreamer::AudioCommand::CLEAR:
+            clear_();
+            break;
         default:
             break;
         }
@@ -337,11 +340,16 @@ void AudioStreamer::seek(f32 seconds, JSUStreamSeekFrom whence) {
              "seek(s32 where, JSUStreamSeekFrom whence) instead.\n");
 }
 
+void AudioStreamer::clear() {
+    sAudioCommand = AudioCommand::CLEAR;
+    OSSendMessage(&mMessageQueue, static_cast<u32>(sAudioCommand), OS_MESSAGE_NOBLOCK);
+}
+
 SMS_NO_INLINE bool AudioStreamer::play_() {
     if (mRequestedPlay)
         return false;
 
-    if (_mIsPlaying) {
+    if (_mIsPlaying && !mRequestedStop) {
         if (_mIsPaused) {
             AISetStreamPlayState(true);
             setVolumeFadeTo((_mFullVolLeft + _mFullVolRight) / 2, _mFadeTime);
@@ -366,7 +374,7 @@ SMS_NO_INLINE bool AudioStreamer::play_() {
 }
 
 SMS_NO_INLINE bool AudioStreamer::pause_() {
-    if (mRequestedPause || _mIsPaused)
+    if (mRequestedPause || mRequestedStop || _mIsPaused)
         return false;
 
     if (_mDelayedTime <= 0.0f) {
@@ -406,7 +414,9 @@ SMS_NO_INLINE bool AudioStreamer::stop_() {
         setVolumeFadeTo(0, _mFadeTime);
     }
 
-    mRequestedStop = true;
+    mRequestedStop  = true;
+    mRequestedPause = false;
+    mRequestedPlay  = false;
     return state;
 }
 
@@ -471,6 +481,11 @@ SMS_NO_INLINE bool AudioStreamer::seek_() {
     }
 }
 
+void BetterSMS::Music::AudioStreamer::clear_() {
+    OSReport("[AUDIO_STREAM] Clearing audio queue...\n");
+    mRequestedClear = true;
+}
+
 SMS_NO_INLINE void AudioStreamer::update_() {
     // Check if pause menu is active to mute music
     bool isGamePaused = false;
@@ -522,6 +537,16 @@ SMS_NO_INLINE void AudioStreamer::update_() {
                 _mIsPlaying    = false;
                 _mIsPaused     = false;
                 stopLowStream();
+
+                if (mRequestedClear) {
+                    TAtomicGuard guard;
+
+                    _mAudioIndex = 0;
+                    for (size_t i = 0; i < 4; ++i) {
+                        _mAudioQueue[i] = AudioPacket();
+                    }
+                    mRequestedClear = false;
+                }
             }
 
             if (mRequestedNext) {
@@ -642,7 +667,7 @@ SMS_NO_INLINE void AudioStreamer::cbForVolumeAlarm(OSAlarm *alarm, OSContext *co
 
 SMS_NO_INLINE void AudioStreamer::cbForAIInterrupt(u32 trigger) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    //streamer->mStreamPos    = trigger * (48000.0f / AudioStreamRate);
+    // streamer->mStreamPos    = trigger * (48000.0f / AudioStreamRate);
     AISetStreamTrigger(trigger + Music::AudioInterruptRate);
     DVDGetStreamPlayAddrAsync(&streamer->mAIInteruptBlock,
                               AudioStreamer::cbForGetStreamPlayAddrAsync_);
@@ -672,7 +697,6 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
         return;
     }
 
-    OSReport("[AUDIO_STREAM] Result: %X\n", result);
     streamer->mStreamPos = result - streamer->getStreamStart();
 
     // Check if we've reached the end of the stream
@@ -971,49 +995,6 @@ static void stopMusicOnShineGet(u32 musicID) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80297B7C, 0x8028FA14, 0, 0), stopMusicOnShineGet);
 
-// 0x8024FAB8
-static void stopMusicOnManholeEnter(u32 musicID) {
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-
-    if (streamer->isPlaying())
-        streamer->pause(PauseFadeSpeed);
-
-    MSBgm::startBGM(musicID);
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8024FAB8, 0x80247844, 0, 0), stopMusicOnManholeEnter);
-
-// 0x8024FB0C
-static void startMusicOnManholeExit(u32 musicID, u32 unk_0) {
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-
-    if (streamer->isPaused())
-        streamer->play();
-
-    MSBgm::stopBGM(musicID, unk_0);
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8024FB0C, 0x80247898, 0, 0), startMusicOnManholeExit);
-
-// 0x802981A8
-static void stopMusicBeforeShineCamera(CPolarSubCamera *cam, const char *demo, const TVec3f *pos,
-                                       s32 unk_0, f32 unk_1, bool unk_2) {
-    cam->startDemoCamera(demo, pos, unk_0, unk_1, unk_2);
-
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-    if (streamer->isPlaying())
-        streamer->pause(PauseFadeSpeed);
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x802981A8, 0x80290040, 0, 0), stopMusicBeforeShineCamera);
-
-// 0x80297FD4
-static void startMusicAfterShineCamera(CPolarSubCamera *cam) {
-    cam->endDemoCamera();
-
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-    if (streamer->isPaused())
-        streamer->play();
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x80297FD4, 0x8028FE6C, 0, 0), startMusicAfterShineCamera);
-
 static void stopMusicOnDeathExec(u32 musicID) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
 
@@ -1034,30 +1015,11 @@ static void stopMusicOnGameOver(u32 musicID) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802988B0, 0x80290748, 0, 0), stopMusicOnGameOver);
 
-static void pauseMusicOnScriptMusicStart(u32 musicID) {
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-
-    if (streamer->isPlaying())
-        streamer->pause(PauseFadeSpeed);
-
-    MSBgm::startBGM(musicID);
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8028b7f0, 0, 0, 0), pauseMusicOnScriptMusicStart);
-
-static void startMusicOnScriptMusicStop(u32 musicID, u32 _unk) {
-    AudioStreamer *streamer = AudioStreamer::getInstance();
-
-    if (streamer->isPaused())
-        streamer->play();
-
-    MSBgm::stopBGM(musicID, _unk);
-}
-// SMS_PATCH_BL(SMS_PORT_REGION(0x8028B318, 0, 0, 0), startMusicOnScriptMusicStop);
-
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
     if (app->mContext == TApplication::CONTEXT_DIRECT_STAGE) {
         AudioStreamer *streamer = AudioStreamer::getInstance();
-        streamer->next(0.2f);
+        streamer->stop(PauseFadeSpeed);
+        streamer->clear();
     }
 }
 

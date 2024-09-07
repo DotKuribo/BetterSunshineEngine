@@ -829,7 +829,7 @@ public:
 
     AspectRatioSetting(const char *name)
         : IntSetting(name, &mAspectRatioValue), mAspectRatioValue(FULL) {
-        mValueRange = {0, 3, 1};
+        mValueRange = {0, 2, 1};
     }
     ~AspectRatioSetting() override {}
 

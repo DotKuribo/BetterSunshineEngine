@@ -67,15 +67,15 @@ BETTER_SMS_FOR_EXPORT u32 *BetterSMS::PowerPC::getBranchDest(u32 *bAddr) {
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::PowerPC::writeU8(u8 *ptr, u8 value) {
     *ptr = value;
-    BetterSMS::Cache::flush(ptr, sizeof(u8));
+    BetterSMS::Cache::store(ptr, sizeof(u8));
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::PowerPC::writeU16(u16 *ptr, u16 value) {
     *ptr = value;
-    BetterSMS::Cache::flush(ptr, sizeof(u16));
+    BetterSMS::Cache::store(ptr, sizeof(u16));
 }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::PowerPC::writeU32(u32 *ptr, u32 value) {
     *ptr = value;
-    BetterSMS::Cache::flush(ptr, sizeof(u32));
+    BetterSMS::Cache::store(ptr, sizeof(u32));
 }

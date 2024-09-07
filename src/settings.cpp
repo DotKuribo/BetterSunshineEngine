@@ -41,6 +41,13 @@
 #include "p_settings.hxx"
 #include <libs/scoped_ptr.hxx>
 
+struct SettingMetaInfo {
+    const char *mID;
+    bool mIsUnlocked;
+};
+
+static TGlobalVector<SettingMetaInfo> sNewUnlockMap;
+
 #define CARD_MAX_BLOCKS 8
 
 static SMS_ALIGN(32) char sCardSysArea[CARD_WORKAREA];
@@ -96,6 +103,10 @@ BETTER_SMS_FOR_EXPORT s32 Settings::unmountCard() {
 }
 
 BETTER_SMS_FOR_EXPORT s32 Settings::saveSettingsGroup(Settings::SettingsGroup &group) {
+    if (!group.isIOValid()) {
+        return CARD_ERROR_READY;
+    }
+
     CARDFileInfo finfo;
     s32 ret = OpenSavedSettings(group, finfo, true);
     if (ret < CARD_ERROR_READY) {
@@ -116,6 +127,10 @@ BETTER_SMS_FOR_EXPORT s32 Settings::saveSettingsGroup(Settings::SettingsGroup &g
 }
 
 BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &group) {
+    if (!group.isIOValid()) {
+        return CARD_ERROR_READY;
+    }
+
     CARDFileInfo finfo;
 
     int ret = OpenSavedSettings(group, finfo, false);
@@ -134,6 +149,8 @@ BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &g
 
     for (auto &setting : group.getSettings()) {
         setting->emit();
+        sNewUnlockMap.push_back(
+            {setting->getName(), setting->isUnlocked() && setting->isUserEditable()});
     }
 
     return CloseSavedSettings(group, &finfo);
@@ -797,11 +814,11 @@ void SettingsDirector::initializeSettingsLayout() {
                 new J2DPane(19, ('q' << 24) | i, {0, 0, screenRenderWidth, screenRenderHeight});
 
             J2DTextBox *settingText = new J2DTextBox(
-                ('s' << 24) | n, {0, 110 + (23 * ny), 600, 158 + (23 * ny)}, gpSystemFont->mFont,
+                ('s' << 24) | n, {0, 100 + (21 * ny), 600, 148 + (21 * ny)}, gpSystemFont->mFont,
                 "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
 
             J2DTextBox *settingTextBehind = new J2DTextBox(
-                ('b' << 24) | n, {2, 112 + (23 * ny), 602, 160 + (23 * ny)}, gpSystemFont->mFont,
+                ('b' << 24) | n, {2, 102 + (21 * ny), 602, 150 + (21 * ny)}, gpSystemFont->mFont,
                 "", J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
             {
                 char valueTextbuf[40];
@@ -815,16 +832,16 @@ void SettingsDirector::initializeSettingsLayout() {
                 const u8 color = setting->isUserEditable() ? 255 : 140;
 
                 settingText->mStrPtr         = settingTextBuf;
-                settingText->mCharSizeX      = 21;
-                settingText->mCharSizeY      = 21;
-                settingText->mNewlineSize    = 21;
+                settingText->mCharSizeX      = 20;
+                settingText->mCharSizeY      = 18;
+                settingText->mNewlineSize    = 18;
                 settingText->mGradientBottom = {color, color, color, alpha};
                 settingText->mGradientTop    = {color, color, color, alpha};
 
                 settingTextBehind->mStrPtr         = settingTextBuf;
-                settingTextBehind->mCharSizeX      = 21;
-                settingTextBehind->mCharSizeY      = 21;
-                settingTextBehind->mNewlineSize    = 21;
+                settingTextBehind->mCharSizeX      = 20;
+                settingTextBehind->mCharSizeY      = 18;
+                settingTextBehind->mNewlineSize    = 18;
                 settingTextBehind->mGradientBottom = {0, 0, 0, alpha};
                 settingTextBehind->mGradientTop    = {0, 0, 0, alpha};
 
@@ -1086,13 +1103,6 @@ inline size_t setting_hash::operator()(BetterSMS::Settings::SingleSetting *v) co
     return uv;
 }
 //
-
-struct SettingMetaInfo {
-    const char *mID;
-    bool mIsUnlocked;
-};
-
-static TGlobalVector<SettingMetaInfo> sNewUnlockMap;
 
 BETTER_SMS_FOR_CALLBACK void initUnlockedSettings(TApplication *app) {
     sLastTime = 0;

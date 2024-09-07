@@ -31,8 +31,8 @@
 #include "settings.hxx"
 #include "stage.hxx"
 #include "sunscript.hxx"
-#include "time.hxx"
 #include "thp.hxx"
+#include "time.hxx"
 
 // SETTINGS //
 
@@ -214,7 +214,15 @@ extern void processCurrentTask(TApplication *app);
 
 // ================================= //
 
-extern "C" void __cxa_pure_virtual();
+#ifdef __cplusplus
+extern "C" {
+#endif
+void __cxa_pure_virtual();
+void __cvt_sll_dbl();
+void __cvt_ull_dbl();
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
 
 static void initLib() {
     makeExtendedObjDataTable();
@@ -274,7 +282,8 @@ static void initLib() {
                                          BetterAppContextDirectShineSelect);
     Application::registerContextCallback(TApplication::CONTEXT_DIRECT_LEVEL_SELECT,
                                          BetterAppContextDirectLevelSelect);
-    Application::registerContextCallback(CONTEXT_DIRECT_SETTINGS_MENU, BetterAppContextDirectSettingsMenu);
+    Application::registerContextCallback(CONTEXT_DIRECT_SETTINGS_MENU,
+                                         BetterAppContextDirectSettingsMenu);
 
     //// AUTO SAVE
     Game::addBootCallback(initAutoSaveIcon);
@@ -534,8 +543,13 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::Music::setLooping, "setLooping__Q29BetterSMS5MusicFb");
         KURIBO_EXPORT_AS(BetterSMS::Music::setLoopPoint, "setLoopPoint__Q29BetterSMS5MusicFll");
 
+        /* THP */
+        KURIBO_EXPORT_AS(BetterSMS::THP::addTHP, "addTHP__Q29BetterSMS3THPFUcPCc");
+        KURIBO_EXPORT_AS(BetterSMS::THP::getTHP, "getTHP__Q29BetterSMS3THPFUc");
+
         /* SPC */
-        KURIBO_EXPORT_AS(BetterSMS::Spc::registerBuiltinFunction, "registerBuiltinFunction__Q29BetterSMS3SpcFPCcPFP10TSpcInterpUl_v");
+        KURIBO_EXPORT_AS(BetterSMS::Spc::registerBuiltinFunction,
+                         "registerBuiltinFunction__Q29BetterSMS3SpcFPCcPFP10TSpcInterpUl_v");
 
 /* OBJECTS */
 #if BETTER_SMS_EXTRA_OBJECTS
@@ -571,8 +585,9 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
                          "addChangeCallback__Q29BetterSMS4GameFPFP12TApplication_v");
 
         /* STAGE */
-        KURIBO_EXPORT_AS(BetterSMS::Stage::registerShineStage,
-                         "registerShineStage__Q29BetterSMS5StageFPQ39BetterSMS5Stage13ShineAreaInfo");
+        KURIBO_EXPORT_AS(
+            BetterSMS::Stage::registerShineStage,
+            "registerShineStage__Q29BetterSMS5StageFPQ39BetterSMS5Stage13ShineAreaInfo");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerNormalStage,
                          "registerNormalStage__Q29BetterSMS5StageFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::registerExStage,
@@ -591,9 +606,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(
             BetterSMS::Stage::addDraw2DCallback,
             "addDraw2DCallback__Q29BetterSMS5StageFPFP12TMarDirectorPC13J2DOrthoGraph_v");
-        KURIBO_EXPORT_AS(
-            BetterSMS::Stage::addExitCallback,
-            "addExitCallback__Q29BetterSMS5StageFPFP12TApplication_v");
+        KURIBO_EXPORT_AS(BetterSMS::Stage::addExitCallback,
+                         "addExitCallback__Q29BetterSMS5StageFPFP12TApplication_v");
         KURIBO_EXPORT_AS(BetterSMS::Stage::getStageName, "getStageName__Q29BetterSMS5StageFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::isDivingStage, "isDivingStage__Q29BetterSMS5StageFUcUc");
         KURIBO_EXPORT_AS(BetterSMS::Stage::isExStage, "isExStage__Q29BetterSMS5StageFUcUc");
@@ -632,9 +646,110 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
 
         /* CXA VIRTUAL */
         KURIBO_EXPORT(__cxa_pure_virtual);
+
+#if 1
+        KURIBO_EXPORT(__cvt_sll_dbl);
+        KURIBO_EXPORT(__cvt_ull_dbl);
+#endif
     }
     KURIBO_EXECUTE_ON_UNLOAD { destroyLib(); }
 }
 KURIBO_MODULE_END()
+
+#if 1
+SMS_ASM_FUNC void __cvt_sll_dbl() {
+    SMS_ASM_BLOCK("mflr 0         \n\t"
+                  "stw		0,4(1)        \n\t"
+                  "stwu	1,-32(1)        \n\t"
+                  "rlwinm.	5,3,0,0,0        \n\t"
+                  "beq		1f        \n\t"
+                  "subfic	4,4,0        \n\t"
+                  "subfze	3,3        \n\t"
+                  "1:        \n\t"
+                  "or.		7,3,4        \n\t"
+                  "li		6,0        \n\t"
+                  "beq		3f        \n\t"
+                  "cntlzw	7,3        \n\t"
+                  "cntlzw	8,4        \n\t"
+                  "rlwinm	9,7,26,0,4        \n\t"
+                  "srawi	9,9,31        \n\t"
+                  "and		9,9,8        \n\t"
+                  "add		7,7,9        \n\t"
+                  "subfic	8,7,32        \n\t"
+                  "subic	9,7,32        \n\t"
+                  "slw		3,3,7        \n\t"
+                  "srw		10,4,8        \n\t"
+                  "or		3,3,10        \n\t"
+                  "slw		10,4,9        \n\t"
+                  "or		3,3,10        \n\t"
+                  "slw		4,4,7        \n\t"
+                  "sub		6,6,7        \n\t"
+                  "rlwinm.	7,4,1,20,20        \n\t"
+                  "addi	6,6,1086        \n\t"
+                  "beq		2f        \n\t"
+                  "addc	4,4,7        \n\t"
+                  "addze	3,3        \n\t"
+                  "addze	6,6        \n\t"
+                  "2:        \n\t"
+                  "rlwinm	4,4,21,0,31        \n\t"
+                  "rlwimi	4,3,21,0,10        \n\t"
+                  "rlwinm	3,3,21,12,31        \n\t"
+                  "rlwinm	6,6,20,0,11        \n\t"
+                  "or		3,6,3        \n\t"
+                  "or		3,5,3        \n\t"
+                  "3:        \n\t"
+                  "stw		3,24(1)        \n\t"
+                  "stw		4,28(1)        \n\t"
+                  "lfd		1,24(1)        \n\t"
+                  "lwz 0, 36 (1)      \n\t"
+                  "addi 1, 1, 32      \n\t"
+                  "mtlr 0             \n\t"
+                  "blr                     \n\t");
+}
+
+SMS_ASM_FUNC void __cvt_ull_dbl() {
+    SMS_ASM_BLOCK("mflr 0         \n\t"
+                  "stw		0,4(1)        \n\t"
+                  "stwu	1,-32(1)        \n\t"
+                  "or.		7,3,4        \n\t"
+                  "li		6,0        \n\t"
+                  "beq		0,zero        \n\t"
+                  "cntlzw	7,3        \n\t"
+                  "cntlzw	8,4        \n\t"
+                  "rlwinm	9,7,26,0,4        \n\t"
+                  "srawi	9,9,31        \n\t"
+                  "and		9,9,8        \n\t"
+                  "add		7,7,9        \n\t"
+                  "subfic	8,7,32        \n\t"
+                  "subic	9,7,32        \n\t"
+                  "slw		3,3,7        \n\t"
+                  "srw		10,4,8        \n\t"
+                  "or		3,3,10        \n\t"
+                  "slw		10,4,9        \n\t"
+                  "or		3,3,10        \n\t"
+                  "slw		4,4,7        \n\t"
+                  "sub		6,6,7        \n\t"
+                  "rlwinm.	7,4,1,20,20        \n\t"
+                  "addi	6,6,1086        \n\t"
+                  "beq		around        \n\t"
+                  "addc	4,4,7        \n\t"
+                  "addze	3,3        \n\t"
+                  "addze	6,6        \n\t"
+                  "around:        \n\t"
+                  "rlwinm	4,4,21,0,31        \n\t"
+                  "rlwimi	4,3,21,0,10        \n\t"
+                  "rlwinm	3,3,21,12,31        \n\t"
+                  "rlwinm	6,6,20,0,11        \n\t"
+                  "or		3,6,3        \n\t"
+                  "zero:        \n\t"
+                  "stw		3,24(1)        \n\t"
+                  "stw		4,28(1)        \n\t"
+                  "lfd		1,24(1)        \n\t"
+                  "lwz 0, 36 (1)      \n\t"
+                  "addi 1, 1, 32      \n\t"
+                  "mtlr 0             \n\t"
+                  "blr                     \n\t");
+}
+#endif
 
 extern "C" void __cxa_pure_virtual() { SMS_ASM_BLOCK("trap \r\n"); }

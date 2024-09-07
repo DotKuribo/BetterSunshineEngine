@@ -111,8 +111,7 @@ static void extendLevelSelectReset() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A2EDC, 0x8028B7D0, 0, 0), extendLevelSelectReset);
 
 void extendLightEffectToShineCount(TApplication *app) {
-    PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x80412548, 0x80409A90, 0, 0)),
-                      BetterSMS::Game::getMaxShines());
+    *(f32 *)(SMS_PORT_REGION(0x80412548, 0x80409A90, 0, 0)) = BetterSMS::Game::getMaxShines();
 }
 
 SMS_WRITE_32(SMS_PORT_REGION(0x8016DD1C, 0, 0, 0), 0x5464043E);
@@ -137,6 +136,5 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802946B8, 0x8028C4D0, 0, 0), 0x280003E7);
 SMS_WRITE_32(SMS_PORT_REGION(0x80294730, 0x8028C548, 0, 0), 0x5480043E);
 SMS_WRITE_32(SMS_PORT_REGION(0x80294734, 0x8028C54C, 0, 0), 0x280003E7);
 SMS_WRITE_32(SMS_PORT_REGION(0x80297BA0, 0x8028FA38, 0, 0), 0x5404043E);
-
 
 #endif

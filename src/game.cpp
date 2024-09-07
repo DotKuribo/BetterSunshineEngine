@@ -21,12 +21,12 @@ static TGlobalVector<Game::LoopCallback> sGameLoopCBs;
 static TGlobalVector<Game::DrawCallback> sGameDrawCBs;
 static TGlobalVector<Game::ChangeCallback> sGameChangeCBs;
 
-BETTER_SMS_FOR_EXPORT size_t BetterSMS::Game::getMaxShines() {
-    return sMaxShines;
-}
+BETTER_SMS_FOR_EXPORT size_t BetterSMS::Game::getMaxShines() { return sMaxShines; }
 
 BETTER_SMS_FOR_EXPORT void BetterSMS::Game::setMaxShines(size_t maxShines) {
     sMaxShines = maxShines;
+    PowerPC::writeU32(reinterpret_cast<u32 *>(SMS_PORT_REGION(0x8016725C, 0, 0, 0)),
+                      0x28000000 | maxShines);
 }
 
 // Register a function to be called on game init
@@ -94,29 +94,30 @@ s32 gameLoopCallbackHandler(JDrama::TDirector *director) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A616C, 0x8029E07C, 0, 0), gameLoopCallbackHandler);
 
 void gameDrawCallbackHandler() {
-    J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), 448);
-    ortho.setup2D();
-
-    GXSetViewport(0, 0, 640, 480, 0, 1);
+    THPPlayerDrawDone();
     {
-        Mtx44 mtx;
-        C_MTXOrtho(mtx, 16, 496, -BetterSMS::getScreenRatioAdjustX(),
-                   BetterSMS::getScreenRenderWidth(), -1, 1);
-        GXSetProjection(mtx, GX_ORTHOGRAPHIC);
-    }
+        J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), 448);
+        ortho.setup2D();
 
-    {
-        for (auto &item : sGameDrawCBs) {
-            item(&gpApplication, &ortho);
+        GXSetViewport(0, 0, 640, 480, 0, 1);
+        {
+            Mtx44 mtx;
+            C_MTXOrtho(mtx, 16, 496, -BetterSMS::getScreenRatioAdjustX(),
+                       BetterSMS::getScreenRenderWidth(), -1, 1);
+            GXSetProjection(mtx, GX_ORTHOGRAPHIC);
+        }
+
+        drawLoadingScreen(&gpApplication, &ortho);
+        drawDebugCallbacks(&gpApplication, &ortho);
+
+        {
+            for (auto &item : sGameDrawCBs) {
+                item(&gpApplication, &ortho);
+            }
         }
     }
-
-    drawLoadingScreen(&gpApplication, &ortho);
-    drawDebugCallbacks(&gpApplication, &ortho);
-
-    THPPlayerDrawDone();
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x802A630C, 0, 0, 0), gameDrawCallbackHandler);
+SMS_PATCH_BL(SMS_PORT_REGION(0x802a630c, 0, 0, 0), gameDrawCallbackHandler);
 
 extern void exitStageCallbacks(TApplication *);
 

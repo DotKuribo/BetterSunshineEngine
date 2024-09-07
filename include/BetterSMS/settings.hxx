@@ -318,6 +318,9 @@ namespace BetterSMS {
             u8 getMajorVersion() const { return (mVersion >> 8) & 0xFF; }
             u8 getMinorVersion() const { return mVersion & 0xFF; }
 
+            bool isIOValid() const { return mIOValid; }
+            void setIOValid(bool valid) { mIOValid = valid; }
+
             SingleSetting *getSetting(const char *name) {
                 for (auto &setting : mSettings) {
                     if (strcmp(setting->getName(), name) == 0) {
@@ -360,6 +363,7 @@ namespace BetterSMS {
         private:
             ModuleInfo *mModule;
             u16 mVersion;
+            bool mIOValid;
             SettingsList mSettings;
             SettingsSaveInfo mSaveInfo;
             Priority mOrderPriority;

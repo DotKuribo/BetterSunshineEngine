@@ -1,5 +1,7 @@
 #include <Dolphin/string.h>
 
+#include <SMS/G2D/BoundPane.hxx>
+#include <SMS/G2D/ExPane.hxx>
 #include <SMS/Manager/FlagManager.hxx>
 #include <SMS/MapObj/MapObjTree.hxx>
 #include <SMS/macros.h>
@@ -26,3 +28,44 @@ void ensureRedCoinsPanelAdjustClose(TGCConsole2 *console) {
     }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8028EB58, 0, 0, 0), ensureRedCoinsPanelAdjustClose);
+
+static SMS_NO_INLINE void changeTextureForShineCounterOnSave_(u32 *card_save, J2DPicture *picture) {
+    size_t shines = TFlagManager::smInstance->getFlag(0x40000);
+
+    ResTIMG *timg =
+        (ResTIMG *)((((u32 **)((u8 *)card_save + 0x1C))[(shines % 100) / 10])[0x20 / 4]);
+
+    picture->changeTexture(timg, 0);
+}
+
+static void changeTextureForShineCounterOnSave_Tens_31(J2DPicture *picture) {
+    u32 *card_save;
+    SMS_FROM_GPR(31, card_save);
+
+    changeTextureForShineCounterOnSave_(card_save, picture);
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2A0, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2A4, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2A8, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2AC, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2B0, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2B4, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2B8, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015E2BC, 0, 0, 0), 0x60000000);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8015E2C0, 0, 0, 0), changeTextureForShineCounterOnSave_Tens_31);
+
+static void changeTextureForShineCounterOnSave_Tens_30(J2DPicture *picture) {
+    u32 *card_save;
+    SMS_FROM_GPR(30, card_save);
+
+    changeTextureForShineCounterOnSave_(card_save, picture);
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFC4, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFC8, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFCC, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFD0, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFD4, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFD8, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFDC, 0, 0, 0), 0x60000000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8015BFE0, 0, 0, 0), 0x60000000);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8015BFE4, 0, 0, 0), changeTextureForShineCounterOnSave_Tens_30);

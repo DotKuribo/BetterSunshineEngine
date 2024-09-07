@@ -27,11 +27,11 @@ static bool sIs100ShineSpawned = false;
 static size_t maybeSpawn100CoinShine(TFlagManager *manager) {
     size_t coins = manager->getFlag(0x40002);
     if (BetterSMS::areExploitsPatched()) {
-        if (!sIs100ShineSpawned && manager->getFlag(0x40002) > 99) {
+        if (!sIs100ShineSpawned && coins > 99) {
             spawn100CoinShine(*gpMarioPos);
             sIs100ShineSpawned = true;
         }
-    } else if (manager->getFlag(0x40002) == 100) {
+    } else if (coins == 100) {
         spawn100CoinShine(*gpMarioPos);
     }
     return coins;
@@ -41,5 +41,5 @@ SMS_WRITE_32(SMS_PORT_REGION(0x801BED44, 0, 0, 0), 0x4800004C);
 
 // STATIC RESETTER
 BETTER_SMS_FOR_EXPORT void patches_staticResetter(TMarDirector *director) {
-    sIs100ShineSpawned = TFlagManager::smInstance->getFlag(0x40002) > 99;
+    sIs100ShineSpawned = false;
 }

@@ -109,6 +109,7 @@ namespace BetterSMS {
                 SKIP,
                 NEXT,
                 SEEK,
+                CLEAR,
                 FADE_OUT,
                 FADE_IN
             };
@@ -159,6 +160,7 @@ namespace BetterSMS {
             void next(f32 fadeTime);
             void seek(s32 where, JSUStreamSeekFrom whence);
             void seek(f32 seconds, JSUStreamSeekFrom whence);
+            void clear();
 
         private:
             void initThread(void *(*threadMain)(void *), OSPriority);
@@ -171,6 +173,7 @@ namespace BetterSMS {
             bool skip_();
             void next_();
             bool seek_();
+            void clear_();
             void update_();
 
             void nextTrack_();
@@ -215,6 +218,7 @@ namespace BetterSMS {
             bool mRequestedStop;
             bool mRequestedPlay;
             bool mRequestedPause;
+            bool mRequestedClear;
 
         private:
             AudioPacket _mAudioQueue[AudioQueueSize];
