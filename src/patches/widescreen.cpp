@@ -457,11 +457,14 @@ static void fixDEBSWideScreenText(s32 x1, s32 y1, s32 width, s32 height) {
     case 600:
         GXSetScissor(x1, y1, width, height);
         break;
-    case 700:
-        GXSetScissor(36, y1, 496, height);
+    case 720:
+        GXSetScissor(32, y1, 508, height);
+        break;
+    case 800:
+        GXSetScissor(28, y1, 526, height);
         break;
     case 1050:
-        GXSetScissor(-80, y1, 750, height);
+        GXSetScissor(20, y1, 562, height);
         break;
     }
 }

@@ -73,9 +73,13 @@ static void isKillEnemiesShine(TConductor *gpConductor, TVec3f *playerCoordinate
     SMS_FROM_GPR(31, player);
 
     TShine *shine = (TShine *)player->mGrabTarget;
-    if (!(shine->mType & 0x10))
+    if (!(shine->mType & 0x10)) {
         killEnemiesWithin__10TConductorFRCQ29JGeometry8TVec3_f(gpConductor, playerCoordinates,
                                                                range);
+    } else {
+        /*killEnemiesWithin__10TConductorFRCQ29JGeometry8TVec3_f(gpConductor, playerCoordinates,
+                                                               range / 2.0f);*/
+    }
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x802413E0, 0x8023916C, 0, 0), isKillEnemiesShine);
 
