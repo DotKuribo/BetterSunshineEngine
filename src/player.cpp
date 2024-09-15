@@ -3,6 +3,7 @@
 
 #include <JSystem/J2D/J2DPrint.hxx>
 #include <JSystem/JKernel/JKRFileLoader.hxx>
+#include <JSystem/J3D/J3DModelLoaderDataBase.hxx>
 #include <SMS/Enemy/EffectObjBase.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
@@ -722,6 +723,68 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         player->mAttributes.mIsShineShirt = params->getParams()->mPlayerHasShirt.get();
         isGlasses                         = params->getParams()->mPlayerHasGlasses.get();
 
+        // Init MActor
+        if(params->getParams()->mHasMActor.get()) {
+            params->mMActorAnmData = new MActorAnmData();
+            JKRArcFinder *finder = JKRFileLoader::findFirstFile("/mario/custom");
+            if(finder != 0x0) {
+                params->mMActorAnmData->init("mario/custom", nullptr);
+                params->mMActor = new MActor(params->mMActorAnmData);
+                params->mMActor->setModel(player->mModelData->mModel, 0);
+
+			    f32 framerate = params->getParams()->mMActorFramerate.get() * SMSGetAnmFrameRate();
+
+                // TODO: Allow finder grained control of these animations probably?
+                if(params->mMActor->checkAnmFileExist("default", MActor::BCK)) {
+                    params->mMActor->setBck("default");
+				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BCK);
+				    ctrl->mFrameRate = framerate;
+				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+                }
+
+                if(params->mMActor->checkAnmFileExist("default", MActor::BLK)) {
+                    params->mMActor->setBlk("default");
+				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BLK);
+				    ctrl->mFrameRate = framerate;
+				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+                }
+
+                if(params->mMActor->checkAnmFileExist("default", MActor::BRK)) {
+                    params->mMActor->setBrk("default");
+				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BRK);
+				    ctrl->mFrameRate = framerate;
+				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+                }
+
+                if(params->mMActor->checkAnmFileExist("default", MActor::BPK)) {
+                    params->mMActor->setBpk("default");
+				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BPK);
+				    ctrl->mFrameRate = framerate;
+				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+                }
+
+                if(params->mMActor->checkAnmFileExist("default", MActor::BTP)) {
+                    params->mMActor->setBtp("default");
+				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BTP);
+				    ctrl->mFrameRate = framerate;
+				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+                }
+
+                if(params->mMActor->checkAnmFileExist("default", MActor::BTK)) {
+                    params->mMActor->setBtk("default");
+				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BTK);
+				    ctrl->mFrameRate = framerate;
+				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+                }
+            } else {
+                OSReport("Missing /custom folder in mario model. Skipping initialization of MActor\n");
+            }
+        }
+        if(params->getParams()->mHasScreenTexture.get()) {
+            // Replaces dummy placeholder with screen texture. Necessary for e.g Shadow mario to work TODO: Standardize this?
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mBodyModelData, "H_kagemario_dummy");
+        }
+
         initFludd(player, params);
     }
 
@@ -791,9 +854,35 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
         item(player, true);
     }
 
+    auto* params = Player::getData(player);
+
+    if(params->mMActor) {
+        params->mMActor->frameUpdate();
+    }
+
     player->playerControl(graphics);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
+
+static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
+    auto* params = Player::getData(player);
+    if(params->mMActor) {
+        params->mMActor->entryIn();
+        player->entryModels(graphics);
+        params->mMActor->entryOut();
+    } else {
+        player->entryModels(graphics);
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8024d6d0, 0, 0, 0), playerDrawHandler);  // Mario
+
+
+// Allow animated texture for Mario
+SMS_WRITE_32(SMS_PORT_REGION(0x802465e8, 0, 0, 0), 0x3c801130);
+
+// Disable Lock in SMS_MakeDLAndLock
+// This breaks mActor initialization causing animations to not be applied properly
+SMS_WRITE_32(SMS_PORT_REGION(0x80225c10, 0, 0, 0), 0x60000000);
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {
