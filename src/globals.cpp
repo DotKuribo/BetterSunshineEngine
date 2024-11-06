@@ -48,11 +48,13 @@ int BetterSMS::getScreenRenderWidth() {
     case AspectRatioSetting::FULL:
         return 600;
     case AspectRatioSetting::STEAMDECK:
-        return 720;
+        return 716;
     case AspectRatioSetting::WIDE:
-        return 800;
+        return 796;
     case AspectRatioSetting::ULTRAWIDE:
-        return 1050;
+        return 1045;
+    case AspectRatioSetting::STUPIDWIDE:
+        return 1583;
     }
 }
 int BetterSMS::getScreenOrthoWidth() {
@@ -68,13 +70,15 @@ int BetterSMS::getScreenOrthoWidth() {
         return 853;
     case AspectRatioSetting::ULTRAWIDE:
         return 1120;
+    case AspectRatioSetting::STUPIDWIDE:
+        return 1699;
     }
 }
 
 f32 BetterSMS::getScreenToFullScreenRatio() {
     return static_cast<f32>(getScreenRenderWidth()) / 600.0f;
 }
-f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 600.0f; }
+f32 BetterSMS::getScreenRatioAdjustX() { return (getScreenToFullScreenRatio() - 1.0f) * 300.0f; }
 
 f32 BetterSMS::getFrameRate() {
     const f32 FPS = static_cast<f32>(30 << gFPSSetting.getInt());

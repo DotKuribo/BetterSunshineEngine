@@ -672,7 +672,7 @@ void SettingsDirector::initializeDramaHierarchy() {
 
         auto *orthoProj                = new JDrama::TOrthoProj();
         orthoProj->mProjectionField[0] = -BetterSMS::getScreenRatioAdjustX();
-        orthoProj->mProjectionField[2] = BetterSMS::getScreenRenderWidth();
+        orthoProj->mProjectionField[2] = 600.0f + BetterSMS::getScreenRatioAdjustX();
         screen->assignCamera(orthoProj);
 
         screen->assignViewObj(groupGrad);
@@ -686,7 +686,7 @@ void SettingsDirector::initializeDramaHierarchy() {
 
         auto *orthoProj                = new JDrama::TOrthoProj();
         orthoProj->mProjectionField[0] = -BetterSMS::getScreenRatioAdjustX();
-        orthoProj->mProjectionField[2] = BetterSMS::getScreenRenderWidth();
+        orthoProj->mProjectionField[2] = 600.0f + BetterSMS::getScreenRatioAdjustX();
         screen->assignCamera(orthoProj);
 
         screen->assignViewObj(group2D);

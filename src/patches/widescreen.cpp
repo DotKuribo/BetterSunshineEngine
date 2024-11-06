@@ -23,7 +23,7 @@
 
 using namespace BetterSMS;
 
-static f32 getScreenWidthf() { return static_cast<f32>(getScreenRenderWidth()); }
+extern AspectRatioSetting gAspectRatioSetting;
 
 static f32 getScreenWidthTranslated() {
     return static_cast<f32>(getScreenRenderWidth()) + getScreenRatioAdjustX();
@@ -31,41 +31,44 @@ static f32 getScreenWidthTranslated() {
 SMS_PATCH_BL(SMS_PORT_REGION(0x802A3E78, 0x8029BD54, 0, 0), getScreenWidthTranslated);
 SMS_WRITE_32(SMS_PORT_REGION(0x802A3E7C, 0x8029BD58, 0, 0), 0xD03C0038);
 
-static s32 getNegScreenTransX() { return -getScreenRatioAdjustX(); }
-static f32 getNegScreenTransXf() { return static_cast<f32>(getNegScreenTransX()); }
+static s32 getScreenX1() { return -getScreenRatioAdjustX(); }
+static f32 getScreenX1f() { return static_cast<f32>(getScreenX1()); }
 
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176AA4, 0x8016CA6C, 0, 0), getNegScreenTransXf);
+static f32 getScreenX2() { return 600.0f + getScreenRatioAdjustX(); }
+
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176AA4, 0x8016CA6C, 0, 0), getScreenX1f);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176AA8, 0x8016CA70, 0, 0), 0xD03B0030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029B974, 0x80293850, 0, 0), getNegScreenTransXf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029B974, 0x80293850, 0, 0), getScreenX1f);
 SMS_WRITE_32(SMS_PORT_REGION(0x8029B978, 0x80293854, 0, 0), 0xD0350030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176C40, 0x8016CC00, 0, 0), getNegScreenTransXf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176C40, 0x8016CC00, 0, 0), getScreenX1f);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176C44, 0x8016CC04, 0, 0), 0xD03B0030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176FF4, 0x8016D160, 0, 0), getNegScreenTransXf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176FF4, 0x8016D160, 0, 0), getScreenX1f);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176FF8, 0x8016D164, 0, 0), 0xD03B0030);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80177198, 0x8016CFBC, 0, 0), getNegScreenTransXf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80177198, 0x8016CFBC, 0, 0), getScreenX1f);
 SMS_WRITE_32(SMS_PORT_REGION(0x8017719c, 0x8016CFC0, 0, 0), 0xD03B0030);
 
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176AB4, 0x8016CA7C, 0, 0), getScreenWidthf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176AB4, 0x8016CA7C, 0, 0), getScreenX2);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176AB8, 0x8016CA80, 0, 0), 0xD03B0038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x8029B984, 0x80293860, 0, 0), getScreenWidthf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8029B984, 0x80293860, 0, 0), getScreenX2);
 SMS_WRITE_32(SMS_PORT_REGION(0x8029B988, 0x80293864, 0, 0), 0xD0350038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80176C50, 0x8016CC10, 0, 0), getScreenWidthf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80176C50, 0x8016CC10, 0, 0), getScreenX2);
 SMS_WRITE_32(SMS_PORT_REGION(0x80176C54, 0x8016CC14, 0, 0), 0xD03B0038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80177004, 0x8016D170, 0, 0), getScreenWidthf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80177004, 0x8016D170, 0, 0), getScreenX2);
 SMS_WRITE_32(SMS_PORT_REGION(0x80177008, 0x8016D174, 0, 0), 0xD03B0038);
-SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenWidthf);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801771A8, 0x8016CFCC, 0, 0), getScreenX2);
 SMS_WRITE_32(SMS_PORT_REGION(0x801771AC, 0x8016CFD0, 0, 0), 0xD03B0038);
 
 extern AspectRatioSetting gAspectRatioSetting;
 
 static f32 getScreenXRatio2() {
     const f32 ratio = getScreenToFullScreenRatio();
-    return ratio + (ratio - 1.0f);
+    /*return ratio + (ratio - 1.0f);*/
+    return ratio;
 }
 
 static f32 getShineSelectXRatio() { return getScreenXRatio2() * 1.33333337307; }
 
-static f32 getCameraXRatio() { return getScreenXRatio2() * 0.913461446762f; }
+static f32 getCameraXRatio() { return getScreenXRatio2() * 0.91346145f; }
 
 static f32 getScreenScale() {
     return gAspectRatioSetting.getInt() == AspectRatioSetting::FULLOPENMATTE ? 0.75f : 1.0f;
@@ -112,7 +115,7 @@ static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
     x1 -= translate;
     x2 += translate;
 
-    rect->set(-getScreenRatioAdjustX(), y1, getScreenRenderWidth(), y2);
+    rect->set(x1, y1, x2, y2);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80296078, 0x8028DF10, 0, 0), scaleNintendoIntro);
 
@@ -452,19 +455,23 @@ static void fixDEBSWideScreenText(s32 x1, s32 y1, s32 width, s32 height) {
     pane->mPane->mRect.mX1 = sPaneRect.mX1 + (180.0f * sDEBSToTimerRatio);
     window->mFillRect.mX2  = sFillRect.mX2 - (180.0f * sDEBSToTimerRatio);
 
-    switch (getScreenRenderWidth()) {
+    switch (gAspectRatioSetting.getInt()) {
     default:
-    case 600:
+    case AspectRatioSetting::FULL:
+    case AspectRatioSetting::FULLOPENMATTE:
         GXSetScissor(x1, y1, width, height);
         break;
-    case 720:
-        GXSetScissor(32, y1, 508, height);
+    case AspectRatioSetting::STEAMDECK:
+        GXSetScissor(36, y1, 487, height);
         break;
-    case 800:
-        GXSetScissor(28, y1, 526, height);
+    case AspectRatioSetting::WIDE:
+        GXSetScissor(33, y1, 502, height);
         break;
-    case 1050:
-        GXSetScissor(20, y1, 562, height);
+    case AspectRatioSetting::ULTRAWIDE:
+        GXSetScissor(26, y1, 533, height);
+        break;
+    case AspectRatioSetting::STUPIDWIDE:
+        GXSetScissor(17, y1, 569, height);
         break;
     }
 }
@@ -565,8 +572,8 @@ static void patchLevelSelectPosition(J2DScreen *screen, int x, int y, J2DGrafCon
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosition);
 
- static SMS_ASM_FUNC void patchGXScissor() {
-     // clang-format off
+static SMS_ASM_FUNC void patchGXScissor() {
+    // clang-format off
      SMS_ASM_BLOCK (
          SMS_PORT_REGION (
              "lwz       7, -0x72F8(13)   \n\t",
@@ -600,9 +607,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013F430, 0x80133FAC, 0, 0), patchLevelSelectPosi
          "mtctr 12       \n\t"
          "bctr       \n\t"
      );
-     // clang-format on
- }
- //SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
+    // clang-format on
+}
+// SMS_PATCH_B(SMS_PORT_REGION(0x80363138, 0x8035b358, 0, 0), patchGXScissor);
 
 static void scaleUnderWaterMask(Mtx mtx, f32 x, f32 y, f32 z) {
     CPolarSubCamera *camera = gpCamera;

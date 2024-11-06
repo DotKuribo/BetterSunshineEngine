@@ -212,7 +212,7 @@ static bool getShineFlagForSelectScreen1() {
     TSelectMenu *menu;
     SMS_FROM_GPR(31, menu);
 
-    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), 0, false);
+    int shineID = SMS_getShineID(SMS_getShineStage(menu->mAreaID), 0, true);
     if (shineID == -1) {
         return false;
     }
