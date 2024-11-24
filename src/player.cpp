@@ -878,7 +878,16 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024d6d0, 0, 0, 0), playerDrawHandler);  // Mario
 
 
 // Allow animated texture for Mario
-SMS_WRITE_32(SMS_PORT_REGION(0x802465e8, 0, 0, 0), 0x3c801130);
+SMS_WRITE_32(SMS_PORT_REGION(0x802465e8, 0, 0, 0), 0x3c801130); // ma_mdl1
+SMS_WRITE_32(SMS_PORT_REGION(0x80246744, 0, 0, 0), 0x3c801130); // ma_hnd2r
+SMS_WRITE_32(SMS_PORT_REGION(0x80246754, 0, 0, 0), 0x3c801130); // ma_hnd2lr
+SMS_WRITE_32(SMS_PORT_REGION(0x80246764, 0, 0, 0), 0x3c801130); // ma_hnd3r
+SMS_WRITE_32(SMS_PORT_REGION(0x80246774, 0, 0, 0), 0x3c801130); // ma_hnd3lr
+SMS_WRITE_32(SMS_PORT_REGION(0x80246784, 0, 0, 0), 0x3c801130); // ma_hnd4r
+SMS_WRITE_32(SMS_PORT_REGION(0x802421bc, 0, 0, 0), 0x3c801130); // ma_cap1
+SMS_WRITE_32(SMS_PORT_REGION(0x80242290, 0, 0, 0), 0x3c801130); // ma_cap3
+SMS_WRITE_32(SMS_PORT_REGION(0x802423b4, 0, 0, 0), 0x3c801130); // diver_helm
+SMS_WRITE_32(SMS_PORT_REGION(0x802423f0, 0, 0, 0), 0x3c801130); // ma_glass1
 
 // Disable Lock in SMS_MakeDLAndLock
 // This breaks mActor initialization causing animations to not be applied properly
