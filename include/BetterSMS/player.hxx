@@ -239,7 +239,7 @@ namespace BetterSMS {
             TMario::TDirtyParams mDefaultDirtyParams;
 
             MActorAnmData* mMActorAnmData;
-            MActor* mMActor;
+            MActor* mMActor[10];
 
             TVec3f mWarpDestination;
             s32 mWarpTimer;

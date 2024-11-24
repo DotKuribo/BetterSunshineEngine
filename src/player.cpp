@@ -693,6 +693,57 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
                                         ->mEmitParams.mAmountMax.get();
 }
 
+MActor* createMActorForModel(MActorAnmData* anmData, J3DModel* model, f32 configuredFramerate, const char* modelName) {
+    MActor* actor = new MActor(anmData);
+    actor->setModel(model, 0);
+    f32 framerate = configuredFramerate * SMSGetAnmFrameRate();
+
+    // TODO: Allow finder grained control of these animations probably?
+    if(actor->checkAnmFileExist(modelName, MActor::BCK)) {
+        actor->setBck(modelName);
+	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BCK);
+	    ctrl->mFrameRate = framerate;
+	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+    }
+
+    if(actor->checkAnmFileExist(modelName, MActor::BLK)) {
+        actor->setBlk(modelName);
+	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BLK);
+	    ctrl->mFrameRate = framerate;
+	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+    }
+
+    if(actor->checkAnmFileExist(modelName, MActor::BRK)) {
+        actor->setBrk(modelName);
+	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BRK);
+	    ctrl->mFrameRate = framerate;
+	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+    }
+
+    if(actor->checkAnmFileExist(modelName, MActor::BPK)) {
+        actor->setBpk(modelName);
+	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BPK);
+	    ctrl->mFrameRate = framerate;
+	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+    }
+
+    if(actor->checkAnmFileExist(modelName, MActor::BTP)) {
+        actor->setBtp(modelName);
+	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BTP);
+	    ctrl->mFrameRate = framerate;
+	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+    }
+
+    if(actor->checkAnmFileExist(modelName, MActor::BTK)) {
+        actor->setBtk(modelName);
+	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BTK);
+	    ctrl->mFrameRate = framerate;
+	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+    }
+
+    return actor;
+}
+
 // Extern to Player Init CB
 BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
     Stage::TStageParams *config = Stage::getStageConfiguration();
@@ -729,53 +780,19 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
             JKRArcFinder *finder = JKRFileLoader::findFirstFile("/mario/custom");
             if(finder != 0x0) {
                 params->mMActorAnmData->init("mario/custom", nullptr);
-                params->mMActor = new MActor(params->mMActorAnmData);
-                params->mMActor->setModel(player->mModelData->mModel, 0);
+                auto* anmData = params->mMActorAnmData;
+                f32 framerate = params->getParams()->mMActorFramerate.get();
+                params->mMActor[0] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_mdl1");
+                params->mMActor[1] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd2r");
+                params->mMActor[2] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd2lr");
+                params->mMActor[3] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd3r");
+                params->mMActor[4] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd3lr");
+                params->mMActor[5] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd4r");
+                params->mMActor[6] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_cap1");
+                params->mMActor[7] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_cap3");
+                params->mMActor[8] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "diver_helm");
+                params->mMActor[9] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_glass1");
 
-			    f32 framerate = params->getParams()->mMActorFramerate.get() * SMSGetAnmFrameRate();
-
-                // TODO: Allow finder grained control of these animations probably?
-                if(params->mMActor->checkAnmFileExist("default", MActor::BCK)) {
-                    params->mMActor->setBck("default");
-				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BCK);
-				    ctrl->mFrameRate = framerate;
-				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
-                }
-
-                if(params->mMActor->checkAnmFileExist("default", MActor::BLK)) {
-                    params->mMActor->setBlk("default");
-				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BLK);
-				    ctrl->mFrameRate = framerate;
-				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
-                }
-
-                if(params->mMActor->checkAnmFileExist("default", MActor::BRK)) {
-                    params->mMActor->setBrk("default");
-				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BRK);
-				    ctrl->mFrameRate = framerate;
-				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
-                }
-
-                if(params->mMActor->checkAnmFileExist("default", MActor::BPK)) {
-                    params->mMActor->setBpk("default");
-				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BPK);
-				    ctrl->mFrameRate = framerate;
-				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
-                }
-
-                if(params->mMActor->checkAnmFileExist("default", MActor::BTP)) {
-                    params->mMActor->setBtp("default");
-				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BTP);
-				    ctrl->mFrameRate = framerate;
-				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
-                }
-
-                if(params->mMActor->checkAnmFileExist("default", MActor::BTK)) {
-                    params->mMActor->setBtk("default");
-				    J3DFrameCtrl* ctrl = params->mMActor->getFrameCtrl(MActor::BTK);
-				    ctrl->mFrameRate = framerate;
-				    ctrl->mAnimState = J3DFrameCtrl::LOOP;
-                }
             } else {
                 OSReport("Missing /custom folder in mario model. Skipping initialization of MActor\n");
             }
@@ -856,8 +873,10 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
 
     auto* params = Player::getData(player);
 
-    if(params->mMActor) {
-        params->mMActor->frameUpdate();
+    if(params->mMActor[0]) {
+        for(int i = 0; i < 10; ++i) {
+            params->mMActor[i]->frameUpdate();
+        }
     }
 
     player->playerControl(graphics);
@@ -866,10 +885,14 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler)
 
 static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
     auto* params = Player::getData(player);
-    if(params->mMActor) {
-        params->mMActor->entryIn();
+    if(params->mMActor[0]) {
+        for(int i = 0; i < 10; ++i) {
+            params->mMActor[i]->entryIn();
+        }
         player->entryModels(graphics);
-        params->mMActor->entryOut();
+        for(int i = 0; i < 10; ++i) {
+            params->mMActor[i]->entryOut();
+        }
     } else {
         player->entryModels(graphics);
     }
