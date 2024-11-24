@@ -783,15 +783,15 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
                 auto* anmData = params->mMActorAnmData;
                 f32 framerate = params->getParams()->mMActorFramerate.get();
                 params->mMActor[0] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_mdl1");
-                params->mMActor[1] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd2r");
-                params->mMActor[2] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd2lr");
-                params->mMActor[3] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd3r");
-                params->mMActor[4] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd3lr");
-                params->mMActor[5] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_hnd4r");
-                params->mMActor[6] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_cap1");
-                params->mMActor[7] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_cap3");
-                params->mMActor[8] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "diver_helm");
-                params->mMActor[9] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_glass1");
+                params->mMActor[1] = createMActorForModel(anmData, player->mHandModel2R, framerate, "ma_hnd2r");
+                params->mMActor[2] = createMActorForModel(anmData, player->mHandModel2L, framerate, "ma_hnd2lr");
+                params->mMActor[3] = createMActorForModel(anmData, player->mHandModel3R, framerate, "ma_hnd3r");
+                params->mMActor[4] = createMActorForModel(anmData, player->mHandModel3L, framerate, "ma_hnd3lr");
+                params->mMActor[5] = createMActorForModel(anmData, player->mHandModel4R, framerate, "ma_hnd4r");
+                params->mMActor[6] = createMActorForModel(anmData, player->mCap->mCap1, framerate, "ma_cap1");
+                params->mMActor[7] = createMActorForModel(anmData, player->mCap->mCap3, framerate, "ma_cap3");
+                params->mMActor[8] = createMActorForModel(anmData, player->mCap->mDiverHelm, framerate, "diver_helm");
+                params->mMActor[9] = createMActorForModel(anmData, player->mCap->maGlass1, framerate, "ma_glass1");
 
             } else {
                 OSReport("Missing /custom folder in mario model. Skipping initialization of MActor\n");
@@ -800,6 +800,10 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         if(params->getParams()->mHasScreenTexture.get()) {
             // Replaces dummy placeholder with screen texture. Necessary for e.g Shadow mario to work TODO: Standardize this?
 			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mBodyModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mCap1->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mCap3->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mDiverHelm->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->maGlass1->mModelData, "H_kagemario_dummy");
         }
 
         initFludd(player, params);
