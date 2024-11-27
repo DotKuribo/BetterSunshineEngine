@@ -784,9 +784,9 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
                 f32 framerate = params->getParams()->mMActorFramerate.get();
                 params->mMActor[0] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_mdl1");
                 params->mMActor[1] = createMActorForModel(anmData, player->mHandModel2R, framerate, "ma_hnd2r");
-                params->mMActor[2] = createMActorForModel(anmData, player->mHandModel2L, framerate, "ma_hnd2lr");
+                params->mMActor[2] = createMActorForModel(anmData, player->mHandModel2L, framerate, "ma_hnd2l");
                 params->mMActor[3] = createMActorForModel(anmData, player->mHandModel3R, framerate, "ma_hnd3r");
-                params->mMActor[4] = createMActorForModel(anmData, player->mHandModel3L, framerate, "ma_hnd3lr");
+                params->mMActor[4] = createMActorForModel(anmData, player->mHandModel3L, framerate, "ma_hnd3l");
                 params->mMActor[5] = createMActorForModel(anmData, player->mHandModel4R, framerate, "ma_hnd4r");
                 params->mMActor[6] = createMActorForModel(anmData, player->mCap->mCap1, framerate, "ma_cap1");
                 params->mMActor[7] = createMActorForModel(anmData, player->mCap->mCap3, framerate, "ma_cap3");
@@ -800,6 +800,11 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         if(params->getParams()->mHasScreenTexture.get()) {
             // Replaces dummy placeholder with screen texture. Necessary for e.g Shadow mario to work TODO: Standardize this?
 			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mBodyModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel2R->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel2L->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel3R->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel3L->mModelData, "H_kagemario_dummy");
+			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel4R->mModelData, "H_kagemario_dummy");
 			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mCap1->mModelData, "H_kagemario_dummy");
 			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mCap3->mModelData, "H_kagemario_dummy");
 			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mDiverHelm->mModelData, "H_kagemario_dummy");
@@ -907,9 +912,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024d6d0, 0, 0, 0), playerDrawHandler);  // Mario
 // Allow animated texture for Mario
 SMS_WRITE_32(SMS_PORT_REGION(0x802465e8, 0, 0, 0), 0x3c801130); // ma_mdl1
 SMS_WRITE_32(SMS_PORT_REGION(0x80246744, 0, 0, 0), 0x3c801130); // ma_hnd2r
-SMS_WRITE_32(SMS_PORT_REGION(0x80246754, 0, 0, 0), 0x3c801130); // ma_hnd2lr
+SMS_WRITE_32(SMS_PORT_REGION(0x80246754, 0, 0, 0), 0x3c801130); // ma_hnd2l
 SMS_WRITE_32(SMS_PORT_REGION(0x80246764, 0, 0, 0), 0x3c801130); // ma_hnd3r
-SMS_WRITE_32(SMS_PORT_REGION(0x80246774, 0, 0, 0), 0x3c801130); // ma_hnd3lr
+SMS_WRITE_32(SMS_PORT_REGION(0x80246774, 0, 0, 0), 0x3c801130); // ma_hnd3l
 SMS_WRITE_32(SMS_PORT_REGION(0x80246784, 0, 0, 0), 0x3c801130); // ma_hnd4r
 SMS_WRITE_32(SMS_PORT_REGION(0x802421bc, 0, 0, 0), 0x3c801130); // ma_cap1
 SMS_WRITE_32(SMS_PORT_REGION(0x80242290, 0, 0, 0), 0x3c801130); // ma_cap3
