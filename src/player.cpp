@@ -2,8 +2,8 @@
 #include <Dolphin/OS.h>
 
 #include <JSystem/J2D/J2DPrint.hxx>
-#include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <JSystem/J3D/J3DModelLoaderDataBase.hxx>
+#include <JSystem/JKernel/JKRFileLoader.hxx>
 #include <SMS/Enemy/EffectObjBase.hxx>
 #include <SMS/GC2D/ConsoleStr.hxx>
 #include <SMS/MSound/MSoundSESystem.hxx>
@@ -380,11 +380,11 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player
     triFluidCenter.y += 300.0f;
 
 #define EXPAND_WARP_SET(base)                                                                      \
-    (base) : case ((base) + 10):                                                                   \
+    (base) : case ((base) + 10) :                                                                  \
     case ((base) + 20):                                                                            \
     case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1):                                                                    \
+    (base) : case ((base) + 1) :                                                                   \
     case ((base) + 2):                                                                             \
     case ((base) + 3):                                                                             \
     case ((base) + 4)
@@ -693,52 +693,53 @@ static void initFludd(TMario *player, Player::TPlayerData *playerData) {
                                         ->mEmitParams.mAmountMax.get();
 }
 
-MActor* createMActorForModel(MActorAnmData* anmData, J3DModel* model, f32 configuredFramerate, const char* modelName) {
-    MActor* actor = new MActor(anmData);
+MActor *createMActorForModel(MActorAnmData *anmData, J3DModel *model, f32 configuredFramerate,
+                             const char *modelName) {
+    MActor *actor = new MActor(anmData);
     actor->setModel(model, 0);
     f32 framerate = configuredFramerate * SMSGetAnmFrameRate();
 
     // TODO: Allow finder grained control of these animations probably?
-    if(actor->checkAnmFileExist(modelName, MActor::BCK)) {
+    if (actor->checkAnmFileExist(modelName, MActor::BCK)) {
         actor->setBck(modelName);
-	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BCK);
-	    ctrl->mFrameRate = framerate;
-	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+        J3DFrameCtrl *ctrl = actor->getFrameCtrl(MActor::BCK);
+        ctrl->mFrameRate   = framerate;
+        ctrl->mAnimState   = J3DFrameCtrl::LOOP;
     }
 
-    if(actor->checkAnmFileExist(modelName, MActor::BLK)) {
+    if (actor->checkAnmFileExist(modelName, MActor::BLK)) {
         actor->setBlk(modelName);
-	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BLK);
-	    ctrl->mFrameRate = framerate;
-	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+        J3DFrameCtrl *ctrl = actor->getFrameCtrl(MActor::BLK);
+        ctrl->mFrameRate   = framerate;
+        ctrl->mAnimState   = J3DFrameCtrl::LOOP;
     }
 
-    if(actor->checkAnmFileExist(modelName, MActor::BRK)) {
+    if (actor->checkAnmFileExist(modelName, MActor::BRK)) {
         actor->setBrk(modelName);
-	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BRK);
-	    ctrl->mFrameRate = framerate;
-	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+        J3DFrameCtrl *ctrl = actor->getFrameCtrl(MActor::BRK);
+        ctrl->mFrameRate   = framerate;
+        ctrl->mAnimState   = J3DFrameCtrl::LOOP;
     }
 
-    if(actor->checkAnmFileExist(modelName, MActor::BPK)) {
+    if (actor->checkAnmFileExist(modelName, MActor::BPK)) {
         actor->setBpk(modelName);
-	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BPK);
-	    ctrl->mFrameRate = framerate;
-	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+        J3DFrameCtrl *ctrl = actor->getFrameCtrl(MActor::BPK);
+        ctrl->mFrameRate   = framerate;
+        ctrl->mAnimState   = J3DFrameCtrl::LOOP;
     }
 
-    if(actor->checkAnmFileExist(modelName, MActor::BTP)) {
+    if (actor->checkAnmFileExist(modelName, MActor::BTP)) {
         actor->setBtp(modelName);
-	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BTP);
-	    ctrl->mFrameRate = framerate;
-	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+        J3DFrameCtrl *ctrl = actor->getFrameCtrl(MActor::BTP);
+        ctrl->mFrameRate   = framerate;
+        ctrl->mAnimState   = J3DFrameCtrl::LOOP;
     }
 
-    if(actor->checkAnmFileExist(modelName, MActor::BTK)) {
+    if (actor->checkAnmFileExist(modelName, MActor::BTK)) {
         actor->setBtk(modelName);
-	    J3DFrameCtrl* ctrl = actor->getFrameCtrl(MActor::BTK);
-	    ctrl->mFrameRate = framerate;
-	    ctrl->mAnimState = J3DFrameCtrl::LOOP;
+        J3DFrameCtrl *ctrl = actor->getFrameCtrl(MActor::BTK);
+        ctrl->mFrameRate   = framerate;
+        ctrl->mAnimState   = J3DFrameCtrl::LOOP;
     }
 
     return actor;
@@ -775,40 +776,62 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         isGlasses                         = params->getParams()->mPlayerHasGlasses.get();
 
         // Init MActor
-        if(params->getParams()->mHasMActor.get()) {
+        if (params->getParams()->mHasMActor.get()) {
             params->mMActorAnmData = new MActorAnmData();
-            JKRArcFinder *finder = JKRFileLoader::findFirstFile("/mario/custom");
-            if(finder != nullptr) {
+            JKRArcFinder *finder   = JKRFileLoader::findFirstFile("/mario/custom");
+            if (finder != nullptr) {
                 params->mMActorAnmData->init("mario/custom", nullptr);
-                auto* anmData = params->mMActorAnmData;
+                auto *anmData = params->mMActorAnmData;
                 f32 framerate = params->getParams()->mMActorFramerate.get();
-                params->mMActor[0] = createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_mdl1");
-                params->mMActor[1] = createMActorForModel(anmData, player->mHandModel2R, framerate, "ma_hnd2r");
-                params->mMActor[2] = createMActorForModel(anmData, player->mHandModel2L, framerate, "ma_hnd2l");
-                params->mMActor[3] = createMActorForModel(anmData, player->mHandModel3R, framerate, "ma_hnd3r");
-                params->mMActor[4] = createMActorForModel(anmData, player->mHandModel3L, framerate, "ma_hnd3l");
-                params->mMActor[5] = createMActorForModel(anmData, player->mHandModel4R, framerate, "ma_hnd4r");
-                params->mMActor[6] = createMActorForModel(anmData, player->mCap->mCap1, framerate, "ma_cap1");
-                params->mMActor[7] = createMActorForModel(anmData, player->mCap->mCap3, framerate, "ma_cap3");
-                params->mMActor[8] = createMActorForModel(anmData, player->mCap->mDiverHelm, framerate, "diver_helm");
-                params->mMActor[9] = createMActorForModel(anmData, player->mCap->maGlass1, framerate, "ma_glass1");
+                params->mMActor[0] =
+                    createMActorForModel(anmData, player->mModelData->mModel, framerate, "ma_mdl1");
+                params->mMActor[1] =
+                    createMActorForModel(anmData, player->mHandModel2R, framerate, "ma_hnd2r");
+                params->mMActor[2] =
+                    createMActorForModel(anmData, player->mHandModel2L, framerate, "ma_hnd2l");
+                params->mMActor[3] =
+                    createMActorForModel(anmData, player->mHandModel3R, framerate, "ma_hnd3r");
+                params->mMActor[4] =
+                    createMActorForModel(anmData, player->mHandModel3L, framerate, "ma_hnd3l");
+                params->mMActor[5] =
+                    createMActorForModel(anmData, player->mHandModel4R, framerate, "ma_hnd4r");
+                params->mMActor[6] =
+                    createMActorForModel(anmData, player->mCap->mCap1, framerate, "ma_cap1");
+                params->mMActor[7] =
+                    createMActorForModel(anmData, player->mCap->mCap3, framerate, "ma_cap3");
+                params->mMActor[8] = createMActorForModel(anmData, player->mCap->mDiverHelm,
+                                                          framerate, "diver_helm");
+                params->mMActor[9] =
+                    createMActorForModel(anmData, player->mCap->maGlass1, framerate, "ma_glass1");
 
             } else {
-                OSReport("Missing /custom folder in mario model. Skipping initialization of MActor\n");
+                OSReport(
+                    "Missing /custom folder in mario model. Skipping initialization of MActor\n");
             }
         }
-        if(params->getParams()->mHasScreenTexture.get()) {
-            // Replaces dummy placeholder with screen texture. Necessary for e.g Shadow mario to work TODO: Standardize this?
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mBodyModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel2R->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel2L->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel3R->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel3L->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mHandModel4R->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mCap1->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mCap3->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->mDiverHelm->mModelData, "H_kagemario_dummy");
-			replace__14TScreenTextureFP12J3DModelDataPCc(*(u32**)0x8040e0bc, player->mCap->maGlass1->mModelData, "H_kagemario_dummy");
+        if (params->getParams()->mHasScreenTexture.get()) {
+            // Replaces dummy placeholder with screen texture. Necessary for e.g Shadow mario to
+            // work TODO: Standardize this?
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mBodyModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mHandModel2R->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mHandModel2L->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mHandModel3R->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mHandModel3L->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mHandModel4R->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mCap->mCap1->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mCap->mCap3->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mCap->mDiverHelm->mModelData, "H_kagemario_dummy");
+            replace__14TScreenTextureFP12J3DModelDataPCc(
+                *(u32 **)0x8040e0bc, player->mCap->maGlass1->mModelData, "H_kagemario_dummy");
         }
 
         initFludd(player, params);
@@ -880,11 +903,11 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
         item(player, true);
     }
 
-    auto* params = Player::getData(player);
+    auto *params = Player::getData(player);
 
-    for(int i = 0; i < 10; ++i) {
-        MActor* mActor = params->mMActor[i];
-        if(mActor != nullptr) {
+    for (int i = 0; i < 10; ++i) {
+        MActor *mActor = params->mMActor[i];
+        if (mActor != nullptr) {
             mActor->frameUpdate();
         }
     }
@@ -894,18 +917,18 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler);  // Mario
 
 static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
-    auto* params = Player::getData(player);
-    if(params->mMActor[0]) {
-        for(int i = 0; i < 10; ++i) {
-            MActor* mActor = params->mMActor[i];
-            if(mActor != nullptr) {
+    auto *params = Player::getData(player);
+    if (params->mMActor[0]) {
+        for (int i = 0; i < 10; ++i) {
+            MActor *mActor = params->mMActor[i];
+            if (mActor != nullptr) {
                 mActor->entryIn();
             }
         }
         player->entryModels(graphics);
-        for(int i = 0; i < 10; ++i) {
-            MActor* mActor = params->mMActor[i];
-            if(mActor != nullptr) {
+        for (int i = 0; i < 10; ++i) {
+            MActor *mActor = params->mMActor[i];
+            if (mActor != nullptr) {
                 mActor->entryOut();
             }
         }
@@ -915,18 +938,17 @@ static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8024d6d0, 0, 0, 0), playerDrawHandler);  // Mario
 
-
 // Allow animated texture for Mario
-SMS_WRITE_32(SMS_PORT_REGION(0x802465e8, 0, 0, 0), 0x3c801130); // ma_mdl1
-SMS_WRITE_32(SMS_PORT_REGION(0x80246744, 0, 0, 0), 0x3c801130); // ma_hnd2r
-SMS_WRITE_32(SMS_PORT_REGION(0x80246754, 0, 0, 0), 0x3c801130); // ma_hnd2l
-SMS_WRITE_32(SMS_PORT_REGION(0x80246764, 0, 0, 0), 0x3c801130); // ma_hnd3r
-SMS_WRITE_32(SMS_PORT_REGION(0x80246774, 0, 0, 0), 0x3c801130); // ma_hnd3l
-SMS_WRITE_32(SMS_PORT_REGION(0x80246784, 0, 0, 0), 0x3c801130); // ma_hnd4r
-SMS_WRITE_32(SMS_PORT_REGION(0x802421bc, 0, 0, 0), 0x3c801130); // ma_cap1
-SMS_WRITE_32(SMS_PORT_REGION(0x80242290, 0, 0, 0), 0x3c801130); // ma_cap3
-SMS_WRITE_32(SMS_PORT_REGION(0x802423b4, 0, 0, 0), 0x3c801130); // diver_helm
-SMS_WRITE_32(SMS_PORT_REGION(0x802423f0, 0, 0, 0), 0x3c801130); // ma_glass1
+SMS_WRITE_32(SMS_PORT_REGION(0x802465e8, 0, 0, 0), 0x3c801130);  // ma_mdl1
+SMS_WRITE_32(SMS_PORT_REGION(0x80246744, 0, 0, 0), 0x3c801130);  // ma_hnd2r
+SMS_WRITE_32(SMS_PORT_REGION(0x80246754, 0, 0, 0), 0x3c801130);  // ma_hnd2l
+SMS_WRITE_32(SMS_PORT_REGION(0x80246764, 0, 0, 0), 0x3c801130);  // ma_hnd3r
+SMS_WRITE_32(SMS_PORT_REGION(0x80246774, 0, 0, 0), 0x3c801130);  // ma_hnd3l
+SMS_WRITE_32(SMS_PORT_REGION(0x80246784, 0, 0, 0), 0x3c801130);  // ma_hnd4r
+SMS_WRITE_32(SMS_PORT_REGION(0x802421bc, 0, 0, 0), 0x3c801130);  // ma_cap1
+SMS_WRITE_32(SMS_PORT_REGION(0x80242290, 0, 0, 0), 0x3c801130);  // ma_cap3
+SMS_WRITE_32(SMS_PORT_REGION(0x802423b4, 0, 0, 0), 0x3c801130);  // diver_helm
+SMS_WRITE_32(SMS_PORT_REGION(0x802423f0, 0, 0, 0), 0x3c801130);  // ma_glass1
 
 // Disable Lock in SMS_MakeDLAndLock
 // This breaks mActor initialization causing animations to not be applied properly
