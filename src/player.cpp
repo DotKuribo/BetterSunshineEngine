@@ -778,7 +778,7 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
         if(params->getParams()->mHasMActor.get()) {
             params->mMActorAnmData = new MActorAnmData();
             JKRArcFinder *finder = JKRFileLoader::findFirstFile("/mario/custom");
-            if(finder != 0x0) {
+            if(finder != nullptr) {
                 params->mMActorAnmData->init("mario/custom", nullptr);
                 auto* anmData = params->mMActorAnmData;
                 f32 framerate = params->getParams()->mMActorFramerate.get();
@@ -882,9 +882,10 @@ static void playerUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
 
     auto* params = Player::getData(player);
 
-    if(params->mMActor[0]) {
-        for(int i = 0; i < 10; ++i) {
-            params->mMActor[i]->frameUpdate();
+    for(int i = 0; i < 10; ++i) {
+        MActor* mActor = params->mMActor[i];
+        if(mActor != nullptr) {
+            mActor->frameUpdate();
         }
     }
 
@@ -896,11 +897,17 @@ static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
     auto* params = Player::getData(player);
     if(params->mMActor[0]) {
         for(int i = 0; i < 10; ++i) {
-            params->mMActor[i]->entryIn();
+            MActor* mActor = params->mMActor[i];
+            if(mActor != nullptr) {
+                mActor->entryIn();
+            }
         }
         player->entryModels(graphics);
         for(int i = 0; i < 10; ++i) {
-            params->mMActor[i]->entryOut();
+            MActor* mActor = params->mMActor[i];
+            if(mActor != nullptr) {
+                mActor->entryOut();
+            }
         }
     } else {
         player->entryModels(graphics);
