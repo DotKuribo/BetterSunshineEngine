@@ -380,11 +380,11 @@ BETTER_SMS_FOR_EXPORT void BetterSMS::Player::warpToCollisionFace(TMario *player
     triFluidCenter.y += 300.0f;
 
 #define EXPAND_WARP_SET(base)                                                                      \
-    (base) : case ((base) + 10) :                                                                  \
+    (base) : case ((base) + 10):                                                                   \
     case ((base) + 20):                                                                            \
     case ((base) + 30)
 #define EXPAND_WARP_CATEGORY(base)                                                                 \
-    (base) : case ((base) + 1) :                                                                   \
+    (base) : case ((base) + 1):                                                                    \
     case ((base) + 2):                                                                             \
     case ((base) + 3):                                                                             \
     case ((base) + 4)
@@ -752,6 +752,10 @@ BETTER_SMS_FOR_CALLBACK void initMario(TMario *player, bool isMario) {
     Player::TPlayerData *params = new Player::TPlayerData(player, nullptr, isMario);
     Player::registerData(player, "__better_sms", params);
 
+    for (int i = 0; i < 10; ++i) {
+        params->mMActor[i] = nullptr;
+    }
+
     bool isGlasses = false;
 
     if (config->isCustomConfig()) {
@@ -919,6 +923,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8024D3A0, 0x80245134, 0, 0), playerUpdateHandler)
 static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
     auto *params = Player::getData(player);
     if (params->mMActor[0]) {
+        player->mModelData->mModel->unlock();
         for (int i = 0; i < 10; ++i) {
             MActor *mActor = params->mMActor[i];
             if (mActor != nullptr) {
@@ -932,6 +937,7 @@ static void playerDrawHandler(TMario *player, JDrama::TGraphics *graphics) {
                 mActor->entryOut();
             }
         }
+        player->mModelData->mModel->lock();
     } else {
         player->entryModels(graphics);
     }
@@ -949,10 +955,6 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802421bc, 0, 0, 0), 0x3c801130);  // ma_cap1
 SMS_WRITE_32(SMS_PORT_REGION(0x80242290, 0, 0, 0), 0x3c801130);  // ma_cap3
 SMS_WRITE_32(SMS_PORT_REGION(0x802423b4, 0, 0, 0), 0x3c801130);  // diver_helm
 SMS_WRITE_32(SMS_PORT_REGION(0x802423f0, 0, 0, 0), 0x3c801130);  // ma_glass1
-
-// Disable Lock in SMS_MakeDLAndLock
-// This breaks mActor initialization causing animations to not be applied properly
-SMS_WRITE_32(SMS_PORT_REGION(0x80225c10, 0, 0, 0), 0x60000000);
 
 static void shadowMarioUpdateHandler(TMario *player, JDrama::TGraphics *graphics) {
     for (auto &item : sPlayerUpdaters) {

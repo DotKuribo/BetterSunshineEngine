@@ -19,6 +19,7 @@
 #include "stage.hxx"
 #include <DVD.h>
 #include <raw_fn.hxx>
+#include "loading.hxx"
 
 #define TEXT_COLOR_DEFAULT_SCENARIO                                                                \
     { 255, 255, 255, 255 }
@@ -1397,6 +1398,13 @@ s32 LevelSelectDirector::direct() {
 
 s32 LevelSelectDirector::exit() {
     TSMSFader *fader = gpApplication.mFader;
+
+    Loading::setLoading(true);
+
+    if (!gpMSound->checkWaveOnAram((MS_SCENE_WAVE)517)) {
+        return 1;
+    }
+
     if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
         gpApplication.mFader->startFadeoutT(0.3f);
         MSBgm::stopBGM(BGM_MARE_SEA, 10);
