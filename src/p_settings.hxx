@@ -429,13 +429,24 @@ struct GroupInfo {
 };
 
 class SettingsScreen;
+class IntSettingPanel;
 class SaveErrorPanel;
 
 class SettingsDirector : public JDrama::TDirector {
-    enum class State { INIT, CONTROL, SAVE_START, SAVE_BUSY, SAVE_SUCCESS, SAVE_FAIL, EXIT };
+    enum class State {
+        INIT,
+        CONTROL,
+        CONTROL_SETTING,
+        SAVE_START,
+        SAVE_BUSY,
+        SAVE_SUCCESS,
+        SAVE_FAIL,
+        EXIT
+    };
 
 public:
     friend class SettingsScreen;
+    friend class IntSettingPanel;
     friend class SaveErrorPanel;
 
     SettingsDirector()
@@ -451,6 +462,7 @@ private:
     void initializeDramaHierarchy();
     void initializeSettingsLayout();
     void initializeErrorLayout();
+    void initializeIntSettingLayout();
     void saveSettings();
     void saveSettings_();
     void failSave(int errorcode);
@@ -465,6 +477,7 @@ private:
     JDrama::TDisplay *mDisplay;
     TMarioGamePad *mController;
     SettingsScreen *mSettingScreen;
+    IntSettingPanel *mIntSettingPanel;
     SaveErrorPanel *mSaveErrorPanel;
     TSelectGrad *mGradBG;
 };
@@ -647,6 +660,134 @@ private:
     SettingInfo *mCurrentSettingInfo;
     SimpleTexAnimator mShineAnimator;
     TGlobalVector<GroupInfo *> mGroups;
+};
+
+class IntSettingPanel : public JDrama::TViewObj {
+public:
+    friend class SettingsDirector;
+
+    IntSettingPanel(SettingsDirector *director, TMarioGamePad *controller)
+        : TViewObj("<SettingsScreen>"), mDigitIndex(0), mDirector(director), mScreen(nullptr),
+          mSettingPane(nullptr), mSettingTextBox(nullptr), mValueTextBox(nullptr),
+          mController(controller) {}
+
+    ~IntSettingPanel() override {}
+
+    void perform(u32 flags, JDrama::TGraphics *graphics) override {
+        if ((flags & 0x1)) {
+            processInput();
+        }
+
+        if ((flags & 0x3)) {
+            mValueTextBox->mGradientTop    = {180, 230, 10, 255};
+            mValueTextBox->mGradientBottom = {240, 170, 10, 255};
+        }
+
+        if ((flags & 0x8)) {
+            ReInitializeGX();
+            SMS_DrawInit();
+
+            J2DOrthoGraph ortho(0, 0, BetterSMS::getScreenOrthoWidth(), SMSGetTitleRenderHeight());
+            ortho.setup2D();
+
+            mAnimatedPane->update();
+            mScreen->draw(0, 0, &ortho);
+        }
+    }
+
+    void appear() {
+        const s32 midX = getScreenRenderWidth() / 2;
+        mAnimatedPane->setPanePosition(5, {100, 480}, {100, 200}, {100, 98});
+        mAnimatedPane->startAnimation();
+    }
+
+    void disappear() {
+        const s32 midX = getScreenRenderWidth() / 2;
+        mAnimatedPane->setPanePosition(5, {100, 98}, {100, 200}, {100, 480});
+        mAnimatedPane->startAnimation();
+    }
+
+    void applySetting() {
+        if (!mSettingRef)
+            return;
+
+        u32 value = 0;
+        for (size_t i = 0; i < 10; ++i) {
+            value *= 10;
+            value += mValue[i];
+        }
+        mSettingRef->setInt(value);
+        OSReport("Value: %d, setting: %d\n", value, mSettingRef->getInt());
+    }
+
+    void digestSetting(Settings::SingleSetting *setting) {
+        mSettingRef = setting;
+
+        if (!setting) {
+            mSettingTextBox->setString("");
+            mValueTextBox->setString("");
+            return;
+        }
+
+        mSettingTextBox->setString(setting->getName());
+
+        delete[] mValueTextBox->mStrPtr;
+        mValueTextBox->mStrPtr = new char[50];
+        mSettingRef->getValueName(mValueTextBox->mStrPtr);
+
+        mValueTextBox->mGradientTop    = {255, 255, 255, 255};
+        mValueTextBox->mGradientBottom = {255, 255, 255, 255};
+    }
+
+private:
+    void processInput() {
+        if (mDirector->mState != SettingsDirector::State::CONTROL_SETTING) {
+            return;
+        }
+
+        if ((mController->mButtons.mFrameInput & TMarioGamePad::A)) {
+            mDirector->mState = SettingsDirector::State::CONTROL;
+            applySetting();
+            disappear();
+            return;
+        } else if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
+            mDirector->mState = SettingsDirector::State::CONTROL;
+            disappear();
+            return;
+        }
+
+        if ((mController->mButtons.mRapidInput &
+             (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT))) {
+            mDigitIndex = Min(mDigitIndex + 1, 9);
+        }
+
+        if ((mController->mButtons.mRapidInput &
+             (TMarioGamePad::DPAD_LEFT | TMarioGamePad::MAINSTICK_LEFT))) {
+            mDigitIndex = Max(mDigitIndex - 1, 0);
+        }
+
+        if ((mController->mButtons.mRapidInput &
+             (TMarioGamePad::DPAD_UP | TMarioGamePad::MAINSTICK_UP))) {
+            mValue[mDigitIndex] = (mValue[mDigitIndex] + 1) % 10;
+        }
+
+        if ((mController->mButtons.mRapidInput &
+             (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
+            mValue[mDigitIndex] = (mValue[mDigitIndex] + 9) % 10;
+        }
+    }
+
+    s32 mDigitIndex;
+    s8 mValue[10];
+    TBoundPane *mAnimatedPane;
+    SettingsDirector *mDirector;
+    TMarioGamePad *mController;
+    J2DScreen *mScreen;
+    J2DPane *mSettingPane;
+    J2DTextBox *mSettingTextBox;
+    J2DTextBox *mValueTextBox;
+    J2DPicture *mDigitSelector;
+    Settings::SingleSetting *mSettingRef;
 };
 
 class SaveErrorPanel : public JDrama::TViewObj {

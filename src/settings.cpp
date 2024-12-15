@@ -533,13 +533,34 @@ s32 SettingsDirector::direct() {
     switch (mState) {
     case State::INIT:
         break;
-    case State::CONTROL:
+    case State::CONTROL: {
         mSettingScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
         mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
+
+        bool currentSettingInteractive =
+            mSettingScreen->mCurrentSettingInfo &&
+            mSettingScreen->mCurrentSettingInfo->mSettingData->isUserEditable();
+
+        if ((mController->mButtons.mFrameInput & TMarioGamePad::A) && currentSettingInteractive) {
+            switch (mSettingScreen->mCurrentSettingInfo->mSettingData->getKind()) {
+            case Settings::SingleSetting::ValueKind::INT:
+                mState = State::CONTROL_SETTING;
+                mIntSettingPanel->appear();
+                mIntSettingPanel->digestSetting(
+                    mSettingScreen->mCurrentSettingInfo->mSettingData);
+                break;
+            default:
+                break;
+            }
+        }
+
         if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
             mState = State::SAVE_START;
             mSaveErrorPanel->appear();
         }
+        break;
+    }
+    case State::CONTROL_SETTING:
         break;
     case State::SAVE_START:
         saveSettings();
@@ -612,6 +633,7 @@ void SettingsDirector::initialize() {
     initializeDramaHierarchy();
     initializeSettingsLayout();
     initializeErrorLayout();
+    initializeIntSettingLayout();
 }
 
 void SettingsDirector::initializeDramaHierarchy() {
@@ -970,6 +992,89 @@ void SettingsDirector::initializeErrorLayout() {
             mSaveErrorPanel->mSaveTryingPane->mChildrenList.append(&description->mPtrLink);
         }
         rootPane->mChildrenList.append(&mSaveErrorPanel->mSaveTryingPane->mPtrLink);
+    }
+}
+
+void SettingsDirector::initializeIntSettingLayout() {
+    const int screenOrthoWidth   = BetterSMS::getScreenOrthoWidth();
+    const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
+    const int screenRenderHeight = 480;
+    const int screenAdjustX      = BetterSMS::getScreenRatioAdjustX();
+
+    mIntSettingPanel->mScreen =
+        new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
+    {
+        JUTTexture *mask      = new JUTTexture();
+        mask->mTexObj2.val[2] = 0;
+        mask->storeTIMG(GetResourceTextureHeader(gMaskBlack));
+        mask->_50 = false;
+
+        J2DPane *rootPane = new J2DPane(19, 'root', {0, 0, 400, 280});
+        mIntSettingPanel->mScreen->mChildrenList.append(&rootPane->mPtrLink);
+
+        mIntSettingPanel->mAnimatedPane        = new TBoundPane(rootPane, {0, 0, 400, 280});
+        mIntSettingPanel->mAnimatedPane->mPane = rootPane;
+
+        J2DPicture *maskPanel = new J2DPicture('mask', {0, 0, 0, 0});
+        {
+            maskPanel->insert(mask, 0, 1.0f);
+            maskPanel->mRect            = {0, 0, 400, 280};
+            maskPanel->mAlpha           = 210;
+            maskPanel->mColorOverlay    = {0, 0, 0, 255};
+            maskPanel->mVertexColors[0] = {20, 0, 0, 255};
+            maskPanel->mVertexColors[1] = {20, 0, 0, 255};
+            maskPanel->mVertexColors[2] = {20, 0, 0, 255};
+            maskPanel->mVertexColors[3] = {20, 0, 0, 255};
+        }
+        rootPane->mChildrenList.append(&maskPanel->mPtrLink);
+
+        mIntSettingPanel->mSettingPane             = new J2DPane(19, 'err_', {0, 0, 400, 280});
+        mIntSettingPanel->mSettingPane->mIsVisible = false;
+        {
+            mIntSettingPanel->mSettingTextBox =
+                new J2DTextBox('name', {12, 16, 388, 40}, gpSystemFont->mFont, "",
+                               J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Top);
+            {
+                mIntSettingPanel->mSettingTextBox->mStrPtr         = (char *)"UNKNOWN";
+                mIntSettingPanel->mSettingTextBox->mCharSizeX      = 21;
+                mIntSettingPanel->mSettingTextBox->mCharSizeY      = 24;
+                mIntSettingPanel->mSettingTextBox->mGradientTop    = {160, 190, 20, 255};
+                mIntSettingPanel->mSettingTextBox->mGradientBottom = {160, 190, 20, 255};
+            }
+            mIntSettingPanel->mSettingPane->mChildrenList.append(
+                &mIntSettingPanel->mSettingTextBox->mPtrLink);
+
+            mIntSettingPanel->mValueTextBox =
+                new J2DTextBox('valu', {12, 40, 388, 240}, gpSystemFont->mFont, "",
+                               J2DTextBoxHBinding::Center, J2DTextBoxVBinding::Center);
+            {
+                mIntSettingPanel->mValueTextBox->mStrPtr         = (char *)"0000000000";
+                mIntSettingPanel->mValueTextBox->mCharSizeX      = 18;
+                mIntSettingPanel->mValueTextBox->mCharSizeY      = 21;
+                mIntSettingPanel->mValueTextBox->mGradientTop    = {255, 255, 255, 255};
+                mIntSettingPanel->mValueTextBox->mGradientBottom = {255, 255, 255, 255};
+            }
+            mIntSettingPanel->mSettingPane->mChildrenList.append(
+                &mIntSettingPanel->mValueTextBox->mPtrLink);
+
+            J2DTextBox *cancelText =
+                new J2DTextBox('cncl', {20, 250, 380, 274}, gpSystemFont->mFont, "# Cancel",
+                               J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+            {
+                cancelText->mCharSizeX = 21;
+                cancelText->mCharSizeY = 24;
+            }
+            mIntSettingPanel->mSettingPane->mChildrenList.append(&cancelText->mPtrLink);
+
+            J2DTextBox *applyText =
+                new J2DTextBox('aply', {20, 250, 380, 274}, gpSystemFont->mFont, "@ Apply Changes",
+                               J2DTextBoxHBinding::Right, J2DTextBoxVBinding::Center);
+            {
+                applyText->mCharSizeX = 21;
+                applyText->mCharSizeY = 24;
+            }
+            mIntSettingPanel->mSettingPane->mChildrenList.append(&applyText->mPtrLink);
+        }
     }
 }
 
