@@ -534,8 +534,9 @@ s32 SettingsDirector::direct() {
     case State::INIT:
         break;
     case State::CONTROL: {
-        mSettingScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
-        mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
+        mSettingScreen->mPerformFlags &= ~0b0001;   // Enable input by default;
+        mSaveErrorPanel->mPerformFlags |= 0b1011;   // Disable view and input by default
+        mIntSettingPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
 
         bool currentSettingInteractive =
             mSettingScreen->mCurrentSettingInfo &&
@@ -546,28 +547,30 @@ s32 SettingsDirector::direct() {
             case Settings::SingleSetting::ValueKind::INT:
                 mState = State::CONTROL_SETTING;
                 mIntSettingPanel->appear();
-                mIntSettingPanel->digestSetting(
-                    mSettingScreen->mCurrentSettingInfo->mSettingData);
+                mIntSettingPanel->digestSetting(mSettingScreen->mCurrentSettingInfo->mSettingData);
+                mSettingScreen->mPerformFlags |= 0b0001;     // Disable input
+                mSaveErrorPanel->mPerformFlags |= 0b1011;    // Disable view and input
+                mIntSettingPanel->mPerformFlags &= ~0b1011;  // Enable view and input
                 break;
             default:
                 break;
             }
         }
-
-        if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
-            mState = State::SAVE_START;
-            mSaveErrorPanel->appear();
-        }
         break;
     }
     case State::CONTROL_SETTING:
+        mSettingScreen->mPerformFlags |= 0b0001;     // Disable input
+        mSaveErrorPanel->mPerformFlags |= 0b1011;    // Disable view and input
+        mIntSettingPanel->mPerformFlags &= ~0b1011;  // Enable view and input
         break;
     case State::SAVE_START:
+        mSaveErrorPanel->appear();
         saveSettings();
         break;
     case State::SAVE_BUSY:
         mSettingScreen->mPerformFlags |= 0b0001;    // Disable input
         mSaveErrorPanel->mPerformFlags &= ~0b1011;  // Enable view and input
+        mIntSettingPanel->mPerformFlags |= 0b1011;  // Disable view and input
         break;
     case State::SAVE_FAIL:
         [[fallthrough]];
@@ -652,6 +655,10 @@ void SettingsDirector::initializeDramaHierarchy() {
         mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
         group2D->mViewObjList.insert(group2D->mViewObjList.end(), mSaveErrorPanel);
 
+        mIntSettingPanel = new IntSettingPanel(this, mController);
+        mIntSettingPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
+        group2D->mViewObjList.insert(group2D->mViewObjList.end(), mIntSettingPanel);
+
         rootObjGroup->mViewObjList.insert(rootObjGroup->mViewObjList.end(), group2D);
     }
 
@@ -732,6 +739,8 @@ void SettingsDirector::initializeSettingsLayout() {
     const int screenRenderWidth  = BetterSMS::getScreenRenderWidth();
     const int screenRenderHeight = 480;
     const int screenAdjustX      = BetterSMS::getScreenRatioAdjustX();
+
+    mSettingScreen->mDirector = this;
 
     mSettingScreen->mScreen =
         new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
@@ -904,6 +913,8 @@ void SettingsDirector::initializeErrorLayout() {
     const int screenRenderHeight = 480;
     const int screenAdjustX      = BetterSMS::getScreenRatioAdjustX();
 
+    mSaveErrorPanel->mDirector = this;
+
     mSaveErrorPanel->mScreen =
         new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
     {
@@ -1001,6 +1012,8 @@ void SettingsDirector::initializeIntSettingLayout() {
     const int screenRenderHeight = 480;
     const int screenAdjustX      = BetterSMS::getScreenRatioAdjustX();
 
+    mIntSettingPanel->mDirector = this;
+
     mIntSettingPanel->mScreen =
         new J2DScreen(8, 'ROOT', {0, 0, screenOrthoWidth, screenRenderHeight});
     {
@@ -1028,8 +1041,8 @@ void SettingsDirector::initializeIntSettingLayout() {
         }
         rootPane->mChildrenList.append(&maskPanel->mPtrLink);
 
-        mIntSettingPanel->mSettingPane             = new J2DPane(19, 'err_', {0, 0, 400, 280});
-        mIntSettingPanel->mSettingPane->mIsVisible = false;
+        mIntSettingPanel->mSettingPane             = new J2DPane(19, 'sett', {0, 0, 400, 280});
+        mIntSettingPanel->mSettingPane->mIsVisible = true;
         {
             mIntSettingPanel->mSettingTextBox =
                 new J2DTextBox('name', {12, 16, 388, 40}, gpSystemFont->mFont, "",
@@ -1038,8 +1051,8 @@ void SettingsDirector::initializeIntSettingLayout() {
                 mIntSettingPanel->mSettingTextBox->mStrPtr         = (char *)"UNKNOWN";
                 mIntSettingPanel->mSettingTextBox->mCharSizeX      = 21;
                 mIntSettingPanel->mSettingTextBox->mCharSizeY      = 24;
-                mIntSettingPanel->mSettingTextBox->mGradientTop    = {160, 190, 20, 255};
-                mIntSettingPanel->mSettingTextBox->mGradientBottom = {160, 190, 20, 255};
+                mIntSettingPanel->mSettingTextBox->mGradientTop    = {190, 20, 160, 255};
+                mIntSettingPanel->mSettingTextBox->mGradientBottom = {190, 20, 160, 255};
             }
             mIntSettingPanel->mSettingPane->mChildrenList.append(
                 &mIntSettingPanel->mSettingTextBox->mPtrLink);
@@ -1057,8 +1070,21 @@ void SettingsDirector::initializeIntSettingLayout() {
             mIntSettingPanel->mSettingPane->mChildrenList.append(
                 &mIntSettingPanel->mValueTextBox->mPtrLink);
 
+            mIntSettingPanel->mDigitSelector =
+                new J2DTextBox('slct', {134, 150, 200, 180}, gpSystemFont->mFont, "",
+                               J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Top);
+            {
+                mIntSettingPanel->mDigitSelector->mStrPtr         = (char *)"^";
+                mIntSettingPanel->mDigitSelector->mCharSizeX      = 18;
+                mIntSettingPanel->mDigitSelector->mCharSizeY      = 23;
+                mIntSettingPanel->mDigitSelector->mGradientTop    = {20, 220, 20, 255};
+                mIntSettingPanel->mDigitSelector->mGradientBottom = {20, 220, 20, 255};
+            }
+            mIntSettingPanel->mSettingPane->mChildrenList.append(
+                &mIntSettingPanel->mDigitSelector->mPtrLink);
+
             J2DTextBox *cancelText =
-                new J2DTextBox('cncl', {20, 250, 380, 274}, gpSystemFont->mFont, "# Cancel",
+                new J2DTextBox('cncl', {20, 250, 380, 270}, gpSystemFont->mFont, "# Cancel",
                                J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
             {
                 cancelText->mCharSizeX = 21;
@@ -1067,7 +1093,7 @@ void SettingsDirector::initializeIntSettingLayout() {
             mIntSettingPanel->mSettingPane->mChildrenList.append(&cancelText->mPtrLink);
 
             J2DTextBox *applyText =
-                new J2DTextBox('aply', {20, 250, 380, 274}, gpSystemFont->mFont, "@ Apply Changes",
+                new J2DTextBox('aply', {20, 250, 380, 270}, gpSystemFont->mFont, "@ Apply Changes",
                                J2DTextBoxHBinding::Right, J2DTextBoxVBinding::Center);
             {
                 applyText->mCharSizeX = 21;
@@ -1075,6 +1101,7 @@ void SettingsDirector::initializeIntSettingLayout() {
             }
             mIntSettingPanel->mSettingPane->mChildrenList.append(&applyText->mPtrLink);
         }
+        rootPane->mChildrenList.append(&mIntSettingPanel->mSettingPane->mPtrLink);
     }
 }
 

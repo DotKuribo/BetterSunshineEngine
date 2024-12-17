@@ -551,8 +551,22 @@ public:
         }
     }
 
+    void refreshCurrent() {
+        if (mCurrentSettingInfo && mCurrentSettingInfo->mSettingData->isUserEditable()) {
+            char valueTextBuf[40];
+            mCurrentSettingInfo->mSettingData->getValueName(valueTextBuf);
+
+            snprintf(mCurrentSettingInfo->mSettingTextBox->mStrPtr, 100, "%s: %s",
+                     mCurrentSettingInfo->mSettingData->getName(), valueTextBuf);
+        }
+    }
+
 private:
     void processInput() {
+        if (mDirector->mState != SettingsDirector::State::CONTROL) {
+            return;
+        }
+
         {
             auto currentID = mSettingID;
 
@@ -634,6 +648,10 @@ private:
                 }
             }
         }
+
+        if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
+            mDirector->mState = SettingsDirector::State::SAVE_START;
+        }
     }
 
     GroupInfo *getGroupInfo(u32 index) {
@@ -653,6 +671,7 @@ private:
     s32 mGroupID;
     s32 mSettingID;
     TMarioGamePad *mController;
+    SettingsDirector *mDirector;
     J2DScreen *mScreen;
     J2DPicture *mShineIcon;
     J2DTextBox *mCurrentTextBox;
@@ -667,7 +686,7 @@ public:
     friend class SettingsDirector;
 
     IntSettingPanel(SettingsDirector *director, TMarioGamePad *controller)
-        : TViewObj("<SettingsScreen>"), mDigitIndex(0), mDirector(director), mScreen(nullptr),
+        : TViewObj("<IntSettingPanel>"), mDigitIndex(0), mDirector(director), mScreen(nullptr),
           mSettingPane(nullptr), mSettingTextBox(nullptr), mValueTextBox(nullptr),
           mController(controller) {}
 
@@ -679,8 +698,13 @@ public:
         }
 
         if ((flags & 0x3)) {
-            mValueTextBox->mGradientTop    = {180, 230, 10, 255};
-            mValueTextBox->mGradientBottom = {240, 170, 10, 255};
+            if (mSettingRef && buildValue() != mSettingRef->getInt()) {
+                mValueTextBox->mGradientTop    = {180, 230, 10, 255};
+                mValueTextBox->mGradientBottom = {240, 170, 10, 255};
+            } else {
+                mValueTextBox->mGradientTop    = {255, 255, 255, 255};
+                mValueTextBox->mGradientBottom = {255, 255, 255, 255};
+            }
         }
 
         if ((flags & 0x8)) {
@@ -717,7 +741,7 @@ public:
             value += mValue[i];
         }
         mSettingRef->setInt(value);
-        OSReport("Value: %d, setting: %d\n", value, mSettingRef->getInt());
+        mDirector->mSettingScreen->refreshCurrent();
     }
 
     void digestSetting(Settings::SingleSetting *setting) {
@@ -737,6 +761,20 @@ public:
 
         mValueTextBox->mGradientTop    = {255, 255, 255, 255};
         mValueTextBox->mGradientBottom = {255, 255, 255, 255};
+
+        u32 value = setting->getInt();
+
+        mDigitIndex = 0;
+        int i       = 9;
+
+        while (value > 0) {
+            mValue[i--] = value % 10;
+            value /= 10;
+        }
+
+        for (; i >= 0; --i) {
+            mValue[i] = 0;
+        }
     }
 
 private:
@@ -775,6 +813,60 @@ private:
              (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
             mValue[mDigitIndex] = (mValue[mDigitIndex] + 9) % 10;
         }
+
+        char intBounds[10] = {4, 2, 9, 4, 9, 6, 7, 2, 9, 5};
+
+        bool isClamping = true;
+        for (int i = 0; i < 10 && isClamping; ++i) {
+            // >= to capture the case where the value is already at the max
+            if (mValue[i] >= intBounds[i]) {
+                mValue[i] = intBounds[i];
+            } else {
+                isClamping = false;
+            }
+        }
+
+        char intWidths[10] = {14, 11, 13, 14, 13, 13, 13, 13, 13, 13};
+
+        int width = 0;
+        int totalWidth = 0;
+
+        for (int i = 0; i < mDigitIndex; ++i) {
+            width += intWidths[mValue[i]];
+            if ((i % 2) == 1) {
+                width += 1;
+            }
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            totalWidth += intWidths[mValue[i]];
+            if ((i % 2) == 1) {
+                totalWidth += 1;
+            }
+        }
+
+        int trueX = 200 - totalWidth / 2 + 2;
+        int ofsX  = width;
+
+        mDigitSelector->mRect.mX1 = trueX + ofsX;
+        mDigitSelector->mRect.mX2 = mDigitSelector->mRect.mX1 + mDigitSelector->mCharSizeX + 10;
+
+        char valueTextBuf[16];
+        for (int i = 0; i < 10; ++i) {
+            valueTextBuf[i] = mValue[i] + '0';
+        }
+        valueTextBuf[10] = '\0';
+
+        mValueTextBox->setString(valueTextBuf);
+    }
+
+    u32 buildValue() const {
+        u32 value = 0;
+        for (size_t i = 0; i < 10; ++i) {
+            value *= 10;
+            value += mValue[i];
+        }
+        return value;
     }
 
     s32 mDigitIndex;
@@ -786,7 +878,7 @@ private:
     J2DPane *mSettingPane;
     J2DTextBox *mSettingTextBox;
     J2DTextBox *mValueTextBox;
-    J2DPicture *mDigitSelector;
+    J2DTextBox *mDigitSelector;
     Settings::SingleSetting *mSettingRef;
 };
 
@@ -797,7 +889,7 @@ public:
     enum Choice { NO, YES };
 
     SaveErrorPanel(SettingsDirector *director, TMarioGamePad *controller)
-        : TViewObj("<SettingsScreen>"), mChoice(0), mWhichScreen(0), mDirector(director),
+        : TViewObj("<SaveErrorPanel>"), mChoice(0), mWhichScreen(0), mDirector(director),
           mScreen(nullptr), mErrorHandlerPane(nullptr), mSaveTryingPane(nullptr),
           mErrorTextBox(nullptr), mChoiceBoxes(), mController(controller) {}
 

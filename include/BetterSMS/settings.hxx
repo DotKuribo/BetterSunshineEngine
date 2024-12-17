@@ -195,7 +195,11 @@ namespace BetterSMS {
         public:
             IntSetting() = delete;
             IntSetting(const char *name, void *valuePtr)
-                : SingleSetting(name, valuePtr), mValueRange() {}
+                : SingleSetting(name, valuePtr) {
+                mValueRange.mStart = -2147483647;
+                mValueRange.mStop  = 2147483647;
+                mValueRange.mStep  = 1;
+            }
             ~IntSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::INT; }
@@ -224,6 +228,8 @@ namespace BetterSMS {
 
         private:
             int clampValueToRange(int x) const {
+                OSReport("Clamping %i to %i - %i\n", x, mValueRange.mStart, mValueRange.mStop);
+                OSReport("Step: %i\n", mValueRange.mStep);
                 if (x > mValueRange.mStop) {
                     x = mValueRange.mStart + (x - mValueRange.mStop - mValueRange.mStep);
                 } else if (x < mValueRange.mStart) {
@@ -239,7 +245,11 @@ namespace BetterSMS {
         public:
             FloatSetting() = delete;
             FloatSetting(const char *name, void *valuePtr)
-                : SingleSetting(name, valuePtr), mValueRange() {}
+                : SingleSetting(name, valuePtr) {
+                mValueRange.mStart = -3.40282347e+38f;
+                mValueRange.mStop  = 3.40282347e+38f;
+                mValueRange.mStep  = 1.0f;
+            }
             ~FloatSetting() override {}
 
             ValueKind getKind() const override { return ValueKind::FLOAT; }
