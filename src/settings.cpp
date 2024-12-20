@@ -536,25 +536,9 @@ s32 SettingsDirector::direct() {
     case State::CONTROL: {
         mSettingScreen->mPerformFlags &= ~0b0001;   // Enable input by default;
         mSaveErrorPanel->mPerformFlags |= 0b1011;   // Disable view and input by default
-        mIntSettingPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
 
-        bool currentSettingInteractive =
-            mSettingScreen->mCurrentSettingInfo &&
-            mSettingScreen->mCurrentSettingInfo->mSettingData->isUserEditable();
-
-        if ((mController->mButtons.mFrameInput & TMarioGamePad::A) && currentSettingInteractive) {
-            switch (mSettingScreen->mCurrentSettingInfo->mSettingData->getKind()) {
-            case Settings::SingleSetting::ValueKind::INT:
-                mState = State::CONTROL_SETTING;
-                mIntSettingPanel->appear();
-                mIntSettingPanel->digestSetting(mSettingScreen->mCurrentSettingInfo->mSettingData);
-                mSettingScreen->mPerformFlags |= 0b0001;     // Disable input
-                mSaveErrorPanel->mPerformFlags |= 0b1011;    // Disable view and input
-                mIntSettingPanel->mPerformFlags &= ~0b1011;  // Enable view and input
-                break;
-            default:
-                break;
-            }
+        if (!mIntSettingPanel->isAnimating()) {
+            mIntSettingPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
         }
         break;
     }
@@ -584,6 +568,47 @@ s32 SettingsDirector::direct() {
     }
     }
     return ret;
+}
+
+bool SettingsDirector::switchToControl(Control ctrl) {
+    switch (ctrl) {
+    case Control::SETTINGS: {
+        if (mState == State::CONTROL_SETTING) {
+            mIntSettingPanel->disappear();
+        }
+
+        mState = State::CONTROL;
+        return true;
+    }
+    case Control::INT_SETTING: {
+        if (mIntSettingPanel->isAnimating()) {
+            return false;
+        }
+
+        bool currentSettingInteractive =
+            mSettingScreen->mCurrentSettingInfo &&
+            mSettingScreen->mCurrentSettingInfo->mSettingData->isUserEditable();
+
+        if ((currentSettingInteractive)) {
+            switch (mSettingScreen->mCurrentSettingInfo->mSettingData->getKind()) {
+            case Settings::SingleSetting::ValueKind::INT:
+                mState = State::CONTROL_SETTING;
+                mIntSettingPanel->appear();
+                mIntSettingPanel->digestSetting(mSettingScreen->mCurrentSettingInfo->mSettingData);
+                return true;
+            default:
+                break;
+            }
+        }
+
+        return false;
+    }
+    case Control::SAVE_ERROR: {
+        mState = State::SAVE_START;
+        return true;
+    }
+    }
+
 }
 
 void SettingsDirector::setup(JDrama::TDisplay *display, TMarioGamePad *controller) {

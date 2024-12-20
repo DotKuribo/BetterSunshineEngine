@@ -456,6 +456,14 @@ public:
     s32 direct() override;
     void setup(JDrama::TDisplay *, TMarioGamePad *);
 
+    enum class Control {
+        SETTINGS,
+        INT_SETTING,
+        SAVE_ERROR,
+    };
+
+    bool switchToControl(Control);
+
 private:
     s32 exit();
     void initialize();
@@ -564,6 +572,11 @@ public:
 private:
     void processInput() {
         if (mDirector->mState != SettingsDirector::State::CONTROL) {
+            return;
+        }
+
+        if ((mController->mButtons.mFrameInput & TMarioGamePad::A)) {
+            mDirector->switchToControl(SettingsDirector::Control::INT_SETTING);
             return;
         }
 
@@ -719,6 +732,8 @@ public:
         }
     }
 
+    bool isAnimating() const { return mAnimatedPane->mActive == true && isRectInterpolating(); }
+
     void appear() {
         const s32 midX = getScreenRenderWidth() / 2;
         mAnimatedPane->setPanePosition(5, {100, 480}, {100, 200}, {100, 98});
@@ -778,19 +793,22 @@ public:
     }
 
 private:
+    bool isRectInterpolating() const {
+        return mAnimatedPane->mCurrentInterpolate > 0.0f &&
+               mAnimatedPane->mCurrentInterpolate < 1.0f;
+    }
+
     void processInput() {
         if (mDirector->mState != SettingsDirector::State::CONTROL_SETTING) {
             return;
         }
 
         if ((mController->mButtons.mFrameInput & TMarioGamePad::A)) {
-            mDirector->mState = SettingsDirector::State::CONTROL;
+            mDirector->switchToControl(SettingsDirector::Control::SETTINGS);
             applySetting();
-            disappear();
             return;
         } else if ((mController->mButtons.mFrameInput & TMarioGamePad::B)) {
-            mDirector->mState = SettingsDirector::State::CONTROL;
-            disappear();
+            mDirector->switchToControl(SettingsDirector::Control::SETTINGS);
             return;
         }
 
@@ -828,7 +846,7 @@ private:
 
         char intWidths[10] = {14, 11, 13, 14, 13, 13, 13, 13, 13, 13};
 
-        int width = 0;
+        int width      = 0;
         int totalWidth = 0;
 
         for (int i = 0; i < mDigitIndex; ++i) {
