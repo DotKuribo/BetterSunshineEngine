@@ -815,9 +815,15 @@ void SettingsDirector::initializeSettingsLayout() {
         J2DTextBox *exitLabel = new J2DTextBox(
             'exit',
             {static_cast<int>(20 - getScreenRatioAdjustX()), screenRenderHeight - 90,
-             static_cast<int>(100 - getScreenRatioAdjustX()), screenRenderHeight},
+             static_cast<int>(getScreenOrthoWidth() - 20), screenRenderHeight},
             gpSystemFont->mFont, "# Exit", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
         mSettingScreen->mScreen->mChildrenList.append(&exitLabel->mPtrLink);
+
+        J2DTextBox *moreLabel = new J2DTextBox('more',
+                           {static_cast<int>(470 + getScreenRatioAdjustX()), screenRenderHeight - 90,
+                            static_cast<int>(getScreenOrthoWidth() - 20), screenRenderHeight},
+            gpSystemFont->mFont, "@ More...", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
+        mSettingScreen->mScreen->mChildrenList.append(&moreLabel->mPtrLink);
     }
 
     int i = 0;

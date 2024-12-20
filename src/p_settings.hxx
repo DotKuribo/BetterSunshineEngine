@@ -750,12 +750,7 @@ public:
         if (!mSettingRef)
             return;
 
-        u32 value = 0;
-        for (size_t i = 0; i < 10; ++i) {
-            value *= 10;
-            value += mValue[i];
-        }
-        mSettingRef->setInt(value);
+        mSettingRef->setInt(buildValue());
         mDirector->mSettingScreen->refreshCurrent();
     }
 
@@ -777,9 +772,11 @@ public:
         mValueTextBox->mGradientTop    = {255, 255, 255, 255};
         mValueTextBox->mGradientBottom = {255, 255, 255, 255};
 
-        u32 value = setting->getInt();
+        int value = setting->getInt();
 
-        mDigitIndex = 0;
+        mIsNegative = value < 0;
+        mDigitIndex = 9;
+
         int i       = 9;
 
         while (value > 0) {
@@ -803,6 +800,13 @@ private:
             return;
         }
 
+        if (mSettingRef->getKind() != Settings::SingleSetting::ValueKind::INT) {
+            mDirector->switchToControl(SettingsDirector::Control::SETTINGS);
+            return;
+        }
+
+        Settings::IntSetting *intSetting = static_cast<Settings::IntSetting *>(mSettingRef);
+
         if ((mController->mButtons.mFrameInput & TMarioGamePad::A)) {
             mDirector->switchToControl(SettingsDirector::Control::SETTINGS);
             applySetting();
@@ -812,35 +816,93 @@ private:
             return;
         }
 
-        if ((mController->mButtons.mRapidInput &
-             (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT))) {
-            mDigitIndex = Min(mDigitIndex + 1, 9);
+        // Calculate the bounds for each digit
+        // based on value range of setting.
+        const Settings::ValueRange<int> &range = intSetting->getValueRange();
+        int minVal                             = range.mStart;
+        int maxVal                             = range.mStop;
+
+        int maxDigits = 0;
+        int maxValCpy = maxVal;
+        for (int i = 0; i < 10; ++i) {
+            if (maxValCpy > 0) {
+                maxValCpy /= 10;
+                maxDigits++;
+            }
         }
 
-        if ((mController->mButtons.mRapidInput &
-             (TMarioGamePad::DPAD_LEFT | TMarioGamePad::MAINSTICK_LEFT))) {
-            mDigitIndex = Max(mDigitIndex - 1, 0);
+        int minDigits = 0;
+        int minValCpy = minVal;
+        for (int i = 0; i < 10; ++i) {
+            if (minValCpy > 0) {
+                minValCpy /= 10;
+                minDigits++;
+            }
         }
 
-        if ((mController->mButtons.mRapidInput &
-             (TMarioGamePad::DPAD_UP | TMarioGamePad::MAINSTICK_UP))) {
-            mValue[mDigitIndex] = (mValue[mDigitIndex] + 1) % 10;
+        int digits = Max(maxDigits, minDigits);
+
+        // Process input
+        {
+            if ((mController->mButtons.mRapidInput &
+                 (TMarioGamePad::DPAD_RIGHT | TMarioGamePad::MAINSTICK_RIGHT))) {
+                mDigitIndex = Min(mDigitIndex + 1, 9);
+            }
+
+            if ((mController->mButtons.mRapidInput &
+                 (TMarioGamePad::DPAD_LEFT | TMarioGamePad::MAINSTICK_LEFT))) {
+                mDigitIndex = Max(mDigitIndex - 1, 10 - digits);
+            }
+
+            if ((mController->mButtons.mRapidInput &
+                 (TMarioGamePad::DPAD_UP | TMarioGamePad::MAINSTICK_UP))) {
+                mValue[mDigitIndex] = (mValue[mDigitIndex] + 1) % 10;
+            }
+
+            if ((mController->mButtons.mRapidInput &
+                 (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
+                mValue[mDigitIndex] = (mValue[mDigitIndex] + 9) % 10;
+            }
         }
 
-        if ((mController->mButtons.mRapidInput &
-             (TMarioGamePad::DPAD_DOWN | TMarioGamePad::MAINSTICK_DOWN))) {
-            mValue[mDigitIndex] = (mValue[mDigitIndex] + 9) % 10;
+        char intMaxBounds[10] = {};
+        char intMinBounds[10] = {};
+
+        // Populate the max bounds
+        for (int i = 9; i >= 0; --i) {
+            intMaxBounds[i] = maxVal % 10;
+            maxVal /= 10;
         }
 
-        char intBounds[10] = {4, 2, 9, 4, 9, 6, 7, 2, 9, 5};
+        // Populate the min bounds
+        for (int i = 9; i >= 0; --i) {
+            intMinBounds[i] = minVal % 10;
+            minVal /= 10;
+        }
 
-        bool isClamping = true;
-        for (int i = 0; i < 10 && isClamping; ++i) {
-            // >= to capture the case where the value is already at the max
-            if (mValue[i] >= intBounds[i]) {
-                mValue[i] = intBounds[i];
-            } else {
-                isClamping = false;
+        // Clamp by max bounds
+        {
+            bool isClamping = true;
+            for (int i = 10 - digits; i < 10 && isClamping; ++i) {
+                // >= to capture the case where the value is already at the max
+                if (mValue[i] >= intMaxBounds[i]) {
+                    mValue[i] = intMaxBounds[i];
+                } else {
+                    isClamping = false;
+                }
+            }
+        }
+
+        // Clamp by min bounds
+        {
+            bool isClamping = true;
+            for (int i = 10 - digits; i < 10 && isClamping; ++i) {
+                // <= to capture the case where the value is already at the min
+                if (mValue[i] <= intMinBounds[i]) {
+                    mValue[i] = intMinBounds[i];
+                } else {
+                    isClamping = false;
+                }
             }
         }
 
@@ -849,18 +911,23 @@ private:
         int width      = 0;
         int totalWidth = 0;
 
-        for (int i = 0; i < mDigitIndex; ++i) {
+        for (int i = 10 - digits; i < mDigitIndex; ++i) {
             width += intWidths[mValue[i]];
             if ((i % 2) == 1) {
                 width += 1;
             }
         }
 
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 10 - digits; i < 10; ++i) {
             totalWidth += intWidths[mValue[i]];
             if ((i % 2) == 1) {
                 totalWidth += 1;
             }
+        }
+
+        if (mIsNegative) {
+            width += 14;
+            totalWidth += 14;
         }
 
         int trueX = 200 - totalWidth / 2 + 2;
@@ -869,35 +936,35 @@ private:
         mDigitSelector->mRect.mX1 = trueX + ofsX;
         mDigitSelector->mRect.mX2 = mDigitSelector->mRect.mX1 + mDigitSelector->mCharSizeX + 10;
 
-        char valueTextBuf[16];
-        for (int i = 0; i < 10; ++i) {
-            valueTextBuf[i] = mValue[i] + '0';
+        char valueTextBuf[16] = {};
+        for (int i = 0; i < digits; ++i) {
+            valueTextBuf[i] = mValue[(10 - digits) + i] + '0';
         }
-        valueTextBuf[10] = '\0';
 
         mValueTextBox->setString(valueTextBuf);
     }
 
-    u32 buildValue() const {
-        u32 value = 0;
+    int buildValue() const {
+        int value = 0;
         for (size_t i = 0; i < 10; ++i) {
             value *= 10;
             value += mValue[i];
         }
-        return value;
+        return value * (mIsNegative ? -1 : 1);
     }
 
-    s32 mDigitIndex;
-    s8 mValue[10];
-    TBoundPane *mAnimatedPane;
-    SettingsDirector *mDirector;
-    TMarioGamePad *mController;
-    J2DScreen *mScreen;
-    J2DPane *mSettingPane;
-    J2DTextBox *mSettingTextBox;
-    J2DTextBox *mValueTextBox;
-    J2DTextBox *mDigitSelector;
-    Settings::SingleSetting *mSettingRef;
+    s32 mDigitIndex                      = 9;
+    s8 mValue[10]                        = {};
+    bool mIsNegative                     = false;
+    TBoundPane *mAnimatedPane            = nullptr;
+    SettingsDirector *mDirector          = nullptr;
+    TMarioGamePad *mController           = nullptr;
+    J2DScreen *mScreen                   = nullptr;
+    J2DPane *mSettingPane                = nullptr;
+    J2DTextBox *mSettingTextBox          = nullptr;
+    J2DTextBox *mValueTextBox            = nullptr;
+    J2DTextBox *mDigitSelector           = nullptr;
+    Settings::SingleSetting *mSettingRef = nullptr;
 };
 
 class SaveErrorPanel : public JDrama::TViewObj {
