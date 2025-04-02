@@ -37,13 +37,39 @@ SMS_PATCH_BL(0x802F9090, injectGraphicsFilterConfigurations);
 
 extern GammaSetting gGammaSetting;
 
-BETTER_SMS_FOR_CALLBACK void updateGammaSetting(TApplication *app) {
-    f32 gamma = gGammaSetting.getFloat();
-    if (THPPlayerGetState() != 0) {
-        *((u8 *)app->mDisplay + 0x42) = 0;
-        *((u8 *)app->mDisplay + 0x43) = 0;
-    } else {
-        *((u8 *)app->mDisplay + 0x42) = static_cast<u8>(8.0f * gamma);
-        *((u8 *)app->mDisplay + 0x43) = static_cast<u8>(8.0f * gamma);
+static bool sGammaTHPFlag = false;
+
+static bool flagGammaTHPStart(bool ret) {
+    if (sGammaTHPFlag) {
+        return ret;
+    }
+    *((u8 *)gpApplication.mDisplay + 0x42) = 0;
+    *((u8 *)gpApplication.mDisplay + 0x43) = 0;
+    return ret;
+}
+SMS_PATCH_B(0x8001F050, flagGammaTHPStart);
+
+static u32 flagGammaTHPEnd() {
+    const f32 gamma             = gGammaSetting.getFloat();
+    *((u8 *)gpApplication.mDisplay + 0x42) = static_cast<u8>(8.0001f * gamma);
+    *((u8 *)gpApplication.mDisplay + 0x43) = static_cast<u8>(8.0001f * gamma);
+    return 0x803F0000;
+}
+SMS_WRITE_32(0x8001EF2C, 0x90010004);
+SMS_PATCH_BL(0x8001EF30, flagGammaTHPEnd);
+
+BETTER_SMS_FOR_CALLBACK void resetGammaSetting(TApplication *director) {
+    sGammaTHPFlag                          = false;
+    const f32 gamma                        = gGammaSetting.getFloat();
+    *((u8 *)gpApplication.mDisplay + 0x42) = static_cast<u8>(8.0001f * gamma);
+    *((u8 *)gpApplication.mDisplay + 0x43) = static_cast<u8>(8.0001f * gamma);
+}
+
+BETTER_SMS_FOR_CALLBACK void updateGammaSetting(TMarDirector *director) {
+    const f32 gamma = gGammaSetting.getFloat();
+    if (director->mCurState != TMarDirector::STATE_INTRO_INIT) {
+        sGammaTHPFlag                          = true;
+        *((u8 *)gpApplication.mDisplay + 0x42) = static_cast<u8>(8.0001f * gamma);
+        *((u8 *)gpApplication.mDisplay + 0x43) = static_cast<u8>(8.0001f * gamma);
     }
 }

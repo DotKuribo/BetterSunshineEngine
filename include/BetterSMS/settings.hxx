@@ -134,6 +134,7 @@ namespace BetterSMS {
                     "Mismatching setting types found, setting a non FLOAT to FLOAT value!");
                 float cur = f;
                 float old = *reinterpret_cast<float *>(mValuePtr);
+                OSReport("Setting %s to %f\n", mName, cur);
                 if (old != cur) {
                     *reinterpret_cast<float *>(mValuePtr) = cur;
                     if (mValueChangedCB) {

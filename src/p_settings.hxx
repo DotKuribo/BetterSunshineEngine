@@ -1239,8 +1239,15 @@ class GammaSetting final : public Settings::FloatSetting {
 public:
     GammaSetting(const char *name) : FloatSetting(name, &mGammaValue), mGammaValue(1.0f) {
         mValueRange = {0.5f, 2.0f, 0.1f};
+        mValueChangedCB = GammaSetting::valueChangedCB;
     }
     ~GammaSetting() override {}
+
+    static void valueChangedCB(void *old, void *cur, ValueKind kind) {
+        OSReport("GammaSetting::valueChangedCB\n");
+        *((u8 *)gpApplication.mDisplay + 0x42) = static_cast<u8>(8.0001f * *(float *)cur);
+        *((u8 *)gpApplication.mDisplay + 0x43) = static_cast<u8>(8.0001f * *(float *)cur);
+    }
 
     void getValueName(char *dst) const override { snprintf(dst, 100, "%.1f", mGammaValue); }
 

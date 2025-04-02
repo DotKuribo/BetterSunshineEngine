@@ -24,7 +24,7 @@ static bool shouldHaveSeaBMD(u8 area) {
 }
 
 static bool isSeaBMDPresent(TMarDirector *director) {
-    const u8 area    = director->mAreaID;
+    const u8 area = director->mAreaID;
     if (BetterSMS::areBugsPatched()) {
         sIsSeaBMDPresent = JKRArchive::getGlbResource("/scene/Map/Map/sea.bmd") != nullptr;
     } else {
@@ -82,7 +82,17 @@ static bool clipActorsScaled(JDrama::TGraphics *graphics, const Vec *point, f32 
     TLiveActor *actor;
     SMS_FROM_GPR(31, actor);
 
+    if (!BetterSMS::areBugsPatched()) {
+        return ViewFrustumClipCheck__FPQ26JDrama9TGraphicsP3Vecf(graphics, point, radius);
+    }
+
     return ViewFrustumClipCheck__FPQ26JDrama9TGraphicsP3Vecf(
         graphics, point, radius * Max(Max(actor->mScale.x, actor->mScale.y), actor->mScale.z));
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8021B144, 0, 0, 0), clipActorsScaled);
+
+static bool correctPinnaFerrisWheelSpeed() {
+    return TFlagManager::smInstance->getFlag(0x40003) == 2;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801D68F4, 0, 0, 0), correctPinnaFerrisWheelSpeed);
+SMS_WRITE_32(SMS_PORT_REGION(0x801D68F8, 0, 0, 0), 0x28600002);

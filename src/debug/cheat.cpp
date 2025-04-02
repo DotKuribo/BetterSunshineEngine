@@ -214,8 +214,9 @@ BETTER_SMS_FOR_CALLBACK bool updateDebugMode(TMario *player) {
         } else if (gDebugState == CAM_MODE) {
             if (!gIsCameraFrozen || gIsCameraTracking) {
                 gCamPosition = gpCamera->mTranslation;
-                TVec3f translation, scale;
-                Matrix::decompose(gpCamera->mTRSMatrix, translation, gCamRotation, scale);
+                gCamRotation.x = convertAngleS16ToFloat(gpCamera->mAnglePitch);
+                gCamRotation.y = convertAngleS16ToFloat(gpCamera->mAngleYaw);
+                gCamRotation.z = 0;
             }
         }
     } else {
