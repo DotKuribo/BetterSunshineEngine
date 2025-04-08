@@ -40,7 +40,6 @@ namespace BetterSMS {
 
 namespace BetterSMS {
 
-
     struct ModuleInfo;
 
     namespace Settings {
@@ -229,8 +228,6 @@ namespace BetterSMS {
 
         private:
             int clampValueToRange(int x) const {
-                OSReport("Clamping %i to %i - %i\n", x, mValueRange.mStart, mValueRange.mStop);
-                OSReport("Step: %i\n", mValueRange.mStep);
                 if (x > mValueRange.mStop) {
                     x = mValueRange.mStart + (x - mValueRange.mStop - mValueRange.mStep);
                 } else if (x < mValueRange.mStart) {

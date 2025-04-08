@@ -9,7 +9,7 @@
 
 template <typename _T> class TRingBuffer {
 public:
-    TRingBuffer(size_t _capacity, bool _garbageCollect)
+    TRingBuffer(size_t _capacity, bool _garbageCollect = true)
         : mCapacity(_capacity), mIndex(0), mGarbageCollect(_garbageCollect) {
         mBuffer = new _T *[_capacity];
     }

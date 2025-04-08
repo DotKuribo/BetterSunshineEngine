@@ -508,6 +508,7 @@ s32 SettingsDirector::direct() {
     // mController->updateMeaning();
     TSMSFader *fader = gpApplication.mFader;
     if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
+        mSettingScreen->mController->mState._06        = true; // Disable camera processing
         mSettingScreen->mController->mState.mReadInput = true;
     }
 

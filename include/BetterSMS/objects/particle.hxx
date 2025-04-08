@@ -8,6 +8,7 @@
 #include <JSystem/JUtility/JUTColor.hxx>
 
 #include "libs/boundbox.hxx"
+#include "libs/container.hxx"
 #include "module.hxx"
 
 class TParticleBox : public JDrama::TActor {
@@ -19,7 +20,7 @@ public:
     TParticleBox(const char *name)
         : TActor(name), mID(-1), mSpawnRate(10), mSpawnScale(1.0f), mShape(BoundingType::Box),
           mIsStrict(false), mSpawnTimer(), mDistanceToNext(0), mPathDistance(0), mPrevScale(1.0f),
-          mNextScale(1.0f), mCurScale(1.0f), mIsMoving(true) {}
+          mNextScale(1.0f), mCurScale(1.0f), mIsMoving(true), mMtxBuffer(), mPosBufferIndex(0) {}
     virtual ~TParticleBox() override {}
 
     void load(JSUMemoryInputStream &in) override;
@@ -53,4 +54,6 @@ private:
     bool mIsMoving;
 
     s32 mSpawnTimer;
+    Mtx mMtxBuffer[128];
+    size_t mPosBufferIndex;
 };

@@ -77,14 +77,20 @@ void TParticleBox::perform(u32 flags, JDrama::TGraphics *) {
                 return;
             }
             if (mSpawnTimer++ >= mSpawnRate) {
-                TVec3f position = getRandomParticlePosition(bb);
-                auto *particle  = gpMarioParticleManager->emit(mID, &position, 1, this);
-                if (particle) {
-                    f32 scale        = mSpawnScale * mCurScale;
-                    particle->mSize1 = {scale, scale, scale};
-                    particle->mSize3 = {scale, scale, scale};
+                f32 scale  = mSpawnScale * mCurScale;
+
+                Mtx *mtx = &mMtxBuffer[mPosBufferIndex];
+                TVec3f pos = getRandomParticlePosition(bb);
+                MsMtxSetTRS(*mtx, pos.x, pos.y, pos.z, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+
+                JPABaseEmitter *emitter = gpMarioParticleManager->emitAndBindToMtxPtr(mID, *mtx, 1, this);
+                if (emitter) {
+                    emitter->mSize1 = {scale, scale, scale};
+                    emitter->mSize3 = {scale, scale, scale};
                 }
+
                 mSpawnTimer = 0;
+                mPosBufferIndex = (mPosBufferIndex + 1) % 128;
             }
         }
     }
