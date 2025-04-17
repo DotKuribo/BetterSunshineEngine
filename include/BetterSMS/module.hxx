@@ -132,6 +132,7 @@ namespace BetterSMS {
     };
 
     bool isGameEmulated();
+    bool isWiiMode();
     bool isMusicBeingStreamed();
     bool isMusicStreamingAllowed();
 

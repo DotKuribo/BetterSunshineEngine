@@ -92,7 +92,7 @@ static bool clipActorsScaled(JDrama::TGraphics *graphics, const Vec *point, f32 
 SMS_PATCH_BL(SMS_PORT_REGION(0x8021B144, 0, 0, 0), clipActorsScaled);
 
 static bool correctPinnaFerrisWheelSpeed() {
-    return TFlagManager::smInstance->getFlag(0x40003) == 2;
+    return TFlagManager::smInstance->getFlag(0x40003) == 4;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801D68F4, 0, 0, 0), correctPinnaFerrisWheelSpeed);
-SMS_WRITE_32(SMS_PORT_REGION(0x801D68F8, 0, 0, 0), 0x28600002);
+SMS_WRITE_32(SMS_PORT_REGION(0x801D68F8, 0, 0, 0), 0x2C030001);
