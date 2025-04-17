@@ -25,7 +25,7 @@ bool BetterSMS::sIsDebugMode = false;
 extern void initDebugCallbacks(TApplication *app);
 
 bool BetterSMS::isGameEmulated() { return BootInfo.mConsoleType == OS_CONSOLE_DEV_KIT3; }
-bool BetterSMS::isWiiMode() { return OS_CORE_CLOCK >= 7200000000; }
+bool BetterSMS::isWiiMode() { return OS_CORE_CLOCK > 486000000; }
 bool BetterSMS::isDebugMode() { return sIsDebugMode; }
 bool BetterSMS::isMusicBeingStreamed() { return sIsAudioStreaming; }
 bool BetterSMS::isMusicStreamingAllowed() { return *reinterpret_cast<bool *>(0x80000008); }

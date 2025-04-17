@@ -403,6 +403,7 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(BetterSMS::registerModule,
                          "registerModule__9BetterSMSFRCQ29BetterSMS10ModuleInfo");
         KURIBO_EXPORT_AS(BetterSMS::isGameEmulated, "isGameEmulated__9BetterSMSFv");
+        KURIBO_EXPORT_AS(BetterSMS::isWiiMode, "isWiiMode__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicBeingStreamed, "isMusicBeingStreamed__9BetterSMSFv");
         KURIBO_EXPORT_AS(BetterSMS::isMusicStreamingAllowed,
                          "isMusicStreamingAllowed__9BetterSMSFv");
