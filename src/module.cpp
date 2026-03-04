@@ -235,6 +235,7 @@ static void initLib() {
     initializeTaskBuffers();
 
     // Toolbox Listener
+    Game::addBootCallback(processCurrentTask);
     Game::addLoopCallback(processCurrentTask);
 
     // SETTINGS

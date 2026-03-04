@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(BetterSunshineEngine VERSION 1.0)
+project(BetterSunshineEngine VERSION 4.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -15,7 +15,9 @@ option(SMS_INCLUDE_SLOT_B_SUPPORT "Includes Slot B memcard support" ON)
 option(SMS_INCLUDE_SHADOW_MARIO_HEALTH "Includes the visibility of Shadow Mario's health" ON)
 option(SMS_INCLUDE_EXCEPTION_HANDLER "Includes the exception handler information" ON)
 
-list(APPEND BETTER_SMS_CONFIG_DEFINES "KURIBO_NO_TYPES" "BETTER_SMS_VERSION=\"v3.0.1\"")
+option(BETTER_SMS_INCLUDE_DEBUGGER_STUB "Includes a debugger stub that external tools can communicate with" OFF)
+
+list(APPEND BETTER_SMS_CONFIG_DEFINES "KURIBO_NO_TYPES" "BETTER_SMS_VERSION=\"v${CMAKE_PROJECT_VERSION}\"")
 
 if(SMS_FIX_DOWNWARP)
     list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_NO_DOWNWARP=1")
@@ -51,6 +53,10 @@ endif()
 
 if(SMS_INCLUDE_EXCEPTION_HANDLER)
     list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_EXCEPTION_HANDLER=1")
+endif()
+
+if(BETTER_SMS_INCLUDE_DEBUGGER_STUB)
+    list(APPEND BETTER_SMS_CONFIG_DEFINES "BETTER_SMS_INCLUDE_DEBUGGER_STUB")
 endif()
 
 set(SMS_KURIBO_CONVERTER_PATH ${PROJECT_SOURCE_DIR}/tools/KuriboConverter.exe)
