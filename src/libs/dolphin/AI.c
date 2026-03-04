@@ -2,6 +2,9 @@
 #include <Dolphin/OS.h>
 #include <Dolphin/types.h>
 
+#define _AI_USE_C
+// #define _AI_USE_IMPL
+
 extern AISCallback __AIS_Callback;
 extern AIDCallback __AID_Callback;
 extern bool __AI_init_flag;
@@ -10,6 +13,12 @@ extern bool __AID_Active;
 void AIReset() { __AI_init_flag = false; }
 
 bool AICheckInit() { return __AI_init_flag; }
+
+static bool IsNintendont() {
+    return OS_CORE_CLOCK > 486000000 && BootInfo.mConsoleType != OS_CONSOLE_DEV_KIT3;
+}
+
+#define CONTROL_ADDR(lo) (IsNintendont() ? (0xCD800000 | (lo)) : (0xCC000000 | (lo))) 
 
 void AIStopDMA() {
     volatile u16 *DMAEnableFlag = (volatile u16 *)0xCC005036;
@@ -27,13 +36,44 @@ bool AIGetDMAEnableFlag() {
 }
 
 u16 AIGetDMALength() {
-    volatile u16 *DMABytes = (volatile u16 *)0xCC005036;
-    return ((*DMABytes) & 0x7FFF) << 5;
+    volatile u16 *DMALength = (volatile u16 *)0xCC005036;
+    return ((*DMALength) & 0x7FFF) << 5;
 }
+
+#ifdef _AI_USE_C
+
+u16 AIGetDMAStartAddr() {
+    volatile u16 *DMABytes = (volatile u16 *)0xCC005030;
+    return ((*DMABytes) & 0x3FF) << 5;
+}
+
+u32 AIGetStreamSampleCount() {
+    return *(volatile u32 *)0xCC006C08;
+}
+
+#ifdef _AI_USE_IMPL
+
+void AIResetStreamSampleCount() {
+    volatile u32 *StreamSampleCountFlag = (volatile u32 *)CONTROL_ADDR(0x6C00);
+    u32 sampleCount                     = *StreamSampleCountFlag;
+    *StreamSampleCountFlag              = (sampleCount & ~0x20) | 0x20;
+}
+
+#endif
+
+u32 AIGetStreamTrigger() {
+    return *(volatile u32 *)0xCC006C0C;
+}
+
+void AISetStreamTrigger(u32 trigger) {
+    *(volatile u32 *)0xCC006C0C = trigger;
+}
+
+#else
 
 __attribute__((naked)) u16 AIGetDMAStartAddr() {
     __asm__ volatile("lis 3, 0xCC00          \n\t"
-                     "addi 3, 3, 20480       \n\t"
+                     "addi 3, 3, 0x5030       \n\t"
                      "lhz 4, 0x30 (3)        \n\t"
                      "lhz 0, 0x32 (3)        \n\t"
                      "rlwinm 3, 0, 0, 16, 26 \n\t"
@@ -41,27 +81,14 @@ __attribute__((naked)) u16 AIGetDMAStartAddr() {
                      "blr                    \n\t");
 }
 
-#if _AI_USE_C
-
-u32 AIGetStreamSampleCount() { return *(volatile u32 *)0xCC006C08; }
-
-void AIResetStreamSampleCount() {
-    volatile u32 *StreamSampleCountFlag = (volatile u32 *)0xCC006C00;
-    u32 sampleCount                     = *StreamSampleCountFlag;
-    *StreamSampleCountFlag              = (sampleCount & ~0x20) | 0x20;
-}
-
-u32 AIGetStreamTrigger() { return *(volatile u32 *)0xCC006C0C; }
-void AISetStreamTrigger(u32 trigger) { *(volatile u32 *)0xCC006C0C = trigger; }
-
-#else
-
 __attribute__((naked)) u32 AIGetStreamSampleCount() {
     __asm__ volatile("lis 3, 0xCC00          \n\t"
-                     "addi 3, 3, 27648       \n\t"
+                     "addi 3, 3, 0x6C08      \n\t"
                      "lwz 3, 0x0008 (3)      \n\t"
                      "blr                    \n\t");
 }
+
+#ifdef _AI_USE_IMPL
 
 __attribute__((naked)) void AIResetStreamSampleCount() {
     __asm__ volatile("lis 3, 0xCC00          \n\t"
@@ -72,9 +99,11 @@ __attribute__((naked)) void AIResetStreamSampleCount() {
                      "blr                    \n\t");
 }
 
+#endif
+
 __attribute__((naked)) u32 AIGetStreamTrigger() {
     __asm__ volatile("lis 3, 0xCC00          \n\t"
-                     "addi 3, 3, 27648       \n\t"
+                     "addi 3, 3, 0x6C00       \n\t"
                      "lwz 3, 0x000C (3)      \n\t"
                      "blr                    \n\t");
 }

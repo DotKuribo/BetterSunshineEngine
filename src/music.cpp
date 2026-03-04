@@ -88,6 +88,48 @@ static bool _mIsPaused   = false;
 static bool _mIsLooping  = false;
 static bool _mIsBootOut  = false;
 
+static void SignalNintendontDIStartStream(u32 StreamStart, u32 StreamSize) {
+    static u32 *DIControlFlag = (u32 *)0xD302601C;
+    static u32 *DICmd0Flag = (u32 *)0xD3026008;
+    static u32 *DICmd1Flag = (u32 *)0xD302600C;
+    static u32 *DICmd2Flag = (u32 *)0xD3026010;
+
+    *DICmd0Flag    = (*DICmd0Flag & ~(0xFF << 24)) | (0xE1 << 24);  // Play stream
+    *DICmd0Flag    = (*DICmd0Flag & ~(0xFF << 16)) | (0 << 16);     // Start
+    *DICmd1Flag    = StreamStart >> 2;                              // Stream Start
+    *DICmd2Flag    = StreamSize;                                    // Stream Size
+    *DIControlFlag = 1;                                             // Submit the command
+}
+
+static void SignalNintendontDIStopStream() {
+    static u32 *DIControlFlag = (u32 *)0xD302601C;
+    static u32 *DICmd0Flag    = (u32 *)0xD3026008;
+
+    *DICmd0Flag    = (*DICmd0Flag & ~(0xFF << 24)) | (0xE1 << 24);  // Play stream
+    *DICmd0Flag    = (*DICmd0Flag & ~(0xFF << 16)) | (1 << 16);     // Stop
+    *DIControlFlag = 1;                                             // Submit the command
+}
+
+static void SyncWrite32IO(void *ioBlock, size_t blockSize, u32 ioVal) {
+    *(u32 *)ioBlock = ioVal;
+    DCFlushRange(ioBlock, blockSize);
+}
+
+static void SignalNintendontStartStreamPPC() {
+    static void *StartStreamFlag = (void *)0x130265C0;
+    SyncWrite32IO(StartStreamFlag, 0x20, 1);
+}
+
+static void SignalNintendontStopStreamPPC() {
+    static void *StartStreamFlag = (void *)0x130265C0;
+    SyncWrite32IO(StartStreamFlag, 0x20, 0);
+}
+
+static void SignalNintendontUpdateStreamPPC() {
+    static void *UpdateStreamFlag = (void *)0x130265C0;
+    SyncWrite32IO(UpdateStreamFlag, 0x20, 1);
+}
+
 SMS_NO_INLINE static void *threadMain_(void *param) {
     AudioStreamer *streamer = reinterpret_cast<Music::AudioStreamer *>(param);
     streamer->mainLoop_(param);
@@ -611,6 +653,11 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     mStreamEnd = getLoopEnd() - AudioPreparePreOffset;
     mStreamPos = 0;
 
+    // Assume Nintendont
+    if (BetterSMS::isWiiMode() && !BetterSMS::isGameEmulated()) {
+        SignalNintendontDIStartStream(mAudioHandle->mStart, mAudioHandle->mLen);
+    }
+
     return true;
 }
 
@@ -734,6 +781,11 @@ SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnStopAsync_(u32 result,
     streamer->mErrorStatus                    = 0;
     _mIsPlaying                               = false;
     _mIsPaused                                = false;
+
+    // Assume Nintendont
+    if (BetterSMS::isWiiMode() && !BetterSMS::isGameEmulated()) {
+        SignalNintendontDIStopStream();
+    }
 }
 
 SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
