@@ -68,3 +68,8 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x800D2710, 0, 0, 0), getBossEelAnmFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x800D2AD8, 0, 0, 0), getBossEelAnmFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x800D2F8C, 0, 0, 0), getBossEelAnmFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x800D3350, 0, 0, 0), getBossEelAnmFrameRate);
+
+// Make TJointCoin (and derived e.g. SandBird) animations consistent (delta messes it up somehow)
+static void getJointCoinAnmFrameRate(J3DFrameCtrl *frameCtrl) { frameCtrl->mFrameRate = 2.0f * 0.25f; }
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F76C0, 0, 0, 0), getJointCoinAnmFrameRate);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F76DC, 0, 0, 0), getJointCoinAnmFrameRate);
