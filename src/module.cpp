@@ -226,6 +226,11 @@ void __cvt_ull_dbl();
 #endif  // __cplusplus
 
 static void initLib() {
+    if (BetterSMS::isWiiMode() && !BetterSMS::isGameEmulated()) {
+        *(u32 *)0x800030D8 = 0x00773DEB;
+        *(u32 *)0x800030DC = 0x81103520;
+    }
+
     makeExtendedObjDataTable();
     initLoadingScreen();
     initExtendedPlayerAnims();
