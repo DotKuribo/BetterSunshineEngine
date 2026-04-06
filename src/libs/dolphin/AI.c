@@ -41,51 +41,14 @@ __attribute__((naked)) u16 AIGetDMAStartAddr() {
                      "blr                    \n\t");
 }
 
-#if _AI_USE_C
+// These are injected into the DOL so that Nintendont prepatches them
+u32 AIGetStreamSampleCount() { return ((u32(*)())0x80004000)(); }
 
-u32 AIGetStreamSampleCount() { return *(volatile u32 *)0xCC006C08; }
+void AIResetStreamSampleCount() { ((void (*)())0x80004010)(); }
 
-void AIResetStreamSampleCount() {
-    volatile u32 *StreamSampleCountFlag = (volatile u32 *)0xCC006C00;
-    u32 sampleCount                     = *StreamSampleCountFlag;
-    *StreamSampleCountFlag              = (sampleCount & ~0x20) | 0x20;
-}
+u32 AIGetStreamTrigger() { return ((u32(*)())0x80004028)(); }
 
-u32 AIGetStreamTrigger() { return *(volatile u32 *)0xCC006C0C; }
-void AISetStreamTrigger(u32 trigger) { *(volatile u32 *)0xCC006C0C = trigger; }
-
-#else
-
-__attribute__((naked)) u32 AIGetStreamSampleCount() {
-    __asm__ volatile("lis 3, 0xCC00          \n\t"
-                     "addi 3, 3, 27648       \n\t"
-                     "lwz 3, 0x0008 (3)      \n\t"
-                     "blr                    \n\t");
-}
-
-__attribute__((naked)) void AIResetStreamSampleCount() {
-    __asm__ volatile("lis 3, 0xCC00          \n\t"
-                     "lwz 0, 0x6C00 (3)      \n\t"
-                     "rlwinm 0, 0, 0, 27, 25 \n\t"
-                     "ori 0, 0, 0x0020       \n\t"
-                     "stw 0, 0x6C00 (3)      \n\t"
-                     "blr                    \n\t");
-}
-
-__attribute__((naked)) u32 AIGetStreamTrigger() {
-    __asm__ volatile("lis 3, 0xCC00          \n\t"
-                     "addi 3, 3, 27648       \n\t"
-                     "lwz 3, 0x000C (3)      \n\t"
-                     "blr                    \n\t");
-}
-
-__attribute__((naked)) void AISetStreamTrigger(u32 trigger) {
-    __asm__ volatile("lis 4, 0xCC00          \n\t"
-                     "stw 3, 0x6C0C (4)      \n\t"
-                     "blr                    \n\t");
-}
-
-#endif
+void AISetStreamTrigger(u32 trigger) { ((void (*)(u32))0x80004038)(trigger); }
 
 AISCallback AIRegisterStreamCallback(AISCallback cb) {
     AISCallback prev = __AIS_Callback;
