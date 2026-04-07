@@ -148,7 +148,6 @@ void AudioStreamer::initializeSubsystem() {
 
     AISetStreamVolLeft(0);
     AISetStreamVolRight(0);
-    mAICBState = 0;
     AIRegisterStreamCallback(AudioStreamer::cbForAIInterrupt);
     AISetStreamPlayState(false);
 }

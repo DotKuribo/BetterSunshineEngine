@@ -25,7 +25,7 @@
 
 using namespace BetterSMS;
 
-static char sStringBuffer[300]{};
+static char sStringBuffer[200]{};
 static J2DTextBox *gpMusicStringW = nullptr;
 static J2DTextBox *gpMusicStringB = nullptr;
 static bool sIsInitialized        = false;
