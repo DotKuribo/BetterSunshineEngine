@@ -131,16 +131,20 @@ BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &g
         return CARD_ERROR_READY;
     }
 
+    const bool isEmulator = BetterSMS::isGameEmulated();
+
     CARDFileInfo finfo;
 
     int ret = OpenSavedSettings(group, finfo, false);
     if (ret >= CARD_ERROR_READY) {
         // If this returns BROKEN, the save file is desynced by version and should be reset
         if (ReadSavedSettings(group, &finfo) == CARD_ERROR_BROKEN) {
-            OSPanic(__FILE__, __LINE__,
-                    "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
-                    "Automatically resetting to defaults...",
-                    Settings::getGroupName(group));
+            if (isEmulator) {
+                OSPanic(__FILE__, __LINE__,
+                        "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
+                        "Automatically resetting to defaults...",
+                        Settings::getGroupName(group));
+            }
             ret = UpdateSavedSettings(group, &finfo);
         }
 
@@ -427,6 +431,8 @@ s32 CloseSavedSettings(const Settings::SettingsGroup &group, CARDFileInfo *finfo
 static TCardBookmarkInfo sBookMarkInfo;
 
 s32 SaveAllSettings() {
+    const bool isEmulator = BetterSMS::isGameEmulated();
+
     {
         gpCardManager->getBookmarkInfos(&sBookMarkInfo);
         while (gpCardManager->mCommand == TCardManager::GETBOOKMARKS) {
@@ -435,11 +441,14 @@ s32 SaveAllSettings() {
         }
 
         if (s32 status = gpCardManager->getLastStatus()) {
-            OSPanic(__FILE__, __LINE__,
+            if (isEmulator) {
+                OSPanic(
+                    __FILE__, __LINE__,
                     "Failed to get bookmark info for autosave! (Status: %d)\nMake sure your memory "
                     "card is okay "
                     "and that you haven't loaded a savestate that was made before your last save!",
                     status);
+            }
             return status;
         }
 
@@ -453,11 +462,14 @@ s32 SaveAllSettings() {
         }
 
         if (s32 status = gpCardManager->getLastStatus()) {
-            OSPanic(__FILE__, __LINE__,
+            if (isEmulator) {
+                OSPanic(
+                    __FILE__, __LINE__,
                     "Failed to save block for autosave! (Status: %d)\nMake sure your memory card "
                     "is okay and that "
                     "you haven't loaded a savestate that was made before your last save!",
                     status);
+            }
             return status;
         }
 
@@ -469,13 +481,16 @@ s32 SaveAllSettings() {
         s32 cardStatus = Settings::mountCard();
         {
             if (cardStatus < CARD_ERROR_READY) {
-                OSPanic(__FILE__, __LINE__,
+                if (isEmulator) {
+                    OSPanic(
+                        __FILE__, __LINE__,
                         "Failed to mount memory card for autosave! (Status: %d)\nMake sure your "
                         "memory card is okay and that you haven't loaded a savestate that was made "
                         "before your last save!",
                         cardStatus);
 
-                gpCardManager->mount_(true);
+                    gpCardManager->mount_(true);
+                }
                 return cardStatus;
             }
             Settings::saveAllSettings();
