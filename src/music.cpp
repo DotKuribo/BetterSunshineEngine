@@ -144,7 +144,6 @@ void AudioStreamer::initializeSubsystem() {
     AIInit(0);
 
     AISetStreamSampleRate(AI_SAMPLE_48K);
-    AIResetStreamSampleCount();
     AISetStreamTrigger(Music::AudioInterruptRate);
 
     AISetStreamVolLeft(0);
@@ -601,12 +600,6 @@ SMS_NO_INLINE bool AudioStreamer::startLowStream() {
     if (!DVDOpen(adpPath, mAudioHandle))
         return false;
 
-    AISetStreamVolLeft(_mVolLeft);
-    AISetStreamVolRight(_mVolRight);
-    AIResetStreamSampleCount();
-    AISetStreamTrigger(Music::AudioInterruptRate);
-    AISetStreamPlayState(true);
-
     DVDPrepareStreamAsync(mAudioHandle, getLoopEnd(), 0, AudioStreamer::cbForPrepareStreamAsync_);
     mStreamEnd = getLoopEnd() - AudioPreparePreOffset;
     mStreamPos = 0;
@@ -667,7 +660,6 @@ SMS_NO_INLINE void AudioStreamer::cbForVolumeAlarm(OSAlarm *alarm, OSContext *co
 
 SMS_NO_INLINE void AudioStreamer::cbForAIInterrupt(u32 trigger) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    // streamer->mStreamPos    = trigger * (48000.0f / AudioStreamRate);
     AISetStreamTrigger(trigger + Music::AudioInterruptRate);
     DVDGetStreamPlayAddrAsync(&streamer->mAIInteruptBlock,
                               AudioStreamer::cbForGetStreamPlayAddrAsync_);
@@ -717,6 +709,13 @@ SMS_NO_INLINE void AudioStreamer::cbForGetStreamPlayAddrAsync_(u32 result,
 
 SMS_NO_INLINE void AudioStreamer::cbForPrepareStreamAsync_(u32 result, DVDFileInfo *finfo) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
+
+    AISetStreamVolLeft(streamer->_mVolLeft);
+    AISetStreamVolRight(streamer->_mVolRight);
+    AIResetStreamSampleCount();
+    AISetStreamTrigger(Music::AudioInterruptRate);
+    AISetStreamPlayState(true);
+
     DVDStopStreamAtEndAsync(&streamer->mPrepareBlock, AudioStreamer::cbForStopStreamAtEndAsync_);
     _mIsPlaying = true;
     _mIsPaused  = false;

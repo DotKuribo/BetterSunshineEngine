@@ -25,7 +25,7 @@
 
 using namespace BetterSMS;
 
-static char sStringBuffer[100]{};
+static char sStringBuffer[200]{};
 static J2DTextBox *gpMusicStringW = nullptr;
 static J2DTextBox *gpMusicStringB = nullptr;
 static bool sIsInitialized        = false;
@@ -71,14 +71,13 @@ void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     u32 streamPos   = streamer->getStreamPos();
     u32 streamSize  = streamEnd - streamStart;
 
-    snprintf(sStringBuffer, 100,
+    snprintf(sStringBuffer, 200,
              "Stream:\n"
              "  Status:      %lu\n"
              "  CurAddress: 0x%lX\n"
-             "  EndAddress: 0x%lX\n"
-             "  FInfoSize:    0x%lX",
-             streamer->getErrorStatus(), streamPos, streamEnd, streamSize);
+             "  EndAddress: 0x%lX",
+             streamer->getErrorStatus(), streamPos, streamEnd);
 
-    gpMusicStringB->draw(111, 103);
-    gpMusicStringW->draw(110, 102);
+    gpMusicStringB->draw(151, 103);
+    gpMusicStringW->draw(150, 102);
 }
