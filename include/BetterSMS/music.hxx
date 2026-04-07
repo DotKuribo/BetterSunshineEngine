@@ -48,7 +48,7 @@ namespace BetterSMS {
         constexpr size_t AudioStackSize          = 0x4000;
         constexpr u8 AudioVolumeDefault          = 127;
 #if 0
-        constexpr size_t AudioInterruptRate         = 14300;  // 32kHz, granular for stupid reasons
+        constexpr size_t AudioInterruptRate         = 14336;  // 32kHz, granular for stupid reasons
 #else
         constexpr size_t AudioInterruptRate = 2000;
 #endif
@@ -209,10 +209,6 @@ namespace BetterSMS {
             mutable DVDCommandBlock mStopBlock;
             mutable DVDCommandBlock mPlayAddrBlock;
             mutable DVDCommandBlock mCanPlayBlock;
-            u8 mAICBState = 0;
-            u8 mPSCBState = 0;
-            u8 mPACBState = 0;
-            u8 mStopState = 0;
 
         protected:
             u8 *mAudioStack;

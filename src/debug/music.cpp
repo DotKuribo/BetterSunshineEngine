@@ -25,7 +25,7 @@
 
 using namespace BetterSMS;
 
-static char sStringBuffer[200]{};
+static char sStringBuffer[300]{};
 static J2DTextBox *gpMusicStringW = nullptr;
 static J2DTextBox *gpMusicStringB = nullptr;
 static bool sIsInitialized        = false;
@@ -71,36 +71,13 @@ void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph) {
     u32 streamPos   = streamer->getStreamPos();
     u32 streamSize  = streamEnd - streamStart;
 
-    #if 0
     snprintf(sStringBuffer, 200,
              "Stream:\n"
              "  Status:      %lu\n"
              "  CurAddress: 0x%lX\n"
-             "  EndAddress: 0x%lX\n"
-             "  FInfoSize:    0x%lX",
-             streamer->getErrorStatus(), streamPos, streamEnd, streamSize);
-#else
+             "  EndAddress: 0x%lX",
+             streamer->getErrorStatus(), streamPos, streamEnd);
 
-#define combine(block)                                                                             \
-    (u32)((((block).mCurCommand << 24) & 0xFF000000) | (((block).mCurState << 16) & 0x00FF0000) |  \
-          ((block).mCommandResult & 0x0000FFFF))
-
-    snprintf(sStringBuffer, 200,
-             "Stream:\n"
-             "  AIB: 0x%08lX\n"
-             "  FileB: 0x%08lX\n"
-             "  PrepareB: 0x%08lX\n"
-             "  AddrB: 0x%08lX\n"
-             "      AI State: 0x%02X\n"
-             "      Prepare State: 0x%02X\n"
-             "      PlayAddr State: 0x%02X\n"
-             "      Forced Stop: 0x%02X\n",
-             combine(streamer->mAIInteruptBlock), combine(streamer->mAudioHandle->mCmdBlock),
-             combine(streamer->mPrepareBlock), combine(streamer->mPlayAddrBlock),
-             streamer->mAICBState, streamer->mPSCBState, streamer->mPACBState,
-             streamer->mStopState);
-    #endif
-
-    gpMusicStringB->draw(121, 103);
-    gpMusicStringW->draw(120, 102);
+    gpMusicStringB->draw(151, 103);
+    gpMusicStringW->draw(150, 102);
 }
