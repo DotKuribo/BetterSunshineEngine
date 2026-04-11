@@ -3,6 +3,7 @@
 #include <JSystem/JDrama/JDRDirector.hxx>
 #include <JSystem/JDrama/JDRDisplay.hxx>
 
+#include <SMS/GC2D/Talk2D2.hxx>
 #include <SMS/System/MarDirector.hxx>
 #include <SMS/raw_fn.hxx>
 
@@ -73,3 +74,22 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x800D3350, 0, 0, 0), getBossEelAnmFrameRate);
 static void getJointCoinAnmFrameRate(J3DFrameCtrl *frameCtrl) { frameCtrl->mFrameRate = 2.0f * 0.25f; }
 SMS_PATCH_BL(SMS_PORT_REGION(0x801F76C0, 0, 0, 0), getJointCoinAnmFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801F76DC, 0, 0, 0), getJointCoinAnmFrameRate);
+
+// Fix 60fps making entering textboxes 2x speed (by doubling the timer)
+static void adjustTextBoxTimer() {
+    Talk2D2 *talk2D2;
+    SMS_FROM_GPR(28, talk2D2);
+
+    switch (gFPSSetting.getInt()) {
+    case FPSSetting::FPS_30:
+        ((u8 *)talk2D2)[0x251] = 20;
+        break;
+    case FPSSetting::FPS_60:
+        ((u8 *)talk2D2)[0x251] = 40;
+        break;
+    case FPSSetting::FPS_120:
+        ((u8 *)talk2D2)[0x251] = 80;
+        break;
+    }
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80151D34, 0, 0, 0), adjustTextBoxTimer);
