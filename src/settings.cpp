@@ -70,30 +70,45 @@ BETTER_SMS_FOR_EXPORT s32 Settings::mountCard() {
     s32 check;
 
     check = CARDCheck(CARD_SLOTA);
-    if (check >= CARD_ERROR_BUSY) {
+    if (check == CARD_ERROR_READY) {
         sChannel = CARD_SLOTA;
         return check;
+    } else if (check == CARD_ERROR_UNLOCKED) {
+        sChannel = CARD_SLOTA;
+        goto wait_for_unlock;
     }
 
     check = CARDCheck(CARD_SLOTB);
-    if (check >= CARD_ERROR_BUSY) {
+    if (check == CARD_ERROR_READY) {
         sChannel = CARD_SLOTB;
         return check;
+    } else if (check == CARD_ERROR_UNLOCKED) {
+        sChannel = CARD_SLOTA;
+        goto wait_for_unlock;
     }
 
     check = CARDMount(CARD_SLOTA, sCardSysArea, detachCallback_);
-    if (check == CARD_ERROR_READY) {
+    if (check == CARD_ERROR_READY || check == CARD_ERROR_UNLOCKED) {
         sChannel = CARD_SLOTA;
-        return check;
+        goto wait_for_unlock;
     }
 
     check = CARDMount(CARD_SLOTB, sCardSysArea, detachCallback_);
-    if (check == CARD_ERROR_READY) {
+    if (check == CARD_ERROR_READY || check == CARD_ERROR_UNLOCKED) {
         sChannel = CARD_SLOTB;
-        return check;
+        goto wait_for_unlock;
     }
 
     sIsMounted = false;
+    return check;
+
+wait_for_unlock:
+    check = CARDCheck(sChannel);
+    while (check == CARD_ERROR_UNLOCKED) {
+        //__CARDSync(sChannel);
+        check = CARDCheck(sChannel);
+    }
+    sIsMounted = check == CARD_ERROR_READY;
     return check;
 }
 
