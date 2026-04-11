@@ -91,6 +91,7 @@ namespace BetterSMS {
                   SMS_TPARAM_INIT(mCanUseFludd, true), SMS_TPARAM_INIT(mPlayerHasHelmet, false),
                   SMS_TPARAM_INIT(mPlayerHasGlasses, false),
                   SMS_TPARAM_INIT(mPlayerHasShirt, false),
+                  SMS_TPARAM_INIT(mCanHoldNPCs, false),
                   SMS_TPARAM_INIT(mThrowPowerMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mUnderwaterHealthMultiplier, 1.0f),
                   SMS_TPARAM_INIT(mFallDamageMinMultiplier, 1.0f),
@@ -108,6 +109,7 @@ namespace BetterSMS {
             TParamRT<bool> mPlayerHasHelmet;
             TParamRT<bool> mPlayerHasGlasses;
             TParamRT<bool> mPlayerHasShirt;
+            TParamRT<bool> mCanHoldNPCs;
             TParamRT<f32> mThrowPowerMultiplier;
             TParamRT<f32> mUnderwaterHealthMultiplier;
             TParamRT<f32> mFallDamageMinMultiplier;
