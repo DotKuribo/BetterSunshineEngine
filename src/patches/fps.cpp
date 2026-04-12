@@ -218,3 +218,17 @@ static float HX_MotionUpdateCustom(f32 *unk) {
 SMS_PATCH_B(SMS_PORT_REGION(0x80181D74, 0, 0, 0), HX_MotionUpdateCustom);
 
 // ---------------------------------------------------------------------------
+
+// Fade
+
+static void adjustFaderFrameRate() {
+    TSMSFader *fader;
+    SMS_FROM_GPR(29, fader);
+
+    fader->_10 = static_cast<u16>(fader->mQueuedWipeRequest.mWipeSpeed * fader->mWipeTimeCopy *
+                                  getFrameRateMultiplierFloat());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8013F978, 0, 0, 0), adjustFaderFrameRate);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9A0, 0, 0, 0), adjustFaderFrameRate);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9D4, 0, 0, 0), adjustFaderFrameRate);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9FC, 0, 0, 0), adjustFaderFrameRate);
