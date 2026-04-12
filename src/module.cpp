@@ -13,6 +13,7 @@
 #include "cstd/ctype.h"
 #include "cstd/stdlib.h"
 #include "debug.hxx"
+#include "fps.hxx"
 #include "game.hxx"
 #include "libs/optional.hxx"
 #include "loading.hxx"
@@ -476,6 +477,10 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         KURIBO_EXPORT_AS(
             BetterSMS::Debug::addDrawCallback,
             "addDrawCallback__Q29BetterSMS5DebugFPFP12TApplicationPC13J2DOrthoGraph_v");
+
+        /* FPS */
+        KURIBO_EXPORT_AS(BetterSMS::FPS::setSMSFaderFrameRate,
+                         "setSMSFaderFrameRate__Q29BetterSMS3FPSFf");
 
         /* MEMORY */
         KURIBO_EXPORT_AS(BetterSMS::Memory::malloc, "malloc__Q29BetterSMS6MemoryFUlUl");
