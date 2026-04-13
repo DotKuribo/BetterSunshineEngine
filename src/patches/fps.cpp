@@ -185,13 +185,13 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8017E518, 0, 0, 0), adjustHXFrameRateTest4_State0
 static void adjustHXFrameRateTest4_State0R() {
     HX_SetFrameRate(-5.0f / getFrameRateMultiplierFloat());
     *(f32 *)SMS_PORT_REGION(0x8040DE8C, 0, 0, 0) = -0.15f / getFrameRateMultiplierFloat();
-    sHXTimerAsFloat                              = 0.0f;
+    sHXTimerAsFloat                              = 230.0f;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017E53C, 0, 0, 0), adjustHXFrameRateTest4_State0R);
 
 static int adjustHXTimerTest4_State0() {
     sHXTimerAsFloat += HX_GetFrameRate();
-    return static_cast<int>(sHXTimerAsFloat);
+    return Max(0, static_cast<int>(sHXTimerAsFloat));
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017E578, 0, 0, 0), adjustHXTimerTest4_State0);
 
