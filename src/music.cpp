@@ -507,7 +507,7 @@ SMS_NO_INLINE void AudioStreamer::update_() {
 
     if (!isGamePaused && isPlaying()) {
         // Automatically fade music in/out based on event sequenced track
-        if (MSBgm::getHandle(0) || MSBgm::getHandle(1) || MSBgm::getHandle(2)) {
+        if (MSBgm::getHandle(0) || MSBgm::getHandle(2)) {
             if (!isPaused() && isPlaying()) {
                 _mDelayedTime = PauseFadeSpeed;
                 pause_();
@@ -1018,7 +1018,7 @@ static void stopMusicOnGameOver(u32 musicID) {
         streamer->pause(PauseFadeSpeed);
 
     MSBgm::startBGM(musicID);
-}
+} 
 SMS_PATCH_BL(SMS_PORT_REGION(0x802988B0, 0x80290748, 0, 0), stopMusicOnGameOver);
 
 BETTER_SMS_FOR_CALLBACK void stopMusicOnExitStage(TApplication *app) {
