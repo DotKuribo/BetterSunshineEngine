@@ -137,7 +137,7 @@ static float getFrameRateMultiplierFloat() {
 
 // clang-format off
 #define HX_PATCH(address, name, method, value)                                                     \
-    static void name() { method(value); }                                                          \
+    static u32 name(u32 ret) { method(value); return ret; }                                                          \
     SMS_PATCH_BL(SMS_PORT_REGION(address, 0, 0, 0), name);
 
 #define HX_PATCH_FRAME_RATE(address, name, framerate)                                              \
