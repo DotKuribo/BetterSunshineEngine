@@ -144,7 +144,7 @@ void AudioStreamer::initializeSubsystem() {
     AIInit(0);
 
     AISetStreamSampleRate(AI_SAMPLE_48K);
-    AISetStreamTrigger(Music::AudioInterruptRate);
+    AISetStreamTrigger(selectInterruptRate());
 
     AISetStreamVolLeft(0);
     AISetStreamVolRight(0);
@@ -634,8 +634,15 @@ SMS_NO_INLINE bool AudioStreamer::stopLowStream() {
     return DVDCancelStreamAsync(&mStopBlock, AudioStreamer::cbForCancelStreamOnStopAsync_);
 }
 
-bool BetterSMS::Music::AudioStreamer::canPlayNextTrack() const {
+bool AudioStreamer::canPlayNextTrack() const {
     return mPlayNextTrack && mErrorStatus == 0;
+}
+
+u32 AudioStreamer::selectInterruptRate() const {
+    if (BetterSMS::isWiiMode() && !BetterSMS::isGameEmulated()) {
+        return AudioInterruptRateNintendont;
+    }
+    return AudioInterruptRateNative;
 }
 
 void AudioPacket::setLoopPoint(s32 start, s32 end) {
@@ -660,7 +667,7 @@ SMS_NO_INLINE void AudioStreamer::cbForVolumeAlarm(OSAlarm *alarm, OSContext *co
 
 SMS_NO_INLINE void AudioStreamer::cbForAIInterrupt(u32 trigger) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
-    AISetStreamTrigger(trigger + Music::AudioInterruptRate);
+    AISetStreamTrigger(trigger + streamer->selectInterruptRate());
     DVDGetStreamPlayAddrAsync(&streamer->mAIInteruptBlock,
                               AudioStreamer::cbForGetStreamPlayAddrAsync_);
 }
@@ -713,7 +720,7 @@ SMS_NO_INLINE void AudioStreamer::cbForPrepareStreamAsync_(u32 result, DVDFileIn
     AISetStreamVolLeft(streamer->_mVolLeft);
     AISetStreamVolRight(streamer->_mVolRight);
     AIResetStreamSampleCount();
-    AISetStreamTrigger(Music::AudioInterruptRate);
+    AISetStreamTrigger(streamer->selectInterruptRate());
     AISetStreamPlayState(true);
 
     DVDStopStreamAtEndAsync(&streamer->mPrepareBlock, AudioStreamer::cbForStopStreamAtEndAsync_);
@@ -739,7 +746,7 @@ SMS_NO_INLINE void AudioStreamer::cbForCancelStreamOnSeekAsync_(u32 result,
                                                                 DVDCommandBlock *callback) {
     AudioStreamer *streamer = AudioStreamer::getInstance();
     AIResetStreamSampleCount();
-    AISetStreamTrigger(Music::AudioInterruptRate);
+    AISetStreamTrigger(streamer->selectInterruptRate());
     DVDPrepareStreamAsync(streamer->mAudioHandle, streamer->getLoopEnd() - streamer->mStreamPos,
                           streamer->mStreamPos, AudioStreamer::cbForPrepareStreamAsync_);
 }

@@ -47,11 +47,13 @@ namespace BetterSMS {
         constexpr size_t AudioQueueSize          = 4;
         constexpr size_t AudioStackSize          = 0x4000;
         constexpr u8 AudioVolumeDefault          = 127;
-#if 0
-        constexpr size_t AudioInterruptRate         = 14336;  // 32kHz, granular for stupid reasons
-#else
-        constexpr size_t AudioInterruptRate = 2000;
-#endif
+
+
+        //constexpr size_t AudioInterruptRateNintendont = 14336;  // 32kHz, granular for stupid reasons
+        constexpr size_t AudioInterruptRateNintendont =
+            0x6200;  // ((21504 / 8) * 14 * 2) / 3
+        constexpr size_t AudioInterruptRateNative     = 2000;
+
         constexpr size_t AudioPreparePreOffset = 0x8000;
         constexpr OSTime AudioFadeInterval     = 16;  // 16ms
 
@@ -183,6 +185,8 @@ namespace BetterSMS {
             bool stopLowStream();
 
             bool canPlayNextTrack() const;
+
+            u32 selectInterruptRate() const;
 
             static void cbForVolumeAlarm(OSAlarm *alarm, OSContext *context);
             static void cbForAIInterrupt(u32 trigger);
