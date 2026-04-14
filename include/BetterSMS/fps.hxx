@@ -8,5 +8,6 @@
 namespace BetterSMS {
     namespace FPS {
         void setSMSFaderFrameRate(f32 framerate);
+        void setShineSelectFrameRate(f32 framerate);
     }
 }  // namespace BetterSMS

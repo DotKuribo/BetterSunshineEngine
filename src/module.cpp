@@ -481,6 +481,8 @@ KURIBO_MODULE_BEGIN(BETTER_SMS_MODULE_NAME, BETTER_SMS_AUTHOR_NAME, BETTER_SMS_V
         /* FPS */
         KURIBO_EXPORT_AS(BetterSMS::FPS::setSMSFaderFrameRate,
                          "setSMSFaderFrameRate__Q29BetterSMS3FPSFf");
+        KURIBO_EXPORT_AS(BetterSMS::FPS::setShineSelectFrameRate,
+                         "setShineSelectFrameRate__Q29BetterSMS3FPSFf");
 
         /* MEMORY */
         KURIBO_EXPORT_AS(BetterSMS::Memory::malloc, "malloc__Q29BetterSMS6MemoryFUlUl");
