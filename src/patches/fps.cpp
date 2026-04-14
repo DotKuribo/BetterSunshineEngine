@@ -269,6 +269,9 @@ void startIncrease_TSelectShineManager_override(void *self, u32 shinesOffset) {
 
     const int newFrames = baseFrames / frameScalar;
 
+    *(f32 *)SMS_PORT_REGION(0x80412398, 0, 0, 0) = (25.5f / frameScalar);
+    *(f32 *)SMS_PORT_REGION(0x8041239C, 0, 0, 0) = (-25.5f / frameScalar);
+
     PowerPC::writeU32((u32 *)0x80178784, 0x1C050000 - newFrames);
     startIncrease__19TSelectShineManagerFi(self, shinesOffset);
     PowerPC::writeU32((u32 *)0x80178784, 0x1C050000 - baseFrames);
@@ -281,6 +284,9 @@ void startDecrease_TSelectShineManager_override(void *self, u32 shinesOffset) {
 
     const int newFrames = baseFrames / frameScalar;
 
+    *(f32 *)SMS_PORT_REGION(0x80412398, 0, 0, 0) = (25.5f / frameScalar);
+    *(f32 *)SMS_PORT_REGION(0x8041239C, 0, 0, 0) = (-25.5f / frameScalar);
+
     PowerPC::writeU32((u32 *)0x80178680, 0x1C040000 + newFrames);
     startDecrease__19TSelectShineManagerFi(self, shinesOffset);
     PowerPC::writeU32((u32 *)0x80178680, 0x1C040000 + baseFrames);
@@ -292,7 +298,8 @@ SMS_WRITE_32(SMS_PORT_REGION(0x80178680, 0, 0, 0), 0x1c040014);
 // Text movement
 static void setValue_TCoord2D_override(TCoord2D *self, s32 speed, f32 startx, f32 starty, f32 endx,
                                        f32 endy) {
-    self->setValue(speed * getShineSelectFrameRateMultiplierFloat(), startx, starty, endx, endy);
+    const f32 frameScalar = getShineSelectFrameRateMultiplierFloat();
+    self->setValue(speed * frameScalar, startx, starty, endx, endy);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017383c, 0, 0, 0), setValue_TCoord2D_override);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801738c8, 0, 0, 0), setValue_TCoord2D_override);
