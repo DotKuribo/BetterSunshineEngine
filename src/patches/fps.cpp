@@ -11,19 +11,24 @@
 
 extern FPSSetting gFPSSetting;
 
-static f32 s_fader_frame_rate = 1.0f;
+static f32 sFaderFrameRate       = 1.0f;
+static f32 sShineSelectFrameRate = 1.0f;
 
 namespace BetterSMS {
 
     namespace FPS {
 
         BETTER_SMS_FOR_EXPORT void setSMSFaderFrameRate(f32 framerate) {
-            s_fader_frame_rate = framerate;
+            sFaderFrameRate = framerate;
         }
 
-    }
+        BETTER_SMS_FOR_EXPORT void setShineSelectFrameRate(f32 framerate) {
+            sShineSelectFrameRate = framerate;
+        }
 
-}
+    }  // namespace FPS
+
+}  // namespace BetterSMS
 
 BETTER_SMS_FOR_CALLBACK void updateFPS(TMarDirector *director) {
     switch (gFPSSetting.getInt()) {
@@ -119,20 +124,20 @@ static inline void HX_SetFrameRate(f32 frameRate) {
 
 static inline f32 HX_GetFrameRate() { return *(f32 *)SMS_PORT_REGION(0x8040DE90, 0, 0, 0); }
 
-static float getFrameRateMultiplierFloat() {
-    if (s_fader_frame_rate == 0.0f) {
+static float getFaderFrameRateMultiplierFloat() {
+    if (sFaderFrameRate == 0.0f) {
         return 1.0f;
     }
 
     switch (gFPSSetting.getInt()) {
     case FPSSetting::FPS_30:
-        return 1.0f / s_fader_frame_rate;
+        return 1.0f / sFaderFrameRate;
     case FPSSetting::FPS_60:
-        return 2.0f / s_fader_frame_rate;
+        return 2.0f / sFaderFrameRate;
     case FPSSetting::FPS_120:
-        return 4.0f / s_fader_frame_rate;
+        return 4.0f / sFaderFrameRate;
     }
-    return 1.0f / s_fader_frame_rate;
+    return 1.0f / sFaderFrameRate;
 }
 
 // clang-format off
@@ -142,10 +147,10 @@ static float getFrameRateMultiplierFloat() {
 
 #define HX_PATCH_FRAME_RATE(address, name, framerate)                                              \
     HX_PATCH(address, SMS_CONCATENATE(_tm_, name), HX_SetFrameRate,                                \
-             framerate / getFrameRateMultiplierFloat())
+             framerate / getFaderFrameRateMultiplierFloat())
 
 #define HX_PATCH_TIMER(address, name, frames)                                                      \
-    HX_PATCH(address, SMS_CONCATENATE(_tm_, name), HX_SetTimer, frames * getFrameRateMultiplierFloat())
+    HX_PATCH(address, SMS_CONCATENATE(_tm_, name), HX_SetTimer, frames * getFaderFrameRateMultiplierFloat())
 // clang-format on
 
 // -- CIRCLE -- //
@@ -172,19 +177,19 @@ HX_PATCH_TIMER(SMS_PORT_REGION(0x8017EE5C, 0, 0, 0), adjustHXTimerTest2R_State3,
 // ------------ //
 
 // -- TEST4 -- //
-static f32 sHXTimerAsFloat =
-    0.0f;  // We use this to make the steps consistent across frame rates, since the timer is stored as int
+static f32 sHXTimerAsFloat = 0.0f;  // We use this to make the steps consistent across frame rates,
+                                    // since the timer is stored as int
 
 static void adjustHXFrameRateTest4_State0() {
-    HX_SetFrameRate(5.0f / getFrameRateMultiplierFloat());
-    *(f32 *)SMS_PORT_REGION(0x8040DE8C, 0, 0, 0) = 0.15f / getFrameRateMultiplierFloat();
+    HX_SetFrameRate(5.0f / getFaderFrameRateMultiplierFloat());
+    *(f32 *)SMS_PORT_REGION(0x8040DE8C, 0, 0, 0) = 0.15f / getFaderFrameRateMultiplierFloat();
     sHXTimerAsFloat                              = 0.0f;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017E518, 0, 0, 0), adjustHXFrameRateTest4_State0);
 
 static void adjustHXFrameRateTest4_State0R() {
-    HX_SetFrameRate(-5.0f / getFrameRateMultiplierFloat());
-    *(f32 *)SMS_PORT_REGION(0x8040DE8C, 0, 0, 0) = -0.15f / getFrameRateMultiplierFloat();
+    HX_SetFrameRate(-5.0f / getFaderFrameRateMultiplierFloat());
+    *(f32 *)SMS_PORT_REGION(0x8040DE8C, 0, 0, 0) = -0.15f / getFaderFrameRateMultiplierFloat();
     sHXTimerAsFloat                              = 230.0f;
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8017E53C, 0, 0, 0), adjustHXFrameRateTest4_State0R);
@@ -206,13 +211,13 @@ HX_PATCH_TIMER(SMS_PORT_REGION(0x8017E07C, 0, 0, 0), adjustHXTimerTest5_State0, 
 static float HX_MotionUpdateCustom(f32 *unk) {
     if (unk[0] <= unk[7]) {
         if (unk[1] <= unk[7]) {
-            unk[6] += unk[5] / getFrameRateMultiplierFloat();
+            unk[6] += unk[5] / getFaderFrameRateMultiplierFloat();
         }
     } else {
-        unk[6] += unk[3] / getFrameRateMultiplierFloat();
+        unk[6] += unk[3] / getFaderFrameRateMultiplierFloat();
     }
-    unk[7] += 1 / getFrameRateMultiplierFloat();
-    unk[8] += unk[6] / getFrameRateMultiplierFloat();
+    unk[7] += 1 / getFaderFrameRateMultiplierFloat();
+    unk[8] += unk[6] / getFaderFrameRateMultiplierFloat();
     return unk[8];
 }
 SMS_PATCH_B(SMS_PORT_REGION(0x80181D74, 0, 0, 0), HX_MotionUpdateCustom);
@@ -226,9 +231,70 @@ static void adjustFaderFrameRate() {
     SMS_FROM_GPR(29, fader);
 
     fader->_10 = static_cast<u16>(fader->mQueuedWipeRequest.mWipeSpeed * fader->mWipeTimeCopy *
-                                  getFrameRateMultiplierFloat());
+                                  getFaderFrameRateMultiplierFloat());
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F978, 0, 0, 0), adjustFaderFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9A0, 0, 0, 0), adjustFaderFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9D4, 0, 0, 0), adjustFaderFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9FC, 0, 0, 0), adjustFaderFrameRate);
+
+///////////////
+///////////////
+
+// Shine Select
+// Credits to theAzack9
+
+///////////////
+///////////////
+
+static float getShineSelectFrameRateMultiplierFloat() {
+    if (sShineSelectFrameRate == 0.0f) {
+        return 1.0f;
+    }
+
+    switch (gFPSSetting.getInt()) {
+    case FPSSetting::FPS_30:
+        return 1.0f / sShineSelectFrameRate;
+    case FPSSetting::FPS_60:
+        return 2.0f / sShineSelectFrameRate;
+    case FPSSetting::FPS_120:
+        return 4.0f / sShineSelectFrameRate;
+    }
+    return 1.0f / sShineSelectFrameRate;
+}
+
+void startIncrease_TSelectShineManager_override(void *self, u32 shinesOffset) {
+    const int baseFrames  = 40;
+    const f32 frameScalar = getShineSelectFrameRateMultiplierFloat();
+
+    const int newFrames = baseFrames / frameScalar;
+
+    PowerPC::writeU32((u32 *)0x80178784, 0x1C050000 - newFrames);
+    startIncrease__19TSelectShineManagerFi(self, shinesOffset);
+    PowerPC::writeU32((u32 *)0x80178784, 0x1C050000 - baseFrames);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80173b4c, 0, 0, 0), startIncrease_TSelectShineManager_override);
+
+void startDecrease_TSelectShineManager_override(void *self, u32 shinesOffset) {
+    const int baseFrames  = 40;
+    const f32 frameScalar = getShineSelectFrameRateMultiplierFloat();
+
+    const int newFrames = baseFrames / frameScalar;
+
+    PowerPC::writeU32((u32 *)0x80178680, 0x1C040000 + newFrames);
+    startDecrease__19TSelectShineManagerFi(self, shinesOffset);
+    PowerPC::writeU32((u32 *)0x80178680, 0x1C040000 + baseFrames);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801737ac, 0, 0, 0), startDecrease_TSelectShineManager_override);
+SMS_WRITE_32(SMS_PORT_REGION(0x80178784, 0, 0, 0), 0x1c04ffec);
+SMS_WRITE_32(SMS_PORT_REGION(0x80178680, 0, 0, 0), 0x1c040014);
+
+// Text movement
+static void setValue_TCoord2D_override(TCoord2D *self, s32 speed, f32 startx, f32 starty, f32 endx,
+                                       f32 endy) {
+    self->setValue(speed * getShineSelectFrameRateMultiplierFloat(), startx, starty, endx, endy);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8017383c, 0, 0, 0), setValue_TCoord2D_override);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801738c8, 0, 0, 0), setValue_TCoord2D_override);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80173c54, 0, 0, 0), setValue_TCoord2D_override);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80173bc8, 0, 0, 0), setValue_TCoord2D_override);
