@@ -13,6 +13,10 @@ static u32 carryOrTalkNPC(TBaseNPC *npc) {
     if (!playerData->isMario())
         return isNowCanTaken__8TBaseNPCCFv(npc);
 
+    if (npc->mObjectID == 0x400001D) {
+        return isNowCanTaken__8TBaseNPCCFv(npc);
+    }
+
     if ((*(u32 *)(&npc->mStateFlags.asFlags) & 0x840007) != 0)
         return 0;
 
@@ -34,6 +38,10 @@ static bool canGrabAtNPC() {
     TBaseNPC *npc;
     SMS_FROM_GPR(30, npc);
 
+    if (npc->mObjectID == 0x400001D) {
+        return npc->mStateFlags.asFlags.mCanBeTaken;
+    }
+
     const Player::TPlayerData *playerData = Player::getData(gpMarioAddress);
 
     if (!playerData->isMario())
@@ -50,6 +58,10 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802815F4, 0x80279380, 0, 0), 0x2C030000);
 static bool canCarryNPC() {
     TBaseNPC *npc;
     SMS_FROM_GPR(29, npc);
+
+    if (npc->mObjectID == 0x400001D) {
+        return npc->mStateFlags.asFlags.mCanBeTaken;
+    }
 
     const Player::TPlayerData *playerData = Player::getData(gpMarioAddress);
 
