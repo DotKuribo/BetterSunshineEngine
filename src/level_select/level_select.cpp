@@ -13,22 +13,18 @@
 #include <J2D/J2DOrthoGraph.hxx>
 
 #include "game.hxx"
+#include "loading.hxx"
 #include "module.hxx"
 #include "p_area.hxx"
 #include "p_level_select.hxx"
 #include "stage.hxx"
 #include <DVD.h>
 #include <raw_fn.hxx>
-#include "loading.hxx"
 
-#define TEXT_COLOR_DEFAULT_SCENARIO                                                                \
-    { 255, 255, 255, 255 }
-#define TEXT_COLOR_DEFAULT_FILENAME                                                                \
-    { 200, 255, 200, 255 }
-#define TEXT_COLOR_TOP_SELECTED                                                                    \
-    { 180, 230, 10, 255 }
-#define TEXT_COLOR_BOTTOM_SELECTED                                                                 \
-    { 240, 170, 10, 255 }
+#define TEXT_COLOR_DEFAULT_SCENARIO {255, 255, 255, 255}
+#define TEXT_COLOR_DEFAULT_FILENAME {200, 255, 200, 255}
+#define TEXT_COLOR_TOP_SELECTED     {180, 230, 10, 255}
+#define TEXT_COLOR_BOTTOM_SELECTED  {240, 170, 10, 255}
 
 static bool sceneExists(u32 areaID, u32 episodeID) {
     if (areaID >= gpApplication.mStageArchiveAry->mChildren.size()) {
@@ -276,8 +272,8 @@ bool LevelSelectScreen::genAreaText(s32 flatRow, u8 normalStageID, u8 shineStage
 
     // Pop up episode list pane
     bool created;
-    J2DPane *areaPane =
-        findOrCreateAreaPane(normalStageID, shineStageID, screenRenderWidth, screenRenderHeight, &created);
+    J2DPane *areaPane = findOrCreateAreaPane(normalStageID, shineStageID, screenRenderWidth,
+                                             screenRenderHeight, &created);
     if (!created) {
         return false;
     }
@@ -1266,7 +1262,7 @@ void LevelSelectDirector::initializeLevelsLayout() {
     }
 
     BetterSMS::Stage::NormalAreaInfo *normalAreaInfos = BetterSMS::Stage::getNormalAreaInfos();
-    BetterSMS::Stage::ExAreaInfo *exAreaInfos   = BetterSMS::Stage::getExAreaInfos();
+    BetterSMS::Stage::ExAreaInfo *exAreaInfos         = BetterSMS::Stage::getExAreaInfos();
 
     bool visited_map[BETTER_SMS_AREA_MAX];
     memset(visited_map, 0, sizeof(visited_map));
@@ -1294,7 +1290,8 @@ void LevelSelectDirector::initializeLevelsLayout() {
 
     s32 flatRow = 0;
     for (s32 i = 0; i < BETTER_SMS_AREA_MAX; ++i) {
-        if (normalAreaInfos[i].mShineStageID == -1 || visited_map[normalAreaInfos[i].mShineStageID] == false) {
+        if (normalAreaInfos[i].mShineStageID == -1 ||
+            visited_map[normalAreaInfos[i].mShineStageID] == false) {
             continue;
         }
         switch (i) {
@@ -1314,8 +1311,8 @@ void LevelSelectDirector::initializeLevelsLayout() {
             }
             break;
         default:
-            if (mSelectScreen->genAreaText(flatRow, i, normalAreaInfos[i].mShineStageID, stageNameData,
-                                           scenarioNameData)) {
+            if (mSelectScreen->genAreaText(flatRow, i, normalAreaInfos[i].mShineStageID,
+                                           stageNameData, scenarioNameData)) {
                 flatRow += 1;
             }
             break;
@@ -1364,16 +1361,6 @@ s32 LevelSelectDirector::direct() {
 
         // The area and episode have been selected, enter the stage.
         if (mSelectScreen->mShouldExit) {
-            if (mSelectScreen->mSelectedAreaID != -1 && mSelectScreen->mSelectedEpisodeID != -1) {
-                EpisodeMenuInfo *info = mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]
-                                            ->mEpisodeInfos[mSelectScreen->mSelectedEpisodeID];
-                gpApplication.mNextScene.mAreaID    = info->mNormalStageID;
-                gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
-                // Reset coins
-                TFlagManager::smInstance->setFlag(0x40002, 0);
-                TFlagManager::smInstance->setFlag(0x40003, info->mScenarioID);
-            }
-
             if ((mController->mButtons.mInput & TMarioGamePad::X)) {
                 TFlagManager::smInstance->firstStart();
                 for (u32 shine = 0; shine < BetterSMS::Game::getMaxShines(); ++shine) {
@@ -1383,6 +1370,16 @@ s32 LevelSelectDirector::direct() {
                     TFlagManager::smInstance->setBool(true, bluec);
                 }
                 TFlagManager::smInstance->saveSuccess();
+            }
+
+            if (mSelectScreen->mSelectedAreaID != -1 && mSelectScreen->mSelectedEpisodeID != -1) {
+                EpisodeMenuInfo *info = mSelectScreen->mAreaInfos[mSelectScreen->mSelectedAreaID]
+                                            ->mEpisodeInfos[mSelectScreen->mSelectedEpisodeID];
+                gpApplication.mNextScene.mAreaID    = info->mNormalStageID;
+                gpApplication.mNextScene.mEpisodeID = info->mScenarioID;
+                // Reset coins
+                TFlagManager::smInstance->setFlag(0x40002, 0);
+                TFlagManager::smInstance->setFlag(0x40003, info->mScenarioID);
             }
 
             mState = State::EXIT;
