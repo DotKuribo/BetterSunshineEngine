@@ -111,3 +111,12 @@ static SMS_ASM_FUNC void scaleNPCTalkRadius() {
                   "blr                                     \n\t");
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80213314, 0x8020B1FC, 0, 0), scaleNPCTalkRadius);
+
+static void setNextMessage(void *balloon, u32 msgID, s32 timer) {
+    if (!balloon) {
+        return;
+    }
+    setNextMessage__11TNpcBalloonFUll(balloon, msgID, timer);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80214584, 0, 0, 0), setNextMessage);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80214684, 0, 0, 0), setNextMessage);
