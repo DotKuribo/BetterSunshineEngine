@@ -485,6 +485,32 @@ void BetterSMS::Music::AudioStreamer::clear_() {
     mRequestedClear = true;
 }
 
+static JAISound *GetJAISoundForMusic(u32 id) {
+    JAISound **unk = (JAISound **)search__19JALListS_5(id & 0x3FF); 
+    return unk ? unk[0x14 / 4] : nullptr;
+}
+
+static JAISound *GetJAISoundForBGMHandle(u32 handle) {
+    u32 *bgm = (u32 *)MSBgm::getHandle(handle);
+    return bgm ? GetJAISoundForMusic(bgm[2]) : nullptr;
+}
+
+static f32 GetJAISoundSeInterVolume(JAISound *sound, u8 channel) {
+    if (sound->_1 == 3) {
+        u32 *param = sound->getSeParameter();
+        return ((f32 *)(param))[(0x118 / 4) + channel * 4];
+    }
+    return 0.0f;
+}
+
+static bool IsBGMActive(u32 handle) {
+    JAISound *sound = GetJAISoundForBGMHandle(handle);
+    if (!sound) {
+        return false;
+    }
+    return GetJAISoundSeInterVolume(sound, 0) > 0.001f;
+}
+
 SMS_NO_INLINE void AudioStreamer::update_() {
     // Check if pause menu is active to mute music
     bool isGamePaused = false;
@@ -507,7 +533,7 @@ SMS_NO_INLINE void AudioStreamer::update_() {
 
     if (!isGamePaused && isPlaying()) {
         // Automatically fade music in/out based on event sequenced track
-        if (MSBgm::getHandle(0) || MSBgm::getHandle(2)) {
+        if (IsBGMActive(0) || IsBGMActive(1) || IsBGMActive(2)) {
             if (!isPaused() && isPlaying()) {
                 _mDelayedTime = PauseFadeSpeed;
                 pause_();
