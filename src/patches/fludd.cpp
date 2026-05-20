@@ -205,4 +205,24 @@ BETTER_SMS_FOR_CALLBACK void updateDeadTriggerState(TMario *player, bool isMario
     playerData->setCanSprayFludd(isAlive);
 }
 
+static bool shouldRenderTalkBalloon(u16 *messageEntry) {
+    TGCConsole2 *console;
+    SMS_FROM_GPR(28, console);
+
+    u16 unk = *(u16 *)((u8 *)console + 0x3F4);
+    u16 unk2 = messageEntry[2];
+    if (unk2 <= unk) {
+        return false;
+    }
+
+    if (!gpMarioAddress->mAttributes.mHasFludd) {
+        return false;
+    }
+
+    return true;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8014A21C, 0, 0, 0), shouldRenderTalkBalloon);
+SMS_WRITE_32(SMS_PORT_REGION(0x8014A220, 0, 0, 0), 0x2c030000);
+SMS_WRITE_32(SMS_PORT_REGION(0x8014A224, 0, 0, 0), 0x4082000c);
+
 #undef SCALE_PARAM
