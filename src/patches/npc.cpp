@@ -120,3 +120,12 @@ static void setNextMessage(void *balloon, u32 msgID, s32 timer) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80214584, 0, 0, 0), setNextMessage);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80214684, 0, 0, 0), setNextMessage);
+
+// Fixes softlock when forceTalkNPC is the NPC you are carrying
+static s16 getTalkAngle(TMario *player, const THitActor *talkto) {
+    if (player->mHeldObject == talkto) {
+        return player->mAngle.y;
+    }
+    return player->getAttackAngle(talkto);
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x802412D0, 0, 0, 0), getTalkAngle);

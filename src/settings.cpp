@@ -41,6 +41,8 @@
 #include "p_settings.hxx"
 #include <libs/scoped_ptr.hxx>
 
+#define BETTER_SMS_CARD_ERROR_VERSION_MISMATCH (s32)(-1)
+
 struct SettingMetaInfo {
     const char *mID;
     bool mIsUnlocked;
@@ -153,7 +155,8 @@ BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &g
     int ret = OpenSavedSettings(group, finfo, false);
     if (ret >= CARD_ERROR_READY) {
         // If this returns BROKEN, the save file is desynced by version and should be reset
-        if (ReadSavedSettings(group, &finfo) == CARD_ERROR_BROKEN) {
+        ret = ReadSavedSettings(group, &finfo);
+        if (ret == BETTER_SMS_CARD_ERROR_VERSION_MISMATCH) {
             if (isEmulator) {
                 OSPanic(__FILE__, __LINE__,
                         "Failed to load settings for module \"%s\"! (VERSION MISMATCH)\n\n"
@@ -161,18 +164,28 @@ BETTER_SMS_FOR_EXPORT s32 Settings::loadSettingsGroup(Settings::SettingsGroup &g
                         Settings::getGroupName(group));
             }
             ret = UpdateSavedSettings(group, &finfo);
+        } else if (ret < CARD_ERROR_READY) {
+            if (isEmulator) {
+                OSPanic(__FILE__, __LINE__,
+                        "Card error occured on module settings load! Make sure your memory card is "
+                        "correctly configured in your emulator settings...",
+                        Settings::getGroupName(group), ret);
+            }
+
+            CloseSavedSettings(group, &finfo);
+            return ret;
         }
 
-        CloseSavedSettings(group, &finfo);
+        for (auto &setting : group.getSettings()) {
+            setting->emit();
+            sNewUnlockMap.push_back(
+                {setting->getName(), setting->isUnlocked() && setting->isUserEditable()});
+        }
+
+        return CloseSavedSettings(group, &finfo);
     }
 
-    for (auto &setting : group.getSettings()) {
-        setting->emit();
-        sNewUnlockMap.push_back(
-            {setting->getName(), setting->isUnlocked() && setting->isUserEditable()});
-    }
-
-    return CloseSavedSettings(group, &finfo);
+    return ret;
 }
 
 BETTER_SMS_FOR_EXPORT bool Settings::saveAllSettings() {
@@ -253,9 +266,17 @@ BETTER_SMS_FOR_CALLBACK void initAllSettings(TApplication *app) {
     sSunshineSettingsGroup.addSetting(&sSoundSetting);
     sSunshineSettingsGroup.addSetting(&sSubtitleSetting);
 
+    const bool isEmulator = BetterSMS::isGameEmulated();
+
     InitCard();
-    if (Settings::mountCard() < CARD_ERROR_READY)
-        return;
+    if (Settings::mountCard() < CARD_ERROR_READY) {
+        if (isEmulator) {
+            OSPanic(__FILE__, __LINE__,
+                    "Failed to mount memory card for loading module settings!\n\n"
+                    "Automatically resetting to defaults...");
+        }
+        //return;
+    }
 
     for (BetterSMS::ModuleInfo &init : gModuleInfos) {
         Settings::SettingsGroup *settingsGroup = init.mSettings;
@@ -418,7 +439,7 @@ s32 ReadSavedSettings(Settings::SettingsGroup &group, CARDFileInfo *finfo) {
         }
 
         if (sCardBuffer[0] != group.getMajorVersion()) {
-            return CARD_ERROR_BROKEN;
+            return BETTER_SMS_CARD_ERROR_VERSION_MISMATCH;
         }
 
         size_t dataPosOut = CARD_DIRENTRY_SIZE + 0xE00 + (0x500 * info.mIconCount);
@@ -457,12 +478,13 @@ s32 SaveAllSettings() {
 
         if (s32 status = gpCardManager->getLastStatus()) {
             if (isEmulator) {
-                OSPanic(
-                    __FILE__, __LINE__,
-                    "Failed to get bookmark info for autosave! (Status: %d)\nMake sure your memory "
-                    "card is okay "
-                    "and that you haven't loaded a savestate that was made before your last save!",
-                    status);
+                OSPanic(__FILE__, __LINE__,
+                        "Failed to get bookmark info for autosave! (Status: %d)\nMake sure "
+                        "your memory "
+                        "card is okay "
+                        "and that you haven't loaded a savestate that was made before your "
+                        "last save!",
+                        status);
             }
             return status;
         }
@@ -478,12 +500,12 @@ s32 SaveAllSettings() {
 
         if (s32 status = gpCardManager->getLastStatus()) {
             if (isEmulator) {
-                OSPanic(
-                    __FILE__, __LINE__,
-                    "Failed to save block for autosave! (Status: %d)\nMake sure your memory card "
-                    "is okay and that "
-                    "you haven't loaded a savestate that was made before your last save!",
-                    status);
+                OSPanic(__FILE__, __LINE__,
+                        "Failed to save block for autosave! (Status: %d)\nMake sure your "
+                        "memory card "
+                        "is okay and that "
+                        "you haven't loaded a savestate that was made before your last save!",
+                        status);
             }
             return status;
         }
@@ -497,12 +519,13 @@ s32 SaveAllSettings() {
         {
             if (cardStatus < CARD_ERROR_READY) {
                 if (isEmulator) {
-                    OSPanic(
-                        __FILE__, __LINE__,
-                        "Failed to mount memory card for autosave! (Status: %d)\nMake sure your "
-                        "memory card is okay and that you haven't loaded a savestate that was made "
-                        "before your last save!",
-                        cardStatus);
+                    OSPanic(__FILE__, __LINE__,
+                            "Failed to mount memory card for autosave! (Status: %d)\nMake sure "
+                            "your "
+                            "memory card is okay and that you haven't loaded a savestate that "
+                            "was made "
+                            "before your last save!",
+                            cardStatus);
 
                     gpCardManager->mount_(true);
                 }
@@ -538,7 +561,7 @@ s32 SettingsDirector::direct() {
     // mController->updateMeaning();
     TSMSFader *fader = gpApplication.mFader;
     if (fader->mFadeStatus == TSMSFader::FADE_OFF) {
-        mSettingScreen->mController->mState._06        = true; // Disable camera processing
+        mSettingScreen->mController->mState._06        = true;  // Disable camera processing
         mSettingScreen->mController->mState.mReadInput = true;
     }
 
@@ -565,8 +588,8 @@ s32 SettingsDirector::direct() {
     case State::INIT:
         break;
     case State::CONTROL: {
-        mSettingScreen->mPerformFlags &= ~0b0001;   // Enable input by default;
-        mSaveErrorPanel->mPerformFlags |= 0b1011;   // Disable view and input by default
+        mSettingScreen->mPerformFlags &= ~0b0001;  // Enable input by default;
+        mSaveErrorPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
 
         if (!mIntSettingPanel->isAnimating()) {
             mIntSettingPanel->mPerformFlags |= 0b1011;  // Disable view and input by default
@@ -639,7 +662,6 @@ bool SettingsDirector::switchToControl(Control ctrl) {
         return true;
     }
     }
-
 }
 
 void SettingsDirector::setup(JDrama::TDisplay *display, TMarioGamePad *controller) {
@@ -850,9 +872,10 @@ void SettingsDirector::initializeSettingsLayout() {
             gpSystemFont->mFont, "# Exit", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
         mSettingScreen->mScreen->mChildrenList.append(&exitLabel->mPtrLink);
 
-        J2DTextBox *moreLabel = new J2DTextBox('more',
-                           {static_cast<int>(470 + getScreenRatioAdjustX()), screenRenderHeight - 90,
-                            static_cast<int>(getScreenOrthoWidth() - 20), screenRenderHeight},
+        J2DTextBox *moreLabel = new J2DTextBox(
+            'more',
+            {static_cast<int>(470 + getScreenRatioAdjustX()), screenRenderHeight - 90,
+             static_cast<int>(getScreenOrthoWidth() - 20), screenRenderHeight},
             gpSystemFont->mFont, "@ More...", J2DTextBoxHBinding::Left, J2DTextBoxVBinding::Center);
         mSettingScreen->mScreen->mChildrenList.append(&moreLabel->mPtrLink);
     }
