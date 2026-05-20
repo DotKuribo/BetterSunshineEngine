@@ -12,7 +12,15 @@
 extern ViewportSetting gViewportSetting;
 
 static void applySpecialCamera(TCameraKindParam *data, const TCamSaveKindParam &params) {
+    CPolarSubCamera *camera;
+    SMS_FROM_GPR(31, camera);
+
     data->copySaveParam(params);
+
+    // Avoid changing the params on Y-cam (fixes Noki Bay warp etc.)
+    if (camera->isLButtonCameraSpecifyMode(camera->mMode)) {
+        return;
+    }
 
     switch (gViewportSetting.getInt()) {
     default:
