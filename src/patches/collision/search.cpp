@@ -6,6 +6,7 @@
 #include <SMS/macros.h>
 
 #include "memory.hxx"
+#include "player.hxx"
 
 #include "module.hxx"
 #include "p_settings.hxx"
@@ -326,9 +327,12 @@ static TBGCheckData *checkWallPlaneEnhanced(TMario *player, Vec *pos, f32 height
     record.mIgnoreFlags = BetterSMS::isCollisionRepaired() ? 1 : 0;
     record.mRadius      = radius;
 
+    auto *playerData = BetterSMS::Player::getData(player);
+
     bool isSimpleCollisionState = false;
     isSimpleCollisionState |= (player->mState & 0x30200000) != 0;           // Hanging still
     isSimpleCollisionState |= (player->mState == TMario::STATE_WALLSLIDE);  // Wall slide
+    isSimpleCollisionState |= !playerData->isMario();
 
     TBGCheckData *result = nullptr;
 

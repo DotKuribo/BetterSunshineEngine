@@ -11,6 +11,7 @@
 #include "libs/constmath.hxx"
 #include "module.hxx"
 #include "p_settings.hxx"
+#include "player.hxx"
 
 using namespace BetterSMS;
 
@@ -85,6 +86,46 @@ SMS_PATCH_BL(0x80260944, checkWallsWhenHanging);
 SMS_PATCH_BL(0x80260AF8, checkWallsWhenHanging);
 SMS_PATCH_BL(0x80260D1C, checkWallsWhenHanging);
 SMS_PATCH_BL(0x80260DDC, checkWallsWhenHanging);
+
+static size_t checkExoticWallsExceptEMario_r29(TMap *map, TBGWallCheckRecord *record) {
+    //TMario *player;
+    //SMS_FROM_GPR(29, player);
+
+    auto *playerData = BetterSMS::Player::getData(gpMarioAddress);
+    if (!playerData->isMario()) {
+        return map->mCollisionData->checkWalls(record);
+    }
+
+    return map->isTouchedWallsAndMoveXZ(record);
+}
+SMS_PATCH_BL(0x80250638, checkExoticWallsExceptEMario_r29);
+SMS_PATCH_BL(0x80250974, checkExoticWallsExceptEMario_r29);
+
+static size_t checkExoticWallsExceptEMario_r30(TMap *map, TBGWallCheckRecord *record) {
+    //TMario *player;
+    //SMS_FROM_GPR(30, player);
+
+    auto *playerData = BetterSMS::Player::getData(gpMarioAddress);
+    if (!playerData->isMario()) {
+        return map->mCollisionData->checkWalls(record);
+    }
+
+    return map->isTouchedWallsAndMoveXZ(record);
+}
+SMS_PATCH_BL(0x8024EA7C, checkExoticWallsExceptEMario_r30);
+
+static size_t checkExoticWallsExceptEMario_r31(TMap *map, TBGWallCheckRecord *record) {
+    TMario *player;
+    SMS_FROM_GPR(31, player);
+
+    auto *playerData = BetterSMS::Player::getData(player);
+    if (!playerData->isMario()) {
+        return map->mCollisionData->checkWalls(record);
+    }
+
+    return map->isTouchedWallsAndMoveXZ(record);
+}
+SMS_PATCH_BL(0x8025762C, checkExoticWallsExceptEMario_r31);
 
 static f32 getHangingRoof(TMap *map, f32 x, f32 y, f32 z, const TBGCheckData **out) {
     TVec3f *pos;
