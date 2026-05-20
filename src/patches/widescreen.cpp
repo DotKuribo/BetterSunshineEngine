@@ -94,8 +94,10 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B94, 0x802B0B64, 0, 0), 0xEC001028);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 
 static void scaleFOVYIncreasePerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ) {
-    CPolarSubCamera *cam = gpCamera;
-    cam->mProjectionFovy = getCalculatedFovy(cam->mProjectionFovy, 1.0 / getScreenScale());
+    CPolarSubCamera *cam   = gpCamera;
+    const bool isStaticFOV = cam->isNormalDeadDemo() || (*(u32 *)(&cam->mStateFlags) & 0x1200) != 0;
+    const f32 configFOV    = isStaticFOV ? cam->mCamParams->mSLFovy : cam->mProjectionFovy;
+    cam->mProjectionFovy   = getCalculatedFovy(configFOV, 1.0 / getScreenScale());
     C_MTXPerspective(mtx, cam->mProjectionFovy, aspect, nearZ, farZ);
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C, 0x8002320C, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
@@ -104,7 +106,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C, 0x80032D78, 0, 0), scaleFOVYIncreasePer
 SMS_PATCH_BL(SMS_PORT_REGION(0x80033088, 0x80033074, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
 
 static void scaleFOVYDecrease(CPolarSubCamera *cam) {
-    cam->mProjectionFovy = getCalculatedFovy(cam->mProjectionFovy, getScreenScale());
+    const bool isStaticFOV = cam->isNormalDeadDemo() || (*(u32 *)(&cam->mStateFlags) & 0x1200) != 0;
+    const f32 configFOV    = isStaticFOV ? cam->mCamParams->mSLFovy : cam->mProjectionFovy;
+    cam->mProjectionFovy   = getCalculatedFovy(configFOV, getScreenScale());
     cam->ctrlGameCamera_();
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80023148, 0x80023120, 0, 0), scaleFOVYDecrease);
