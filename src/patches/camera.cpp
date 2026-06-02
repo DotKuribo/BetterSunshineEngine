@@ -18,12 +18,11 @@ using namespace BetterSMS;
 constexpr f32 DrawDistanceMultiplier = 100.0f;
 constexpr f32 DrawDistance           = 300000.0f * DrawDistanceMultiplier;
 
-static bool cameraScaleRenderDistance(CPolarSubCamera *cam) {
-    JSGSetProjectionFar__Q26JDrama7TCameraFf(
-        cam, BetterSMS::areBugsPatched() ? DrawDistance : 300000.0f);  // Draw Distance
-    return cam->isNormalDeadDemo();
+static CPolarSubCamera *cameraScaleRenderDistance(CPolarSubCamera *cam) {
+    cam->mProjectionFar = BetterSMS::areBugsPatched() ? DrawDistance : 300000.0f;  // Draw Distance
+    return cam;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80023828, 0x800238e0, 0, 0), cameraScaleRenderDistance);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80023824, 0x800238dc, 0, 0), cameraScaleRenderDistance);
 
 static void scaleDrawDistanceNPC(f32 x, f32 y, f32 near, f32 far) {
     SetViewFrustumClipCheckPerspective__Fffff(

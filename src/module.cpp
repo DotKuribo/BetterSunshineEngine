@@ -184,7 +184,7 @@ extern void initStreamInfo(TApplication *app);
 extern void printStreamInfo(TApplication *app, const J2DOrthoGraph *graph);
 
 // GRAPHICS
-extern void updateFPS(TMarDirector *);
+extern void updateFPS(TApplication *);
 extern void resetGammaSetting(TApplication *);
 extern void updateGammaSetting(TMarDirector *);
 
@@ -373,8 +373,7 @@ static void initLib() {
     Stage::addInitCallback(resetPlayerDatas);
     Stage::addInitCallback(initializeMapObjWave);
 
-    Stage::addInitCallback(updateFPS);
-    Stage::addUpdateCallback(updateFPS);
+    Game::addLoopCallback(updateFPS);
     Stage::addExitCallback(resetGammaSetting);
     Stage::addUpdateCallback(updateGammaSetting);
 

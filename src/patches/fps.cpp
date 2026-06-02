@@ -30,7 +30,20 @@ namespace BetterSMS {
 
 }  // namespace BetterSMS
 
-BETTER_SMS_FOR_CALLBACK void updateFPS(TMarDirector *director) {
+BETTER_SMS_FOR_CALLBACK void updateFPS(TApplication *app) {
+    const bool wantsForcedVSync = app->mContext == TApplication::CONTEXT_DIRECT_LOAD_LOOP ||
+                                  app->mContext == TApplication::CONTEXT_DIRECT_MAIN_LOOP ||
+                                  app->mContext == TApplication::CONTEXT_GAME_BOOT ||
+                                  app->mContext == TApplication::CONTEXT_GAME_BOOT_LOGO ||
+                                  app->mContext == TApplication::CONTEXT_GAME_INTRO;
+
+    if (wantsForcedVSync) {
+        gpApplication.mDisplay->mRetraceCount                                   = 2;
+        *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x804167B8, 0x8040DD10, 0, 0)) = 0.5f;
+        *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x80414904, 0x8040BE54, 0, 0)) = 0.01f;
+        return;
+    }
+
     switch (gFPSSetting.getInt()) {
     case FPSSetting::FPS_30:
         gpApplication.mDisplay->mRetraceCount                                   = 2;
@@ -38,12 +51,12 @@ BETTER_SMS_FOR_CALLBACK void updateFPS(TMarDirector *director) {
         *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x80414904, 0x8040BE54, 0, 0)) = 0.01f;
         break;
     case FPSSetting::FPS_60:
-        gpApplication.mDisplay->mRetraceCount                                   = 1;
+        gpApplication.mDisplay->mRetraceCount = 1;
         *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x804167B8, 0x8040DD10, 0, 0)) = 1.0f;
         *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x80414904, 0x8040BE54, 0, 0)) = 0.02f;
         break;
     case FPSSetting::FPS_120:
-        gpApplication.mDisplay->mRetraceCount                                   = 0;
+        gpApplication.mDisplay->mRetraceCount = 0;
         *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x804167B8, 0x8040DD10, 0, 0)) = 2.0f;
         *reinterpret_cast<f32 *>(SMS_PORT_REGION(0x80414904, 0x8040BE54, 0, 0)) = 0.04f;
         break;
@@ -118,14 +131,34 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80151D34, 0, 0, 0), adjustTextBoxTimer);
 static inline void HX_SetTimer(int frames) {
     *(int *)SMS_PORT_REGION(0x803F43FC, 0, 0, 0) = frames;
 }
+
 static inline void HX_SetFrameRate(f32 frameRate) {
     *(f32 *)SMS_PORT_REGION(0x8040DE90, 0, 0, 0) = frameRate;
+}
+
+static inline void HX_SetGameOverDelta(f32 frameRate) {
+    *(f32 *)SMS_PORT_REGION(0x8040DE58, 0, 0, 0) = frameRate;
+}
+
+static inline void HX_SetGameOverTimer(f32 frameRate) {
+    *(u32 *)SMS_PORT_REGION(0x8040DE54, 0, 0, 0) = static_cast<u32>(frameRate);
 }
 
 static inline f32 HX_GetFrameRate() { return *(f32 *)SMS_PORT_REGION(0x8040DE90, 0, 0, 0); }
 
 static float getFaderFrameRateMultiplierFloat() {
     if (sFaderFrameRate == 0.0f) {
+        return 1.0f;
+    }
+
+    const bool wantsForcedVSync =
+        gpApplication.mContext == TApplication::CONTEXT_DIRECT_LOAD_LOOP ||
+        gpApplication.mContext == TApplication::CONTEXT_DIRECT_MAIN_LOOP ||
+        gpApplication.mContext == TApplication::CONTEXT_GAME_BOOT ||
+        gpApplication.mContext == TApplication::CONTEXT_GAME_BOOT_LOGO ||
+        gpApplication.mContext == TApplication::CONTEXT_GAME_INTRO;
+
+    if (wantsForcedVSync) {
         return 1.0f;
     }
 
@@ -140,6 +173,29 @@ static float getFaderFrameRateMultiplierFloat() {
     return 1.0f / sFaderFrameRate;
 }
 
+static float getGameOverFrameRateMultiplierFloat() {
+    const bool wantsForcedVSync =
+        gpApplication.mContext == TApplication::CONTEXT_DIRECT_LOAD_LOOP ||
+        gpApplication.mContext == TApplication::CONTEXT_DIRECT_MAIN_LOOP ||
+        gpApplication.mContext == TApplication::CONTEXT_GAME_BOOT ||
+        gpApplication.mContext == TApplication::CONTEXT_GAME_BOOT_LOGO ||
+        gpApplication.mContext == TApplication::CONTEXT_GAME_INTRO;
+
+    if (wantsForcedVSync) {
+        return 1.0f;
+    }
+
+    switch (gFPSSetting.getInt()) {
+    case FPSSetting::FPS_30:
+        return 1.0f;
+    case FPSSetting::FPS_60:
+        return 2.0f;
+    case FPSSetting::FPS_120:
+        return 4.0f;
+    }
+    return 1.0f;
+}
+
 // clang-format off
 #define HX_PATCH(address, name, method, value)                                                     \
     static u32 name(u32 ret) { method(value); return ret; }                                                          \
@@ -151,11 +207,85 @@ static float getFaderFrameRateMultiplierFloat() {
 
 #define HX_PATCH_TIMER(address, name, frames)                                                      \
     HX_PATCH(address, SMS_CONCATENATE(_tm_, name), HX_SetTimer, frames * getFaderFrameRateMultiplierFloat())
+
+#define HX_PATCH_TIMER_FOR_GAMEOVER(address, name, frames)                                                      \
+    HX_PATCH(address, SMS_CONCATENATE(_tm_, name), HX_SetTimer, frames * getGameOverFrameRateMultiplierFloat())
 // clang-format on
 
 // -- CIRCLE -- //
 HX_PATCH_TIMER(SMS_PORT_REGION(0x80181B54, 0, 0, 0), adjustHXTimerCircle_State0, 0x19);
 HX_PATCH_TIMER(SMS_PORT_REGION(0x80181B78, 0, 0, 0), adjustHXTimerCircle_State1, 0x1E);
+// ----------- //
+//
+// -- GAMEOVER -- //
+HX_PATCH_TIMER_FOR_GAMEOVER(SMS_PORT_REGION(0x801804B0, 0, 0, 0), adjustHXTimerGameOver_State0,
+                            0x32);
+HX_PATCH_TIMER_FOR_GAMEOVER(SMS_PORT_REGION(0x801804E8, 0, 0, 0), adjustHXTimerGameOver_State1,
+                            0xA);
+HX_PATCH_TIMER_FOR_GAMEOVER(SMS_PORT_REGION(0x80180610, 0, 0, 0), adjustHXTimerGameOver_State4,
+                            0x64);
+
+static f32 adjustHXTimerGameOverMag_State1(u32 ret) {
+    return 0.074f / getGameOverFrameRateMultiplierFloat();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801804EC, 0, 0, 0), adjustHXTimerGameOverMag_State1);
+
+static void adjustHXTimerGameOverFade_State1(u32 ret) {
+    *((f32 *)SMS_PORT_REGION(0x8040DE4C, 0, 0, 0)) +=
+        5.0999999f / getGameOverFrameRateMultiplierFloat();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80180514, 0, 0, 0), adjustHXTimerGameOverFade_State1);
+
+static void adjustHXTimerGameOverMag_State2(u32 ret) {
+    *((f32 *)SMS_PORT_REGION(0x8040C6BC, 0, 0, 0)) -= 0.1f / getGameOverFrameRateMultiplierFloat();
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8018055C, 0, 0, 0), adjustHXTimerGameOverMag_State2);
+
+static void adjustHXTimerGameOverAlpha_State4(u32 ret) {
+    *((u8 *)SMS_PORT_REGION(0x8040DE5C, 0, 0, 0)) +=
+        8 / static_cast<u8>(getGameOverFrameRateMultiplierFloat());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80180628, 0, 0, 0), adjustHXTimerGameOverAlpha_State4);
+
+const f32 *__HX_GameOverDeltaTable = (const f32 *)SMS_PORT_REGION(0x803C12E8, 0, 0, 0);
+const s32 *__HX_GameOverState      = (const s32 *)SMS_PORT_REGION(0x8040DE50, 0, 0, 0);
+
+static void adjustHXTimerGameOverDelta_State2(u32 ret) {
+    const f32 startDelta = __HX_GameOverDeltaTable[0];
+    HX_SetGameOverDelta(startDelta / getGameOverFrameRateMultiplierFloat());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80180538, 0, 0, 0), adjustHXTimerGameOverDelta_State2);
+
+static u32 adjustHXTimerGameOverDelta_State3(u32 ret, f32 delta) {
+    HX_SetGameOverDelta(delta / getGameOverFrameRateMultiplierFloat());
+    return ret;
+}
+SMS_WRITE_32(SMS_PORT_REGION(0x8018059C, 0, 0, 0), 0xC0240070);
+SMS_WRITE_32(SMS_PORT_REGION(0x801805A8, 0, 0, 0), 0x7C7D0214);
+SMS_WRITE_32(SMS_PORT_REGION(0x801805AC, 0, 0, 0), 0x908D9C90);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801805B0, 0, 0, 0), adjustHXTimerGameOverDelta_State3);
+
+static void adjustHXTimerGameOverTimer_State3(u32 ret) {
+    HX_SetGameOverTimer(ret * getGameOverFrameRateMultiplierFloat());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801805BC, 0, 0, 0), adjustHXTimerGameOverTimer_State3);
+
+SMS_WRITE_32(SMS_PORT_REGION(0x801805E0, 0, 0, 0), 0x980D9C9C);
+HX_PATCH_TIMER(SMS_PORT_REGION(0x801805E4, 0, 0, 0), adjustHXTimerGameOver_State3, 0x20);
+
+static float HX_MotionUpdateGameOver(f32 *unk) {
+    if (unk[0] <= unk[7]) {
+        if (unk[1] <= unk[7]) {
+            unk[6] += unk[5] / getGameOverFrameRateMultiplierFloat();
+        }
+    } else {
+        unk[6] += unk[3] / getGameOverFrameRateMultiplierFloat();
+    }
+    unk[7] += 1 / getGameOverFrameRateMultiplierFloat();
+    unk[8] += unk[6] / getGameOverFrameRateMultiplierFloat();
+    return unk[8];
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80180500, 0, 0, 0), HX_MotionUpdateGameOver);
 // ----------- //
 
 // -- TEST1 -- //
@@ -238,6 +368,15 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9A0, 0, 0, 0), adjustFaderFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9D4, 0, 0, 0), adjustFaderFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8013F9FC, 0, 0, 0), adjustFaderFrameRate);
 
+static void trickFaderDelayToBeCorrect(TSMSFader *fader, u32 kind, f32 speed, f32 delay) {
+    fader->mQueuedWipeRequest.mWipeRequest = kind;
+    fader->mQueuedWipeRequest.mWipeSpeed   = speed;
+    fader->mQueuedWipeRequest.mDelayTime =
+        delay *
+        (kind == 0xD ? getGameOverFrameRateMultiplierFloat() : getFaderFrameRateMultiplierFloat());
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8013f860, 0, 0, 0), trickFaderDelayToBeCorrect);
+
 ///////////////
 ///////////////
 
@@ -305,3 +444,10 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8017383c, 0, 0, 0), setValue_TCoord2D_override);
 SMS_PATCH_BL(SMS_PORT_REGION(0x801738c8, 0, 0, 0), setValue_TCoord2D_override);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80173c54, 0, 0, 0), setValue_TCoord2D_override);
 SMS_PATCH_BL(SMS_PORT_REGION(0x80173bc8, 0, 0, 0), setValue_TCoord2D_override);
+
+ static f32 QFSync() {
+    const bool wantsForcedVSync = (gpApplication.mContext == TApplication::CONTEXT_DIRECT_STAGE && gpApplication.mDirector &&
+     ((TMarDirector *)gpApplication.mDirector)->mCurState == TMarDirector::STATE_INTRO_INIT);
+    return wantsForcedVSync ? 30.0f : SMSGetVSyncTimesPerSec();
+}
+ SMS_PATCH_BL(SMS_PORT_REGION(0x80299850, 0, 0, 0), QFSync);

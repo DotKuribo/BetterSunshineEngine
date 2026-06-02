@@ -93,25 +93,80 @@ SMS_WRITE_32(SMS_PORT_REGION(0x802B8B88, 0x802B0B58, 0, 0), 0xC8010AE0);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B94, 0x802B0B64, 0, 0), 0xEC001028);
 SMS_WRITE_32(SMS_PORT_REGION(0x802B8B9C, 0x802B0B6C, 0, 0), 0xEC010032);
 
-static void scaleFOVYIncreasePerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ) {
-    CPolarSubCamera *cam   = gpCamera;
-    const bool isStaticFOV = cam->isNormalDeadDemo() || (*(u32 *)(&cam->mStateFlags) & 0x1200) != 0;
-    const f32 configFOV    = isStaticFOV ? cam->mCamParams->mSLFovy : cam->mProjectionFovy;
-    cam->mProjectionFovy   = getCalculatedFovy(configFOV, 1.0 / getScreenScale());
-    C_MTXPerspective(mtx, cam->mProjectionFovy, aspect, nearZ, farZ);
-}
-SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C, 0x8002320C, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80025A04, 0x800259E8, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C, 0x80032D78, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
-SMS_PATCH_BL(SMS_PORT_REGION(0x80033088, 0x80033074, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
+//static void scaleFOVYIncreasePerspectiveMatrix(Mtx mtx, f32 fovY, f32 aspect, f32 nearZ, f32 farZ) {
+//    //CPolarSubCamera *cam   = gpCamera;
+//    //const bool isStaticFOV = cam->isNormalDeadDemo() || (*(u32 *)(&cam->mStateFlags) & 0x120000) != 0;
+//    //const f32 configFOV    = isStaticFOV ? cam->mCamParams->mSLFovy : cam->mProjectionFovy;
+//    //cam->mProjectionFovy   = getCalculatedFovy(configFOV, 1.0 / getScreenScale());
+//    C_MTXPerspective(mtx, cam->mProjectionFovy, aspect, nearZ, farZ);
+//}
+//SMS_PATCH_BL(SMS_PORT_REGION(0x8002322C, 0x8002320C, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80025A04, 0x800259E8, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80032D8C, 0x80032D78, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80033088, 0x80033074, 0, 0), scaleFOVYIncreasePerspectiveMatrix);
+//
+//static void scaleFOVYDecrease(CPolarSubCamera *cam) {
+//    //const bool isStaticFOV = cam->isNormalDeadDemo() ||
+//    //                         (*(u32 *)(&cam->mStateFlags) & 0x120000) != 0;
+//    //const f32 configFOV    = isStaticFOV ? cam->mCamParams->mSLFovy : cam->mProjectionFovy;
+//    //cam->mProjectionFovy   = getCalculatedFovy(configFOV, getScreenScale());
+//    cam->ctrlGameCamera_();
+//}
+//SMS_PATCH_BL(SMS_PORT_REGION(0x80023148, 0x80023120, 0, 0), scaleFOVYDecrease);
 
-static void scaleFOVYDecrease(CPolarSubCamera *cam) {
-    const bool isStaticFOV = cam->isNormalDeadDemo() || (*(u32 *)(&cam->mStateFlags) & 0x1200) != 0;
-    const f32 configFOV    = isStaticFOV ? cam->mCamParams->mSLFovy : cam->mProjectionFovy;
-    cam->mProjectionFovy   = getCalculatedFovy(configFOV, getScreenScale());
-    cam->ctrlGameCamera_();
+static void scaleFOVForAspectRatio(const TCameraKindParam *params) {
+    CPolarSubCamera *cam;
+    SMS_FROM_GPR(31, cam);
+
+    cam->mProjectionFovy = getCalculatedFovy(params->mSLFovy, 1.0f / getScreenScale());
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x80023148, 0x80023120, 0, 0), scaleFOVYDecrease);
+SMS_PATCH_BL(SMS_PORT_REGION(0x80023808, 0, 0, 0), scaleFOVForAspectRatio);
+SMS_WRITE_32(SMS_PORT_REGION(0x8002380C, 0, 0, 0), 0x60000000);
+
+#define copySaveParam__16TCameraKindParam ((void (*)(TCameraKindParam *, const TCamSaveKindParam &))0x800273D4)
+
+static void scaleFOVOnLoadAfter(TCameraKindParam *params,
+                                const TCamSaveKindParam &saveParams) {
+    CPolarSubCamera *cam;
+    SMS_FROM_GPR(31, cam);
+
+    copySaveParam__16TCameraKindParam(params, saveParams);
+
+    cam->mProjectionFovy = getCalculatedFovy(params->mSLFovy, 1.0f / getScreenScale());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x800254C8, 0, 0, 0), scaleFOVOnLoadAfter);
+SMS_WRITE_32(SMS_PORT_REGION(0x800254E4, 0, 0, 0), 0x60000000);
+
+static void scaleFOVOnDemoCam(f32 fovy) {
+    f32 *cam;
+    SMS_FROM_GPR(31, cam);
+    *cam = getCalculatedFovy(fovy, 1.0f / getScreenScale());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80031DAC, 0, 0, 0), scaleFOVOnDemoCam);
+SMS_WRITE_32(SMS_PORT_REGION(0x80031DA8, 0, 0, 0), 0xC0210048);
+
+static void scaleFOVOnOptionCam(f32 fovy) {
+    CPolarSubCamera *cam;
+    SMS_FROM_GPR(31, cam);
+    cam->mProjectionFovy = getCalculatedFovy(fovy, 1.0f / getScreenScale());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80032610, 0, 0, 0), scaleFOVOnOptionCam);
+SMS_WRITE_32(SMS_PORT_REGION(0x8003260C, 0, 0, 0), 0xC0230004);
+
+static u32 scaleFOVOnCoasterCam(u32 arg1, f32 fovy) {
+    CPolarSubCamera *cam;
+    SMS_FROM_GPR(31, cam);
+    cam->mProjectionFovy = getCalculatedFovy(fovy, 1.0f / getScreenScale());
+    return arg1;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80031718, 0, 0, 0), scaleFOVOnCoasterCam);
+SMS_WRITE_32(SMS_PORT_REGION(0x80031714, 0, 0, 0), 0xC0250034);
+
+SMS_PATCH_BL(SMS_PORT_REGION(0x8003155C, 0, 0, 0), scaleFOVOnCoasterCam);
+SMS_WRITE_32(SMS_PORT_REGION(0x80031558, 0, 0, 0), 0xC0230000);
+
+static f32 fixArgumentsForCoasterCamDot(TVec3f *in) { return in->dot(*in); }
+SMS_PATCH_BL(SMS_PORT_REGION(0x8003176C, 0, 0, 0), fixArgumentsForCoasterCamDot);
 
 static void scaleNintendoIntro(JUTRect *rect, int x1, int y1, int x2, int y2) {
     const f32 translate = getScreenRatioAdjustX();
