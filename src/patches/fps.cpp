@@ -451,3 +451,32 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80173bc8, 0, 0, 0), setValue_TCoord2D_override);
     return wantsForcedVSync ? 30.0f : SMSGetVSyncTimesPerSec();
 }
  SMS_PATCH_BL(SMS_PORT_REGION(0x80299850, 0, 0, 0), QFSync);
+
+ static void getCurrentPullParamsNormalized(TMario* player, f32* x, f32* z) {
+     player->getCurrentPullParams(x, z);
+     x[0] *= (30.0f / getFrameRate());
+     z[0] *= (30.0f / getFrameRate());
+ }
+ //SMS_PATCH_BL(SMS_PORT_REGION(0x8025EAA8, 0, 0, 0), getCurrentPullParamsNormalized);
+
+ static SMS_ASM_FUNC void correctPerformFiltersForFireWanwanTailHit(void *tailhit, u32 flags, JDrama::TGraphics *graphics, TVec3f *x, TVec3f *z) {
+     //if ((flags & 0x1001) == 0x1001) {
+     //    return true;
+     //}
+     //return false;
+
+     SMS_ASM_BLOCK("andi. 4, 4, 0x5001\r\n"
+                   "xori 4, 4, 0x1\r\n"
+                   "cntlzw 4, 4\r\n"
+                   "srwi 4, 4, 5\r\n"
+                   "cmpwi 4, 0\r\n"
+                   "blr\r\n");
+ }
+ SMS_PATCH_BL(SMS_PORT_REGION(0x8008D11C, 0, 0, 0), correctPerformFiltersForFireWanwanTailHit);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D0E8, 0, 0, 0), 0x9421FEE0);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D0EC, 0, 0, 0), 0xBF6100DC);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D108, 0, 0, 0), 0x3be40000);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D10C, 0, 0, 0), 0x3b630000);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D110, 0, 0, 0), 0x3b850000);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D114, 0, 0, 0), 0x3ba60000);
+ SMS_WRITE_32(SMS_PORT_REGION(0x8008D118, 0, 0, 0), 0x3bc70000);
