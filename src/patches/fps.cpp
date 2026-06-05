@@ -465,7 +465,7 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80173bc8, 0, 0, 0), setValue_TCoord2D_override);
      //}
      //return false;
 
-     SMS_ASM_BLOCK("andi. 4, 4, 0x5001\r\n"
+     SMS_ASM_BLOCK("andi. 4, 4, 0x3001\r\n"
                    "xori 4, 4, 0x1\r\n"
                    "cntlzw 4, 4\r\n"
                    "srwi 4, 4, 5\r\n"
