@@ -8,6 +8,7 @@
 #include <SMS/raw_fn.hxx>
 
 #include "p_settings.hxx"
+#include "libs/constmath.hxx"
 
 extern FPSSetting gFPSSetting;
 
@@ -101,11 +102,49 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x800D2F8C, 0, 0, 0), getBossEelAnmFrameRate);
 SMS_PATCH_BL(SMS_PORT_REGION(0x800D3350, 0, 0, 0), getBossEelAnmFrameRate);
 
 // Make TJointCoin (and derived e.g. SandBird) animations consistent (delta messes it up somehow)
-static void getJointCoinAnmFrameRate(J3DFrameCtrl *frameCtrl) {
-    frameCtrl->mFrameRate = 2.0f * 0.25f;
+static void getJointCoinAnmFrameRateCharacter(J3DFrameCtrl *frameCtrl) {
+    //if (gpMarDirector->mAreaID != TGameSequence::AREA_MAREUNDERSEA) {
+    //    frameCtrl->mFrameRate = 2.0f * 0.25f;
+    //    return;
+    //}
+
+    f32 scalar;
+    switch (gFPSSetting.getInt()) {
+    case FPSSetting::FPS_30:
+        scalar = 2.0f;
+        break;
+    case FPSSetting::FPS_60:
+        scalar = 1.65f;
+        break;
+    case FPSSetting::FPS_120:
+        scalar = 1.3f;
+        break;
+    }
+    frameCtrl->mFrameRate = scalar * 0.25f;
 }
-SMS_PATCH_BL(SMS_PORT_REGION(0x801F76C0, 0, 0, 0), getJointCoinAnmFrameRate);
-SMS_PATCH_BL(SMS_PORT_REGION(0x801F76DC, 0, 0, 0), getJointCoinAnmFrameRate);
+
+static void getJointCoinAnmFrameRateMovement(J3DFrameCtrl *frameCtrl) {
+    // This is the coin fish
+    if (true || gpMarDirector->mAreaID == TGameSequence::AREA_MAREUNDERSEA) {
+        frameCtrl->mFrameRate = 2.0f * 0.25f;
+        return;
+    }
+
+    //f32 scalar;
+    //switch (gFPSSetting.getInt()) { case FPSSetting::FPS_30:
+    //    scalar = 2.0f;
+    //    break;
+    //case FPSSetting::FPS_60:
+    //    scalar = 2.5f;
+    //    break;
+    //case FPSSetting::FPS_120:
+    //    scalar = 3.0f;
+    //    break;
+    //}
+    //frameCtrl->mFrameRate = scalar * 0.25f;
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F76C0, 0, 0, 0), getJointCoinAnmFrameRateCharacter);
+SMS_PATCH_BL(SMS_PORT_REGION(0x801F76DC, 0, 0, 0), getJointCoinAnmFrameRateMovement);
 
 // Fix 60fps making entering textboxes 2x speed (by doubling the timer)
 static void adjustTextBoxTimer() {
@@ -480,3 +519,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80173bc8, 0, 0, 0), setValue_TCoord2D_override);
  SMS_WRITE_32(SMS_PORT_REGION(0x8008D110, 0, 0, 0), 0x3b850000);
  SMS_WRITE_32(SMS_PORT_REGION(0x8008D114, 0, 0, 0), 0x3ba60000);
  SMS_WRITE_32(SMS_PORT_REGION(0x8008D118, 0, 0, 0), 0x3bc70000);
+
+ static void normalizePeteyThrowUpFrameRate(TLiveActor* pakkun, u32 animId) {
+     changeBck__11TBossPakkunFi(pakkun, animId);
+     pakkun->mActorData->setFrameRate(SMSGetAnmFrameRate() * 0.8f, 0);
+ }
+ SMS_PATCH_BL(SMS_PORT_REGION(0x800932BC, 0, 0, 0), normalizePeteyThrowUpFrameRate);
