@@ -118,6 +118,8 @@ extern void updateFluddNozzle(TApplication *);
 extern void drawMonitor(TApplication *, const J2DOrthoGraph *);
 extern void resetMonitor(TApplication *);
 
+extern void resetGoopLayers(TApplication *);
+
 extern void initFPSMonitor(TApplication *);
 extern void updateFPSMonitor(TApplication *);
 extern void drawFPSMonitor(TApplication *, const J2DOrthoGraph *);
@@ -295,6 +297,7 @@ static void initLib() {
 
     //// GAME
     Game::addBootCallback(extendLightEffectToShineCount);
+    Stage::addExitCallback(resetGoopLayers);
 
 #if BETTER_SMS_EXTRA_COLLISION
     // Set up player map collisions
