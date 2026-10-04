@@ -74,6 +74,59 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x8000CEB0, 0, 0, 0), getAnimalBirdSpeed);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000D1D8, 0, 0, 0), getAnimalBirdSpeed);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000D1F8, 0, 0, 0), getAnimalBirdSpeed);
 
+// Sound sets (FLUDD spray, graffiti cleaning, goop, fire...) time their repeats in audio frames,
+// which run once per game frame. Bring their per-frame update and age checks back to 30 Hz.
+struct MSSetSoundTimer {
+    u8 _00[0x54];
+    u32 mContinuousFrames;
+    u8 mIsContinuous;
+    u8 _59[0x5F];
+    u8 mStartedThisFrame;
+};
+
+static void frameLoopDynaAt30Hz(MSSetSoundTimer *set) {
+    const u32 frames   = static_cast<u32>(SMSGetVSyncTimesPerSec() / 30.0f);
+    const u8 *jaiBasic = *reinterpret_cast<u8 **>(SMS_PORT_REGION(0x8040E430, 0, 0, 0));
+    if (jaiBasic && *reinterpret_cast<const u32 *>(jaiBasic + 0x20) % frames != 0)
+        return;
+
+    if (set->mIsContinuous)
+        set->mContinuousFrames += 1;
+    set->mStartedThisFrame = 0;
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8001604C, 0, 0, 0), frameLoopDynaAt30Hz);
+SMS_PATCH_B(SMS_PORT_REGION(0x80016014, 0, 0, 0), frameLoopDynaAt30Hz);
+
+// Inline reads of the last sound's age (JAISound + 0x14) in startSoundSetDyna. r12 gets
+// log2(game frames per 30 Hz frame) from the exponent of the frame rate literal.
+static SMS_ASM_FUNC void getSoundSetAgeR4() {
+    SMS_ASM_BLOCK("lwz 4, 0x14 (4)          \n\t"
+                  "lis 12, 0x8041           \n\t"
+                  "lwz 12, 0x67B8 (12)      \n\t"
+                  "rlwinm 12, 12, 9, 24, 31 \n\t"
+                  "addi 12, 12, -126        \n\t"
+                  "srw 4, 4, 12             \n\t"
+                  "blr                      \n\t");
+}
+
+static SMS_ASM_FUNC void getSoundSetAgeR23() {
+    SMS_ASM_BLOCK("lwz 23, 0x14 (3)         \n\t"
+                  "lis 12, 0x8041           \n\t"
+                  "lwz 12, 0x67B8 (12)      \n\t"
+                  "rlwinm 12, 12, 9, 24, 31 \n\t"
+                  "addi 12, 12, -126        \n\t"
+                  "srw 23, 23, 12           \n\t"
+                  "blr                      \n\t");
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001B504, 0, 0, 0), getSoundSetAgeR4);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001B66C, 0, 0, 0), getSoundSetAgeR23);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001B750, 0, 0, 0), getSoundSetAgeR4);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001B8A4, 0, 0, 0), getSoundSetAgeR23);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001BED4, 0, 0, 0), getSoundSetAgeR4);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001C03C, 0, 0, 0), getSoundSetAgeR23);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001C120, 0, 0, 0), getSoundSetAgeR4);
+SMS_PATCH_BL(SMS_PORT_REGION(0x8001C274, 0, 0, 0), getSoundSetAgeR23);
+
 static void startCameraBckWithDelta(MActor *actor, const char *bck) {
     actor->setBck(bck);
     actor->setFrameRate(SMSGetAnmFrameRate(), MActor::BCK);
