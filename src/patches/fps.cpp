@@ -547,3 +547,69 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80173bc8, 0, 0, 0), setValue_TCoord2D_override);
      pakkun->mActorData->setFrameRate(SMSGetAnmFrameRate() * 0.8f, 0);
  }
  SMS_PATCH_BL(SMS_PORT_REGION(0x800932BC, 0, 0, 0), normalizePeteyThrowUpFrameRate);
+
+// JAI parameter transitions (music fades, tempo changes, sound fades) count audio frames,
+// which run once per game frame.
+static u32 scaleMoveTime(u32 moveTime) {
+    return moveTime * static_cast<u32>(SMSGetVSyncTimesPerSec() / 30.0f);
+}
+
+static SMS_ASM_FUNC int initMoveParameter_(void *sound, void *set, f32 target, u32 moveTime) {
+    SMS_ASM_BLOCK("stwu 1, -0x20 (1)                                       \n\t"
+                  "b initMoveParameter__8JAISoundFP14JAIMoveParaSetfUl + 4 \n\t");
+}
+
+static int initMoveParameter(void *sound, void *set, f32 target, u32 moveTime) {
+    return initMoveParameter_(sound, set, target, scaleMoveTime(moveTime));
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8030A3B0, 0, 0, 0), initMoveParameter);
+
+static SMS_ASM_FUNC void setSeInterVolume_(void *sound, u8 param, f32 volume, u32 moveTime, u8 random) {
+    SMS_ASM_BLOCK("mflr 0                                    \n\t"
+                  "b setSeInterVolume__8JAISoundFUcfUlUc + 4 \n\t");
+}
+
+static void setSeInterVolume(void *sound, u8 param, f32 volume, u32 moveTime, u8 random) {
+    setSeInterVolume_(sound, param, volume, scaleMoveTime(moveTime), random);
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8030B700, 0, 0, 0), setSeInterVolume);
+
+static SMS_ASM_FUNC void setSeInterPan_(void *sound, u8 param, f32 pan, u32 moveTime, u8 random) {
+    SMS_ASM_BLOCK("mflr 0                                 \n\t"
+                  "b setSeInterPan__8JAISoundFUcfUlUc + 4 \n\t");
+}
+
+static void setSeInterPan(void *sound, u8 param, f32 pan, u32 moveTime, u8 random) {
+    setSeInterPan_(sound, param, pan, scaleMoveTime(moveTime), random);
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8030B8C8, 0, 0, 0), setSeInterPan);
+
+static SMS_ASM_FUNC void setSeInterFxmix_(void *sound, u8 param, f32 fxmix, u32 moveTime, u8 random) {
+    SMS_ASM_BLOCK("mflr 0                                   \n\t"
+                  "b setSeInterFxmix__8JAISoundFUcfUlUc + 4 \n\t");
+}
+
+static void setSeInterFxmix(void *sound, u8 param, f32 fxmix, u32 moveTime, u8 random) {
+    setSeInterFxmix_(sound, param, fxmix, scaleMoveTime(moveTime), random);
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8030BA90, 0, 0, 0), setSeInterFxmix);
+
+static SMS_ASM_FUNC void setSeInterDolby_(void *sound, u8 param, f32 dolby, u32 moveTime, u8 random) {
+    SMS_ASM_BLOCK("mflr 0                                   \n\t"
+                  "b setSeInterDolby__8JAISoundFUcfUlUc + 4 \n\t");
+}
+
+static void setSeInterDolby(void *sound, u8 param, f32 dolby, u32 moveTime, u8 random) {
+    setSeInterDolby_(sound, param, dolby, scaleMoveTime(moveTime), random);
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8030BC58, 0, 0, 0), setSeInterDolby);
+
+static SMS_ASM_FUNC void setSeInterPitch_(void *sound, u8 param, f32 pitch, u32 moveTime, f32 random) {
+    SMS_ASM_BLOCK("mflr 0                                  \n\t"
+                  "b setSeInterPitch__8JAISoundFUcfUlf + 4 \n\t");
+}
+
+static void setSeInterPitch(void *sound, u8 param, f32 pitch, u32 moveTime, f32 random) {
+    setSeInterPitch_(sound, param, pitch, scaleMoveTime(moveTime), random);
+}
+SMS_PATCH_B(SMS_PORT_REGION(0x8030BE20, 0, 0, 0), setSeInterPitch);
