@@ -69,6 +69,13 @@ static f32 setBoidSpeed(f32 dot) {
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x800066E4, 0x800066E4, 0, 0), setBoidSpeed);
 
+// The leader also moves once per frame, so it must slow down with its boids
+static f32 setBoidLeaderSpeed(f32 speed, f32 factor) {
+    return factor * speed * (SMS_PORT_REGION(30.0f, 25.0f, 30.0f, 30.0f) / BetterSMS::getFrameRate());
+}
+SMS_PATCH_BL(SMS_PORT_REGION(0x80005E04, 0, 0, 0), setBoidLeaderSpeed);
+SMS_WRITE_32(SMS_PORT_REGION(0x80005E08, 0, 0, 0), 0xC0010018);  // lfs f0, 0x18(r1)
+
 static f32 getAnimalBirdSpeed() { return 2.0f; }
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000CEB0, 0, 0, 0), getAnimalBirdSpeed);
 SMS_PATCH_BL(SMS_PORT_REGION(0x8000D1D8, 0, 0, 0), getAnimalBirdSpeed);
